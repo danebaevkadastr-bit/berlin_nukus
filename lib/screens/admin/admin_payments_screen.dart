@@ -321,13 +321,20 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
         stream: FirebaseFirestore.instance
             .collection('payments')
             .where('studentId', isEqualTo: widget.studentId)
-            .orderBy('createdAt', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: AppColors.duoOrange));
           }
-          final payments = snapshot.data?.docs ?? [];
+          var payments = snapshot.data?.docs.toList() ?? [];
+          payments.sort((a, b) {
+            final ta = (a.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
+            final tb = (b.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
+            if (ta == null && tb == null) return 0;
+            if (ta == null) return -1;
+            if (tb == null) return 1;
+            return tb.compareTo(ta);
+          });
           if (payments.isEmpty) {
             return AdminPaymentsScreen._emptyState(isDark, 'To\'lov tarixi yo\'q', Icons.receipt_long_rounded);
           }
@@ -638,6 +645,23 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                       shadowDepth: 4,
                       onTap: () async {
                         final period = periods[selectedIdx];
+                        final existingSnap = await FirebaseFirestore.instance.collection('payments')
+                            .where('studentId', isEqualTo: widget.studentId)
+                            .where('periodStart', isEqualTo: Timestamp.fromDate(period.start))
+                            .where('status', isNotEqualTo: 'rejected')
+                            .get();
+                        if (existingSnap.docs.isNotEmpty) {
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+                              content: const Text('Bu davr uchun allaqachon to\'lov kiritilgan!', style: TextStyle(fontWeight: FontWeight.bold)),
+                              backgroundColor: AppColors.duoOrange,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ));
+                          }
+                          return;
+                        }
+                        
                         await FirebaseFirestore.instance.collection('payments').add({
                           'studentId': widget.studentId,
                           'groupId': widget.groupId,

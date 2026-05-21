@@ -168,14 +168,21 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           stream: FirebaseFirestore.instance
               .collection('payments')
               .where('studentId', isEqualTo: userProvider.uid)
-              .orderBy('createdAt', descending: true)
-              .limit(5)
               .snapshots(),
           builder: (ctx, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
               return const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: AppColors.duoOrange)));
             }
-            final docs = snap.data?.docs ?? [];
+            var docs = snap.data?.docs.toList() ?? [];
+            docs.sort((a, b) {
+              final ta = (a.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
+              final tb = (b.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
+              if (ta == null && tb == null) return 0;
+              if (ta == null) return -1;
+              if (tb == null) return 1;
+              return tb.compareTo(ta);
+            });
+            if (docs.length > 5) docs = docs.sublist(0, 5);
             if (docs.isEmpty) {
               return GamifiedCard(
                 padding: const EdgeInsets.all(24),

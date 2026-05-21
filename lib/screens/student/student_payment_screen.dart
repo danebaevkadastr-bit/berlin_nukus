@@ -21,6 +21,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
   bool _isLoading = true;
   bool _isSending = false;
   String? _groupId;
+  DateTime? _groupStartDate;
 
   @override
   void initState() {
@@ -60,29 +61,28 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
   }
 
   void _buildPeriods(DateTime startDate) {
-    final now = DateTime.now();
     _periods = [];
-    DateTime cursor = startDate;
-    while (cursor.isBefore(now) || _periods.isEmpty) {
-      final end = cursor.add(const Duration(days: 30));
-      _periods.add(_Period(start: cursor, end: end));
-      cursor = end;
-      if (_periods.length > 24) break; // max 2 yil
-    }
-    // Default: oxirgi period tanlangan
-    _selectedPeriodIndex = _periods.length - 1;
+    _selectedPeriodIndex = -1;
+    _groupStartDate = startDate;
   }
 
   void _addNextPeriod() {
-    if (_periods.isEmpty) return;
-    final last = _periods.last;
-    setState(() {
-      _periods.add(_Period(
-        start: last.end,
-        end: last.end.add(const Duration(days: 30)),
-      ));
-      _selectedPeriodIndex = _periods.length - 1;
-    });
+    if (_periods.isEmpty) {
+      final start = _groupStartDate ?? DateTime.now().subtract(const Duration(days: 60));
+      setState(() {
+        _periods.add(_Period(start: start, end: start.add(const Duration(days: 30))));
+        _selectedPeriodIndex = 0;
+      });
+    } else {
+      final last = _periods.last;
+      setState(() {
+        _periods.add(_Period(
+          start: last.end,
+          end: last.end.add(const Duration(days: 30)),
+        ));
+        _selectedPeriodIndex = _periods.length - 1;
+      });
+    }
   }
 
   Future<void> _submitPayment() async {
@@ -95,6 +95,18 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
     final period = _periods[_selectedPeriodIndex];
 
     try {
+      final existingSnap = await FirebaseFirestore.instance.collection('payments')
+          .where('studentId', isEqualTo: widget.studentId)
+          .where('periodStart', isEqualTo: Timestamp.fromDate(period.start))
+          .where('status', isNotEqualTo: 'rejected')
+          .get();
+
+      if (existingSnap.docs.isNotEmpty) {
+        _showSnack('Bu davr uchun allaqachon to\'lov kiritilgan!', AppColors.duoOrange);
+        setState(() => _isSending = false);
+        return;
+      }
+
       await FirebaseFirestore.instance.collection('payments').add({
         'studentId': widget.studentId,
         'groupId': _groupId ?? '',
