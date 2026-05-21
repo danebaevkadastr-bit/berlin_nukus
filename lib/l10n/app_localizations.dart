@@ -578,6 +578,64 @@ class AppLocalizations {
     'ru': "Креативное составление предложений",
     'de': "Kreativer Satzbau",
   });
+  String get strangeSentencesGame => _t({
+    'uz': "G'alati gaplar",
+    'kaa': "Ajayıp gápler",
+    'ru': "Странные предложения",
+    'de': "Seltsame Sätze",
+  });
+  String get strangeSentencesDesc => _t({
+    'uz': "So'zlardan grammatik to'g'ri, lekin mantiqsiz gap tuzing",
+    'kaa': "Sózlerden grammatikalıq durıs, biraq mantıqsız gáp dúziń",
+    'ru': "Составьте грамматически верное, но абсурдное предложение",
+    'de': "Bilde grammatisch korrekte, aber unsinnige Sätze",
+  });
+  String get germanStoryGame => _t({
+    'uz': "Nemischa hikoya",
+    'kaa': "Nemis gúrrińi",
+    'ru': "Немецкая история",
+    'de': "Deutsche Geschichte",
+  });
+  String get germanStoryDesc => _t({
+    'uz': "Berilgan gaplardan o'z hikoyangizni yarating",
+    'kaa': "Berilgen gáplerden óz gúrrińińizdi jasań",
+    'ru': "Создайте свою историю из данных предложений",
+    'de': "Erfinde deine Geschichte aus vorgegebenen Sätzen",
+  });
+  String get describePictureGame => _t({
+    'uz': "Rasmni tariflang",
+    'kaa': "Súwretti túsindiriń",
+    'ru': "Опишите картинку",
+    'de': "Bild beschreiben",
+  });
+  String get describePictureDesc => _t({
+    'uz': "Rasmda nima borligini nemis tilida yozing",
+    'kaa': "Súwrette ne bar ekenin nemis tilinde jazıń",
+    'ru': "Опишите на немецком, что изображено",
+    'de': "Beschreibe auf Deutsch, was du siehst",
+  });
+  String get gameComingSoonTitle => _t({
+    'uz': "Tez orada!",
+    'kaa': "Jańında!",
+    'ru': "Скоро!",
+    'de': "Bald verfügbar!",
+  });
+  String get gameComingSoonMessage => _t({
+    'uz':
+        "Bu o'yin hozircha ishlab chiqilmoqda. Yangiliklar va yangi o'yinlar uchun ilovani yangilab boring — tez orada ochamiz!",
+    'kaa':
+        "Bul oyın házirge shekem islenip atır. Jańalıqlardı hám jańa oyınlardı biliw ushın qosımshanı jańalań — jaqında ashıwımız!",
+    'ru':
+        "Эта игра пока в разработке. Обновляйте приложение — скоро откроем новые игры и функции!",
+    'de':
+        "Dieses Spiel ist noch in Entwicklung. Halte die App aktuell — wir öffnen es bald!",
+  });
+  String get gameComingSoonButton => _t({
+    'uz': "Tushundim",
+    'kaa': "Túsinim",
+    'ru': "Понятно",
+    'de': "Verstanden",
+  });
 
   // ── Teacher ────────────────────────────────────────────────────────────────
   String get helloTeacher => _t({

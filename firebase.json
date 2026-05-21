@@ -1,1 +1,28 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"berlin-nukus-nemis","appId":"1:31427206482:android:ef5a38b9fe392557d5ee8b","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"berlin-nukus-nemis","configurations":{"android":"1:31427206482:android:ef5a38b9fe392557d5ee8b","ios":"1:31427206482:ios:c4af75592e47db51d5ee8b","macos":"1:31427206482:ios:c4af75592e47db51d5ee8b","web":"1:31427206482:web:acdcf2484394c87dd5ee8b","windows":"1:31427206482:web:aa35ad0b42e44888d5ee8b"}}}}}}
+{
+  "firestore": {
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "berlin-nukus-nemis",
+          "appId": "1:31427206482:android:ef5a38b9fe392557d5ee8b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "berlin-nukus-nemis",
+          "configurations": {
+            "android": "1:31427206482:android:ef5a38b9fe392557d5ee8b",
+            "ios": "1:31427206482:ios:c4af75592e47db51d5ee8b",
+            "macos": "1:31427206482:ios:c4af75592e47db51d5ee8b",
+            "web": "1:31427206482:web:acdcf2484394c87dd5ee8b",
+            "windows": "1:31427206482:web:aa35ad0b42e44888d5ee8b"
+          }
+        }
+      }
+    }
+  }
+}

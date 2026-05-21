@@ -66,6 +66,77 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
     await _loadStars();
   }
 
+  void _showComingSoonDialog() {
+    final l = AppLocalizations.of(context);
+    final isDark = ThemeManager.isDark;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            color: isDark ? const Color(0xFF1E2A32) : Colors.white,
+            border: Border.all(
+              color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('🚧', style: TextStyle(fontSize: 48)),
+              const SizedBox(height: 12),
+              Text(
+                l.gameComingSoonTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : AppColors.duoTextDark,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l.gameComingSoonMessage,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  height: 1.4,
+                  color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: GamifiedCard(
+                  color: AppColors.duoGreen,
+                  shadowColor: AppColors.duoGreenShadow,
+                  shadowDepth: 4,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  onTap: () => Navigator.pop(ctx),
+                  child: Center(
+                    child: Text(
+                      l.gameComingSoonButton,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -171,26 +242,32 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
             ),
             const SizedBox(height: 16),
 
-            _buildGameCard(context,
-                icon: '🔄',
-                title: 'Synonym Battle',
-                subtitle: l.synonymBattle,
-                stars: 3,
-                maxStars: 3,
-                score: '250',
-                color: AppColors.duoBlue,
-                shadowColor: AppColors.duoBlueShadow),
+            _buildGameCard(
+              context,
+              icon: '🔄',
+              title: 'Synonym Battle',
+              subtitle: l.synonymBattle,
+              stars: 3,
+              maxStars: 3,
+              score: '250',
+              color: AppColors.duoBlue,
+              shadowColor: AppColors.duoBlueShadow,
+              onTap: _showComingSoonDialog,
+            ),
             const SizedBox(height: 16),
 
-            _buildGameCard(context,
-                icon: '📝',
-                title: 'Grammatik O\'yin',
-                subtitle: l.grammarQuiz,
-                stars: 2,
-                maxStars: 3,
-                score: '180',
-                color: AppColors.duoGreen,
-                shadowColor: AppColors.duoGreenShadow),
+            _buildGameCard(
+              context,
+              icon: '📝',
+              title: 'Grammatik O\'yin',
+              subtitle: l.grammarQuiz,
+              stars: 2,
+              maxStars: 3,
+              score: '180',
+              color: AppColors.duoGreen,
+              shadowColor: AppColors.duoGreenShadow,
+              onTap: _showComingSoonDialog,
+            ),
             const SizedBox(height: 16),
 
             _buildGameCard(
@@ -207,26 +284,74 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
             ),
             const SizedBox(height: 16),
 
-            _buildGameCard(context,
-                icon: '🎤',
-                title: 'Ovozli O\'yin',
-                subtitle: l.pronunciationAndListening,
-                stars: 1,
-                maxStars: 3,
-                score: '150',
-                color: AppColors.duoPurple,
-                shadowColor: AppColors.duoPurpleShadow),
+            _buildGameCard(
+              context,
+              icon: '🎤',
+              title: 'Ovozli O\'yin',
+              subtitle: l.pronunciationAndListening,
+              stars: 1,
+              maxStars: 3,
+              score: '150',
+              color: AppColors.duoPurple,
+              shadowColor: AppColors.duoPurpleShadow,
+              onTap: _showComingSoonDialog,
+            ),
             const SizedBox(height: 16),
 
-            _buildGameCard(context,
-                icon: '⚔️',
-                title: 'Tarjima Battle',
-                subtitle: l.translationBattle,
-                stars: 3,
-                maxStars: 3,
-                score: '350',
-                color: AppColors.duoOrange,
-                shadowColor: AppColors.duoOrangeShadow),
+            _buildGameCard(
+              context,
+              icon: '⚔️',
+              title: 'Tarjima Battle',
+              subtitle: l.translationBattle,
+              stars: 3,
+              maxStars: 3,
+              score: '350',
+              color: AppColors.duoOrange,
+              shadowColor: AppColors.duoOrangeShadow,
+              onTap: _showComingSoonDialog,
+            ),
+            const SizedBox(height: 16),
+
+            _buildGameCard(
+              context,
+              icon: '🎭',
+              title: l.strangeSentencesGame,
+              subtitle: l.strangeSentencesDesc,
+              stars: 0,
+              maxStars: 3,
+              score: '0',
+              color: AppColors.candyPink,
+              shadowColor: const Color(0xFFE91E63),
+              onTap: _showComingSoonDialog,
+            ),
+            const SizedBox(height: 16),
+
+            _buildGameCard(
+              context,
+              icon: '📖',
+              title: l.germanStoryGame,
+              subtitle: l.germanStoryDesc,
+              stars: 0,
+              maxStars: 3,
+              score: '0',
+              color: AppColors.lavender,
+              shadowColor: const Color(0xFF7E57C2),
+              onTap: _showComingSoonDialog,
+            ),
+            const SizedBox(height: 16),
+
+            _buildGameCard(
+              context,
+              icon: '🖼️',
+              title: l.describePictureGame,
+              subtitle: l.describePictureDesc,
+              stars: 0,
+              maxStars: 3,
+              score: '0',
+              color: AppColors.skyBlue,
+              shadowColor: AppColors.duoBlueShadow,
+              onTap: _showComingSoonDialog,
+            ),
 
             const SizedBox(height: 30),
           ],

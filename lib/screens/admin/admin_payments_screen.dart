@@ -645,12 +645,19 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                       shadowDepth: 4,
                       onTap: () async {
                         final period = periods[selectedIdx];
-                        final existingSnap = await FirebaseFirestore.instance.collection('payments')
+                        final periodStart = Timestamp.fromDate(period.start);
+                        final existingSnap = await FirebaseFirestore.instance
+                            .collection('payments')
                             .where('studentId', isEqualTo: widget.studentId)
-                            .where('periodStart', isEqualTo: Timestamp.fromDate(period.start))
-                            .where('status', isNotEqualTo: 'rejected')
                             .get();
-                        if (existingSnap.docs.isNotEmpty) {
+                        final hasActivePayment = existingSnap.docs.any((doc) {
+                          final data = doc.data();
+                          final status = data['status'] as String? ?? '';
+                          if (status == 'rejected') return false;
+                          final existingStart = data['periodStart'] as Timestamp?;
+                          return existingStart != null && existingStart == periodStart;
+                        });
+                        if (hasActivePayment) {
                           if (ctx.mounted) {
                             ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
                               content: const Text('Bu davr uchun allaqachon to\'lov kiritilgan!', style: TextStyle(fontWeight: FontWeight.bold)),

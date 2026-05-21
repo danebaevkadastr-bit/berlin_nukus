@@ -34,7 +34,7 @@ Future<void> main() async {
   print('\nYozilmoqda...');
 
   final buffer = StringBuffer('''
-// GENERATED — qo\'lda tahrirlamang. Qayta: dart run tool/generate_word_translations.dart
+// GENERATED — qo'lda tahrirlamang. Qayta: dart run tool/generate_word_translations.dart
 // ignore_for_file: constant_identifier_names
 
 class DerDieDasTranslations {

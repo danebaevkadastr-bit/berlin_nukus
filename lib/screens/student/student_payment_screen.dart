@@ -95,13 +95,21 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
     final period = _periods[_selectedPeriodIndex];
 
     try {
-      final existingSnap = await FirebaseFirestore.instance.collection('payments')
+      final periodStart = Timestamp.fromDate(period.start);
+      final existingSnap = await FirebaseFirestore.instance
+          .collection('payments')
           .where('studentId', isEqualTo: widget.studentId)
-          .where('periodStart', isEqualTo: Timestamp.fromDate(period.start))
-          .where('status', isNotEqualTo: 'rejected')
           .get();
 
-      if (existingSnap.docs.isNotEmpty) {
+      final hasActivePayment = existingSnap.docs.any((doc) {
+        final data = doc.data();
+        final status = data['status'] as String? ?? '';
+        if (status == 'rejected') return false;
+        final existingStart = data['periodStart'] as Timestamp?;
+        return existingStart != null && existingStart == periodStart;
+      });
+
+      if (hasActivePayment) {
         _showSnack('Bu davr uchun allaqachon to\'lov kiritilgan!', AppColors.duoOrange);
         setState(() => _isSending = false);
         return;
