@@ -3,6 +3,7 @@ import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
+import 'conversations_screen.dart';
 
 class StudentLearningScreen extends StatelessWidget {
   const StudentLearningScreen({super.key});
@@ -102,13 +103,23 @@ class StudentLearningScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            _buildLearningCard(context,
-                icon: '🤖',
-                title: 'Sprechen AI',
-                subtitle: l.speakWithAi,
-                progress: 0.6,
-                color: AppColors.duoBlue,
-                shadowColor: AppColors.duoBlueShadow),
+            _buildLearningCard(
+              context,
+              icon: '🤖',
+              title: 'Sprechen AI',
+              subtitle: l.speakWithAi,
+              progress: 0.6,
+              color: AppColors.duoBlue,
+              shadowColor: AppColors.duoBlueShadow,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ConversationsScreen(),
+                  ),
+                );
+              },
+            ),
             const SizedBox(height: 16),
 
             _buildLearningCard(context,
@@ -161,6 +172,7 @@ class StudentLearningScreen extends StatelessWidget {
     required double progress,
     required Color color,
     required Color shadowColor,
+    VoidCallback? onTap,
   }) {
     final isDark = ThemeManager.isDark;
 
@@ -169,7 +181,7 @@ class StudentLearningScreen extends StatelessWidget {
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       shadowDepth: 5,
       padding: const EdgeInsets.all(16),
-      onTap: () {},
+      onTap: onTap,
       child: Row(
         children: [
           Container(
