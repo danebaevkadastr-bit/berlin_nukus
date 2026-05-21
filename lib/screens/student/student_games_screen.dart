@@ -1,11 +1,70 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/game_stars_service.dart';
+import 'games/der_die_das_rules_screen.dart';
 
-class StudentGamesScreen extends StatelessWidget {
-  const StudentGamesScreen({super.key});
+class StudentGamesScreen extends StatefulWidget {
+  final bool isActive;
+
+  const StudentGamesScreen({super.key, this.isActive = true});
+
+  @override
+  State<StudentGamesScreen> createState() => _StudentGamesScreenState();
+}
+
+class _StudentGamesScreenState extends State<StudentGamesScreen> {
+  int _totalStars = 0;
+  int _derDieDasStars = 0;
+  bool _loadingStars = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStars();
+  }
+
+  @override
+  void didUpdateWidget(StudentGamesScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _loadStars();
+    }
+  }
+
+  Future<void> _loadStars() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
+    final total = await GameStarsService.getTotalStars(uid);
+    final derDieDas = await GameStarsService.getDerDieDasStars(uid);
+    if (!mounted) return;
+    setState(() {
+      _totalStars = total;
+      _derDieDasStars = derDieDas;
+      _loadingStars = false;
+    });
+  }
+
+  String _formatStars(int value) {
+    final s = value.toString();
+    final buffer = StringBuffer();
+    for (var i = 0; i < s.length; i++) {
+      final posFromEnd = s.length - i;
+      if (i > 0 && posFromEnd % 3 == 0) buffer.write(' ');
+      buffer.write(s[i]);
+    }
+    return buffer.toString();
+  }
+
+  Future<void> _openDerDieDasGame() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DerDieDasRulesScreen()),
+    );
+    await _loadStars();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +92,6 @@ class StudentGamesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Yulduzlar balansi
             GamifiedCard(
               color: AppColors.duoOrange,
               shadowColor: AppColors.duoOrangeShadow,
@@ -64,9 +122,9 @@ class StudentGamesScreen extends StatelessWidget {
                           color: Colors.white70,
                         ),
                       ),
-                      const Text(
-                        '1 250',
-                        style: TextStyle(
+                      Text(
+                        _loadingStars ? '...' : _formatStars(_totalStars),
+                        style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
@@ -81,13 +139,13 @@ class StudentGamesScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                       color: Colors.white.withValues(alpha: 0.2),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Text('💎', style: TextStyle(fontSize: 16)),
-                        SizedBox(width: 4),
+                        const Text('📘', style: TextStyle(fontSize: 16)),
+                        const SizedBox(width: 4),
                         Text(
-                          '12',
-                          style: TextStyle(
+                          _loadingStars ? '...' : _formatStars(_derDieDasStars),
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
@@ -135,15 +193,18 @@ class StudentGamesScreen extends StatelessWidget {
                 shadowColor: AppColors.duoGreenShadow),
             const SizedBox(height: 16),
 
-            _buildGameCard(context,
-                icon: '📘',
-                title: 'Der, Die, Das',
-                subtitle: l.articleSpeedGame,
-                stars: 3,
-                maxStars: 3,
-                score: '300',
-                color: AppColors.duoRed,
-                shadowColor: AppColors.duoRedShadow),
+            _buildGameCard(
+              context,
+              icon: '📘',
+              title: 'Der, Die, Das',
+              subtitle: l.articleSpeedGame,
+              stars: 3,
+              maxStars: 3,
+              score: _loadingStars ? '...' : _formatStars(_derDieDasStars),
+              color: AppColors.duoRed,
+              shadowColor: AppColors.duoRedShadow,
+              onTap: _openDerDieDasGame,
+            ),
             const SizedBox(height: 16),
 
             _buildGameCard(context,
@@ -184,15 +245,16 @@ class StudentGamesScreen extends StatelessWidget {
     required String score,
     required Color color,
     required Color shadowColor,
+    VoidCallback? onTap,
   }) {
     final isDark = ThemeManager.isDark;
-    
+
     return GamifiedCard(
       color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       shadowDepth: 5,
       padding: const EdgeInsets.all(16),
-      onTap: () {},
+      onTap: onTap,
       child: Row(
         children: [
           Container(

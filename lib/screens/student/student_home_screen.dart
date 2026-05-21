@@ -34,12 +34,12 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               children: [
                 IndexedStack(
                   index: _currentIndex,
-                  children: const [
-                    StudentHomeContent(),
-                    StudentGroupScreen(),
-                    StudentLearningScreen(),
-                    StudentGamesScreen(),
-                    StudentProfileScreen(),
+                  children: [
+                    const StudentHomeContent(),
+                    const StudentGroupScreen(),
+                    const StudentLearningScreen(),
+                    StudentGamesScreen(isActive: _currentIndex == 3),
+                    const StudentProfileScreen(),
                   ],
                 ),
                 // Pastki navigatsiya
