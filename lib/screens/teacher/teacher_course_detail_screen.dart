@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/darslar_service.dart';
 import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
@@ -114,8 +115,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
 
-    return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance.collection('groups').doc(widget.groupId).snapshots(),
+    return StreamBuilder<Map<String, dynamic>>(
+      stream: DarslarService().getGroupWithLessonsStream(widget.groupId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
           return Scaffold(
@@ -125,7 +126,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
           );
         }
 
-        final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
+        final data = snapshot.data ?? {};
         final weeksCount = (data['weeksCount'] as num?)?.toInt() ?? 1;
         final startDate = _parseStartDate(data['started']?.toString() ?? widget.startDate);
         _weeks = _generateWeeks(startDate, weeksCount);
@@ -677,10 +678,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                       final newMats = List<dynamic>.from(day.materials);
                                       newMats.removeAt(idx);
                                       final dateKey = _formatDateKey(day.date);
-                                      await FirebaseFirestore.instance
-                                          .collection('groups')
-                                          .doc(widget.groupId)
-                                          .update({'lessons.$dateKey.materials': newMats});
+                                      await DarslarService()
+                                          .setMaterials(widget.groupId, dateKey, newMats);
                                       if (ctx.mounted) Navigator.pop(ctx);
                                     },
                                     child:
@@ -762,12 +761,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                             if (content.isEmpty) return;
                             final newMat = {'type': selectedTab, 'content': content};
                             final dateKey = _formatDateKey(day.date);
-                            await FirebaseFirestore.instance
-                                .collection('groups')
-                                .doc(widget.groupId)
-                                .update({
-                              'lessons.$dateKey.materials': FieldValue.arrayUnion([newMat])
-                            });
+                            await DarslarService()
+                                .addMaterial(widget.groupId, dateKey, newMat);
                             if (ctx.mounted) Navigator.pop(ctx);
                           },
                           child: const Center(
@@ -921,10 +916,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                           final validHomeworks = homeworkList
                               .where((h) => h['title']?.isNotEmpty == true)
                               .toList();
-                          await FirebaseFirestore.instance
-                              .collection('groups')
-                              .doc(widget.groupId)
-                              .update({'lessons.$dateKey.homeworks': validHomeworks});
+                          await DarslarService()
+                              .setHomeworks(widget.groupId, dateKey, validHomeworks);
                           if (ctx.mounted) Navigator.pop(ctx);
                         },
                         child: const Center(
@@ -1295,12 +1288,9 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                               child: GestureDetector(
                                                 onTap: () async {
                                                   final dateKey = _formatDateKey(day.date);
-                                                  await FirebaseFirestore.instance
-                                                      .collection('groups')
-                                                      .doc(widget.groupId)
-                                                      .update({
-                                                    'lessons.$dateKey.homeworkSubmissions.$uid.checked': true
-                                                  });
+                                                  await DarslarService()
+                                                      .markHomeworkChecked(
+                                                          widget.groupId, dateKey, uid);
                                                 },
                                                 child: Container(
                                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -1369,12 +1359,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
     if (confirm == true) {
       final dateKey = _formatDateKey(day.date);
-      await FirebaseFirestore.instance
-          .collection('groups')
-          .doc(widget.groupId)
-          .update({
-        'lessons.$dateKey': FieldValue.delete(),
-      });
+      await DarslarService().deleteLesson(widget.groupId, dateKey);
     }
   }
 
@@ -1542,28 +1527,23 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         shadowColor: AppColors.duoGreenShadow,
                         onTap: () async {
                           final dateKey = _formatDateKey(day.date);
-                          final updateData = isEdit
-                              ? {
-                                  'lessons.$dateKey.lessonType': selectedType,
-                                  'lessons.$dateKey.room': roomController.text.trim(),
-                                  'lessons.$dateKey.time': timeController.text.trim(),
-                                }
-                              : {
-                                  'lessons.$dateKey': {
-                                    'lessonType': selectedType,
-                                    'room': roomController.text.trim(),
-                                    'time': timeController.text.trim(),
-                                    'done': false,
-                                    'materials': [],
-                                    'homeworks': [],
-                                    'homeworkSubmissions': {},
-                                    'attendance': {},
-                                  }
-                                };
-                          await FirebaseFirestore.instance
-                              .collection('groups')
-                              .doc(widget.groupId)
-                              .update(updateData);
+                          if (isEdit) {
+                            await DarslarService().updateLesson(
+                              groupId: widget.groupId,
+                              dateKey: dateKey,
+                              lessonType: selectedType,
+                              room: roomController.text.trim(),
+                              time: timeController.text.trim(),
+                            );
+                          } else {
+                            await DarslarService().createLesson(
+                              groupId: widget.groupId,
+                              dateKey: dateKey,
+                              lessonType: selectedType,
+                              room: roomController.text.trim(),
+                              time: timeController.text.trim(),
+                            );
+                          }
                           if (ctx.mounted) Navigator.pop(ctx);
                         },
                         child: const Center(
@@ -1668,10 +1648,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         ElevatedButton(
                           onPressed: () async {
                             final messenger = ScaffoldMessenger.of(this.context);
-                            await FirebaseFirestore.instance
-                                .collection('groups')
-                                .doc(widget.groupId)
-                                .update({'lessons.$dateKey.attendance': attendanceMap});
+                            await DarslarService()
+                                .setAttendance(widget.groupId, dateKey, attendanceMap);
                             if (ctx.mounted) {
                               Navigator.pop(ctx);
                               messenger.showSnackBar(

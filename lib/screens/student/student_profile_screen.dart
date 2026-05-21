@@ -6,9 +6,10 @@ import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import 'student_settings_screen.dart';
 import '../../utils/theme_manager.dart';
-import '../auth/login_screen.dart';
+import '../../core/auth_navigation.dart';
 import '../../l10n/app_localizations.dart';
-import 'student_payment_screen.dart';
+import '../../widgets/student_payment_card.dart';
+import 'student_payments_list_screen.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   const StudentProfileScreen({super.key});
@@ -129,6 +130,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
   }
 
   Widget _buildPaymentsSection(UserProvider userProvider) {
+    final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
 
     return Column(
@@ -142,7 +144,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 const Icon(Icons.payments_rounded, color: AppColors.duoGreen, size: 22),
                 const SizedBox(width: 8),
                 Text(
-                  'TO\'LOVLAR',
+                  l.payments.toUpperCase(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -152,14 +154,26 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 ),
               ],
             ),
-            TextButton.icon(
+            TextButton(
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => StudentPaymentScreen(studentId: userProvider.uid)),
+                MaterialPageRoute(
+                  builder: (_) => StudentPaymentsListScreen(studentId: userProvider.uid),
+                ),
               ),
-              icon: const Icon(Icons.add_rounded, size: 18, color: AppColors.duoGreen),
-              label: const Text('TO\'LOV QO\'SHISH', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.duoGreen)),
-              style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                l.viewAll.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.duoGreen,
+                ),
+              ),
             ),
           ],
         ),
@@ -171,18 +185,16 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               .snapshots(),
           builder: (ctx, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
-              return const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: AppColors.duoOrange)));
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator(color: AppColors.duoOrange),
+                ),
+              );
             }
-            var docs = snap.data?.docs.toList() ?? [];
-            docs.sort((a, b) {
-              final ta = (a.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
-              final tb = (b.data() as Map<String, dynamic>)['createdAt'] as Timestamp?;
-              if (ta == null && tb == null) return 0;
-              if (ta == null) return -1;
-              if (tb == null) return 1;
-              return tb.compareTo(ta);
-            });
-            if (docs.length > 5) docs = docs.sublist(0, 5);
+
+            final docs = sortPaymentsByNewest(snap.data?.docs.toList() ?? []);
+
             if (docs.isEmpty) {
               return GamifiedCard(
                 padding: const EdgeInsets.all(24),
@@ -191,106 +203,32 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      Icon(Icons.receipt_long_rounded, size: 48, color: isDark ? Colors.white30 : AppColors.duoTextLight),
+                      Icon(
+                        Icons.receipt_long_rounded,
+                        size: 48,
+                        color: isDark ? Colors.white30 : AppColors.duoTextLight,
+                      ),
                       const SizedBox(height: 12),
-                      Text('To\'lov tarixi yo\'q', style: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight, fontWeight: FontWeight.w600)),
+                      Text(
+                        'To\'lov tarixi yo\'q',
+                        style: TextStyle(
+                          color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               );
             }
-            return Column(
-              children: docs.map((doc) {
-                final p = doc.data() as Map<String, dynamic>;
-                final status = p['status'] ?? 'pending';
-                final periodStart = (p['periodStart'] as Timestamp?)?.toDate();
-                final periodEnd = (p['periodEnd'] as Timestamp?)?.toDate();
-                final note = p['note'] ?? '';
-                final adminNote = p['adminNote'] ?? '';
-                final type = p['type'] ?? 'card';
 
-                Color statusColor;
-                String statusText;
-                IconData statusIcon;
-                switch (status) {
-                  case 'accepted':
-                    statusColor = AppColors.duoGreen;
-                    statusText = 'QABUL QILINDI';
-                    statusIcon = Icons.check_circle_rounded;
-                    break;
-                  case 'rejected':
-                    statusColor = AppColors.duoRed;
-                    statusText = 'BEKOR QILINDI';
-                    statusIcon = Icons.cancel_rounded;
-                    break;
-                  default:
-                    statusColor = AppColors.duoOrange;
-                    statusText = 'KUTILMOQDA';
-                    statusIcon = Icons.pending_rounded;
-                }
-
-                String periodText = '';
-                if (periodStart != null && periodEnd != null) {
-                  periodText = '${periodStart.day}.${_pad(periodStart.month)}.${periodStart.year} – ${periodEnd.day}.${_pad(periodEnd.month)}.${periodEnd.year}';
-                }
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: GamifiedCard(
-                    padding: const EdgeInsets.all(16),
-                    color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
-                    shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 46,
-                          height: 46,
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), color: statusColor.withValues(alpha: 0.15)),
-                          child: Icon(statusIcon, color: statusColor, size: 26),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                periodText.isNotEmpty ? periodText : 'Period noma\'lum',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: isDark ? Colors.white : AppColors.duoTextDark),
-                              ),
-                              if (note.isNotEmpty) ...[
-                                const SizedBox(height: 3),
-                                Text(note, style: TextStyle(fontSize: 12, color: isDark ? Colors.white60 : AppColors.duoTextLight)),
-                              ],
-                              if (adminNote.isNotEmpty && status != 'pending') ...[
-                                const SizedBox(height: 3),
-                                Text('Admin: $adminNote', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: statusColor)),
-                              ],
-                              const SizedBox(height: 4),
-                              Text(
-                                type == 'cash' ? 'NAQD' : 'PLASTIK',
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: isDark ? Colors.white38 : AppColors.duoTextLight),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: statusColor.withValues(alpha: 0.12)),
-                          child: Text(statusText, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: statusColor)),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            );
+            final latest = docs.first.data() as Map<String, dynamic>;
+            return StudentPaymentCard(payment: latest);
           },
         ),
       ],
     );
   }
-
-  String _pad(int v) => v.toString().padLeft(2, '0');
 
   Widget _buildSettingsButton() {
     final l = AppLocalizations.of(context);
@@ -360,10 +298,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
       onTap: () async {
         await userProvider.logout();
         if (!mounted) return;
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-        );
+        AuthNavigation.replaceWithLogin(context);
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

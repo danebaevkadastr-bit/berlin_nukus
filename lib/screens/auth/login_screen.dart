@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import '../../core/auth_navigation.dart';
 import '../../core/providers/user_provider.dart';
-import '../admin/admin_main_screen.dart';
-import '../teacher/teacher_main_screen.dart';
-import '../student/student_home_screen.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../../l10n/app_localizations.dart';
@@ -60,20 +58,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
       if (!mounted) return;
 
-      Widget targetScreen;
-      if (userProvider.role == 'admin') {
-        targetScreen = const AdminMainScreen();
-      } else if (userProvider.role == 'teacher') {
-        targetScreen = const TeacherMainScreen();
-      } else {
-        targetScreen = const StudentHomeScreen();
-      }
-
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => targetScreen,
-          transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
-        ),
+      AuthNavigation.replaceWith(
+        context,
+        AuthNavigation.homeScreenForRole(userProvider.role),
       );
     } catch (e) {
       if (!mounted) return;

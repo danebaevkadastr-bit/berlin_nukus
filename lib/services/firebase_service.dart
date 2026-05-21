@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'darslar_service.dart';
 
 class FirebaseService {
   static final FirebaseService _instance = FirebaseService._internal();
@@ -172,17 +173,9 @@ class FirebaseService {
             }).toList());
   }
 
-  /// Stream of all groups a student is enrolled in
+  /// Stream of all groups a student is enrolled in (darslar bilan birga)
   Stream<List<Map<String, dynamic>>> getStudentGroupsStream(String studentId) {
-    return _firestore
-        .collection('groups')
-        .where('students', arrayContains: studentId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) {
-              final data = doc.data();
-              data['id'] = doc.id;
-              return data;
-            }).toList());
+    return DarslarService().getStudentGroupsWithLessonsStream(studentId);
   }
 
   /// Add a new group

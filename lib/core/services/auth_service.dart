@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
+
 class AuthService {
   Future<void> signOut() async {
-    // Mock sign out action
-    await Future.delayed(const Duration(milliseconds: 200));
+    await FirebaseAuth.instance.signOut();
   }
 }

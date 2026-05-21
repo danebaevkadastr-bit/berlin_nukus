@@ -5,7 +5,7 @@ import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/darslar_service.dart';
 import 'teacher_course_detail_screen.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
@@ -29,11 +29,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('groups')
-            .where('teacherId', isEqualTo: userProvider.uid)
-            .snapshots(),
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: DarslarService().getTeacherGroupsWithLessonsStream(userProvider.uid),
         builder: (context, snapshot) {
           int totalGroups = 0;
           int totalStudents = 0;
@@ -41,13 +38,13 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           List<_PendingWork> pendingWorks = [];
 
           if (snapshot.hasData) {
-            final docs = snapshot.data!.docs;
-            totalGroups = docs.length;
+            final groups = snapshot.data!;
+            totalGroups = groups.length;
 
             final todayKey = _formatDateKey(DateTime.now());
 
-            for (var doc in docs) {
-              final data = doc.data() as Map<String, dynamic>;
+            for (final data in groups) {
+              final groupId = data['id'] as String? ?? '';
               final studentsList = List<String>.from(data['students'] ?? []);
               totalStudents += studentsList.length;
 
@@ -57,7 +54,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               if (lessonsMap.containsKey(todayKey)) {
                 final lData = lessonsMap[todayKey] as Map<String, dynamic>;
                 todayLessons.add(_TodayLesson(
-                  groupId: doc.id,
+                  groupId: groupId,
                   groupName: data['name'] ?? '',
                   courseTitle: data['courseTitle'] ?? '',
                   startDate: data['started'] ?? '',
@@ -91,7 +88,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   }
                   
                   pendingWorks.add(_PendingWork(
-                    groupId: doc.id,
+                    groupId: groupId,
                     groupName: data['name'] ?? '',
                     courseTitle: data['courseTitle'] ?? '',
                     startDate: data['started'] ?? '',

@@ -6,6 +6,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/firebase_service.dart';
+import '../../services/darslar_service.dart';
 
 class StudentGroupScreen extends StatefulWidget {
   const StudentGroupScreen({super.key});
@@ -956,11 +957,11 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
 
                         final bool isPurelyTest = day.homeworks.isNotEmpty && day.homeworks.every((h) => ((h as Map)['test'] as String? ?? '').isNotEmpty) && noteController.text.trim().isEmpty;
                         
-                        await FirebaseFirestore.instance
-                            .collection('groups')
-                            .doc(groupId)
-                            .update({
-                          'lessons.$dateKey.homeworkSubmissions.$uid': {
+                        await DarslarService().setHomeworkSubmission(
+                          groupId: groupId,
+                          dateKey: dateKey,
+                          studentId: uid,
+                          submission: {
                             'submitted': true,
                             'submittedAt': DateTime.now().toIso8601String(),
                             'note': noteController.text.trim(),
@@ -969,10 +970,9 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                               'correctCount': totalCorrect,
                               'totalCount': totalQuestions,
                             },
-                            // Checked is true if it's purely automated tests with no text note to manually review
                             'checked': isPurelyTest,
-                          }
-                        });
+                          },
+                        );
                         if (ctx.mounted) Navigator.pop(ctx);
                       },
                       child: const Center(

@@ -5,7 +5,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../core/providers/user_provider.dart';
 import '../../core/services/auth_service.dart';
-import '../auth/login_screen.dart';
+import '../../core/auth_navigation.dart';
 import '../student/student_settings_screen.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -266,10 +266,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       onTap: () async {
         await AuthService().signOut();
         if (!mounted) return;
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-        );
+        AuthNavigation.replaceWithLogin(context);
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

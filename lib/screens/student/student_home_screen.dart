@@ -8,9 +8,9 @@ import 'student_group_screen.dart';
 import 'student_learning_screen.dart';
 import 'student_games_screen.dart';
 import 'student_profile_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/firebase_service.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -78,11 +78,8 @@ class StudentHomeContent extends StatelessWidget {
     final isDark = ThemeManager.isDark;
     final userProvider = Provider.of<UserProvider>(context);
 
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('groups')
-          .where('students', arrayContains: userProvider.uid)
-          .snapshots(),
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: FirebaseService().getStudentGroupsStream(userProvider.uid),
       builder: (context, snapshot) {
         int pendingHomeworkCount = 0;
         Map<String, dynamic>? todayLesson;
@@ -96,8 +93,7 @@ class StudentHomeContent extends StatelessWidget {
         if (snapshot.hasData) {
           final todayKey = _formatDateKey(DateTime.now());
 
-          for (var doc in snapshot.data!.docs) {
-            final data = doc.data() as Map<String, dynamic>;
+          for (final data in snapshot.data!) {
             final lessonsMap = data['lessons'] as Map<String, dynamic>? ?? {};
 
             // Check today's lesson

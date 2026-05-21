@@ -5,7 +5,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../core/providers/user_provider.dart';
 import '../../core/services/auth_service.dart';
-import '../auth/login_screen.dart';
+import '../../core/auth_navigation.dart';
 import '../student/student_settings_screen.dart';
 
 class AdminProfileScreen extends StatefulWidget {
@@ -136,10 +136,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               onTap: () async {
                 await AuthService().signOut();
                 if (!context.mounted) return;
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
-                );
+                AuthNavigation.replaceWithLogin(context);
               },
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,

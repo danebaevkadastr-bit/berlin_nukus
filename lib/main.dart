@@ -4,6 +4,7 @@ import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/firebase_service.dart';
+import 'services/darslar_service.dart';
 import 'core/providers/user_provider.dart';
 import 'screens/splash_screen.dart';
 import 'utils/theme_manager.dart';
@@ -17,6 +18,8 @@ void main() async {
     );
     // Seed initial mock data if database is empty
     await FirebaseService().seedInitialData();
+    // groups ichidagi eski darslarni darslar collectionga ko'chirish
+    await DarslarService().migrateLessonsIfNeeded();
   } catch (e) {
     debugPrint('FirebaseInitError: $e');
   }

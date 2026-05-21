@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../core/auth_navigation.dart';
+import '../core/providers/user_provider.dart';
+import '../l10n/app_localizations.dart';
 import '../utils/app_colors.dart';
 import 'auth/login_screen.dart';
-import '../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -20,13 +24,11 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Animatsiya controller
     _controller = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
-    // Kattalashish animatsiyasi
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
@@ -34,7 +36,6 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Ko'rinish animatsiyasi
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
@@ -42,23 +43,25 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Animatsiyani boshlash
     _controller.forward();
+    _navigateWhenReady();
+  }
 
-    // 3 soniyadan keyin keyingi ekranga o'tish
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            transitionDuration: const Duration(milliseconds: 600),
-          ),
-        );
-      }
-    });
+  Future<void> _navigateWhenReady() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    final results = await Future.wait([
+      Future.delayed(const Duration(seconds: 2)),
+      AuthNavigation.resolveInitialScreen(userProvider),
+    ]);
+
+    if (!mounted) return;
+
+    final homeScreen = results[1] as Widget?;
+    AuthNavigation.replaceWith(
+      context,
+      homeScreen ?? const LoginScreen(),
+    );
   }
 
   @override
@@ -92,7 +95,6 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo
                       Container(
                         width: 150,
                         height: 150,
@@ -125,7 +127,6 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ),
                       const SizedBox(height: 30),
-                      // Nomi
                       const Text(
                         'Berlin-Nukus',
                         style: TextStyle(
