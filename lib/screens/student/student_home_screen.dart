@@ -82,7 +82,8 @@ class StudentHomeContent extends StatelessWidget {
     return StreamBuilder<List<Map<String, dynamic>>>(
       stream: FirebaseService().getStudentGroupsStream(userProvider.uid),
       builder: (context, snapshot) {
-        int pendingHomeworkCount = 0;
+        List<Map<String, dynamic>> pendingHomeworks = [];
+        List<Map<String, dynamic>> upcomingLessons = [];
         Map<String, dynamic>? todayLesson;
         String? todayGroupTitle;
         String? todayTeacher;
@@ -110,10 +111,34 @@ class StudentHomeContent extends StatelessWidget {
                 final subs = lData['homeworkSubmissions'] as Map<String, dynamic>? ?? {};
                 final mySub = subs[userProvider.uid] as Map<String, dynamic>?;
                 if (mySub == null || mySub['submitted'] != true) {
-                  pendingHomeworkCount++;
+                  // Har bir vazifa uchun ma'lumotni saqlash
+                  for (final hw in homeworks) {
+                    if (hw is String) {
+                      pendingHomeworks.add({
+                        'title': hw,
+                        'groupName': data['name'],
+                        'date': date,
+                        'deadline': lData['homeworkDeadline'] ?? date,
+                      });
+                    }
+                  }
                 }
               }
             });
+
+            // Keyingi darslarni hisoblash (bugundan keyingi 2 ta)
+            final lessonDates = lessonsMap.keys.toList()..sort();
+            for (final date in lessonDates) {
+              if (date != todayKey && upcomingLessons.length < 2) {
+                final lData = lessonsMap[date] as Map<String, dynamic>;
+                upcomingLessons.add({
+                  'date': date,
+                  'topic': lData['topic'] ?? 'Dars',
+                  'groupName': data['name'],
+                  'teacherName': data['teacherName'],
+                });
+              }
+            }
           }
         }
 
@@ -306,63 +331,185 @@ class StudentHomeContent extends StatelessWidget {
                     const SizedBox(height: 20),
 
                     // ── Uyga vazifalar (faqat vazifa bor bo'lsa chiqadi) ──
-                    if (pendingHomeworkCount > 0) ...[
+                    if (pendingHomeworks.isNotEmpty) ...[
                       GamifiedCard(
                         color: AppColors.duoOrange,
                         shadowColor: AppColors.duoOrangeShadow,
                         shadowDepth: 6,
                         padding: const EdgeInsets.all(20),
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Text('📝', style: TextStyle(fontSize: 28)),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l.homework.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l.pendingHomeworks,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white70,
-                                    ),
+                                  child: const Text('📝', style: TextStyle(fontSize: 28)),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l.homework.toUpperCase(),
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '${pendingHomeworks.length} ta vazifa',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                              ),
-                              child: Text(
-                                "$pendingHomeworkCount",
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.duoOrange,
+                            const SizedBox(height: 16),
+                            ...pendingHomeworks.take(3).map((hw) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            hw['title'] ?? 'Vazifa',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            hw['groupName'] ?? 'Guruh',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      hw['deadline'] ?? hw['date'] ?? '',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
+                            )),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+
+                    // ── Keyingi darslar ──
+                    if (upcomingLessons.isNotEmpty) ...[
+                      GamifiedCard(
+                        color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
+                        shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text('📅', style: TextStyle(fontSize: 24)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'KEYINGI DARSLAR',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
                             ),
+                            const SizedBox(height: 16),
+                            ...upcomingLessons.map((lesson) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isDark ? Colors.white12 : AppColors.duoBackground,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.duoBlue.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        lesson['date'] ?? '',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.duoBlue,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            lesson['topic'] ?? 'Dars',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                              color: isDark ? Colors.white : AppColors.duoTextDark,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            lesson['groupName'] ?? 'Guruh',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )),
                           ],
                         ),
                       ),

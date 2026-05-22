@@ -21,12 +21,15 @@ class STTService {
     _lastWords = '';
 
     await _speech.listen(
-      onResult: (result) => _lastWords = result.recognizedWords,
+      onResult: (result) {
+        _lastWords = result.recognizedWords;
+      },
       listenOptions: SpeechListenOptions(
         localeId: 'de_DE',
-        listenMode: ListenMode.confirmation,
-        cancelOnError: true,
+        listenMode: ListenMode.search,
+        cancelOnError: false,
         partialResults: true,
+        autoPunctuation: true,
       ),
     );
     return _speech.isListening;

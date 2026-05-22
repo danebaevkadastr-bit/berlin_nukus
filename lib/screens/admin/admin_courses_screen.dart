@@ -192,14 +192,14 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
         elevation: 0,
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 80.0),
+        padding: const EdgeInsets.only(bottom: 100.0),
         child: FloatingActionButton(
           heroTag: 'add_course_fab',
           backgroundColor: AppColors.duoGreen,
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           onPressed: () => _showAddCourseDialog(),
-          child: const Text('➕', style: TextStyle(fontSize: 24)),
+          child: const Icon(Icons.add, color: Colors.white, size: 28),
         ),
       ),
       body: courses.isEmpty

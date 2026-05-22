@@ -47,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _lessonFinished = false;
 
   double _textSize = 15;
-  double _ttsSpeed = 0.8;
+  double _ttsSpeed = 1.0;
   bool _autoReadAiReply = true;
   bool _openTranslationByDefault = false;
   bool _showCorrections = true;
@@ -697,7 +697,7 @@ SUHBAT USLUBI:
                       ),
                       const SizedBox(height: 10),
                       _SettingsSlider(
-                        title: 'TTS tezligi',
+                        title: 'Ijro tezligi',
                         value: tempTtsSpeed,
                         min: 0.6,
                         max: 1.3,

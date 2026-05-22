@@ -17,7 +17,7 @@ class TTSService {
     if (_ready) return;
     await _tts.setLanguage('de-DE');
     await _tts.setVolume(1.0);
-    await _tts.setPitch(1.0);
+    await _tts.setPitch(0.95); // Tabiiyroq ovoz uchun pitch biroz pastroq
     _tts.setCompletionHandler(() {
       isPlaying = false;
       currentText = '';
