@@ -113,6 +113,56 @@ class AIService {
     );
   }
 
+  static Future<Map<String, dynamic>> translateWithMeanings({
+    required String text,
+  }) async {
+    final raw = await _chat(
+      temperature: 0.4,
+      messages: [
+        {
+          'role': 'system',
+          'content': '''
+Sen nemis-uzbek tarjimonisiz. Quyidagi nemis so'z yoki iborani tahlil qilib, JSON formatida javob ber.
+Agar so'z yoki iboraning bir nechta ma'nosi bo'lsa, barchasini ko'rsat.
+
+Faqat JSON qaytaring, boshqa matn yo'q. Format:
+{
+  "original": "nemischa so'z",
+  "meanings": [
+    {
+      "translation": "o'zbekcha tarjima",
+      "exampleGerman": "nemischa misol gap",
+      "exampleUzbek": "o'zbekcha misol tarjimasi"
+    }
+  ]
+}
+
+Agar bir nechta ma'nosi bo'lsa, "meanings" massivida barchasini yozing.
+Har bir ma'no uchun alohida misol gap va uning tarjimasini ko'rsating.''',
+        },
+        {'role': 'user', 'content': text},
+      ],
+    );
+
+    try {
+      final decoded = jsonDecode(_extractJson(raw));
+      if (decoded is Map<String, dynamic>) return decoded;
+      if (decoded is Map) return Map<String, dynamic>.from(decoded);
+    } catch (_) {}
+
+    // Fallback: oddiy tarjima
+    return {
+      'original': text,
+      'meanings': [
+        {
+          'translation': await translateGermanText(text: text),
+          'exampleGerman': '',
+          'exampleUzbek': '',
+        }
+      ],
+    };
+  }
+
   static Future<List<String>> getReplyHints({required String context}) async {
     final raw = await _chat(
       temperature: 0.8,

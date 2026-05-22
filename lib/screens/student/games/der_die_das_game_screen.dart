@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../l10n/locale_manager.dart';
 import '../../../services/game_stars_service.dart';
+import '../../../services/sound_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/der_die_das_rules.dart';
 import '../../../utils/game_words.dart';
@@ -103,6 +104,7 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
         }
         _score += points;
         _feedbackMessage = 'To\'g\'ri! +$points ⭐';
+        SoundService.playCorrect();
       } else {
         _wrong++;
         _streak = 0;
@@ -111,6 +113,7 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
         } else {
           _feedbackMessage = 'Noto\'g\'ri. To\'g\'ri: $fullWord';
         }
+        SoundService.playIncorrect();
       }
     });
 

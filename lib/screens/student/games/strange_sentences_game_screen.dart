@@ -8,6 +8,7 @@ import '../../../l10n/locale_manager.dart';
 import '../../../models/strange_sentences_round.dart';
 import '../../../services/ai_service.dart';
 import '../../../services/game_stars_service.dart';
+import '../../../services/sound_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/strange_sentences_rules.dart';
 import '../../../utils/theme_manager.dart';
@@ -152,12 +153,14 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
         }
         _score += points;
         _feedbackMessage = 'To\'g\'ri! +$points ⭐';
+        SoundService.playCorrect();
       } else {
         _wrong++;
         _streak = 0;
         _feedbackMessage = round.explanationUz.isNotEmpty
             ? round.explanationUz
             : 'To\'g\'ri: ${round.correctSentence}';
+        SoundService.playIncorrect();
       }
     });
 

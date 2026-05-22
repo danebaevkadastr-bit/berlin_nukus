@@ -1449,18 +1449,6 @@ class _VoiceMicPanel extends StatelessWidget {
                 ),
               ),
             ),
-            if (!isRecording)
-              const Positioned(
-                bottom: 0,
-                child: Text(
-                  'Bosib gapiring',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.duoTextLight,
-                  ),
-                ),
-              ),
           ],
         );
       },

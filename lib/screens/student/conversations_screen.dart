@@ -452,7 +452,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       onTap: () async {
                         setState(() => selectedLevel = level);
                         await _loadCompletedTopics();
-                        if (context.mounted) Navigator.pop(context);
+                        if (mounted) Navigator.pop(context);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(12),
