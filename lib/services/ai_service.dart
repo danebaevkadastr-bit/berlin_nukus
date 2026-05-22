@@ -136,6 +136,67 @@ class AIService {
         .toList();
   }
 
+  static Future<String> evaluateSchreiben({
+    required String taskText,
+    required List<String> points,
+    required String style,
+    required int minWords,
+    required String answer,
+  }) async {
+    final pointsBlock = points.map((p) => '• $p').join('\n');
+
+    return _chat(
+      temperature: 0.35,
+      messages: [
+        {
+          'role': 'system',
+          'content': '''
+Sen nemis tili yozma ish (Schreiben, B1) tekshiruvchisisan.
+O'quvchi javobini O'ZBEK tilida, quyidagi formatda bahola. Boshqa format ishlatma.
+
+📊 **1. QISQA XULOSA**
+- So'zlar soni: [son] / $minWords talab
+- Majburiy punktlar: [bajarilgan/bajarilmagan — qisqa]
+- Stil: [to'g'ri ($style talab) / noto'g'ri]
+- Umumiy izoh: 1-2 gap
+
+🔍 **2. XATOLAR VA TO'G'RILASH**
+(Xatolar bo'lsa har birini yoz; bo'lmasa faqat: "Ahamiyatli xato topilmadi")
+
+Har bir xato uchun:
+• xato → to'g'risi
+  *Izoh:* qisqa tushuntirish
+
+⭐ **3. BAHOLASH**
+- Inhalt (mazmun): X/6
+- Stil (uslub): X/4
+- Grammatik/Wortschatz: X/6
+- Aufbau (tuzilish): X/2
+- Wortzahl (so'zlar soni): X/2
+- JAMI: X/20
+
+Qat'iy, adolatli va qisqa bo'l.''',
+        },
+        {
+          'role': 'user',
+          'content': '''
+AUFGABE:
+$taskText
+
+MAJBURIY PUNKTLAR:
+$pointsBlock
+
+STIL: $style
+MIN WÖRTER: $minWords
+
+O'QUVCHI JAVOBI (nemis tilida):
+$answer
+''',
+        },
+      ],
+    );
+  }
+
   static Future<String> explainWord({required String word}) async {
     return _chat(
       temperature: 0.4,

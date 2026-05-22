@@ -4,6 +4,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import 'conversations_screen.dart';
+import 'schreiben_screen.dart';
 
 class StudentLearningScreen extends StatelessWidget {
   const StudentLearningScreen({super.key});
@@ -131,13 +132,21 @@ class StudentLearningScreen extends StatelessWidget {
                 shadowColor: AppColors.duoRedShadow),
             const SizedBox(height: 16),
 
-            _buildLearningCard(context,
-                icon: '✍️',
-                title: 'Schreiben',
-                subtitle: l.writingExercises,
-                progress: 0.3,
-                color: AppColors.duoGreen,
-                shadowColor: AppColors.duoGreenShadow),
+            _buildLearningCard(
+              context,
+              icon: '✍️',
+              title: 'Schreiben',
+              subtitle: l.writingExercises,
+              progress: 0.3,
+              color: AppColors.duoGreen,
+              shadowColor: AppColors.duoGreenShadow,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SchreibenScreen()),
+                );
+              },
+            ),
             const SizedBox(height: 16),
 
             _buildLearningCard(context,

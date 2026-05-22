@@ -41,50 +41,51 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCrASqHOvIbT_ZC5MkDqQzZxeGwwhpdSzc',
-    appId: '1:31427206482:web:acdcf2484394c87dd5ee8b',
-    messagingSenderId: '31427206482',
-    projectId: 'berlin-nukus-nemis',
-    authDomain: 'berlin-nukus-nemis.firebaseapp.com',
-    storageBucket: 'berlin-nukus-nemis.firebasestorage.app',
-    measurementId: 'G-0Z4E8WX58J',
+    apiKey: 'AIzaSyC0dhqgCG5RQCG2jAjvQfJLKTvS63wmOqA',
+    appId: '1:901891657911:web:7917fea136cc5ad577fd32',
+    messagingSenderId: '901891657911',
+    projectId: 'berlin-nukus-n1',
+    authDomain: 'berlin-nukus-n1.firebaseapp.com',
+    storageBucket: 'berlin-nukus-n1.firebasestorage.app',
+    measurementId: 'G-W5Z60C7HZX',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAoXOw8qOMsmgkBJ8MXs-VigqtFANXHbRg',
-    appId: '1:31427206482:android:ef5a38b9fe392557d5ee8b',
-    messagingSenderId: '31427206482',
-    projectId: 'berlin-nukus-nemis',
-    storageBucket: 'berlin-nukus-nemis.firebasestorage.app',
+    apiKey: 'AIzaSyCUkNeshTUAMZGhs8If8YH0F93SW2ekjIY',
+    appId: '1:901891657911:android:853b595e6540bd7377fd32',
+    messagingSenderId: '901891657911',
+    projectId: 'berlin-nukus-n1',
+    storageBucket: 'berlin-nukus-n1.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAgIN99PQ0BkZUw4JiFSdIkITcbl-CgAIU',
-    appId: '1:31427206482:ios:c4af75592e47db51d5ee8b',
-    messagingSenderId: '31427206482',
-    projectId: 'berlin-nukus-nemis',
-    storageBucket: 'berlin-nukus-nemis.firebasestorage.app',
-    iosClientId: '31427206482-5b27rkqc5385k54r5clmlit55pidumet.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAsb22GwcYhciYvT3MKEkm3NJSxTUY_XcA',
+    appId: '1:901891657911:ios:304e0cb31c02905a77fd32',
+    messagingSenderId: '901891657911',
+    projectId: 'berlin-nukus-n1',
+    storageBucket: 'berlin-nukus-n1.firebasestorage.app',
+    iosClientId: '901891657911-611t5vcc45ojg3limu7f92npl6sk0knv.apps.googleusercontent.com',
     iosBundleId: 'com.example.berlinNukus',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAgIN99PQ0BkZUw4JiFSdIkITcbl-CgAIU',
-    appId: '1:31427206482:ios:c4af75592e47db51d5ee8b',
-    messagingSenderId: '31427206482',
-    projectId: 'berlin-nukus-nemis',
-    storageBucket: 'berlin-nukus-nemis.firebasestorage.app',
-    iosClientId: '31427206482-5b27rkqc5385k54r5clmlit55pidumet.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAsb22GwcYhciYvT3MKEkm3NJSxTUY_XcA',
+    appId: '1:901891657911:ios:304e0cb31c02905a77fd32',
+    messagingSenderId: '901891657911',
+    projectId: 'berlin-nukus-n1',
+    storageBucket: 'berlin-nukus-n1.firebasestorage.app',
+    iosClientId: '901891657911-611t5vcc45ojg3limu7f92npl6sk0knv.apps.googleusercontent.com',
     iosBundleId: 'com.example.berlinNukus',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCrASqHOvIbT_ZC5MkDqQzZxeGwwhpdSzc',
-    appId: '1:31427206482:web:aa35ad0b42e44888d5ee8b',
-    messagingSenderId: '31427206482',
-    projectId: 'berlin-nukus-nemis',
-    authDomain: 'berlin-nukus-nemis.firebaseapp.com',
-    storageBucket: 'berlin-nukus-nemis.firebasestorage.app',
-    measurementId: 'G-L72TF0KCEP',
+    apiKey: 'AIzaSyC0dhqgCG5RQCG2jAjvQfJLKTvS63wmOqA',
+    appId: '1:901891657911:web:78b4db5deaea541377fd32',
+    messagingSenderId: '901891657911',
+    projectId: 'berlin-nukus-n1',
+    authDomain: 'berlin-nukus-n1.firebaseapp.com',
+    storageBucket: 'berlin-nukus-n1.firebasestorage.app',
+    measurementId: 'G-33G1P2FKKB',
   );
+
 }
