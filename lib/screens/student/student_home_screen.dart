@@ -11,6 +11,7 @@ import 'student_profile_screen.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/firebase_service.dart';
+import '../../services/streak_service.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -85,10 +86,6 @@ class StudentHomeContent extends StatelessWidget {
         Map<String, dynamic>? todayLesson;
         String? todayGroupTitle;
         String? todayTeacher;
-        
-        // Mock streak stats
-        const List<double> weeklyUsage = [0.2, 0.5, 0.8, 0.4, 0.9, 0.0, 1.0]; // Mon-Sun mock
-        const int currentStreak = 5;
 
         if (snapshot.hasData) {
           final todayKey = _formatDateKey(DateTime.now());
@@ -373,45 +370,59 @@ class StudentHomeContent extends StatelessWidget {
                     ],
 
                     // ── Daily Streak & Chart ──
-                    GamifiedCard(
-                      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
-                      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                    FutureBuilder<Map<String, dynamic>>(
+                      future: Future.wait([
+                        StreakService.getCurrentStreak(userProvider.uid),
+                        StreakService.getWeeklyUsage(userProvider.uid),
+                      ]).then((values) => {
+                        'streak': values[0] as int,
+                        'weeklyUsage': values[1] as List<double>,
+                      }),
+                      builder: (context, streakSnapshot) {
+                        final streak = streakSnapshot.data?['streak'] ?? 0;
+                        final weeklyUsage = streakSnapshot.data?['weeklyUsage'] ?? [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+                        
+                        return GamifiedCard(
+                          color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
+                          shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('🔥', style: TextStyle(fontSize: 24)),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  "STREAK: $currentStreak KUN",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w900,
-                                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                              Row(
+                                children: [
+                                  const Text('🔥', style: TextStyle(fontSize: 24)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      "STREAK: $streak KUN",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  for (int i = 0; i < 7; i++)
+                                    _buildVerticalBarChartItem(
+                                      day: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'][i],
+                                      value: weeklyUsage[i],
+                                      isToday: i == DateTime.now().weekday - 1,
+                                      isDark: isDark,
+                                    )
+                                ],
                               ),
                             ],
                           ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              for (int i = 0; i < 7; i++)
-                                _buildVerticalBarChartItem(
-                                  day: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'][i],
-                                  value: weeklyUsage[i],
-                                  isToday: i == DateTime.now().weekday - 1,
-                                  isDark: isDark,
-                                )
-                            ],
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 20),
@@ -470,41 +481,76 @@ class StudentHomeContent extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     // ── Peshqadamlar jadvali ──
-                    GamifiedCard(
-                      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
-                      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: FirebaseService().getLeaderboardStream(),
+                      builder: (context, leaderboardSnapshot) {
+                        final leaderboard = leaderboardSnapshot.data ?? [];
+                        
+                        return GamifiedCard(
+                          color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
+                          shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('🏆', style: TextStyle(fontSize: 24)),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    l.leaderboard.toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w900,
-                                      color: isDark ? Colors.white : AppColors.duoTextDark,
-                                      letterSpacing: 0.5,
-                                    ),
+                                  Row(
+                                    children: [
+                                      const Text('🏆', style: TextStyle(fontSize: 24)),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        l.leaderboard.toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 16),
+                              if (leaderboard.isEmpty)
+                                Center(
+                                  child: Text(
+                                    'Hozircha ma\'lumot yo\'q',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                                    ),
+                                  ),
+                                )
+                              else
+                                ...leaderboard.take(3).toList().asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final user = entry.value;
+                                  final rankEmoji = index == 0 ? '🥇' : index == 1 ? '🥈' : '🥉';
+                                  final name = user['fullName'] ?? user['name'] ?? 'Noma\'lum';
+                                  final stars = user['totalStars'] ?? 0;
+                                  final isMe = user['id'] == userProvider.uid;
+                                  
+                                  return Column(
+                                    children: [
+                                      _buildLeaderItem(
+                                        context,
+                                        rank: rankEmoji,
+                                        name: name,
+                                        xp: '$stars ⭐',
+                                        isMe: isMe,
+                                      ),
+                                      if (index < 2 && index < leaderboard.length - 1) const SizedBox(height: 8),
+                                    ],
+                                  );
+                                }).toList(),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          _buildLeaderItem(context, rank: '🥇', name: 'Malika R.', xp: '980 XP', isMe: false),
-                          const SizedBox(height: 8),
-                          _buildLeaderItem(context, rank: '🥈', name: 'Jasur A.', xp: '850 XP', isMe: false),
-                          const SizedBox(height: 8),
-                          _buildLeaderItem(context, rank: '🥉', name: userProvider.name, xp: '750 XP', isMe: true),
-                        ],
-                      ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 120), // Bottom nav bar uchun joy

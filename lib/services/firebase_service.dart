@@ -134,14 +134,43 @@ class FirebaseService {
 
   // ── COURSES AND GROUPS ─────────────────────────────────────────────────────
 
-  /// Stream of all courses
+  /// Stream of all courses with real group and student counts
   Stream<List<Map<String, dynamic>>> getCoursesStream() {
-    return _firestore.collection('courses').orderBy('createdAt', descending: true).snapshots().map(
-      (snapshot) => snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList(),
+    return _firestore.collection('courses').orderBy('createdAt', descending: true).snapshots().asyncMap(
+      (snapshot) async {
+        final courses = <Map<String, dynamic>>[];
+        
+        for (final doc in snapshot.docs) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          final courseId = doc.id;
+          
+          // Guruhlar sonini hisoblash
+          final groupsSnapshot = await _firestore
+              .collection('groups')
+              .where('courseId', isEqualTo: courseId)
+              .get();
+          final groupsCount = groupsSnapshot.docs.length;
+          
+          // Studentlar sonini hisoblash (barcha guruhlardagi unique studentlar)
+          final studentIds = <String>{};
+          for (final groupDoc in groupsSnapshot.docs) {
+            final students = groupDoc.data()['students'] as List<dynamic>? ?? [];
+            for (final student in students) {
+              if (student is String) {
+                studentIds.add(student);
+              }
+            }
+          }
+          
+          data['groups'] = groupsCount;
+          data['students'] = studentIds.length;
+          
+          courses.add(data);
+        }
+        
+        return courses;
+      },
     );
   }
 
@@ -342,4 +371,21 @@ class FirebaseService {
 
   /// @deprecated Use [removeMockData] instead.
   Future<void> removeMockUsers() => removeMockData();
+
+  // ── LEADERBOARD ─────────────────────────────────────────────────────────────
+
+  /// Stream of leaderboard (top students by total stars)
+  Stream<List<Map<String, dynamic>>> getLeaderboardStream() {
+    return _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'student')
+        .orderBy('totalStars', descending: true)
+        .limit(10)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+              final data = doc.data();
+              data['id'] = doc.id;
+              return data;
+            }).toList());
+  }
 }
