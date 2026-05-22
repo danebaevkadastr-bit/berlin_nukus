@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/user_avatar.dart';
+import '../../utils/user_profile_utils.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../services/firebase_service.dart';
@@ -95,6 +97,7 @@ class AdminGroupDetailScreen extends StatelessWidget {
 
           final groupData = snapshot.data?.data() as Map<String, dynamic>? ?? {};
           final studentIds = List<String>.from(groupData['students'] ?? []);
+          final teacherId = groupData['teacherId'] as String? ?? '';
           final teacherName = groupData['teacherName'] as String? ?? 'Biriktirilmagan';
 
           return ListView(
@@ -131,15 +134,82 @@ class AdminGroupDetailScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Text(
-                        teacherName.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? Colors.white : AppColors.duoTextDark,
-                        ),
+                    if (teacherId.isNotEmpty)
+                      StreamBuilder<DocumentSnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(teacherId)
+                            .snapshots(),
+                        builder: (context, teacherSnap) {
+                          final tData =
+                              teacherSnap.data?.data() as Map<String, dynamic>? ?? {};
+                          return UserAvatar(
+                            imageUrl: UserProfileUtils.avatarUrl(tData),
+                            size: 48,
+                            fallbackEmoji: '👨‍🏫',
+                            backgroundColor: AppColors.duoGreen.withValues(alpha: 0.15),
+                          );
+                        },
+                      )
+                    else
+                      UserAvatar(
+                        size: 48,
+                        fallbackEmoji: '👨‍🏫',
+                        backgroundColor: AppColors.duoGreen.withValues(alpha: 0.15),
                       ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: teacherId.isNotEmpty
+                          ? StreamBuilder<DocumentSnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(teacherId)
+                                  .snapshots(),
+                              builder: (context, teacherSnap) {
+                                final tData = teacherSnap.data?.data()
+                                        as Map<String, dynamic>? ??
+                                    {};
+                                final name = UserProfileUtils.displayName(
+                                  tData,
+                                  fallback: teacherName,
+                                );
+                                final phone = UserProfileUtils.phone(tData);
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      name.toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: isDark
+                                            ? Colors.white
+                                            : AppColors.duoTextDark,
+                                      ),
+                                    ),
+                                    if (phone.isNotEmpty)
+                                      Text(
+                                        phone,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark
+                                              ? Colors.white70
+                                              : AppColors.duoTextLight,
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            )
+                          : Text(
+                              teacherName.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white : AppColors.duoTextDark,
+                              ),
+                            ),
                     ),
                     GestureDetector(
                       onTap: () async {
@@ -312,8 +382,9 @@ class _FirebaseStudentItem extends StatelessWidget {
             return const SizedBox(height: 72, child: Center(child: CircularProgressIndicator(color: AppColors.duoBlue)));
           }
           final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
-          final name = data['fullName'] ?? 'Noma\'lum';
-          final phone = data['phone'] ?? '';
+          final name = UserProfileUtils.displayName(data);
+          final phone = UserProfileUtils.phone(data);
+          final avatar = UserProfileUtils.avatarUrl(data);
 
           return GamifiedCard(
             padding: const EdgeInsets.all(16),
@@ -321,14 +392,10 @@ class _FirebaseStudentItem extends StatelessWidget {
             shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
             child: Row(
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.duoBlue.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Center(child: Text('🧑‍🎓', style: TextStyle(fontSize: 24))),
+                UserAvatar(
+                  imageUrl: avatar,
+                  size: 48,
+                  fallbackEmoji: '🧑‍🎓',
                 ),
                 const SizedBox(width: 14),
                 Expanded(

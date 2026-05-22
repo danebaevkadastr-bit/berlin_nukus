@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/firebase_service.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/user_avatar.dart';
+import '../../utils/user_profile_utils.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
@@ -92,9 +94,10 @@ class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
                     final data = students[index];
                     return _StudentCard(
                       studentId: data['id'],
-                      name: data['fullName'] ?? l.noData,
+                      name: UserProfileUtils.displayName(data, fallback: l.noData),
                       email: data['email'] ?? l.noData,
-                      phone: data['phone'] ?? l.noData,
+                      phone: UserProfileUtils.phone(data),
+                      avatarUrl: UserProfileUtils.avatarUrl(data),
                       createdAt: data['createdAt'],
                       isDark: isDark,
                       l: l,
@@ -209,6 +212,7 @@ class _StudentCard extends StatefulWidget {
   final String name;
   final String email;
   final String phone;
+  final String avatarUrl;
   final DateTime? createdAt;
   final bool isDark;
   final AppLocalizations l;
@@ -219,6 +223,7 @@ class _StudentCard extends StatefulWidget {
     required this.name,
     required this.email,
     required this.phone,
+    required this.avatarUrl,
     required this.createdAt,
     required this.isDark,
     required this.l,
@@ -246,14 +251,11 @@ class _StudentCardState extends State<_StudentCard> {
           children: [
             Row(
               children: [
-                Container(
-                  height: 52,
-                  width: 52,
-                  decoration: BoxDecoration(
-                    color: AppColors.duoBlue.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Center(child: Text('🧑‍🎓', style: TextStyle(fontSize: 26))),
+                UserAvatar(
+                  imageUrl: widget.avatarUrl,
+                  size: 52,
+                  fallbackEmoji: '🧑‍🎓',
+                  borderRadius: 16,
                 ),
                 const SizedBox(width: 14),
                 Expanded(

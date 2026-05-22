@@ -5,6 +5,8 @@ import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/course_week_utils.dart';
 import '../../utils/theme_manager.dart';
+import '../../utils/user_profile_utils.dart';
+import '../../widgets/user_avatar.dart';
 import '../../l10n/app_localizations.dart';
 
 class TeacherCourseDetailScreen extends StatefulWidget {
@@ -1194,7 +1196,9 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               final doc = docs[i];
                               final udata = doc.data() as Map<String, dynamic>;
                               final name =
-                                  '${udata['firstName'] ?? ''} ${udata['lastName'] ?? ''}'.trim();
+                                  UserProfileUtils.displayName(udata, fallback: 'Talaba');
+                              final phone = UserProfileUtils.phone(udata);
+                              final avatar = UserProfileUtils.avatarUrl(udata);
                               final uid = doc.id;
                               final subData =
                                   day.submissions[uid] as Map<String, dynamic>? ?? {};
@@ -1213,15 +1217,12 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                       isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
                                   child: Row(
                                     children: [
-                                      Container(
-                                        height: 42, width: 42,
-                                        decoration: BoxDecoration(
-                                            color: sColor.withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(12)),
-                                        child: Center(
-                                          child: Text(submitted ? '✅' : '❌',
-                                              style: const TextStyle(fontSize: 20)),
-                                        ),
+                                      UserAvatar(
+                                        imageUrl: avatar,
+                                        size: 42,
+                                        fallbackEmoji: '🧑‍🎓',
+                                        backgroundColor: sColor.withValues(alpha: 0.15),
+                                        borderRadius: 12,
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(
@@ -1229,7 +1230,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              name.isEmpty ? 'Talaba' : name,
+                                              name,
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w800,
@@ -1238,6 +1239,17 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                                     : AppColors.duoTextDark,
                                               ),
                                             ),
+                                            if (phone.isNotEmpty)
+                                              Text(
+                                                phone,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isDark
+                                                      ? Colors.white54
+                                                      : AppColors.duoTextLight,
+                                                ),
+                                              ),
                                             if (submitted && subData['note'] != null)
                                               Text(
                                                 subData['note'] as String,
@@ -1701,9 +1713,12 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                 itemBuilder: (context, index) {
                                   final doc = userDocs[index];
                                   final uData = doc.data() as Map<String, dynamic>;
-                                  final name =
-                                      '${uData['firstName'] ?? ''} ${uData['lastName'] ?? ''}'
-                                          .trim();
+                                  final name = UserProfileUtils.displayName(
+                                    uData,
+                                    fallback: 'Talaba',
+                                  );
+                                  final phone = UserProfileUtils.phone(uData);
+                                  final avatar = UserProfileUtils.avatarUrl(uData);
                                   final uid = doc.id;
                                   final isPresent = attendanceMap[uid] ?? true;
                                   final sColor =
@@ -1723,31 +1738,49 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Row(
-                                            children: [
-                                              Container(
-                                                height: 44, width: 44,
-                                                decoration: BoxDecoration(
-                                                    color: sColor.withValues(alpha: 0.15),
-                                                    borderRadius: BorderRadius.circular(14)),
-                                                child: Center(
-                                                  child: Text(
-                                                      isPresent ? '🙋‍♂️' : '🙅‍♂️',
-                                                      style: const TextStyle(fontSize: 22)),
+                                          Expanded(
+                                            child: Row(
+                                              children: [
+                                                UserAvatar(
+                                                  imageUrl: avatar,
+                                                  size: 44,
+                                                  fallbackEmoji: '🧑‍🎓',
+                                                  backgroundColor:
+                                                      sColor.withValues(alpha: 0.15),
+                                                  borderRadius: 14,
                                                 ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                name.isEmpty ? 'Talaba' : name,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w800,
-                                                  color: isDark
-                                                      ? Colors.white
-                                                      : AppColors.duoTextDark,
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        name,
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w800,
+                                                          color: isDark
+                                                              ? Colors.white
+                                                              : AppColors.duoTextDark,
+                                                        ),
+                                                      ),
+                                                      if (phone.isNotEmpty)
+                                                        Text(
+                                                          phone,
+                                                          style: TextStyle(
+                                                            fontSize: 13,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: isDark
+                                                                ? Colors.white54
+                                                                : AppColors.duoTextLight,
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                           Switch(
                                             value: isPresent,

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/user_avatar.dart';
+import '../../utils/user_profile_utils.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 
@@ -233,8 +235,9 @@ class _StudentPaymentTile extends StatelessWidget {
         if (!snapshot.hasData) return const Padding(padding: EdgeInsets.only(bottom: 16), child: SizedBox(height: 80, child: Center(child: CircularProgressIndicator(color: AppColors.duoOrange))));
 
         final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
-        final name = data['fullName'] ?? 'Noma\'lum';
-        final phone = data['phone'] ?? '';
+        final name = UserProfileUtils.displayName(data);
+        final phone = UserProfileUtils.phone(data);
+        final avatar = UserProfileUtils.avatarUrl(data);
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
@@ -247,10 +250,11 @@ class _StudentPaymentTile extends StatelessWidget {
             )),
             child: Row(
               children: [
-                Container(
-                  height: 48, width: 48,
-                  decoration: BoxDecoration(color: AppColors.duoGreen.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(16)),
-                  child: const Icon(Icons.person_rounded, color: AppColors.duoGreen, size: 26),
+                UserAvatar(
+                  imageUrl: avatar,
+                  size: 48,
+                  fallbackEmoji: '🧑‍🎓',
+                  backgroundColor: AppColors.duoGreen.withValues(alpha: 0.15),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

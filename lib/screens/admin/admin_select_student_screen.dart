@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/user_avatar.dart';
+import '../../utils/user_profile_utils.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../services/firebase_service.dart';
@@ -127,14 +129,10 @@ class _AdminSelectStudentScreenState extends State<AdminSelectStudentScreen> {
                         },
                         child: Row(
                           children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: AppColors.duoBlue.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Center(child: Text('🧑‍🎓', style: TextStyle(fontSize: 24))),
+                            UserAvatar(
+                              imageUrl: UserProfileUtils.avatarUrl(data),
+                              size: 48,
+                              fallbackEmoji: '🧑‍🎓',
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -142,7 +140,7 @@ class _AdminSelectStudentScreenState extends State<AdminSelectStudentScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    data['fullName'] ?? 'Noma\'lum',
+                                    UserProfileUtils.displayName(data),
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w900,
