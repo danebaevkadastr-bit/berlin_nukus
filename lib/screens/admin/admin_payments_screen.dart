@@ -351,7 +351,9 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
               final periodText = _fmtPeriod(p['periodStart'] as Timestamp?, p['periodEnd'] as Timestamp?);
               final note = p['note'] ?? '';
               final adminNote = p['adminNote'] ?? '';
-              final hasMockReceipt = p['receiptMock'] == true;
+              final receiptUrl = p['receiptUrl'] as String? ?? '';
+              final hasReceipt =
+                  receiptUrl.isNotEmpty || p['receiptMock'] == true;
 
               Color statusColor;
               String statusText;
@@ -418,37 +420,86 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                         _infoRow(isDark, Icons.comment_rounded, 'IZOH', note),
                       ],
 
-                      // Receipt (mock)
+                      // Chek
                       if (type == 'card') ...[
                         const SizedBox(height: 10),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: hasMockReceipt
-                                ? AppColors.duoGreen.withValues(alpha: 0.08)
-                                : AppColors.duoRed.withValues(alpha: 0.08),
-                            border: Border.all(
-                              color: hasMockReceipt ? AppColors.duoGreen.withValues(alpha: 0.3) : AppColors.duoRed.withValues(alpha: 0.3),
+                        GestureDetector(
+                          onTap: receiptUrl.isEmpty
+                              ? null
+                              : () => showDialog(
+                                    context: context,
+                                    builder: (ctx) => Dialog(
+                                      child: InteractiveViewer(
+                                        child: Image.network(receiptUrl),
+                                      ),
+                                    ),
+                                  ),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: hasReceipt
+                                  ? AppColors.duoGreen.withValues(alpha: 0.08)
+                                  : AppColors.duoRed.withValues(alpha: 0.08),
+                              border: Border.all(
+                                color: hasReceipt
+                                    ? AppColors.duoGreen.withValues(alpha: 0.3)
+                                    : AppColors.duoRed.withValues(alpha: 0.3),
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                hasMockReceipt ? Icons.receipt_rounded : Icons.receipt_long_outlined,
-                                color: hasMockReceipt ? AppColors.duoGreen : AppColors.duoRed,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                hasMockReceipt ? 'Chek biriktirilgan' : 'Chek biriktirilmagan',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: hasMockReceipt ? AppColors.duoGreen : AppColors.duoRed,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      hasReceipt
+                                          ? Icons.receipt_rounded
+                                          : Icons.receipt_long_outlined,
+                                      color: hasReceipt
+                                          ? AppColors.duoGreen
+                                          : AppColors.duoRed,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      hasReceipt
+                                          ? 'Chek biriktirilgan'
+                                          : 'Chek biriktirilmagan',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: hasReceipt
+                                            ? AppColors.duoGreen
+                                            : AppColors.duoRed,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
+                                if (receiptUrl.isNotEmpty) ...[
+                                  const SizedBox(height: 10),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      receiptUrl,
+                                      height: 80,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Kattalashtirish uchun bosing',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isDark
+                                          ? Colors.white54
+                                          : AppColors.duoTextLight,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         ),
                       ],

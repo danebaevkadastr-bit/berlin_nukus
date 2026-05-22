@@ -59,6 +59,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Profil rasmi va to'lov chekini yuklash uchun galereyaga kirish kerak.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Profil rasmi va to'lov chekini suratga olish uchun kamera kerak.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Nemis tilida gapirish mashqlari uchun mikrofon kerak.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

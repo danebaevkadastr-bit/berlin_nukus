@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../services/cloudinary_service.dart';
+import '../../services/firebase_service.dart';
+import '../../utils/image_picker_helper.dart';
+
 class UserProvider extends ChangeNotifier {
   User? _firebaseUser;
   String _name = 'Mehmon';
@@ -55,6 +59,31 @@ class UserProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error loading user profile: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Profil rasmini Cloudinary ga yuklab Firestore va lokal holatni yangilaydi.
+  Future<String?> pickAndUploadAvatar(BuildContext context) async {
+    final uid = _firebaseUser?.uid;
+    if (uid == null) return null;
+
+    final picked = await ImagePickerHelper.pickImage(context);
+    if (picked == null) return null;
+
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final url = await CloudinaryService.uploadXFile(
+        file: picked,
+        folder: 'profiles/$uid',
+      );
+      await FirebaseService().updateUserProfile(uid, avatarUrl: url);
+      _avatarUrl = url;
+      notifyListeners();
+      return url;
     } finally {
       _isLoading = false;
       notifyListeners();

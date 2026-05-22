@@ -77,34 +77,77 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       child: Column(
         children: [
-          Container(
-            width: 88,
-            height: 88,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              color: AppColors.duoPurple,
-              border: Border.all(color: AppColors.duoPurpleShadow, width: 2),
-              boxShadow: const [
-                BoxShadow(
-                  color: AppColors.duoPurpleShadow,
-                  offset: Offset(0, 5),
+          GestureDetector(
+            onTap: userProvider.isLoading
+                ? null
+                : () async {
+                    final url = await userProvider.pickAndUploadAvatar(context);
+                    if (!mounted) return;
+                    if (url != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profil rasmi yangilandi'),
+                          backgroundColor: AppColors.duoGreen,
+                        ),
+                      );
+                    }
+                  },
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 88,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28),
+                    color: AppColors.duoPurple,
+                    border: Border.all(color: AppColors.duoPurpleShadow, width: 2),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: AppColors.duoPurpleShadow,
+                        offset: Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: userProvider.avatarUrl.isEmpty
+                      ? const Center(child: Text('👨‍🏫', style: TextStyle(fontSize: 48)))
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(26),
+                          child: Image.network(
+                            userProvider.avatarUrl,
+                            fit: BoxFit.cover,
+                            width: 88,
+                            height: 88,
+                            errorBuilder: (_, __, ___) => const Center(
+                              child: Text('👨‍🏫', style: TextStyle(fontSize: 48)),
+                            ),
+                          ),
+                        ),
+                ),
+                Positioned(
+                  right: -4,
+                  bottom: -4,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.duoGreen,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: userProvider.isLoading
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
+                  ),
                 ),
               ],
             ),
-            child: userProvider.avatarUrl.isEmpty
-                ? const Center(child: Text('👨‍🏫', style: TextStyle(fontSize: 48)))
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(26),
-                    child: Image.network(
-                      userProvider.avatarUrl,
-                      fit: BoxFit.cover,
-                      width: 88,
-                      height: 88,
-                      errorBuilder: (_, __, ___) => const Center(
-                        child: Text('👨‍🏫', style: TextStyle(fontSize: 48)),
-                      ),
-                    ),
-                  ),
           ),
           const SizedBox(height: 16),
           Text(

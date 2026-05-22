@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../services/cloudinary_service.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/image_picker_helper.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/gamified_card.dart';
 
@@ -17,7 +19,8 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
 
   List<_Period> _periods = [];
   int _selectedPeriodIndex = -1;
-  bool _hasMockReceipt = false;
+  String? _receiptUrl;
+  bool _isUploadingReceipt = false;
   bool _isLoading = true;
   bool _isSending = false;
   String? _groupId;
@@ -85,6 +88,27 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
     }
   }
 
+  Future<void> _pickAndUploadReceipt() async {
+    final picked = await ImagePickerHelper.pickImage(context);
+    if (picked == null) return;
+
+    setState(() => _isUploadingReceipt = true);
+    try {
+      final url = await CloudinaryService.uploadXFile(
+        file: picked,
+        folder: 'receipts/${widget.studentId}',
+      );
+      if (mounted) {
+        setState(() => _receiptUrl = url);
+        _showSnack('Chek yuklandi', AppColors.duoGreen);
+      }
+    } catch (e) {
+      if (mounted) _showSnack('Chek yuklanmadi: $e', AppColors.duoRed);
+    } finally {
+      if (mounted) setState(() => _isUploadingReceipt = false);
+    }
+  }
+
   Future<void> _submitPayment() async {
     if (_selectedPeriodIndex < 0) {
       _showSnack('Iltimos, period tanlang', AppColors.duoOrange);
@@ -123,7 +147,8 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
         'type': 'card',
         'note': _noteController.text.trim(),
         'adminNote': '',
-        'receiptMock': _hasMockReceipt,
+        if (_receiptUrl != null) 'receiptUrl': _receiptUrl,
+        'receiptMock': _receiptUrl != null,
         'status': 'pending',
         'createdAt': FieldValue.serverTimestamp(),
       });
@@ -318,18 +343,18 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                   _sectionTitle(isDark, Icons.receipt_long_rounded, 'CHEK BIRIKTIRISH'),
                   const SizedBox(height: 12),
                   GestureDetector(
-                    onTap: () => setState(() => _hasMockReceipt = !_hasMockReceipt),
+                    onTap: _isUploadingReceipt ? null : _pickAndUploadReceipt,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: _hasMockReceipt
+                        color: _receiptUrl != null
                             ? AppColors.duoGreen.withValues(alpha: 0.1)
                             : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white),
                         border: Border.all(
-                          color: _hasMockReceipt
+                          color: _receiptUrl != null
                               ? AppColors.duoGreen
                               : (isDark ? Colors.white12 : AppColors.duoCardGrayShadow),
                           width: 2,
@@ -337,26 +362,42 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                       ),
                       child: Column(
                         children: [
-                          Icon(
-                            _hasMockReceipt
-                                ? Icons.check_circle_rounded
-                                : Icons.add_photo_alternate_outlined,
-                            size: 48,
-                            color: _hasMockReceipt ? AppColors.duoGreen : (isDark ? Colors.white30 : AppColors.duoTextLight),
-                          ),
+                          if (_isUploadingReceipt)
+                            const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: CircularProgressIndicator(color: AppColors.duoGreen),
+                            )
+                          else if (_receiptUrl != null)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                _receiptUrl!,
+                                height: 120,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          else
+                            Icon(
+                              Icons.add_photo_alternate_outlined,
+                              size: 48,
+                              color: isDark ? Colors.white30 : AppColors.duoTextLight,
+                            ),
                           const SizedBox(height: 10),
                           Text(
-                            _hasMockReceipt ? 'CHEK BIRIKTIRILDI ✓' : 'CHEK RASMINI TANLANG',
+                            _receiptUrl != null
+                                ? 'CHEK BIRIKTIRILDI ✓'
+                                : 'CHEK RASMINI TANLANG',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
-                              color: _hasMockReceipt
+                              color: _receiptUrl != null
                                   ? AppColors.duoGreen
                                   : (isDark ? Colors.white54 : AppColors.duoTextLight),
                               letterSpacing: 0.5,
                             ),
                           ),
-                          if (!_hasMockReceipt) ...[
+                          if (_receiptUrl == null && !_isUploadingReceipt) ...[
                             const SizedBox(height: 6),
                             Text(
                               'Galereya yoki kameradan tanlang',
