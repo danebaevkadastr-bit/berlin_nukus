@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// O'yinlardan toplangan yulduzlarni qurilmada saqlaydi (o'yin holati emas).
 class GameStarsService {
   static String _derDieDasKey(String uid) => 'game_stars_der_die_das_$uid';
+  static String _strangeSentencesKey(String uid) =>
+      'game_stars_strange_sentences_$uid';
 
   static Future<int> getDerDieDasStars(String uid) async {
     final prefs = await SharedPreferences.getInstance();
@@ -19,8 +21,24 @@ class GameStarsService {
     return total;
   }
 
-  /// Hozircha barcha o'yinlar yig'indisi (kelajakda boshqa o'yinlar qo'shiladi).
+  static Future<int> getStrangeSentencesStars(String uid) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_strangeSentencesKey(uid)) ?? 0;
+  }
+
+  static Future<int> addStrangeSentencesStars(String uid, int earned) async {
+    if (earned <= 0) return getStrangeSentencesStars(uid);
+    final prefs = await SharedPreferences.getInstance();
+    final key = _strangeSentencesKey(uid);
+    final total = (prefs.getInt(key) ?? 0) + earned;
+    await prefs.setInt(key, total);
+    return total;
+  }
+
+  /// Barcha o'yinlar yig'indisi.
   static Future<int> getTotalStars(String uid) async {
-    return getDerDieDasStars(uid);
+    final der = await getDerDieDasStars(uid);
+    final strange = await getStrangeSentencesStars(uid);
+    return der + strange;
   }
 }

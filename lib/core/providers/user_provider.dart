@@ -75,62 +75,15 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Sign in with Firebase Auth and handle fallback auto-registration for pre-existing mock accounts
+  /// Sign in with Firebase Auth.
   Future<void> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
     try {
-      // Auto-register pre-existing mock accounts in Firebase Auth on first login attempt to ensure
-      // convenience credentials continue to work out-of-the-box on Firebase.
-      final isMockAccount = (email == 'admin@mail.com' || email == 'teacher@mail.com' || email == 'student@mail.com') && password == '123456';
-      
-      if (isMockAccount) {
-        try {
-          await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-        } on FirebaseAuthException catch (e) {
-          if (e.code == 'user-not-found' || e.code == 'invalid-credential' || e.code == 'wrong-password') {
-            // Register this mock account in Firebase Auth
-            final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-              email: email,
-              password: password,
-            );
-            final uid = userCredential.user!.uid;
-
-            // Generate user fields depending on the mock role
-            String mockName = 'Talaba (Student)';
-            String mockRole = 'student';
-            String mockPhone = '+998991112255';
-
-            if (email == 'admin@mail.com') {
-              mockName = 'Admin (Musa)';
-              mockRole = 'admin';
-              mockPhone = '+998991112233';
-            } else if (email == 'teacher@mail.com') {
-              mockName = 'O\'qituvchi (Teacher)';
-              mockRole = 'teacher';
-              mockPhone = '+998991112244';
-            }
-
-            // Save user document in Cloud Firestore
-            await FirebaseFirestore.instance.collection('users').doc(uid).set({
-              'uid': uid,
-              'fullName': mockName,
-              'email': email,
-              'phone': mockPhone,
-              'role': mockRole,
-              'createdAt': FieldValue.serverTimestamp(),
-            });
-
-            // Trigger sign in after creation
-            await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-          } else {
-            rethrow;
-          }
-        }
-      } else {
-        // Standard user authentication
-        await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-      }
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
     } finally {
       _isLoading = false;
       notifyListeners();

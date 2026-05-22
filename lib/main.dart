@@ -22,8 +22,7 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    // Seed initial mock data if database is empty
-    await FirebaseService().seedInitialData();
+    await FirebaseService().removeMockData();
     // groups ichidagi eski darslarni darslar collectionga ko'chirish
     await DarslarService().migrateLessonsIfNeeded();
   } catch (e) {

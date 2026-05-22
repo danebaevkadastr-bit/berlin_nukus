@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+
+import '../models/strange_sentences_round.dart';
+import '../utils/strange_sentences_fallback.dart';
 
 class AIService {
   static String get _apiKey => dotenv.env['QWEN_API_KEY']?.trim() ?? '';
@@ -195,6 +199,67 @@ $answer
         },
       ],
     );
+  }
+
+  /// G'alati gaplar o'yini uchun aralash raundlar (pick + order).
+  static Future<List<StrangeSentencesRound>> generateStrangeSentenceRounds({
+    int count = 8,
+  }) async {
+    try {
+      final raw = await _chat(
+        temperature: 0.85,
+        messages: [
+          {
+            'role': 'system',
+            'content': '''
+Sen nemis tili A1-A2 o'yin yaratuvchisisan.
+Faqat JSON qaytaring: {"rounds":[...]} — boshqa matn yo'q.
+
+Har raund:
+- type: "pick" yoki "order" (aralash, taxminan yarim-yarim)
+- correctSentence: nemischa, grammatik TO'G'RI, lekin mantiqan absurdt/g'alati (1 gap, Present)
+- explanationUz: o'zbekcha, 1 qisqa gap nima uchun to'g'ri
+
+"type":"pick" uchun:
+- options: aynan 3 ta nemischa gap. FAQAT BITTASI correctSentence bilan bir xil.
+- Qolgan 2 tasi grammatik XATO (fe'l, artikl, tartib).
+
+"type":"order" uchun:
+- shuffledWords: correctSentence so'zlariga bo'lingan massiv, ARALASHTIRILGAN.
+- So'zlar soni va tarkibi correctSentence bilan mos bo'lsin.
+
+$count ta raund.''',
+          },
+          {
+            'role': 'user',
+            'content': '$count ta yangi raund yarating.',
+          },
+        ],
+      );
+
+      final decoded = jsonDecode(_extractJson(raw));
+      if (decoded is! Map) throw Exception('Invalid JSON root');
+
+      final list = decoded['rounds'];
+      if (list is! List || list.isEmpty) throw Exception('Empty rounds');
+
+      final rounds = <StrangeSentencesRound>[];
+      for (final item in list) {
+        if (item is! Map) continue;
+        final map = Map<String, dynamic>.from(item);
+        final round = StrangeSentencesRound.fromJson(map);
+        if (round.isValid) rounds.add(round);
+      }
+
+      if (rounds.length >= count) {
+        rounds.shuffle(Random());
+        return rounds.take(count).toList();
+      }
+    } catch (e) {
+      debugPrint('generateStrangeSentenceRounds: $e');
+    }
+
+    return StrangeSentencesFallback.sample(count: count);
   }
 
   static Future<String> explainWord({required String word}) async {

@@ -9,6 +9,7 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/der_die_das_rules.dart';
 import '../../../utils/game_words.dart';
 import '../../../utils/theme_manager.dart';
+import '../../../widgets/decorative_pattern_background.dart';
 import '../../../widgets/gamified_card.dart';
 import 'der_die_das_rules_screen.dart';
 
@@ -197,9 +198,13 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
               ),
             ],
           ),
-          body: _finished
-              ? _buildResults(isDark)
-              : _buildGame(isDark, locale.code),
+          body: DecorativePatternBackground(
+            isDark: isDark,
+            variant: DecorativePatternVariant.derDieDas,
+            child: _finished
+                ? _buildResults(isDark)
+                : _buildGame(isDark, locale.code),
+          ),
         );
       },
     );

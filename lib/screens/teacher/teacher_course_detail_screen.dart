@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/darslar_service.dart';
 import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/course_week_utils.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -50,23 +51,20 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
   }
 
   List<_WeekRange> _generateWeeks(DateTime startDate, int weeksCount) {
-    final weeks = <_WeekRange>[];
-    DateTime monday = startDate.subtract(Duration(days: startDate.weekday - 1));
-    for (int i = 0; i < weeksCount; i++) {
-      final weekStart = monday.add(Duration(days: i * 7));
-      final weekEnd = weekStart.add(const Duration(days: 6));
-      weeks.add(_WeekRange(start: weekStart, end: weekEnd, index: i));
-    }
-    return weeks;
+    return CourseWeekUtils.generateWeeks(startDate, weeksCount)
+        .map((w) => _WeekRange(start: w.start, end: w.end, index: w.index))
+        .toList();
   }
 
-  String _formatShortDate(DateTime date) {
-    final l = AppLocalizations.of(context);
-    final months = [
-      l.jan, l.feb, l.mar, l.apr, l.may, l.iyn,
-      l.iyl, l.avg, l.sen, l.okt, l.noy, l.dek
-    ];
-    return '${date.day} ${months[date.month - 1]}';
+  /// Kompakt sana: 10.05
+  String _formatDayMonth(DateTime date) {
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    return '$d.$m';
+  }
+
+  String _formatWeekRangeLabel(_WeekRange week) {
+    return '${_formatDayMonth(week.start)} - ${_formatDayMonth(week.end)}';
   }
 
   String _formatDateKey(DateTime date) {
@@ -89,8 +87,12 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
     final startDate = _parseStartDate(startedDateStr);
     final normalizedStartDate = DateTime(startDate.year, startDate.month, startDate.day);
 
-    for (int weekday = 1; weekday <= 7; weekday++) {
-      final date = week.start.add(Duration(days: weekday - 1));
+    final weekRange = CourseWeekRange(
+      start: week.start,
+      end: week.end,
+      index: week.index,
+    );
+    for (final date in CourseWeekUtils.daysInWeek(weekRange)) {
       if (date.isBefore(normalizedStartDate)) continue;
 
       final dateKey = _formatDateKey(date);
@@ -98,7 +100,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
       days.add(_LessonDay(
         date: date,
-        weekdayName: _getWeekdayName(weekday),
+        weekdayName: _getWeekdayName(date.weekday),
         lessonType: lessonData?['lessonType'] ?? 'Dars',
         hasLesson: lessonData != null,
         room: lessonData?['room'],
@@ -251,7 +253,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          '${_formatShortDate(week.start)} - ${_formatShortDate(week.end)}',
+                          _formatWeekRangeLabel(week),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,

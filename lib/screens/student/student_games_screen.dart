@@ -6,6 +6,7 @@ import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/game_stars_service.dart';
 import 'games/der_die_das_rules_screen.dart';
+import 'games/strange_sentences_rules_screen.dart';
 
 class StudentGamesScreen extends StatefulWidget {
   final bool isActive;
@@ -19,6 +20,7 @@ class StudentGamesScreen extends StatefulWidget {
 class _StudentGamesScreenState extends State<StudentGamesScreen> {
   int _totalStars = 0;
   int _derDieDasStars = 0;
+  int _strangeSentencesStars = 0;
   bool _loadingStars = true;
 
   @override
@@ -39,10 +41,12 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
     final total = await GameStarsService.getTotalStars(uid);
     final derDieDas = await GameStarsService.getDerDieDasStars(uid);
+    final strange = await GameStarsService.getStrangeSentencesStars(uid);
     if (!mounted) return;
     setState(() {
       _totalStars = total;
       _derDieDasStars = derDieDas;
+      _strangeSentencesStars = strange;
       _loadingStars = false;
     });
   }
@@ -62,6 +66,14 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const DerDieDasRulesScreen()),
+    );
+    await _loadStars();
+  }
+
+  Future<void> _openStrangeSentencesGame() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const StrangeSentencesRulesScreen()),
     );
     await _loadStars();
   }
@@ -157,199 +169,115 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('⭐', style: TextStyle(fontSize: 20)),
+                const SizedBox(width: 4),
+                Text(
+                  _loadingStars ? '...' : _formatStars(_totalStars),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 110),
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 110),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GamifiedCard(
-              color: AppColors.duoOrange,
-              shadowColor: AppColors.duoOrangeShadow,
-              shadowDepth: 6,
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.white.withValues(alpha: 0.25),
-                    ),
-                    child: const Center(
-                      child: Text('⭐', style: TextStyle(fontSize: 28)),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.myStars,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white70,
-                        ),
-                      ),
-                      Text(
-                        _loadingStars ? '...' : _formatStars(_totalStars),
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      color: Colors.white.withValues(alpha: 0.2),
-                    ),
-                    child: Row(
-                      children: [
-                        const Text('📘', style: TextStyle(fontSize: 16)),
-                        const SizedBox(width: 4),
-                        Text(
-                          _loadingStars ? '...' : _formatStars(_derDieDasStars),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            Text(
-              l.allGames.toUpperCase(),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: isDark ? Colors.white : AppColors.duoTextDark,
-                letterSpacing: 0.5,
-              ),
-            ),
-            const SizedBox(height: 16),
-
             _buildGameCard(
               context,
               icon: '🔄',
-              title: 'Synonym Battle',
+              title: l.gameSynonymBattleTitle,
               subtitle: l.synonymBattle,
-              stars: 3,
-              maxStars: 3,
               score: '250',
               color: AppColors.duoBlue,
-              shadowColor: AppColors.duoBlueShadow,
               onTap: _showComingSoonDialog,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             _buildGameCard(
               context,
               icon: '📝',
-              title: 'Grammatik O\'yin',
+              title: l.gameGrammarTitle,
               subtitle: l.grammarQuiz,
-              stars: 2,
-              maxStars: 3,
               score: '180',
               color: AppColors.duoGreen,
-              shadowColor: AppColors.duoGreenShadow,
               onTap: _showComingSoonDialog,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             _buildGameCard(
               context,
               icon: '📘',
-              title: 'Der, Die, Das',
+              title: l.gameDerDieDasTitle,
               subtitle: l.articleSpeedGame,
-              stars: 3,
-              maxStars: 3,
               score: _loadingStars ? '...' : _formatStars(_derDieDasStars),
               color: AppColors.duoRed,
-              shadowColor: AppColors.duoRedShadow,
               onTap: _openDerDieDasGame,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             _buildGameCard(
               context,
               icon: '🎤',
-              title: 'Ovozli O\'yin',
+              title: l.gameVoiceTitle,
               subtitle: l.pronunciationAndListening,
-              stars: 1,
-              maxStars: 3,
               score: '150',
               color: AppColors.duoPurple,
-              shadowColor: AppColors.duoPurpleShadow,
               onTap: _showComingSoonDialog,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             _buildGameCard(
               context,
               icon: '⚔️',
-              title: 'Tarjima Battle',
+              title: l.gameTranslationBattleTitle,
               subtitle: l.translationBattle,
-              stars: 3,
-              maxStars: 3,
               score: '350',
               color: AppColors.duoOrange,
-              shadowColor: AppColors.duoOrangeShadow,
               onTap: _showComingSoonDialog,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             _buildGameCard(
               context,
               icon: '🎭',
               title: l.strangeSentencesGame,
               subtitle: l.strangeSentencesDesc,
-              stars: 0,
-              maxStars: 3,
-              score: '0',
+              score: _loadingStars ? '...' : _formatStars(_strangeSentencesStars),
               color: AppColors.candyPink,
-              shadowColor: const Color(0xFFE91E63),
-              onTap: _showComingSoonDialog,
+              onTap: _openStrangeSentencesGame,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             _buildGameCard(
               context,
               icon: '📖',
               title: l.germanStoryGame,
               subtitle: l.germanStoryDesc,
-              stars: 0,
-              maxStars: 3,
               score: '0',
               color: AppColors.lavender,
-              shadowColor: const Color(0xFF7E57C2),
               onTap: _showComingSoonDialog,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             _buildGameCard(
               context,
               icon: '🖼️',
               title: l.describePictureGame,
               subtitle: l.describePictureDesc,
-              stars: 0,
-              maxStars: 3,
               score: '0',
               color: AppColors.skyBlue,
-              shadowColor: AppColors.duoBlueShadow,
               onTap: _showComingSoonDialog,
             ),
 
@@ -365,11 +293,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
     required String icon,
     required String title,
     required String subtitle,
-    required int stars,
-    required int maxStars,
     required String score,
     required Color color,
-    required Color shadowColor,
     VoidCallback? onTap,
   }) {
     final isDark = ThemeManager.isDark;
@@ -378,76 +303,47 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
       color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       shadowDepth: 5,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       onTap: onTap,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              color: color,
-              border: Border.all(color: shadowColor, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: shadowColor,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(icon, style: const TextStyle(fontSize: 32)),
-            ),
-          ),
-          const SizedBox(width: 16),
+          Text(icon, style: const TextStyle(fontSize: 40)),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  title.toUpperCase(),
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.3,
+                    height: 1.15,
                     color: isDark ? Colors.white : AppColors.duoTextDark,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   subtitle,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
+                    height: 1.3,
                     color: isDark ? Colors.white70 : AppColors.duoTextLight,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    ...List.generate(maxStars, (index) {
-                      return Text(
-                        index < stars ? '⭐' : '☆',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: index < stars
-                              ? AppColors.duoOrange
-                              : (isDark ? Colors.white30 : AppColors.duoTextLight),
-                        ),
-                      );
-                    }),
-                    const SizedBox(width: 8),
-                    Text(
-                      '$score ⭐',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: color,
-                      ),
-                    ),
-                  ],
-                ),
               ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '$score ⭐',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: color,
             ),
           ),
         ],

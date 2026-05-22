@@ -24,7 +24,7 @@ class AppLocalizations {
   String get navHome => _t({'uz': "Bosh", 'kaa': "Bas", 'ru': "Главная", 'de': "Start"});
   String get navGroup => _t({'uz': "Guruh", 'kaa': "Topar", 'ru': "Группа", 'de': "Gruppe"});
   String get navLearning => _t({'uz': "O'rganish", 'kaa': "Úyreniw", 'ru': "Учёба", 'de': "Lernen"});
-  String get navGames => _t({'uz': "O'yin", 'kaa': "Oyın", 'ru': "Игры", 'de': "Spiele"});
+  String get navGames => _t({'uz': "O'yinlar", 'kaa': "Oyınlar", 'ru': "Игры", 'de': "Spiele"});
   String get navProfile => _t({'uz': "Profil", 'kaa': "Profil", 'ru': "Профиль", 'de': "Profil"});
 
   // ── Login ──────────────────────────────────────────────────────────────────
@@ -536,11 +536,23 @@ class AppLocalizations {
     'ru': "Все игры",
     'de': "Alle Spiele",
   });
+  String get gameSynonymBattleTitle => _t({
+    'uz': "Sinonim jangi",
+    'kaa': "Sinonim gúresi",
+    'ru': "Битва синонимов",
+    'de': "Synonym-Kampf",
+  });
   String get synonymBattle => _t({
     'uz': "Sinonimlar jangi",
     'kaa': "Sinonimler gúresi",
     'ru': "Битва синонимов",
     'de': "Synonym-Kampf",
+  });
+  String get gameGrammarTitle => _t({
+    'uz': "Grammatik o'yin",
+    'kaa': "Grammatika oyını",
+    'ru': "Грамматическая игра",
+    'de': "Grammatikspiel",
   });
   String get grammarQuiz => _t({
     'uz': "Grammatika viktorinasi",
@@ -548,11 +560,23 @@ class AppLocalizations {
     'ru': "Грамматическая викторина",
     'de': "Grammatik-Quiz",
   });
+  String get gameDerDieDasTitle => _t({
+    'uz': "Der, die, das",
+    'kaa': "Der, die, das",
+    'ru': "Der, die, das",
+    'de': "Der, die, das",
+  });
   String get articleSpeedGame => _t({
     'uz': "Artikllar tezkor o'yini",
     'kaa': "Artikller tez oyını",
     'ru': "Быстрая игра с артиклями",
     'de': "Artikel-Schnellspiel",
+  });
+  String get gameVoiceTitle => _t({
+    'uz': "Ovozli o'yin",
+    'kaa': "Dawıslı oyın",
+    'ru': "Голосовая игра",
+    'de': "Sprachspiel",
   });
   String get pronunciationAndListening => _t({
     'uz': "Talaffuz va tinglash",
@@ -565,6 +589,12 @@ class AppLocalizations {
     'kaa': "Interaktiv gúrriń",
     'ru': "Интерактивная история",
     'de': "Interaktive Geschichte",
+  });
+  String get gameTranslationBattleTitle => _t({
+    'uz': "Tarjima battle",
+    'kaa': "Awdarma jarısı",
+    'ru': "Битва переводов",
+    'de': "Übersetzungsduell",
   });
   String get translationBattle => _t({
     'uz': "Bot bilan tarjima musobaqasi",
@@ -635,6 +665,60 @@ class AppLocalizations {
     'kaa': "Túsinim",
     'ru': "Понятно",
     'de': "Verstanden",
+  });
+  String get strangeSentencesPickHint => _t({
+    'uz': "Grammatik jihatdan to'g'ri g'alati gapni tanlang",
+    'kaa': "Grammatikalıq durıs ajayıp gápti tańlań",
+    'ru': "Выберите грамматически верное абсурдное предложение",
+    'de': "Wähle den grammatisch korrekten absurden Satz",
+  });
+  String get strangeSentencesOrderHint => _t({
+    'uz': "So'zlarni to'g'ri tartibda joylashtiring",
+    'kaa': "Sózlerdi durıs tártipte qoyıń",
+    'ru': "Расставьте слова в правильном порядке",
+    'de': "Ordne die Wörter in die richtige Reihenfolge",
+  });
+  String get strangeSentencesLoading => _t({
+    'uz': "AI yangi savollar tayyorlayapti...",
+    'kaa': "AI jańa sorawlar dayarlap atır...",
+    'ru': "ИИ готовит новые вопросы...",
+    'de': "KI bereitet neue Fragen vor...",
+  });
+  String get strangeSentencesRulesHowTo => _t({
+    'uz': "O'yin qoidalari",
+    'kaa': "Oyın qagıydaları",
+    'ru': "Правила игры",
+    'de': "Spielregeln",
+  });
+  String get strangeSentencesStart => _t({
+    'uz': "Boshlash",
+    'kaa': "Baslaw",
+    'ru': "Начать",
+    'de': "Starten",
+  });
+  String get strangeSentencesYourSentence => _t({
+    'uz': "Sizning gapingiz",
+    'kaa': "Siziń gápińiz",
+    'ru': "Ваше предложение",
+    'de': "Dein Satz",
+  });
+  String get strangeSentencesTapWords => _t({
+    'uz': "So'zlarni bosing",
+    'kaa': "Sózlerdi basıń",
+    'ru': "Нажимайте на слова",
+    'de': "Tippe auf die Wörter",
+  });
+  String get strangeSentencesCheck => _t({
+    'uz': "Tekshirish",
+    'kaa': "Tekseriw",
+    'ru': "Проверить",
+    'de': "Prüfen",
+  });
+  String get strangeSentencesReset => _t({
+    'uz': "Qayta",
+    'kaa': "Qayta",
+    'ru': "Сброс",
+    'de': "Zurücksetzen",
   });
 
   // ── Teacher ────────────────────────────────────────────────────────────────
