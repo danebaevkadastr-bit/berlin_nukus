@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/chat_progress_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/chat_theme.dart';
 import '../../utils/theme_manager.dart';
@@ -15,6 +16,7 @@ class ConversationsScreen extends StatefulWidget {
 
 class _ConversationsScreenState extends State<ConversationsScreen> {
   String selectedLevel = 'A1';
+  Set<String> _completedTopics = {};
 
   final Map<String, String> levelDescriptions = {
     'A1': 'Boshlang\'ich',
@@ -29,6 +31,21 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     'B1': Icons.library_books_rounded,
     'B2': Icons.auto_stories_rounded,
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompletedTopics();
+  }
+
+  Future<void> _loadCompletedTopics() async {
+    final titles = topics[selectedLevel]!.map((t) => t.title);
+    final done = await ChatProgressService.completedTitlesFor(
+      'conversation',
+      titles,
+    );
+    if (mounted) setState(() => _completedTopics = done);
+  }
 
   final Map<String, List<_ConversationItem>> topics = {
     "A1": [
@@ -432,9 +449,10 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(18),
-                      onTap: () {
+                      onTap: () async {
                         setState(() => selectedLevel = level);
-                        Navigator.pop(context);
+                        await _loadCompletedTopics();
+                        if (context.mounted) Navigator.pop(context);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(12),
@@ -671,6 +689,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
               separatorBuilder: (context, child) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final topic = currentTopics[index];
+                final isDone = _completedTopics.contains(topic.title);
                 return TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0, end: 1),
                   duration: Duration(milliseconds: 180 + (index * 18)),
@@ -692,16 +711,18 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       horizontal: 14,
                       vertical: 12,
                     ),
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => ChatScreen(
                             title: topic.title,
                             sourceType: 'conversation',
+                            initiallyCompleted: isDone,
                           ),
                         ),
                       );
+                      await _loadCompletedTopics();
                     },
                     child: Row(
                       children: [
@@ -749,11 +770,36 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                             ],
                           ),
                         ),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: _theme.textSecondary,
-                          size: 22,
-                        ),
+                        if (isDone)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.duoGreen.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.duoGreen,
+                                width: 1.2,
+                              ),
+                            ),
+                            child: const Text(
+                              'TUGALLANGAN',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.duoGreen,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: _theme.textSecondary,
+                            size: 22,
+                          ),
                       ],
                     ),
                   ),

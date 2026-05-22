@@ -19,8 +19,6 @@ class StudentGamesScreen extends StatefulWidget {
 
 class _StudentGamesScreenState extends State<StudentGamesScreen> {
   int _totalStars = 0;
-  int _derDieDasStars = 0;
-  int _strangeSentencesStars = 0;
   bool _loadingStars = true;
 
   @override
@@ -40,13 +38,9 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
   Future<void> _loadStars() async {
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
     final total = await GameStarsService.getTotalStars(uid);
-    final derDieDas = await GameStarsService.getDerDieDasStars(uid);
-    final strange = await GameStarsService.getStrangeSentencesStars(uid);
     if (!mounted) return;
     setState(() {
       _totalStars = total;
-      _derDieDasStars = derDieDas;
-      _strangeSentencesStars = strange;
       _loadingStars = false;
     });
   }
@@ -199,8 +193,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '🔄',
               title: l.gameSynonymBattleTitle,
               subtitle: l.synonymBattle,
-              score: '250',
-              color: AppColors.duoBlue,
               onTap: _showComingSoonDialog,
             ),
             const SizedBox(height: 14),
@@ -210,8 +202,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '📝',
               title: l.gameGrammarTitle,
               subtitle: l.grammarQuiz,
-              score: '180',
-              color: AppColors.duoGreen,
               onTap: _showComingSoonDialog,
             ),
             const SizedBox(height: 14),
@@ -221,8 +211,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '📘',
               title: l.gameDerDieDasTitle,
               subtitle: l.articleSpeedGame,
-              score: _loadingStars ? '...' : _formatStars(_derDieDasStars),
-              color: AppColors.duoRed,
               onTap: _openDerDieDasGame,
             ),
             const SizedBox(height: 14),
@@ -232,8 +220,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '🎤',
               title: l.gameVoiceTitle,
               subtitle: l.pronunciationAndListening,
-              score: '150',
-              color: AppColors.duoPurple,
               onTap: _showComingSoonDialog,
             ),
             const SizedBox(height: 14),
@@ -243,8 +229,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '⚔️',
               title: l.gameTranslationBattleTitle,
               subtitle: l.translationBattle,
-              score: '350',
-              color: AppColors.duoOrange,
               onTap: _showComingSoonDialog,
             ),
             const SizedBox(height: 14),
@@ -254,8 +238,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '🎭',
               title: l.strangeSentencesGame,
               subtitle: l.strangeSentencesDesc,
-              score: _loadingStars ? '...' : _formatStars(_strangeSentencesStars),
-              color: AppColors.candyPink,
               onTap: _openStrangeSentencesGame,
             ),
             const SizedBox(height: 14),
@@ -265,8 +247,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '📖',
               title: l.germanStoryGame,
               subtitle: l.germanStoryDesc,
-              score: '0',
-              color: AppColors.lavender,
               onTap: _showComingSoonDialog,
             ),
             const SizedBox(height: 14),
@@ -276,8 +256,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '🖼️',
               title: l.describePictureGame,
               subtitle: l.describePictureDesc,
-              score: '0',
-              color: AppColors.skyBlue,
               onTap: _showComingSoonDialog,
             ),
 
@@ -293,8 +271,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
     required String icon,
     required String title,
     required String subtitle,
-    required String score,
-    required Color color,
     VoidCallback? onTap,
   }) {
     final isDark = ThemeManager.isDark;
@@ -308,8 +284,6 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(icon, style: const TextStyle(fontSize: 40)),
-          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,15 +311,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Text(
-            '$score ⭐',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
-              color: color,
-            ),
-          ),
+          const SizedBox(width: 12),
+          Text(icon, style: const TextStyle(fontSize: 40)),
         ],
       ),
     );

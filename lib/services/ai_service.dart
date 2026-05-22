@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/strange_sentences_round.dart';
+import '../utils/chat_sanitize.dart';
 import '../utils/strange_sentences_fallback.dart';
 
 class AIService {
@@ -74,7 +75,8 @@ class AIService {
     }
 
     messages.add({'role': 'user', 'content': message});
-    return _chat(messages: messages);
+    final raw = await _chat(messages: messages);
+    return ChatSanitize.clean(raw);
   }
 
   static Future<Map<String, dynamic>> checkMistakes({
@@ -119,7 +121,8 @@ class AIService {
           'role': 'system',
           'content':
               'Nemis tili suhbati uchun 3 ta qisqa javob taklifi bering. '
-              'Har biri 1-2 gap, A1-B1 darajada. Faqat JSON massiv: ["gap1","gap2","gap3"]',
+              'Har biri 1-2 gap, A1-B1 darajada, faqat mavzu bo\'yicha aniq va konkret. '
+              'Emoji va smaylik ishlatma. Faqat JSON massiv: ["gap1","gap2","gap3"]',
         },
         {'role': 'user', 'content': context},
       ],
@@ -128,7 +131,11 @@ class AIService {
     try {
       final decoded = jsonDecode(_extractJson(raw));
       if (decoded is List) {
-        return decoded.map((e) => e.toString()).where((s) => s.isNotEmpty).take(3).toList();
+        return decoded
+            .map((e) => ChatSanitize.clean(e.toString()))
+            .where((s) => s.isNotEmpty)
+            .take(3)
+            .toList();
       }
     } catch (_) {}
 

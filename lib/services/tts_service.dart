@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 /// Text-to-speech for German AI replies.
@@ -7,6 +8,11 @@ class TTSService {
   bool isPlaying = false;
   String currentText = '';
 
+  /// O'qish tugaganda yoki bekor qilinganda UI yangilanishi uchun.
+  VoidCallback? onPlaybackStateChanged;
+
+  void _notifyState() => onPlaybackStateChanged?.call();
+
   Future<void> _ensureReady() async {
     if (_ready) return;
     await _tts.setLanguage('de-DE');
@@ -14,9 +20,18 @@ class TTSService {
     await _tts.setPitch(1.0);
     _tts.setCompletionHandler(() {
       isPlaying = false;
+      currentText = '';
+      _notifyState();
     });
     _tts.setCancelHandler(() {
       isPlaying = false;
+      currentText = '';
+      _notifyState();
+    });
+    _tts.setErrorHandler((_) {
+      isPlaying = false;
+      currentText = '';
+      _notifyState();
     });
     _ready = true;
   }
@@ -30,6 +45,7 @@ class TTSService {
     await stop();
     currentText = text;
     isPlaying = true;
+    _notifyState();
     await _tts.setSpeechRate(rateValue.clamp(0.4, 1.2));
     await _tts.speak(text);
   }
@@ -40,6 +56,7 @@ class TTSService {
     }
     isPlaying = false;
     currentText = '';
+    _notifyState();
   }
 
   void dispose() {

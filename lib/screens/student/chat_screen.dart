@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import '../../services/ai_service.dart';
+import '../../services/chat_progress_service.dart';
 import '../../services/stt_service.dart';
 import '../../services/tts_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/chat_theme.dart';
+import '../../utils/theme_manager.dart';
 import '../../widgets/chat/selected_word_sheet.dart';
+import '../../widgets/decorative_pattern_background.dart';
+import '../../widgets/gamified_card.dart';
 
 class ChatScreen extends StatefulWidget {
   final String title;
@@ -40,13 +45,13 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isSending = false;
   bool _isRecording = false;
   bool _lessonFinished = false;
-  bool _lessonCompletedByAI = false; // AI tomonidan tugatilganmi?
 
   double _textSize = 15;
   double _ttsSpeed = 0.8;
   bool _autoReadAiReply = true;
   bool _openTranslationByDefault = false;
   bool _showCorrections = true;
+  int _chatWordLimit = ChatProgressService.maxChatWordLimit;
 
   String _mentorName = 'Frau Schneider';
   String _mentorRole = 'AI Mentor • Online';
@@ -80,43 +85,43 @@ class _ChatScreenState extends State<ChatScreen> {
     ),
   ];
 
+  static const String _chatRules = '''
+UMUMIY QOIDALAR (qat'iy):
+- HECH QANDAY emoji, smaylik, sticker yuborma (:) ;) :D ham emas).
+- Faqat aniq va konkret yoz: so'zlar, misollar, bitta savol, qisqa qoida.
+- Umumiy motivatsiya, bo'sh gaplar, "super/toll/wunderbar" kabi izohlarsiz yoz.
+- Javob qisqa bo'lsin: maksimum 3-5 gap (lesson) yoki 4-6 gap (conversation).
+- Boshqa mavzuga o'tma, faqat berilgan mavzu bo'yicha.
+- Javoblar asosan nemis tilida; kerak bo'lsa 1 qator o'zbekcha yordam.
+''';
+
   String get _contextPrompt {
     if (widget.sourceType == 'lesson') {
       return '''
-Sen nemis tili o'qituvchisisan.
-Mavzu: ${widget.title}
+Sen nemis tili o'qituvchisisan. Foydalanuvchi tanlagan mavzu: "${widget.title}".
 
-MUHIM QOIDALAR:
-- Faqat shu mavzu bo'yicha dars ber.
-- O'zing mavzuni boshlab ber (faqat 1 marta).
-- Avval qisqa tushuntir, keyin savol ber.
-- Dars davomida bir marta boshlangan mavzuni takrorlama va boshqa mavzuga o'tma.
-- Foydalanuvchi savoliga javob ber, lekin mavzuni o'zgartirma.
-- Hech qachon "Heute lernen wir" yoki "Thema" deb qayta boshlamang.
-- Foydalanuvchini shu mavzu bo'yicha o'rgat.
-- Javoblar asosan nemis tilida bo'lsin.
-- Kerak bo'lsa qisqa yordamchi izoh ber.
+$_chatRules
 
-Darsni faqat quyidagi hollarda tugat:
-1. Foydalanuvchi mavzuni to'liq tushunganini ko'rsatsa
-2. Kamida 5-6 ta savol-javob bo'lgandan keyin
-3. Darsning boshida emas, faqat yetarlicha o'rganilgandan keyin
+DARS USLUBI:
+- Faqat "${widget.title}" bo'yicha o'rgat: aniq lug'at, 1 grammatika nuqtasi, 1 misol gap.
+- Har javobda: qisqa tushuntirish + 1 amaliy savol (yoki kichik mashq).
+- Mavzuni qayta e'lon qilma ("Heute lernen wir..." yozma).
+- Takroriy salomlashma va uzun matn yozma.
 
-Darsni tugatish uchun quyidagi iboralardan birini ishlat:
-"Lektion beendet", "Du hast die Lektion abgeschlossen"
+Darsni faqat yetarli o'rganilgandan keyin (5-6 almashinuv) tugat.
+Tugatish iborasi: "Lektion beendet" yoki "Du hast die Lektion abgeschlossen"
 ''';
     }
 
     return '''
-Sen nemis tili bo'yicha suhbatdosh mentorsan.
-Mavzu: ${widget.title}
+Sen nemis tili suhbat mentorisiz. Mavzu: "${widget.title}".
 
-Qoidalar:
-- Faqat shu mavzu atrofida suhbat qil.
-- Tabiiy suhbat qil.
-- O'qituvchi kabi ko'p dars bermay, ko'proq suhbat qil.
-- Juda uzun yozma.
-- Javoblar asosan nemis tilida bo'lsin.
+$_chatRules
+
+SUHBAT USLUBI:
+- Faqat "${widget.title}" haqida aniq savol-javob.
+- Har javobda 1 konkret savol ber (masalan: nima, qachon, qayerda, nega).
+- Uzun dars bermay, suhbat qil.
 ''';
   }
 
@@ -127,13 +132,73 @@ Qoidalar:
     );
   }
 
+  bool get _isFreeChat => widget.title.startsWith('Erkin suhbat');
+
+  int get _userMessageCount =>
+      _messages.where((m) => m.isUser && !m.isTyping).length;
+
   @override
   void initState() {
     super.initState();
-    _lessonFinished = widget.sourceType == 'lesson'
-        ? widget.initiallyCompleted
-        : false;
-    _resetChatWithInitialMessage();
+    _ttsService.onPlaybackStateChanged = () {
+      if (mounted) setState(() {});
+    };
+    _bootstrapSession();
+  }
+
+  Future<void> _bootstrapSession() async {
+    _chatWordLimit = await ChatProgressService.getChatWordLimit();
+
+    final completed = await ChatProgressService.isCompleted(
+      widget.sourceType,
+      widget.title,
+    );
+    final saved = await ChatProgressService.loadMessages(
+      widget.sourceType,
+      widget.title,
+    );
+
+    _lessonFinished =
+        widget.initiallyCompleted || (!_isFreeChat && completed);
+
+    if (saved.isNotEmpty) {
+      _messages
+        ..clear()
+        ..addAll(saved.map(ChatMessageModel.fromMap));
+      _updateReplyHintVisibility();
+    } else if (!_lessonFinished) {
+      _addInitialMessage();
+      await _persistMessages();
+    }
+
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _persistMessages() async {
+    final maps = _messages
+        .where((m) => !m.isTyping)
+        .map((m) => m.toMap())
+        .toList();
+    await ChatProgressService.saveMessages(
+      widget.sourceType,
+      widget.title,
+      maps,
+    );
+  }
+
+  Future<void> _markSessionFinished() async {
+    if (_isFreeChat || _lessonFinished) return;
+    setState(() => _lessonFinished = true);
+    await ChatProgressService.markCompleted(widget.sourceType, widget.title);
+    await _persistMessages();
+    _scrollToBottom(force: true);
+  }
+
+  void _checkMessageLimitCompletion() {
+    if (_isFreeChat || _lessonFinished) return;
+    if (_userMessageCount >= ChatProgressService.maxUserMessagesPerTopic) {
+      _markSessionFinished();
+    }
   }
 
   @override
@@ -164,12 +229,8 @@ Qoidalar:
       (keyword) => aiResponse.contains(keyword),
     );
 
-    if (shouldFinish && !_lessonFinished && !_lessonCompletedByAI) {
-      setState(() {
-        _lessonFinished = true;
-        _lessonCompletedByAI = true;
-      });
-      _scrollToBottom(force: true);
+    if (shouldFinish) {
+      _markSessionFinished();
     }
   }
 
@@ -191,27 +252,17 @@ Qoidalar:
     }
   }
 
-  void _resetChatWithInitialMessage() {
-    // Agar dars tugagan bo'lsa va AI tugatgan bo'lsa, qayta boshlamaslik
-    if (widget.sourceType == 'lesson' &&
-        _lessonCompletedByAI &&
-        !widget.initiallyCompleted) {
-      // Dars tugagan, faqat "Qayta boshlash" tugmasi bilan qayta boshlash mumkin
-      return;
-    }
-
+  void _addInitialMessage() {
     _messages.clear();
-    _lessonCompletedByAI = false;
-
-    if (widget.sourceType == 'conversation') {
-      _lessonFinished = false;
-    }
 
     final intro = widget.sourceType == 'lesson'
-        ? 'Hallo! Ich bin $_mentorName.\nHeute lernen wir das Thema "${widget.title}". '
-              'Ich beginne mit einer kurzen Erklärung.\nBist du bereit?'
-        : 'Hallo! Ich bin $_mentorName.\nHeute sprechen wir über "${widget.title}". '
-              'Lass uns anfangen.\nWas denkst du darüber?';
+        ? 'Hallo! Ich bin $_mentorName.\n'
+              'Thema: "${widget.title}".\n'
+              'Ich erkläre kurz 3 wichtige Wörter und stelle dir eine Frage.\n'
+              'Bist du bereit?'
+        : 'Hallo! Ich bin $_mentorName.\n'
+              'Thema: "${widget.title}".\n'
+              'Was möchtest du zuerst wissen?';
 
     _messages.add(
       ChatMessageModel(
@@ -225,26 +276,27 @@ Qoidalar:
       ),
     );
 
-    if (mounted) {
-      setState(() {});
-      _scrollToBottom(animated: false);
-    }
+    _scrollToBottom(animated: false);
   }
 
-  // Qayta boshlash uchun alohida metod
-  void _restartLesson() {
-    setState(() {
-      _lessonFinished = false;
-      _lessonCompletedByAI = false;
-    });
-    _resetChatWithInitialMessage();
+  Future<void> _restartLesson() async {
+    await ChatProgressService.clearCompleted(
+      widget.sourceType,
+      widget.title,
+    );
+    await ChatProgressService.clearMessages(widget.sourceType, widget.title);
+    setState(() => _lessonFinished = false);
+    _addInitialMessage();
+    await _persistMessages();
+    if (mounted) setState(() {});
   }
 
   List<Map<String, dynamic>> _historyForBackend() {
-    return _messages
+    final all = _messages
         .where((m) => !m.isTyping)
         .map((m) => {'role': m.isUser ? 'user' : 'assistant', 'text': m.text})
         .toList();
+    return ChatProgressService.trimHistoryByWordLimit(all, _chatWordLimit);
   }
 
   bool get _isNearBottom {
@@ -285,7 +337,11 @@ Qoidalar:
   Future<void> _sendMessage(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty || _isSending) return;
-    if (widget.sourceType == 'lesson' && _lessonFinished) return;
+    if (!_isFreeChat && _lessonFinished) return;
+    if (!_isFreeChat &&
+        _userMessageCount >= ChatProgressService.maxUserMessagesPerTopic) {
+      return;
+    }
 
     final userId = 'u_${DateTime.now().microsecondsSinceEpoch}';
     final typingId = 't_${DateTime.now().microsecondsSinceEpoch}';
@@ -300,6 +356,7 @@ Qoidalar:
 
     _textController.clear();
     _scrollToBottom(force: true);
+    _checkMessageLimitCompletion();
 
     try {
       final reply = await AIService.sendMessage(
@@ -330,8 +387,9 @@ Qoidalar:
 
       _scrollToBottom(force: true);
 
-      // Dars tugashini tekshirish
       _checkLessonCompletion(reply);
+      _checkMessageLimitCompletion();
+      await _persistMessages();
 
       if (_autoReadAiReply) {
         Future.microtask(() => _handleTts(aiId));
@@ -516,7 +574,7 @@ Qoidalar:
   }
 
   Future<void> _handleMicTap() async {
-    if (widget.sourceType == 'lesson' && _lessonFinished) return;
+    if (!_isFreeChat && _lessonFinished) return;
 
     if (_isRecording) {
       _amplitudeSubscription?.cancel();
@@ -530,8 +588,13 @@ Qoidalar:
       _micLevel.value = 0.02;
 
       if (text.trim().isNotEmpty) {
-        _textController.text = text;
-        await _sendMessage(text);
+        setState(() {
+          _isTypingMode = true;
+          _textController.text = text;
+        });
+        Future.delayed(const Duration(milliseconds: 50), () {
+          if (mounted) _focusNode.requestFocus();
+        });
       }
       return;
     }
@@ -560,7 +623,9 @@ Qoidalar:
             normalized = ((db + 45) / 40).clamp(0.04, 1.0);
           }
 
-          _micLevel.value = normalized;
+          // Vizual effekt uchun past balandlikni kuchaytiramiz.
+          final boosted = math.pow(normalized, 0.65).toDouble() * 1.25;
+          _micLevel.value = boosted.clamp(0.08, 1.0);
         });
   }
 
@@ -577,6 +642,7 @@ Qoidalar:
         bool tempAutoRead = _autoReadAiReply;
         bool tempOpenTranslation = _openTranslationByDefault;
         bool tempShowCorrections = _showCorrections;
+        double tempChatWordLimit = _chatWordLimit.toDouble();
 
         return StatefulBuilder(
           builder: (context, setModal) {
@@ -657,18 +723,36 @@ Qoidalar:
                             setModal(() => tempShowCorrections = v),
                       ),
                       const SizedBox(height: 10),
+                      _SettingsSlider(
+                        title: 'Chat uzunligi',
+                        value: tempChatWordLimit,
+                        min: ChatProgressService.minChatWordLimit.toDouble(),
+                        max: ChatProgressService.maxChatWordLimit.toDouble(),
+                        divisions: ChatProgressService.maxChatWordLimit -
+                            ChatProgressService.minChatWordLimit,
+                        valueText:
+                            '${tempChatWordLimit.round()} so\'z (maks. ${ChatProgressService.maxChatWordLimit})',
+                        onChanged: (v) =>
+                            setModal(() => tempChatWordLimit = v),
+                      ),
+                      const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            final limit = tempChatWordLimit.round();
+                            await ChatProgressService.setChatWordLimit(limit);
                             setState(() {
                               _textSize = tempTextSize;
                               _ttsSpeed = tempTtsSpeed;
                               _autoReadAiReply = tempAutoRead;
                               _openTranslationByDefault = tempOpenTranslation;
                               _showCorrections = tempShowCorrections;
+                              _chatWordLimit = limit;
                             });
-                            Navigator.pop(sheetContext);
+                            if (sheetContext.mounted) {
+                              Navigator.pop(sheetContext);
+                            }
                           },
                           child: const Text('Saqlash'),
                         ),
@@ -735,7 +819,8 @@ Qoidalar:
                           _mentorName = mentor.name;
                           _mentorRole = mentor.role;
                         });
-                        _resetChatWithInitialMessage();
+                        _addInitialMessage();
+                        _persistMessages();
                         if (!mounted) return;
                         Navigator.pop(context);
                       },
@@ -819,8 +904,9 @@ Qoidalar:
   @override
   Widget build(BuildContext context) {
     final colors = ChatTheme.of(context);
+    final isDark = ThemeManager.isDark;
 
-    final showLessonActions = widget.sourceType == 'lesson' && _lessonFinished;
+    final showSessionActions = !_isFreeChat && _lessonFinished;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -846,40 +932,62 @@ Qoidalar:
           ),
         ),
         actions: [
+          if (showSessionActions)
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Center(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.duoGreen.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.duoGreen, width: 1.5),
+                  ),
+                  child: const Text(
+                    'TUGALLANGAN',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.duoGreen,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           IconButton(
             onPressed: _showSettings,
             icon: Icon(Icons.tune_rounded, color: colors.textPrimary),
           ),
         ],
       ),
-      body: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(22),
-                onTap: _showMentorPicker,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 220),
+      body: DecorativePatternBackground(
+        isDark: isDark,
+        variant: DecorativePatternVariant.derDieDas,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+                child: GamifiedCard(
+                  color: isDark
+                      ? AppColors.duoCardGray.withValues(alpha: 0.12)
+                      : Colors.white,
+                  shadowColor:
+                      isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                  shadowDepth: 5,
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: colors.border),
-                  ),
+                  onTap: _showMentorPicker,
                   child: Row(
                     children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: _currentMentor.gradient,
-                          ),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
+                      GamifiedCard(
+                        color: _currentMentor.gradient.first,
+                        shadowColor: _currentMentor.gradient.last,
+                        shadowDepth: 3,
+                        borderRadius: 18,
+                        padding: const EdgeInsets.all(10),
                         child: const Icon(
                           Icons.person_rounded,
                           color: Colors.white,
@@ -892,10 +1000,11 @@ Qoidalar:
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _mentorName,
+                              _mentorName.toUpperCase(),
                               style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.3,
                                 color: colors.textPrimary,
                               ),
                             ),
@@ -903,27 +1012,35 @@ Qoidalar:
                             Text(
                               _mentorRole,
                               style: const TextStyle(
-                                fontSize: 12.5,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
                                 color: AppColors.duoGreen,
                               ),
                             ),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: 4),
                             Text(
-                              'Text: ${_textSize.toStringAsFixed(0)} • Tezlik: ${_ttsSpeed.toStringAsFixed(1)}',
+                              widget.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 12,
+                                fontWeight: FontWeight.w600,
                                 color: colors.textSecondary,
                               ),
                             ),
                           ],
                         ),
                       ),
+                      Icon(
+                        Icons.swap_horiz_rounded,
+                        color: colors.textSecondary,
+                        size: 22,
+                      ),
                     ],
                   ),
                 ),
               ),
-            ),
-            Expanded(
+              Expanded(
               child: ListView.builder(
                 controller: _scrollController,
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -957,36 +1074,48 @@ Qoidalar:
                 },
               ),
             ),
-            if (showLessonActions)
+            if (showSessionActions)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                 child: Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.duoBlue),
-                          foregroundColor: AppColors.duoBlue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                      child: GamifiedCard(
+                        color: isDark
+                            ? AppColors.duoCardGray.withValues(alpha: 0.15)
+                            : Colors.white,
+                        shadowColor: AppColors.duoBlueShadow,
+                        shadowDepth: 4,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        onTap: () => Navigator.pop(context),
+                        child: const Center(
+                          child: Text(
+                            'TUGATISH',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.duoBlue,
+                            ),
                           ),
                         ),
-                        child: const Text('Tugatish'),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: ElevatedButton(
-                        onPressed: _restartLesson,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.duoBlue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                      child: GamifiedCard(
+                        color: AppColors.duoGreen,
+                        shadowColor: AppColors.duoGreenShadow,
+                        shadowDepth: 4,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        onTap: _restartLesson,
+                        child: const Center(
+                          child: Text(
+                            'QAYTA',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        child: const Text('Qayta boshlash'),
                       ),
                     ),
                   ],
@@ -998,24 +1127,27 @@ Qoidalar:
               isTypingMode: _isTypingMode,
               isSending: _isSending,
               isRecording: _isRecording,
+              inputEnabled: _isFreeChat || !_lessonFinished,
               micLevel: _micLevel,
               onToggleMode: _toggleTypingMode,
               onSend: () => _sendMessage(_textController.text),
               onMicTap: _handleMicTap,
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _BottomBar extends StatelessWidget {
+class _BottomBar extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final bool isTypingMode;
   final bool isSending;
   final bool isRecording;
+  final bool inputEnabled;
   final ValueNotifier<double> micLevel;
   final VoidCallback onToggleMode;
   final VoidCallback onSend;
@@ -1027,6 +1159,7 @@ class _BottomBar extends StatelessWidget {
     required this.isTypingMode,
     required this.isSending,
     required this.isRecording,
+    required this.inputEnabled,
     required this.micLevel,
     required this.onToggleMode,
     required this.onSend,
@@ -1034,134 +1167,331 @@ class _BottomBar extends StatelessWidget {
   });
 
   @override
+  State<_BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<_BottomBar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+  }
+
+  @override
+  void didUpdateWidget(_BottomBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isRecording && !_pulse.isAnimating) {
+      _pulse.repeat();
+    } else if (!widget.isRecording && _pulse.isAnimating) {
+      _pulse.stop();
+      _pulse.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = ChatTheme.of(context);
+    final isDark = ThemeManager.isDark;
+
+    final voiceHeight = widget.isRecording ? 148.0 : 100.0;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 14),
-      child: SizedBox(
-        height: isTypingMode ? 56 : 92,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-              left: 0,
-              bottom: isTypingMode ? 0 : 10,
-              child: _IconBtn(
-                icon: isTypingMode
-                    ? Icons.mic_none_rounded
-                    : Icons.keyboard_alt_outlined,
-                onTap: onToggleMode,
-                bg: AppColors.duoBlue,
-                iconColor: Colors.white,
-                borderColor: Colors.transparent,
-                size: 54,
-              ),
+      child: ValueListenableBuilder<double>(
+        valueListenable: widget.micLevel,
+        builder: (context, micLevel, child) {
+          final glow = widget.isRecording ? (0.15 + micLevel * 0.45) : 0.0;
+          final glowColor = Color.lerp(AppColors.duoBlue, AppColors.duoRed, micLevel)!;
+
+          return GamifiedCard(
+            color: isDark
+                ? AppColors.duoCardGray.withValues(alpha: 0.12)
+                : Colors.white,
+            shadowColor: widget.isRecording
+                ? glowColor.withValues(alpha: 0.35 + glow)
+                : (isDark ? Colors.black26 : AppColors.duoCardGrayShadow),
+            shadowDepth: widget.isRecording ? 4 + micLevel * 5 : 5,
+            padding: EdgeInsets.fromLTRB(
+              12,
+              widget.isTypingMode ? 10 : 10,
+              12,
+              10,
             ),
-            if (isTypingMode)
+            child: child!,
+          );
+        },
+        child: SizedBox(
+          height: widget.isTypingMode ? 54 : voiceHeight,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
               Positioned(
-                left: 64,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: colors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: controller,
-                          focusNode: focusNode,
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (_) => onSend(),
-                          decoration: InputDecoration(
-                            hintText: 'Yozing...',
-                            hintStyle: TextStyle(color: colors.textSecondary),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 14,
+                left: 0,
+                bottom: widget.isTypingMode ? 0 : 8,
+                child: _IconBtn(
+                  icon: widget.isTypingMode
+                      ? Icons.mic_none_rounded
+                      : Icons.keyboard_alt_outlined,
+                  onTap: widget.inputEnabled ? widget.onToggleMode : null,
+                  bg: AppColors.duoBlue,
+                  iconColor: Colors.white,
+                  borderColor: Colors.transparent,
+                  size: 52,
+                ),
+              ),
+              if (widget.isTypingMode)
+                Positioned(
+                  left: 60,
+                  right: 0,
+                  bottom: 0,
+                  child: SizedBox(
+                    height: 52,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: widget.controller,
+                            focusNode: widget.focusNode,
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => widget.onSend(),
+                            decoration: InputDecoration(
+                              hintText: 'Yozing...',
+                              hintStyle:
+                                  TextStyle(color: colors.textSecondary),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: isSending ? null : onSend,
-                        icon: const Icon(
-                          Icons.send_rounded,
-                          color: AppColors.duoBlue,
+                        GamifiedCard(
+                          color: AppColors.duoGreen,
+                          shadowColor: AppColors.duoGreenShadow,
+                          shadowDepth: 3,
+                          borderRadius: 14,
+                          padding: const EdgeInsets.all(10),
+                          onTap: widget.inputEnabled && !widget.isSending
+                              ? widget.onSend
+                              : null,
+                          child: const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                Positioned.fill(
+                  child: _VoiceMicPanel(
+                    isRecording: widget.isRecording,
+                    inputEnabled: widget.inputEnabled,
+                    micLevel: widget.micLevel,
+                    pulse: _pulse,
+                    onTap: widget.onMicTap,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Mikrofon atrofida ovoz balandligiga qarab o'zgaruvchi halqalar va to'lqinlar.
+class _VoiceMicPanel extends StatelessWidget {
+  final bool isRecording;
+  final bool inputEnabled;
+  final ValueNotifier<double> micLevel;
+  final Animation<double> pulse;
+  final VoidCallback onTap;
+
+  const _VoiceMicPanel({
+    required this.isRecording,
+    required this.inputEnabled,
+    required this.micLevel,
+    required this.pulse,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<double>(
+      valueListenable: micLevel,
+      builder: (context, raw, _) {
+        final level = isRecording ? (0.25 + raw * 0.75) : 0.0;
+        final accent = Color.lerp(AppColors.duoBlue, AppColors.duoRed, level)!;
+
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            if (isRecording)
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: RadialGradient(
+                      center: const Alignment(0, 0.35),
+                      radius: 1.1,
+                      colors: [
+                        accent.withValues(alpha: 0.35 * level),
+                        accent.withValues(alpha: 0.08 * level),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            Positioned(
+              top: 6,
+              left: 20,
+              right: 20,
+              child: AnimatedBuilder(
+                animation: pulse,
+                builder: (context, _) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: List.generate(17, (i) {
+                      final wave = isRecording
+                          ? (math.sin(pulse.value * math.pi * 2 + i * 0.42) +
+                                  1) /
+                              2
+                          : 0.12;
+                      final h = isRecording
+                          ? 10 + level * 46 * (0.3 + 0.7 * wave)
+                          : 8.0;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 45),
+                        width: 4,
+                        height: h.clamp(8, 52),
+                        decoration: BoxDecoration(
+                          color: accent.withValues(
+                            alpha: isRecording ? 0.45 + level * 0.55 : 0.25,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      );
+                    }),
+                  );
+                },
+              ),
+            ),
+            Positioned(
+              bottom: 4,
+              child: GestureDetector(
+                onTap: inputEnabled ? onTap : null,
+                child: SizedBox(
+                  width: 130 + level * 60,
+                  height: 78 + level * 20,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (isRecording) ...[
+                        _MicRing(
+                          size: 88 + level * 52,
+                          color: accent,
+                          opacity: 0.12 + level * 0.1,
+                          borderWidth: 1.5,
+                        ),
+                        _MicRing(
+                          size: 72 + level * 40,
+                          color: accent,
+                          opacity: 0.2 + level * 0.15,
+                          borderWidth: 2 + level * 2,
+                        ),
+                        _MicRing(
+                          size: 58 + level * 28,
+                          color: accent,
+                          opacity: 0.35 + level * 0.25,
+                          borderWidth: 2.5 + level * 3,
+                        ),
+                      ],
+                      Transform.scale(
+                        scale: 1.0 + level * 0.14,
+                        child: GamifiedCard(
+                          color: isRecording
+                              ? AppColors.duoRed
+                              : AppColors.duoBlue,
+                          shadowColor: isRecording
+                              ? AppColors.duoRedShadow
+                              : AppColors.duoBlueShadow,
+                          shadowDepth: 5 + level * 3,
+                          borderRadius: 99,
+                          padding: const EdgeInsets.all(20),
+                          child: Icon(
+                            isRecording
+                                ? Icons.stop_rounded
+                                : Icons.mic_rounded,
+                            size: 34,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              )
-            else
-              Positioned.fill(
-                child: Center(
-                  child: GestureDetector(
-                    onTap: onMicTap,
-                    child: ValueListenableBuilder<double>(
-                      valueListenable: micLevel,
-                      builder: (context, level, _) {
-                        final ring1 = 10 + (level * 10);
-                        final ring2 = 20 + (level * 18);
-
-                        return SizedBox(
-                          width: 96,
-                          height: 96,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 100),
-                                width: 74 + ring2,
-                                height: 74 + ring2,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.duoBlue
-                                      .withValues(alpha: isRecording ? 0.08 : 0.0),
-                                ),
-                              ),
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 100),
-                                width: 74 + ring1,
-                                height: 74 + ring1,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.duoBlue
-                                      .withValues(alpha: isRecording ? 0.16 : 0.0),
-                                ),
-                              ),
-                              Container(
-                                width: 74,
-                                height: 74,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isRecording
-                                      ? AppColors.duoRed
-                                      : AppColors.duoBlue,
-                                ),
-                                child: Icon(
-                                  isRecording
-                                      ? Icons.stop_rounded
-                                      : Icons.mic_rounded,
-                                  size: 34,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+              ),
+            ),
+            if (!isRecording)
+              const Positioned(
+                bottom: 0,
+                child: Text(
+                  'Bosib gapiring',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.duoTextLight,
                   ),
                 ),
               ),
           ],
+        );
+      },
+    );
+  }
+}
+
+class _MicRing extends StatelessWidget {
+  final double size;
+  final Color color;
+  final double opacity;
+  final double borderWidth;
+
+  const _MicRing({
+    required this.size,
+    required this.color,
+    required this.opacity,
+    required this.borderWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color.withValues(alpha: opacity * 0.35),
+        border: Border.all(
+          color: color.withValues(alpha: opacity),
+          width: borderWidth,
         ),
       ),
     );
@@ -1197,22 +1527,32 @@ class _ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ThemeManager.isDark;
+
     if (message.isTyping) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 14),
         child: Align(
           alignment: Alignment.centerLeft,
-          child: Container(
-            width: 68,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: colors.surface,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: colors.border),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [_Dot(), _Dot(), _Dot()],
+          child: GamifiedCard(
+            color: isDark
+                ? AppColors.duoCardGray.withValues(alpha: 0.12)
+                : Colors.white,
+            shadowColor:
+                isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+            shadowDepth: 4,
+            borderRadius: 18,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: const SizedBox(
+              width: 52,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _Dot(color: AppColors.duoBlue),
+                  _Dot(color: AppColors.duoGreen),
+                  _Dot(color: AppColors.duoOrange),
+                ],
+              ),
             ),
           ),
         ),
@@ -1255,35 +1595,47 @@ class _ChatBubble extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
               ],
-              Container(
+              ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 270),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: message.isUser
-                      ? AppColors.duoBlue
-                      : colors.surface,
-                  borderRadius: BorderRadius.circular(22),
-                  border: message.isUser
-                      ? null
-                      : Border.all(color: colors.border),
-                ),
                 child: message.isUser
-                    ? Text(
-                        message.text,
-                        style: TextStyle(
-                          fontSize: textSize,
-                          color: Colors.white,
-                          height: 1.32,
+                    ? GamifiedCard(
+                        color: AppColors.duoGreen,
+                        shadowColor: AppColors.duoGreenShadow,
+                        shadowDepth: 4,
+                        borderRadius: 20,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        child: Text(
+                          message.text,
+                          style: TextStyle(
+                            fontSize: textSize,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            height: 1.32,
+                          ),
                         ),
                       )
-                    : _WordText(
-                        text: message.text,
-                        fontSize: textSize,
-                        color: colors.textPrimary,
-                        onTapWord: onTapWord,
+                    : GamifiedCard(
+                        color: isDark
+                            ? AppColors.duoCardGray.withValues(alpha: 0.12)
+                            : Colors.white,
+                        shadowColor: isDark
+                            ? Colors.black26
+                            : AppColors.duoCardGrayShadow,
+                        shadowDepth: 4,
+                        borderRadius: 20,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        child: _WordText(
+                          text: message.text,
+                          fontSize: textSize,
+                          color: colors.textPrimary,
+                          onTapWord: onTapWord,
+                        ),
                       ),
               ),
             ],
@@ -1609,11 +1961,13 @@ class _IconBtn extends StatelessWidget {
 }
 
 class _Dot extends StatelessWidget {
-  const _Dot();
+  final Color color;
+
+  const _Dot({required this.color});
 
   @override
   Widget build(BuildContext context) {
-    return const CircleAvatar(radius: 3.5, backgroundColor: Color(0xFF9AA0A6));
+    return CircleAvatar(radius: 4, backgroundColor: color);
   }
 }
 
@@ -1624,6 +1978,7 @@ class _SettingsSlider extends StatelessWidget {
   final double max;
   final String valueText;
   final ValueChanged<double> onChanged;
+  final int? divisions;
 
   const _SettingsSlider({
     required this.title,
@@ -1632,6 +1987,7 @@ class _SettingsSlider extends StatelessWidget {
     required this.max,
     required this.valueText,
     required this.onChanged,
+    this.divisions,
   });
 
   @override
@@ -1660,7 +2016,13 @@ class _SettingsSlider extends StatelessWidget {
               Text(valueText, style: TextStyle(color: colors.textSecondary)),
             ],
           ),
-          Slider(value: value, min: min, max: max, onChanged: onChanged),
+          Slider(
+            value: value.clamp(min, max),
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: onChanged,
+          ),
         ],
       ),
     );
@@ -1795,6 +2157,30 @@ class ChatMessageModel {
     this.replyHintsVisible = false,
     this.isLoadingHints = false,
   });
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'text': text,
+        'isUser': isUser,
+        'showTts': showTts,
+        'showTranslate': showTranslate,
+        'showReplyHint': showReplyHint,
+        'translation': translation,
+        'translationVisible': translationVisible,
+      };
+
+  factory ChatMessageModel.fromMap(Map<String, dynamic> map) {
+    return ChatMessageModel(
+      id: (map['id'] ?? '').toString(),
+      text: (map['text'] ?? '').toString(),
+      isUser: map['isUser'] == true,
+      showTts: map['showTts'] == true,
+      showTranslate: map['showTranslate'] == true,
+      showReplyHint: map['showReplyHint'] == true,
+      translation: map['translation']?.toString(),
+      translationVisible: map['translationVisible'] == true,
+    );
+  }
 
   ChatMessageModel copyWith({
     String? id,
