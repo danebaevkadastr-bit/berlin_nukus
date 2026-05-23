@@ -84,6 +84,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
   }
 
   List<_LessonDay> _getLessonDaysForWeek(_WeekRange week, Map<String, dynamic> groupData) {
+    final l = AppLocalizations.of(context);
     final days = <_LessonDay>[];
     final lessonsMap = groupData['lessons'] as Map<String, dynamic>? ?? {};
     final startedDateStr = groupData['started']?.toString();
@@ -104,7 +105,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
       days.add(_LessonDay(
         date: date,
         weekdayName: _getWeekdayName(date.weekday),
-        lessonType: lessonData?['lessonType'] ?? 'Dars',
+        lessonType: lessonData?['lessonType'] ?? l.lesson,
         hasLesson: lessonData != null,
         room: lessonData?['room'],
         time: lessonData?['time'],
@@ -118,6 +119,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
 
     return StreamBuilder<Map<String, dynamic>>(
@@ -170,7 +172,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'O\'QUV REJASI',
+                      l.curriculum,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -443,7 +445,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                     Icon(Icons.add_circle_outline_rounded, color: widget.color),
                     const SizedBox(width: 8),
                     Text(
-                      'DARS QO\'SHISH',
+                      l.addLesson,
                       style: TextStyle(
                           fontSize: 14, fontWeight: FontWeight.w900, color: widget.color),
                     ),
@@ -463,7 +465,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         child: _actionChip(
                           isDark: isDark,
                           icon: '📎',
-                          label: '${day.materials.length} Material',
+                          label: '${day.materials.length} ${l.materialLabel}',
                           color: null,
                         ),
                       ),
@@ -475,7 +477,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         child: _actionChip(
                           isDark: isDark,
                           icon: '📚',
-                          label: '$submittedCount topshirdi',
+                          label: '$submittedCount ${l.submitted}',
                           color: day.homeworks.isNotEmpty ? AppColors.duoGreen : null,
                         ),
                       ),
@@ -503,8 +505,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         const SizedBox(width: 8),
                         Text(
                           day.homeworks.isEmpty
-                              ? 'UY VAZIFA QO\'SHISH'
-                              : 'UY VAZIFA (${day.homeworks.length})',
+                              ? l.addHomework
+                              : '${l.homeworkCount} (${day.homeworks.length})',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
@@ -704,10 +706,10 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
                       Row(
                         children: [
-                          _tabButton(ctx, isDark, 'Havola (Link)', 'link', selectedTab,
+                          _tabButton(ctx, isDark, l.link, 'link', selectedTab,
                               (v) => setModalState(() => selectedTab = v)),
                           const SizedBox(width: 10),
-                          _tabButton(ctx, isDark, 'Matn', 'text', selectedTab,
+                          _tabButton(ctx, isDark, l.text, 'text', selectedTab,
                               (v) => setModalState(() => selectedTab = v)),
                         ],
                       ),
@@ -721,7 +723,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               color: isDark ? Colors.white : AppColors.duoTextDark,
                               fontWeight: FontWeight.w600),
                           decoration: InputDecoration(
-                            hintText: 'https://... yoki Telegram/Drive havolasi',
+                            hintText: l.linkHint,
                             hintStyle: TextStyle(
                                 color: isDark ? Colors.white38 : AppColors.duoTextLight),
                             prefixIcon: const Icon(Icons.link_rounded),
@@ -740,7 +742,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               color: isDark ? Colors.white : AppColors.duoTextDark,
                               fontWeight: FontWeight.w600),
                           decoration: InputDecoration(
-                            hintText: 'Material matnini kiriting...',
+                            hintText: l.materialTextHint,
                             hintStyle: TextStyle(
                                 color: isDark ? Colors.white38 : AppColors.duoTextLight),
                             prefixIcon: const Padding(
@@ -772,9 +774,9 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                 .addMaterial(widget.groupId, dateKey, newMat);
                             if (ctx.mounted) Navigator.pop(ctx);
                           },
-                          child: const Center(
-                            child: Text('SAQLASH',
-                                style: TextStyle(
+                          child: Center(
+                            child: Text(l.saveBtn,
+                                style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900,
                                     color: Colors.white,
@@ -899,7 +901,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                       child: homeworkList.isEmpty
                           ? Center(
                               child: Text(
-                                '+ tugmasini bosib uy vazifa qo\'shing',
+                                l.tapToAddHomework,
                                 style: TextStyle(
                                     color: isDark ? Colors.white38 : AppColors.duoTextLight,
                                     fontWeight: FontWeight.w600),

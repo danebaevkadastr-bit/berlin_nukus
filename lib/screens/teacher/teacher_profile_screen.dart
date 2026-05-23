@@ -53,10 +53,6 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
             _buildProfileCard(userProvider, isDark, l),
             const SizedBox(height: 24),
 
-            // ── Stats ──
-            _buildStatsRow(l),
-            const SizedBox(height: 24),
-
             // ── Settings ──
             _buildSettingsButton(isDark, l),
             const SizedBox(height: 16),
@@ -184,61 +180,6 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                 letterSpacing: 0.5,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatsRow(AppLocalizations l) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard('3', '👥', l.myGroups, AppColors.duoBlue, AppColors.duoBlueShadow),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard('30', '🧑‍🎓', "O'quvchi", AppColors.duoGreen, AppColors.duoGreenShadow),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard('5', '📚', "Kurslar", AppColors.duoOrange, AppColors.duoOrangeShadow),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String value, String emoji, String label, Color color, Color shadowColor) {
-    return GamifiedCard(
-      padding: const EdgeInsets.symmetric(vertical: 18),
-      color: color,
-      shadowColor: shadowColor,
-      shadowDepth: 5,
-      borderRadius: 16,
-      child: Column(
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
-              color: Colors.white70,
-              letterSpacing: 0.5,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

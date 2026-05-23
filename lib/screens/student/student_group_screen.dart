@@ -334,6 +334,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
 
   Widget _buildLessonCard(
       BuildContext context, _LessonDay day, String uid, String groupId) {
+    final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
     final color = currentGroupColor();
     final shadowColor = currentGroupShadow();
@@ -535,7 +536,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                           Text(submitted ? '✅' : '📚', style: const TextStyle(fontSize: 18)),
                           const SizedBox(width: 8),
                           Text(
-                            submitted ? 'UY VAZIFASI TOPSHIRILDI' : 'UY VAZIFASINI KO\'RISH',
+                            submitted ? l.homeworkSubmitted : l.viewHomework,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,

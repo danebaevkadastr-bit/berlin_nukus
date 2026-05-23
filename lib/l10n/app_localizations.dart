@@ -1201,4 +1201,114 @@ class AppLocalizations {
     'ru': "ДОМАШНЕЕ ЗАДАНИЕ",
     'de': "HAUSAUFGABE",
   });
+
+  // ── Student Learning ────────────────────────────────────────────────────────
+  String get statisticsAndResults => _t({
+    'uz': "STATISTIKA VA NATIJALAR",
+    'kaa': "STATISTIKA HÁM NATIJALAR",
+    'ru': "СТАТИСТИКА И РЕЗУЛЬТАТЫ",
+    'de': "STATISTIK UND ERGEBNISSE",
+  });
+  String get upcomingLessons => _t({
+    'uz': "KEYINGI DARSLAR",
+    'kaa': "KEYINGI DÁRSLER",
+    'ru': "БЛИЖАЙШИЕ УРОКИ",
+    'de': "KOMMENDE UNTERRICHTSSTUNDEN",
+  });
+  String get noLessonToday => _t({
+    'uz': "Bugun dars yo'q, dam oling yoki qo'shimcha mashq qiling",
+    'kaa': "Bugún dars joq, dam alıń yamasa qosımsha maqtaq qılıń",
+    'ru': "Сегодня нет урока, отдохните или сделайте дополнительные упражнения",
+    'de': "Heute keine Lektion, ruhen Sie sich aus oder machen Sie zusätzliche Übungen",
+  });
+  String get viewHomework => _t({
+    'uz': "UY VAZIFASINI KO'RISH",
+    'kaa': "UY WAZIFASINÍ KÓRİW",
+    'ru': "ПОСМОТРЕТЬ ДОМАШНЕЕ ЗАДАНИЕ",
+    'de': "HAUSAUFGABE ANSEHEN",
+  });
+  String get homeworkSubmitted => _t({
+    'uz': "UY VAZIFASI TOPSHIRILDI",
+    'kaa': "UY WAZIFASI TOPSHIRILDI",
+    'ru': "ДОМАШНЕЕ ЗАДАНИЕ СДАНО",
+    'de': "HAUSAUFGABE ABGEGEBEN",
+  });
+  String get curriculum => _t({
+    'uz': "O'QUV REJASI",
+    'kaa': "ÓQIW REJASI",
+    'ru': "УЧЕБНЫЙ ПЛАН",
+    'de': "STUDIENPLAN",
+  });
+  String get addHomework => _t({
+    'uz': "UY VAZIFA QO'SHISH",
+    'kaa': "UY WAZIFA QOSÍW",
+    'ru': "ДОБАВИТЬ ДОМАШНЕЕ ЗАДАНИЕ",
+    'de': "HAUSAUFGABE HINZUFÜGEN",
+  });
+  String get homeworkCount => _t({
+    'uz': "UY VAZIFA",
+    'kaa': "UY WAZIFA",
+    'ru': "ДОМАШНЕЕ ЗАДАНИЕ",
+    'de': "HAUSAUFGABE",
+  });
+  String get tapToAddHomework => _t({
+    'uz': "+ tugmasini bosib uy vazifa qo'shing",
+    'kaa': "+ túymesin basıp uy wazifa qosıń",
+    'ru': "Нажмите + чтобы добавить домашнее задание",
+    'de': "Drücken Sie + um Hausaufgabe hinzuzufügen",
+  });
+  String get lesson => _t({
+    'uz': "Dars",
+    'kaa': "Dars",
+    'ru': "Урок",
+    'de': "Lektion",
+  });
+  String get addLesson => _t({
+    'uz': "DARS QO'SHISH",
+    'kaa': "DARS QOSÍW",
+    'ru': "ДОБАВИТЬ УРОК",
+    'de': "LEKTION HINZUFÜGEN",
+  });
+  String get materialLabel => _t({
+    'uz': "Material",
+    'kaa': "Material",
+    'ru': "Материал",
+    'de': "Material",
+  });
+  String get submitted => _t({
+    'uz': "topshirdi",
+    'kaa': "topshirdı",
+    'ru': "сдал",
+    'de': "abgegeben",
+  });
+  String get link => _t({
+    'uz': "Havola (Link)",
+    'kaa': "Silte (Link)",
+    'ru': "Ссылка (Link)",
+    'de': "Link",
+  });
+  String get text => _t({
+    'uz': "Matn",
+    'kaa': "Matin",
+    'ru': "Текст",
+    'de': "Text",
+  });
+  String get linkHint => _t({
+    'uz': "https://... yoki Telegram/Drive havolasi",
+    'kaa': "https://... yamasa Telegram/Drive siltesi",
+    'ru': "https://... или ссылка Telegram/Drive",
+    'de': "https://... oder Telegram/Drive Link",
+  });
+  String get materialTextHint => _t({
+    'uz': "Material matnini kiriting...",
+    'kaa': "Material matinin kiritiń...",
+    'ru': "Введите текст материала...",
+    'de': "Materialtext eingeben...",
+  });
+  String get saveBtn => _t({
+    'uz': "SAQLASH",
+    'kaa': "SAQLAW",
+    'ru': "СОХРАНИТЬ",
+    'de': "SPEICHERN",
+  });
 }

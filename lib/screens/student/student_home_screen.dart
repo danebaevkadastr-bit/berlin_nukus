@@ -403,7 +403,7 @@ class StudentHomeContent extends StatelessWidget {
                               const Text('😴', style: TextStyle(fontSize: 40)),
                               const SizedBox(height: 12),
                               Text(
-                                "Bugun dars yo'q, dam oling yoki qo'shimcha mashq qiling",
+                                l.noLessonToday,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 15,
@@ -591,7 +591,7 @@ class StudentHomeContent extends StatelessWidget {
                                 const Text('📅', style: TextStyle(fontSize: 24)),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'KEYINGI DARSLAR',
+                                  l.upcomingLessons,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w900,
@@ -736,7 +736,7 @@ class StudentHomeContent extends StatelessWidget {
                               const Text('📊', style: TextStyle(fontSize: 24)),
                               const SizedBox(width: 8),
                               Text(
-                                "STATISTIKA VA NATIJALAR",
+                                l.statisticsAndResults,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,

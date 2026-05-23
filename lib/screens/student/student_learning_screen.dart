@@ -114,7 +114,7 @@ class StudentLearningScreen extends StatelessWidget {
             _buildLearningCard(
               context,
               icon: '📖',
-              title: 'Tarjima',
+              title: l.translation,
               subtitle: l.vocabAndTranslation,
               onTap: () {
                 Navigator.push(
