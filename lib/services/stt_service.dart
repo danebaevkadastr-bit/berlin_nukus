@@ -6,9 +6,9 @@ import 'package:speech_to_text/speech_to_text.dart';
 /// Speech-to-text for Sprechen AI (German).
 class STTService {
   final SpeechToText _speech = SpeechToText();
+  final _random = Random();
   bool _available = false;
   String _lastWords = '';
-  final _random = Random();
 
   Future<bool> _ensureReady() async {
     if (_available) return true;
@@ -26,9 +26,9 @@ class STTService {
       },
       listenOptions: SpeechListenOptions(
         localeId: 'de_DE',
-        listenMode: ListenMode.search,
+        listenMode: ListenMode.confirmation,
         cancelOnError: false,
-        partialResults: true,
+        partialResults: false,
         autoPunctuation: true,
       ),
     );

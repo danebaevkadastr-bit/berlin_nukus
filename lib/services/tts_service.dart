@@ -46,7 +46,8 @@ class TTSService {
     currentText = text;
     isPlaying = true;
     _notifyState();
-    await _tts.setSpeechRate(rateValue.clamp(0.4, 1.2));
+    // Tezlikni yanada sekinlashtirish uchun 0.6 qilib qo'yildi
+    await _tts.setSpeechRate(0.6);
     await _tts.speak(text);
   }
 

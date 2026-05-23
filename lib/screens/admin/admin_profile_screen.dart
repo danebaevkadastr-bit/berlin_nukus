@@ -50,13 +50,15 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                         : () async {
                             final url = await userProvider.pickAndUploadAvatar(context);
                             if (!mounted) return;
-                            if (url != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Profil rasmi yangilandi'),
-                                  backgroundColor: AppColors.duoGreen,
-                                ),
-                              );
+                            if (url != null && mounted) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Profil rasmi yangilandi'),
+                                    backgroundColor: AppColors.duoGreen,
+                                  ),
+                                );
+                              }
                             }
                           },
                     child: Stack(

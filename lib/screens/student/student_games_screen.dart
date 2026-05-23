@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/game_stars_service.dart';
 import 'games/der_die_das_rules_screen.dart';
 import 'games/strange_sentences_rules_screen.dart';
+import 'games/story_game_screen.dart';
 
 class StudentGamesScreen extends StatefulWidget {
   final bool isActive;
@@ -68,6 +69,14 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const StrangeSentencesRulesScreen()),
+    );
+    await _loadStars();
+  }
+
+  Future<void> _openStoryGame() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const StoryGameScreen()),
     );
     await _loadStars();
   }
@@ -247,7 +256,7 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               icon: '📖',
               title: l.germanStoryGame,
               subtitle: l.germanStoryDesc,
-              onTap: _showComingSoonDialog,
+              onTap: _openStoryGame,
             ),
             const SizedBox(height: 14),
 

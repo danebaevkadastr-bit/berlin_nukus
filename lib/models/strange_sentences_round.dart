@@ -1,7 +1,10 @@
 enum StrangeRoundType { pick, order }
 
+enum StrangeDifficulty { easy, medium, hard }
+
 class StrangeSentencesRound {
   final StrangeRoundType type;
+  final StrangeDifficulty difficulty;
   final String correctSentence;
   final List<String> pickOptions;
   final List<String> shuffledWords;
@@ -9,6 +12,7 @@ class StrangeSentencesRound {
 
   const StrangeSentencesRound({
     required this.type,
+    required this.difficulty,
     required this.correctSentence,
     this.pickOptions = const [],
     this.shuffledWords = const [],
@@ -22,6 +26,12 @@ class StrangeSentencesRound {
     final typeRaw = (json['type'] ?? 'pick').toString().toLowerCase();
     final type = typeRaw == 'order' ? StrangeRoundType.order : StrangeRoundType.pick;
     final correct = (json['correctSentence'] ?? '').toString().trim();
+    final difficultyRaw = (json['difficulty'] ?? 'medium').toString().toLowerCase();
+    final difficulty = difficultyRaw == 'easy'
+        ? StrangeDifficulty.easy
+        : difficultyRaw == 'hard'
+            ? StrangeDifficulty.hard
+            : StrangeDifficulty.medium;
 
     List<String> options = [];
     if (json['options'] is List) {
@@ -46,6 +56,7 @@ class StrangeSentencesRound {
 
     return StrangeSentencesRound(
       type: type,
+      difficulty: difficulty,
       correctSentence: correct,
       pickOptions: options,
       shuffledWords: shuffled,

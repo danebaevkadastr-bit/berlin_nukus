@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import 'conversations_screen.dart';
 import 'schreiben_screen.dart';
 import 'translation_screen.dart';
+import 'der_die_das_learning_screen.dart';
 
 class StudentLearningScreen extends StatelessWidget {
   const StudentLearningScreen({super.key});
@@ -70,6 +71,14 @@ class StudentLearningScreen extends StatelessWidget {
               icon: '📘',
               title: 'Der, Die, Das',
               subtitle: l.learnArticles,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DerDieDasLearningScreen(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 14),
 

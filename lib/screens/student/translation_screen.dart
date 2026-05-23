@@ -332,8 +332,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Text('💡', style: TextStyle(fontSize: 16)),
                       SizedBox(width: 8),
                       Text(

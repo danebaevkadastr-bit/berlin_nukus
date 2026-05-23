@@ -28,6 +28,7 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
   List<StrangeSentencesRound> _deck = [];
   bool _loading = true;
   String? _loadError;
+  StrangeDifficulty _selectedDifficulty = StrangeDifficulty.medium;
 
   int _index = 0;
   int _score = 0;
@@ -65,6 +66,7 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
     try {
       final rounds = await AIService.generateStrangeSentenceRounds(
         count: StrangeSentencesRules.roundsPerSession,
+        difficulty: _selectedDifficulty,
       );
       if (!mounted) return;
       setState(() {
@@ -146,7 +148,7 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
       if (isCorrect) {
         _correct++;
         _streak++;
-        var points = StrangeSentencesRules.pointsPerCorrect;
+        var points = StrangeSentencesRules.pointsForDifficulty(round.difficulty);
         if (_streak > 0 &&
             _streak % StrangeSentencesRules.streakBonusEvery == 0) {
           points += StrangeSentencesRules.streakBonusPoints;
@@ -245,6 +247,78 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
             iconTheme:
                 IconThemeData(color: isDark ? Colors.white : AppColors.duoTextDark),
             actions: [
+              PopupMenuButton<StrangeDifficulty>(
+                icon: Icon(
+                  _selectedDifficulty == StrangeDifficulty.easy
+                      ? Icons.looks_one
+                      : _selectedDifficulty == StrangeDifficulty.medium
+                          ? Icons.looks_two
+                          : Icons.looks_3,
+                  color: isDark ? Colors.white : AppColors.duoTextDark,
+                ),
+                onSelected: (difficulty) {
+                  setState(() {
+                    _selectedDifficulty = difficulty;
+                  });
+                  _loadRounds();
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: StrangeDifficulty.easy,
+                    child: Row(
+                      children: [
+                        Icon(Icons.looks_one, size: 20),
+                        SizedBox(width: 8),
+                        Text('Oson'),
+                        Spacer(),
+                        Text(
+                          '10⭐',
+                          style: TextStyle(
+                            color: AppColors.duoGreen,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: StrangeDifficulty.medium,
+                    child: Row(
+                      children: [
+                        Icon(Icons.looks_two, size: 20),
+                        SizedBox(width: 8),
+                        Text('O\'rta'),
+                        Spacer(),
+                        Text(
+                          '15⭐',
+                          style: TextStyle(
+                            color: AppColors.duoOrange,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: StrangeDifficulty.hard,
+                    child: Row(
+                      children: [
+                        Icon(Icons.looks_3, size: 20),
+                        SizedBox(width: 8),
+                        Text('Qiyin'),
+                        Spacer(),
+                        Text(
+                          '20⭐',
+                          style: TextStyle(
+                            color: AppColors.duoRed,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               IconButton(
                 icon: const Icon(Icons.menu_book_rounded),
                 tooltip: l.strangeSentencesRulesHowTo,

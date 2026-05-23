@@ -693,7 +693,7 @@ class StudentHomeContent extends StatelessWidget {
                                       if (index < 2 && index < leaderboard.length - 1) const SizedBox(height: 8),
                                     ],
                                   );
-                                }).toList(),
+                                }),
                             ],
                           ),
                         );
