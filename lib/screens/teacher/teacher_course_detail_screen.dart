@@ -301,6 +301,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
   Widget _buildLessonCard(
       BuildContext context, _LessonDay day, Map<String, dynamic> groupData) {
+    final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
     final submittedCount = day.submissions.values
         .where((v) => (v as Map<String, dynamic>?)?['submitted'] == true)
@@ -531,13 +532,13 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         BoxShadow(color: widget.shadowColor, offset: const Offset(0, 4)),
                       ],
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('🙋‍♂️', style: TextStyle(fontSize: 18)),
-                        SizedBox(width: 8),
+                        const Text('🙋‍♂️', style: TextStyle(fontSize: 18)),
+                        const SizedBox(width: 8),
                         Text(
-                          'DAVOMATNI BELGILASH',
+                          l.markAttendance,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
@@ -594,6 +595,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
   // ==================== MATERIALS SHEET ====================
 
   void _showMaterialsSheet(BuildContext context, _LessonDay day) {
+    final l = AppLocalizations.of(context);
     final linkController = TextEditingController();
     final textController = TextEditingController();
     String selectedTab = 'link';
@@ -636,7 +638,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                       Row(children: [
                         const Text('📎', style: TextStyle(fontSize: 22)),
                         const SizedBox(width: 10),
-                        Text('MATERIALLAR',
+                        Text(l.materialsHeader,
                             style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w900,
@@ -645,7 +647,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                       const SizedBox(height: 16),
 
                       if (day.materials.isNotEmpty) ...[
-                        Text('Qo\'shilgan materiallar:',
+                        Text(l.addedMaterials,
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -826,6 +828,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
   // ==================== HOMEWORK SHEET (editor) ====================
 
   void _showHomeworkSheet(BuildContext context, _LessonDay day) {
+    final l = AppLocalizations.of(context);
     // Deep copy so edits don't bleed into UI before save
     final List<Map<String, String>> homeworkList = day.homeworks
         .map((e) => Map<String, String>.from(e as Map? ?? {}))
@@ -870,7 +873,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         Row(children: [
                           const Text('📚', style: TextStyle(fontSize: 22)),
                           const SizedBox(width: 10),
-                          Text('UY VAZIFASI',
+                          Text(l.homeworkHeader,
                               style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,

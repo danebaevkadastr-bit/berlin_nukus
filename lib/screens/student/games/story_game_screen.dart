@@ -205,7 +205,7 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
               children: [
                 Text(
                   'QOIDALAR:',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                     color: AppColors.candyPink,
@@ -459,7 +459,7 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
                   const Text('🎯 ', style: TextStyle(fontSize: 16)),
                   Text(
                     'Mavzu: ${_round!.theme}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppColors.duoBlue,

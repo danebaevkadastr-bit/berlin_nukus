@@ -156,7 +156,7 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
                 const SizedBox(width: 8),
                 Text(
                   '$_score',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.w900,
                     color: AppColors.duoGreen,
@@ -174,10 +174,10 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
                 Navigator.pop(context);
                 Navigator.pop(context);
               },
-              child: Center(
+              child: const Center(
                 child: Text(
                   'DAVOM ETISH',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
@@ -199,7 +199,7 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
     if (_isLoading) {
       return Scaffold(
         backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
-        body: Center(
+        body: const Center(
           child: CircularProgressIndicator(color: AppColors.duoBlue),
         ),
       );

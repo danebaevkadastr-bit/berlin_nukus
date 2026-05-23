@@ -210,17 +210,19 @@ class StudentHomeContent extends StatelessWidget {
         }
 
         // Empty state - agar guruhlar bo'lmasa
-        if (snapshot.data == null || snapshot.data!.isEmpty)
+        if (snapshot.data == null || snapshot.data!.isEmpty) {
           return _buildEmptyState(isDark);
+        }
 
         // Empty state - agar darslar bo'lmasa
         final hasAnyData = snapshot.data!.any((data) {
           final lessonsMap = data['lessons'] as Map<String, dynamic>? ?? {};
           return lessonsMap.isNotEmpty;
         });
-        
-        if (!hasAnyData)
-          return _buildEmptyState(isDark);
+
+        if (!hasAnyData) {
+          return _buildNoLessonsState(isDark);
+        }
 
         return Column(
           children: [
@@ -1034,6 +1036,10 @@ class StudentHomeContent extends StatelessWidget {
     );
   }
 
+  Widget _buildNoLessonsState(bool isDark) {
+    return const NoLessonsEmptyState();
+  }
+
   Widget _buildLoadingState(bool isDark) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1091,10 +1097,10 @@ class StudentHomeContent extends StatelessWidget {
           const SkeletonCard(height: 150),
           const SizedBox(height: 20),
           // Stats skeleton
-          Row(
+          const Row(
             children: [
               Expanded(child: SkeletonStatItem()),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(child: SkeletonStatItem()),
             ],
           ),

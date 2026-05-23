@@ -92,7 +92,7 @@ class StreakService {
           final date = _getDateKey(DateTime.now().subtract(Duration(days: i)));
           final dayMinutes = dailyMinutes
               .where((item) => item is Map && item['date'] == date)
-              .fold<int>(0, (sum, item) => sum + (item['minutes'] as int? ?? 0));
+              .fold<int>(0, (total, item) => total + (item['minutes'] as int? ?? 0));
           usage.add(dayMinutes.toDouble());
         }
 

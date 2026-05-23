@@ -7,6 +7,7 @@ import 'conversations_screen.dart';
 import 'schreiben_screen.dart';
 import 'translation_screen.dart';
 import 'der_die_das_learning_screen.dart';
+import 'grammar_levels_screen.dart';
 
 class StudentLearningScreen extends StatelessWidget {
   const StudentLearningScreen({super.key});
@@ -120,6 +121,22 @@ class StudentLearningScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => const TranslationScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 14),
+
+            _buildLearningCard(
+              context,
+              icon: '📚',
+              title: 'Grammatika',
+              subtitle: 'A1, A2, B1, B2 darajalari',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const GrammarLevelsScreen(),
                   ),
                 );
               },

@@ -84,9 +84,10 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                     final url = await userProvider.pickAndUploadAvatar(context);
                     if (!mounted) return;
                     if (url != null) {
+                      final l = AppLocalizations.of(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Profil rasmi yangilandi'),
+                        SnackBar(
+                          content: Text(l.profilePhotoUpdated),
                           backgroundColor: AppColors.duoGreen,
                         ),
                       );

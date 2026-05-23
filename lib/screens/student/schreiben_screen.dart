@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../models/schreiben_task.dart';
 import '../../services/ai_service.dart';
 import '../../utils/app_colors.dart';
@@ -113,6 +114,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
     final words = _wordCount(_answerController.text);
 
@@ -129,7 +131,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'SCHREIBEN',
+          l.schreibenTitle,
           style: TextStyle(
             fontWeight: FontWeight.w900,
             color: isDark ? Colors.white : AppColors.duoTextDark,
@@ -263,6 +265,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
   }
 
   Widget _buildTaskCard(BuildContext context, bool isDark) {
+    final l = AppLocalizations.of(context);
     final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
     final textSecondary = isDark ? Colors.white70 : AppColors.duoTextLight;
     final innerBg = isDark
@@ -281,7 +284,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'AUFGABE ${_task.id}',
+            '${l.aufgabe} ${_task.id}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
@@ -394,7 +397,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                         size: 14, color: textSecondary),
                     const SizedBox(width: 6),
                     Text(
-                      'Stil: ${_task.style}',
+                      '${l.styleLabel} ${_task.style}',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -418,7 +421,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                       size: 18, color: textSecondary),
                   const SizedBox(width: 8),
                   Text(
-                    'Show sample answer',
+                    l.showSampleAnswer,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
@@ -440,7 +443,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
-                'Beispielantwort tez orada qo\'shiladi.',
+                l.sampleAnswerComingSoon,
                 style: TextStyle(
                   fontSize: 12,
                   fontStyle: FontStyle.italic,
@@ -454,6 +457,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
   }
 
   Widget _buildWritingCard(BuildContext context, bool isDark, int words) {
+    final l = AppLocalizations.of(context);
     final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
     final textSecondary = isDark ? Colors.white70 : AppColors.duoTextLight;
     final inputBg = isDark
@@ -479,13 +483,13 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                 bottom: BorderSide(color: AppColors.duoPurpleShadow, width: 3),
               ),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
-                SizedBox(width: 8),
+                const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
                 Text(
-                  'AI-Powered Evaluation',
-                  style: TextStyle(
+                  l.aiPoweredEvaluation,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
@@ -505,7 +509,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                     Icon(Icons.edit_outlined, size: 18, color: textSecondary),
                     const SizedBox(width: 6),
                     Text(
-                      'Your Answer',
+                      l.yourAnswer,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w900,
@@ -514,7 +518,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                     ),
                     const Spacer(),
                     Text(
-                      '$words Wörter / ~${_task.minWords}',
+                      '$words ${l.wordCountLabel} / ~${_task.minWords}',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -600,7 +604,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                               color: Colors.white, size: 22),
                         const SizedBox(width: 10),
                         Text(
-                          _isEvaluating ? 'Tekshirilmoqda...' : 'Yuborish',
+                          _isEvaluating ? l.evaluating : l.submit,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
@@ -615,7 +619,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                 const SizedBox(height: 10),
                 Center(
                   child: Text(
-                    'Javobingizni yozing, AI baholaydi.',
+                    l.writeAnswerHint,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -632,6 +636,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
   }
 
   Widget _buildEvaluationCard(BuildContext context, bool isDark) {
+    final l = AppLocalizations.of(context);
     final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
 
     return GamifiedCard(
@@ -642,12 +647,12 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Text('📊', style: TextStyle(fontSize: 20)),
-              SizedBox(width: 8),
+              const Text('📊', style: TextStyle(fontSize: 20)),
+              const SizedBox(width: 8),
               Text(
-                'BAHOLASH',
+                l.evaluation,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
@@ -673,6 +678,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context, bool isDark) {
+    final l = AppLocalizations.of(context);
     final canGoBack = _currentIndex > 0;
     final canGoNext = _currentIndex < schreibenTaskCount - 1;
     final textColor = isDark ? Colors.white : AppColors.duoTextDark;
@@ -705,7 +711,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
               onTap: canGoBack ? () => _goToTask(_currentIndex - 1) : null,
               child: Center(
                 child: Text(
-                  'Orqaga',
+                  l.backBtn,
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 15,
@@ -726,7 +732,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
               onTap: canGoNext ? () => _goToTask(_currentIndex + 1) : null,
               child: Center(
                 child: Text(
-                  'Keyingi',
+                  l.next,
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 15,

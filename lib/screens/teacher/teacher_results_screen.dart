@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/providers/user_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../services/darslar_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
@@ -676,10 +677,11 @@ class _SubmissionTile extends StatelessWidget {
                       studentId,
                     );
                     if (context.mounted) {
+                      final l = AppLocalizations.of(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tekshirildi ✓',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        SnackBar(
+                          content: Text(l.checked,
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
                           backgroundColor: AppColors.duoGreen,
                           behavior: SnackBarBehavior.floating,
                         ),

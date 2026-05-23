@@ -1067,8 +1067,138 @@ class AppLocalizations {
   });
   String get materials => _t({
     'uz': "Dars materiallari",
-    'kaa': "Sabaq materialları",
+    'kaa': "Dars materialları",
     'ru': "Материалы урока",
     'de': "Unterrichtsmaterialien",
+  });
+
+  // ── Schreiben ─────────────────────────────────────────────────────────────────
+  String get schreibenTitle => _t({
+    'uz': "SCHREIBEN",
+    'kaa': "SCHREIBEN",
+    'ru': "SCHREIBEN",
+    'de': "SCHREIBEN",
+  });
+  String get aufgabe => _t({
+    'uz': "AUFGABE",
+    'kaa': "AUFGABE",
+    'ru': "AUFGABE",
+    'de': "AUFGABE",
+  });
+  String get styleLabel => _t({
+    'uz': "Stil:",
+    'kaa': "Stil:",
+    'ru': "Стиль:",
+    'de': "Stil:",
+  });
+  String get showSampleAnswer => _t({
+    'uz': "Show sample answer",
+    'kaa': "Show sample answer",
+    'ru': "Show sample answer",
+    'de': "Show sample answer",
+  });
+  String get sampleAnswerComingSoon => _t({
+    'uz': "Beispielantwort tez orada qo'shiladi.",
+    'kaa': "Beispielantwort tez orada qosıladı.",
+    'ru': "Beispielantwort скоро будет добавлена.",
+    'de': "Beispielantwort wird bald hinzugefügt.",
+  });
+  String get aiPoweredEvaluation => _t({
+    'uz': "AI-Powered Evaluation",
+    'kaa': "AI-Powered Evaluation",
+    'ru': "AI-Powered Evaluation",
+    'de': "AI-Powered Evaluation",
+  });
+  String get yourAnswer => _t({
+    'uz': "Your Answer",
+    'kaa': "Your Answer",
+    'ru': "Your Answer",
+    'de': "Your Answer",
+  });
+  String get wordCountLabel => _t({
+    'uz': "Wörter",
+    'kaa': "Wörter",
+    'ru': "Wörter",
+    'de': "Wörter",
+  });
+  String get yourLetterHint => _t({
+    'uz': "Ihr Brief:",
+    'kaa': "Ihr Brief:",
+    'ru': "Ihr Brief:",
+    'de': "Ihr Brief:",
+  });
+  String get evaluating => _t({
+    'uz': "Tekshirilmoqda...",
+    'kaa': "Tekshirilmoqda...",
+    'ru': "Проверяется...",
+    'de': "Wird überprüft...",
+  });
+  String get submit => _t({
+    'uz': "Yuborish",
+    'kaa': "Jiberiw",
+    'ru': "Отправить",
+    'de': "Absenden",
+  });
+  String get writeAnswerHint => _t({
+    'uz': "Javobingizni yozing, AI baholaydi.",
+    'kaa': "Jabıwıńızdı jazıń, AI baholaydı.",
+    'ru': "Напишите ваш ответ, AI оценит.",
+    'de': "Schreiben Sie Ihre Antwort, AI bewertet.",
+  });
+  String get evaluation => _t({
+    'uz': "BAHOLASH",
+    'kaa': "BAHOLAW",
+    'ru': "ОЦЕНКА",
+    'de': "BEWERTUNG",
+  });
+  String get backBtn => _t({
+    'uz': "Orqaga",
+    'kaa': "Artqa",
+    'ru': "Назад",
+    'de': "Zurück",
+  });
+  String get next => _t({
+    'uz': "Keyingi",
+    'kaa': "Keyingi",
+    'ru': "Далее",
+    'de': "Weiter",
+  });
+
+  // ── Teacher ─────────────────────────────────────────────────────────────────
+  String get checked => _t({
+    'uz': "Tekshirildi ✓",
+    'kaa': "Tekserildi ✓",
+    'ru': "Проверено ✓",
+    'de': "Überprüft ✓",
+  });
+  String get profilePhotoUpdated => _t({
+    'uz': "Profil rasmi yangilandi",
+    'kaa': "Profil suratı jańalandı",
+    'ru': "Фото профиля обновлено",
+    'de': "Profilbild aktualisiert",
+  });
+  String get markAttendance => _t({
+    'uz': "DAVOMATNI BELGILASH",
+    'kaa': "DAVOMATNI BELGILEW",
+    'ru': "ОТМЕТИТЬ ПОСЕЩАЕМОСТЬ",
+    'de': "ANWESENHEIT MARKIEREN",
+  });
+  String get materialsHeader => _t({
+    'uz': "MATERIALLAR",
+    'kaa': "MATERIALLAR",
+    'ru': "МАТЕРИАЛЫ",
+    'de': "MATERIALIEN",
+  });
+  String get addedMaterials => _t({
+    'uz': "Qo'shilgan materiallar:",
+    'kaa': "Qosılğan materiallar:",
+    'ru': "Добавленные материалы:",
+    'de': "Hinzugefügte Materialien:",
+  });
+  String get homeworkHeader => _t({
+    'uz': "UY VAZIFASI",
+    'kaa': "UY WAZIFASI",
+    'ru': "ДОМАШНЕЕ ЗАДАНИЕ",
+    'de': "HAUSAUFGABE",
   });
 }

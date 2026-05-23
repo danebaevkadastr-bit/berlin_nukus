@@ -29,7 +29,7 @@ class SlideTransitionPage extends PageRouteBuilder {
                 break;
             }
             const end = Offset.zero;
-            final curve = Curves.easeInOut;
+            const curve = Curves.easeInOut;
 
             final tween = Tween(begin: begin, end: end).chain(
               CurveTween(curve: curve),

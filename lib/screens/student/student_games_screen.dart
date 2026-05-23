@@ -78,7 +78,9 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
         child: const DerDieDasRulesScreen(),
       ),
     );
-    await _loadStars();
+    if (mounted) {
+      await _loadStars();
+    }
   }
 
   Future<void> _openStrangeSentencesGame() async {
@@ -89,7 +91,9 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
         child: const StrangeSentencesRulesScreen(),
       ),
     );
-    await _loadStars();
+    if (mounted) {
+      await _loadStars();
+    }
   }
 
   Future<void> _openStoryGame() async {
@@ -100,7 +104,9 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
         child: const StoryGameScreen(),
       ),
     );
-    await _loadStars();
+    if (mounted) {
+      await _loadStars();
+    }
   }
 
   Future<void> _openGrammarGame() async {
@@ -111,7 +117,9 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
         child: const GrammarGameScreen(),
       ),
     );
-    await _loadStars();
+    if (mounted) {
+      await _loadStars();
+    }
   }
 
   void _showComingSoonDialog() {
@@ -315,8 +323,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                   const SizedBox(height: 30),
                 ],
               ),
-              ),
             ),
+          ),
     );
   }
 

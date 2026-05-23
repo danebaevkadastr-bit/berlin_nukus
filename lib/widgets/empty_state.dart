@@ -32,7 +32,7 @@ class EmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (lottieAsset != null)
-              EmptyStateAnimation(size: 200)
+              const EmptyStateAnimation(size: 200)
             else if (emoji != null)
               Text(
                 emoji!,

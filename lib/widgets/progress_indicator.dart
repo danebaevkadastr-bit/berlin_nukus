@@ -131,7 +131,7 @@ class _CircularProgressPainter extends CustomPainter {
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.round;
       
-      final startAngle = -90.0 * 3.14159 / 180.0;
+      const startAngle = -90.0 * 3.14159 / 180.0;
       final sweepAngle = progress * 2 * 3.14159;
       
       canvas.drawArc(
@@ -266,7 +266,7 @@ class StepProgressIndicator extends StatelessWidget {
       ),
       child: Center(
         child: isCompleted
-            ? Icon(
+            ? const Icon(
                 Icons.check,
                 size: 18,
                 color: Colors.white,
@@ -275,7 +275,7 @@ class StepProgressIndicator extends StatelessWidget {
                 ? Container(
                     width: 12,
                     height: 12,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white,
                     ),
@@ -337,7 +337,7 @@ class LessonProgressCard extends StatelessWidget {
                 ),
                 Text(
                   '$completedLessons/$totalLessons',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppColors.duoBlue,
