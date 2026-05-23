@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/safe_bottom_sheet.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/course_week_utils.dart';
 import '../../utils/theme_manager.dart';
@@ -567,19 +568,21 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
         final titleColor = isDark ? Colors.white : AppColors.duoTextDark;
         final subColor = isDark ? Colors.white54 : AppColors.duoTextLight;
 
-        return Container(
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.75),
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 30),
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            border: Border.all(
-                color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow, width: 2),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        return SafeBottomSheet.scrollable(
+          context: ctx,
+          maxHeightFactor: 0.75,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 30),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              border: Border.all(
+                  color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow, width: 2),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               Center(
                 child: Container(
                   width: 50, height: 6,
@@ -618,71 +621,67 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                   ),
                 )
               else
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: day.materials.length,
-                    itemBuilder: (ctx, i) {
-                      final mat = day.materials[i] as Map<String, dynamic>? ?? {};
-                      final type = mat['type'] ?? 'link';
-                      final content = mat['content'] ?? '';
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: isDark
-                              ? AppColors.duoCardGray.withValues(alpha: 0.1)
-                              : AppColors.duoBackground,
-                          border: Border.all(
-                              color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
-                              width: 2),
+                ...day.materials.map((item) {
+                  final mat = item as Map<String, dynamic>? ?? {};
+                  final type = mat['type'] ?? 'link';
+                  final content = mat['content'] ?? '';
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: isDark
+                          ? AppColors.duoCardGray.withValues(alpha: 0.1)
+                          : AppColors.duoBackground,
+                      border: Border.all(
+                          color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+                          width: 2),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                              color: currentGroupColor().withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12)),
+                          child: Center(
+                            child: Text(type == 'link' ? '🔗' : '📝',
+                                style: const TextStyle(fontSize: 22)),
+                          ),
                         ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 44, height: 44,
-                              decoration: BoxDecoration(
-                                  color: currentGroupColor().withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(12)),
-                              child: Center(
-                                child: Text(type == 'link' ? '🔗' : '📝',
-                                    style: const TextStyle(fontSize: 22)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                type == 'link' ? 'Havola' : 'Matn',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: subColor),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    type == 'link' ? 'Havola' : 'Matn',
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: subColor),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    content,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: titleColor),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                              const SizedBox(height: 2),
+                              Text(
+                                content,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: titleColor),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ],
+                    ),
+                  );
+                }),
             ],
           ),
+        ),
         );
       },
     );
@@ -715,10 +714,10 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
         final color = currentGroupColor();
         final shadowColor = currentGroupShadow();
 
-        return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        return SafeBottomSheet.fixedHeight(
+          context: ctx,
+          heightFactor: 0.92,
           child: Container(
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.92),
             padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
             decoration: BoxDecoration(
               color: cardBg,

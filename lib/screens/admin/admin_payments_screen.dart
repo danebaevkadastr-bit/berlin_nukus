@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/user_avatar.dart';
+import '../../widgets/safe_bottom_sheet.dart';
 import '../../utils/user_profile_utils.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
@@ -595,8 +596,8 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModal) {
           final cardBg = isDark ? const Color(0xFF131F24) : Colors.white;
-          return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+          return SafeBottomSheet.scrollable(
+            context: ctx,
             child: Container(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
               decoration: BoxDecoration(

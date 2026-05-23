@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import 'teacher_courses_screen.dart';
 import 'teacher_home_screen.dart';
 import 'teacher_profile_screen.dart';
+import 'teacher_results_screen.dart';
 
 class TeacherMainScreen extends StatefulWidget {
   const TeacherMainScreen({super.key});
@@ -34,6 +35,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                   children: const [
                     TeacherHomeScreen(),
                     TeacherCoursesScreen(),
+                    TeacherResultsScreen(),
                     TeacherProfileScreen(),
                   ],
                 ),
@@ -62,7 +64,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(36),
           color: isDark
-              ? AppColors.duoCardGray.withValues(alpha: 0.9)
+              ? const Color(0xFF1E293B)
               : Colors.white,
           border: Border.all(
             color: isDark
@@ -81,11 +83,13 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildNavItem(context, Icons.home_rounded, l.navHome, 0),
-            _buildNavItem(context, Icons.group_rounded, l.myGroups, 1),
-            _buildNavItem(context, Icons.person_rounded, l.navProfile, 2),
+            Expanded(child: _buildNavItem(context, Icons.home_rounded, l.navHome, 0)),
+            Expanded(child: _buildNavItem(context, Icons.group_rounded, l.myGroups, 1)),
+            Expanded(
+              child: _buildNavItem(context, Icons.assignment_rounded, 'Natijalar', 2),
+            ),
+            Expanded(child: _buildNavItem(context, Icons.person_rounded, l.navProfile, 3)),
           ],
         ),
       ),
@@ -105,7 +109,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 80,
+        width: double.infinity,
         height: 72,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -136,6 +140,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
             ]
           ],

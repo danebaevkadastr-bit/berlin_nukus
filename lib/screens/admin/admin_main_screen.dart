@@ -68,7 +68,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(36),
           color: isDark
-              ? AppColors.duoCardGray.withValues(alpha: 0.9)
+              ? const Color(0xFF1E293B)
               : Colors.white,
           border: Border.all(
             color: isDark

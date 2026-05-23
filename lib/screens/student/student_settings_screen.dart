@@ -5,6 +5,7 @@ import '../../utils/theme_manager.dart';
 import '../../l10n/locale_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/safe_bottom_sheet.dart';
 import '../../utils/app_colors.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart' as user_provider;
@@ -31,8 +32,8 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+      builder: (ctx) => SafeBottomSheet.scrollable(
+        context: ctx,
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
           decoration: BoxDecoration(

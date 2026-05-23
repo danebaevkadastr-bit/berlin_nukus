@@ -7,6 +7,7 @@ import '../../utils/course_week_utils.dart';
 import '../../utils/theme_manager.dart';
 import '../../utils/user_profile_utils.dart';
 import '../../widgets/user_avatar.dart';
+import '../../widgets/safe_bottom_sheet.dart';
 import '../../l10n/app_localizations.dart';
 
 class TeacherCourseDetailScreen extends StatefulWidget {
@@ -840,10 +841,10 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
         return StatefulBuilder(
           builder: (ctx, setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            return SafeBottomSheet.fixedHeight(
+              context: ctx,
+              heightFactor: 0.92,
               child: Container(
-                constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.92),
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 decoration: BoxDecoration(
                   color: cardBg,
@@ -1405,8 +1406,8 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
         return StatefulBuilder(
           builder: (ctx, setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            return SafeBottomSheet.scrollable(
+              context: ctx,
               child: Container(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 decoration: BoxDecoration(
