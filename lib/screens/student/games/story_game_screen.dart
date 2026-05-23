@@ -25,18 +25,26 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
   bool _evaluating = false;
   StoryEvaluation? _evaluation;
   bool _finished = false;
+  bool _showRules = true;
+  String _selectedDifficulty = 'medium';
 
   @override
   void initState() {
     super.initState();
-    _loadRound();
+    _storyController.addListener(_updateWordCount);
   }
 
   @override
   void dispose() {
+    _storyController.removeListener(_updateWordCount);
     _storyController.dispose();
     super.dispose();
   }
+
+  void _updateWordCount() {
+    setState(() {});
+  }
+
 
   Future<void> _loadRound() async {
     setState(() {
@@ -48,15 +56,18 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
     });
 
     try {
+      final config = _getDifficultyConfig(_selectedDifficulty);
       final round = await AIService.generateStoryWords(
-        wordCount: 10,
-        minWords: 30,
-        maxWords: 40,
+        wordCount: config['wordCount']!,
+        minWords: config['minWords']!,
+        maxWords: config['maxWords']!,
+        difficulty: _selectedDifficulty,
       );
       if (!mounted) return;
       setState(() {
         _round = round;
         _loading = false;
+        _showRules = false;
       });
     } catch (e) {
       if (!mounted) return;
@@ -64,6 +75,19 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
         _loading = false;
         _loadError = e.toString();
       });
+    }
+  }
+
+  Map<String, int> _getDifficultyConfig(String difficulty) {
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        return {'wordCount': 6, 'minWords': 20, 'maxWords': 30};
+      case 'medium':
+        return {'wordCount': 10, 'minWords': 30, 'maxWords': 40};
+      case 'hard':
+        return {'wordCount': 15, 'minWords': 40, 'maxWords': 50};
+      default:
+        return {'wordCount': 10, 'minWords': 30, 'maxWords': 40};
     }
   }
 
@@ -132,16 +156,152 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
           body: DecorativePatternBackground(
             isDark: isDark,
             variant: DecorativePatternVariant.derDieDas,
-            child: _loading
-                ? _buildLoading(isDark, l)
-                : _loadError != null
-                    ? _buildError(isDark)
-                    : _finished
-                        ? _buildResults(isDark)
-                        : _buildGame(isDark, l),
+            child: _showRules
+                ? _buildRules(isDark)
+                : _loading
+                    ? _buildLoading(isDark, l)
+                    : _loadError != null
+                        ? _buildError(isDark)
+                        : _finished
+                            ? _buildResults(isDark)
+                            : _buildGame(isDark, l),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildRules(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Text(
+              '📝 Hikoya O\'YINI',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : AppColors.duoTextDark,
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: isDark
+                  ? AppColors.duoCardGray.withValues(alpha: 0.1)
+                  : Colors.white,
+              border: Border.all(
+                color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+                width: 1.5,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'QOIDALAR:',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.candyPink,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildRuleItem('1. Berilgan so\'zlardan foydalanib hikoya yozing', isDark),
+                _buildRuleItem('2. Otlarning artiklini o\'zgartirishingiz mumkin (masalan: das Buch → ein Buch)', isDark),
+                _buildRuleItem('3. Fe\'llarni turli shakllarda ishlatishingiz mumkin (masalan: lesen → ich lese)', isDark),
+                _buildRuleItem('4. Hikoya uzunligi berilgan oraliqda bo\'lishi kerak', isDark),
+                _buildRuleItem('5. Grammatik jihatdan to\'g\'ri bo\'lishi kerak', isDark),
+                _buildRuleItem('6. Mantiqan bog\'liq hikoya yozing', isDark),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Darajani tanlang:',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: isDark ? Colors.white : AppColors.duoTextDark,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _buildDifficultyButton('Oson', 'easy', isDark),
+              const SizedBox(width: 8),
+              _buildDifficultyButton('O\'rtacha', 'medium', isDark),
+              const SizedBox(width: 8),
+              _buildDifficultyButton('Qiyin', 'hard', isDark),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: GamifiedCard(
+              color: AppColors.duoGreen,
+              shadowColor: AppColors.duoGreenShadow,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              onTap: _loadRound,
+              child: const Center(
+                child: Text(
+                  'Boshlash',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRuleItem(String text, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white70 : AppColors.duoTextLight,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDifficultyButton(String label, String value, bool isDark) {
+    final isSelected = _selectedDifficulty == value;
+    return Expanded(
+      child: GamifiedCard(
+        color: isSelected ? AppColors.candyPink : AppColors.duoCardGray,
+        shadowColor: isSelected ? const Color(0xFFE91E63) : AppColors.duoCardGrayShadow,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        onTap: () {
+          setState(() {
+            _selectedDifficulty = value;
+          });
+        },
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              color: isSelected ? Colors.white : (isDark ? Colors.white70 : AppColors.duoTextDark),
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -282,6 +442,33 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
             ),
           ),
           const SizedBox(height: 16),
+          if (_round!.theme != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: AppColors.duoBlue.withValues(alpha: 0.1),
+                border: Border.all(
+                  color: AppColors.duoBlue,
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('🎯 ', style: TextStyle(fontSize: 16)),
+                  Text(
+                    'Mavzu: ${_round!.theme}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.duoBlue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (_round!.theme != null) const SizedBox(height: 12),
           Text(
             'Hikoya uzunligi: ${_round!.minWords}-${_round!.maxWords} so\'z',
             style: TextStyle(
@@ -324,6 +511,12 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
                   color: AppColors.candyPink,
                   width: 2,
                 ),
+              ),
+              suffixText: '${_storyController.text.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).length} so\'z',
+              suffixStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white60 : AppColors.duoTextLight,
               ),
             ),
             style: TextStyle(
@@ -453,7 +646,11 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
                       shadowColor: AppColors.duoCardGrayShadow,
                       shadowDepth: 3,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      onTap: _loadRound,
+                      onTap: () {
+                        setState(() {
+                          _showRules = true;
+                        });
+                      },
                       child: Center(
                         child: Text(
                           'Yangi hikoya',

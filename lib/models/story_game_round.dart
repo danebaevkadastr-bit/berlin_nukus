@@ -30,11 +30,13 @@ class StoryGameRound {
   final List<StoryWord> words;
   final int minWords;
   final int maxWords;
+  final String? theme;
 
   StoryGameRound({
     required this.words,
     this.minWords = 30,
     this.maxWords = 40,
+    this.theme,
   });
 
   factory StoryGameRound.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,7 @@ class StoryGameRound {
       words: words,
       minWords: json['minWords'] ?? 30,
       maxWords: json['maxWords'] ?? 40,
+      theme: json['theme'],
     );
   }
 
@@ -56,6 +59,7 @@ class StoryGameRound {
       'words': words.map((w) => w.toJson()).toList(),
       'minWords': minWords,
       'maxWords': maxWords,
+      if (theme != null) 'theme': theme,
     };
   }
 }

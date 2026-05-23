@@ -57,45 +57,123 @@ class BottomNavBar extends StatelessWidget {
     const activeColor = AppColors.duoBlue;
     final inactiveColor = isDark ? Colors.white54 : AppColors.duoTextLight;
 
-    return GestureDetector(
+    return _AnimatedNavItem(
+      icon: icon,
+      label: label,
+      index: index,
+      isActive: isActive,
+      activeColor: activeColor,
+      inactiveColor: inactiveColor,
       onTap: () => onTap(index),
+    );
+  }
+}
+
+class _AnimatedNavItem extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final int index;
+  final bool isActive;
+  final Color activeColor;
+  final Color inactiveColor;
+  final VoidCallback onTap;
+
+  const _AnimatedNavItem({
+    required this.icon,
+    required this.label,
+    required this.index,
+    required this.isActive,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_AnimatedNavItem> createState() => _AnimatedNavItemState();
+}
+
+class _AnimatedNavItemState extends State<_AnimatedNavItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _controller.reverse();
+  }
+
+  void _handleTapCancel() {
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      onTap: widget.onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 64,
-        height: 72,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutBack,
-              width: isActive ? 48 : 32,
-              height: isActive ? 48 : 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isActive ? activeColor : Colors.transparent,
-              ),
-              child: Icon(
-                icon,
-                color: isActive ? Colors.white : inactiveColor,
-                size: isActive ? 28 : 24,
-              ),
-            ),
-            if (!isActive) ...[
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: inactiveColor,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 64,
+          height: 72,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutBack,
+                width: widget.isActive ? 48 : 32,
+                height: widget.isActive ? 48 : 32,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: widget.isActive ? widget.activeColor : Colors.transparent,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                child: Icon(
+                  widget.icon,
+                  color: widget.isActive ? Colors.white : widget.inactiveColor,
+                  size: widget.isActive ? 28 : 24,
+                ),
               ),
-            ]
-          ],
+              if (!widget.isActive) ...[
+                const SizedBox(height: 4),
+                Text(
+                  widget.label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: widget.inactiveColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ]
+            ],
+          ),
         ),
       ),
     );

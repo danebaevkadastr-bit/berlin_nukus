@@ -12,6 +12,7 @@ import '../../utils/theme_manager.dart';
 import '../../widgets/chat/selected_word_sheet.dart';
 import '../../widgets/decorative_pattern_background.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/empty_state.dart';
 
 class ChatScreen extends StatefulWidget {
   final String title;
@@ -1041,38 +1042,40 @@ SUHBAT USLUBI:
                 ),
               ),
               Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                physics: const BouncingScrollPhysics(),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
+              child: _messages.isEmpty
+                  ? const NoMessagesEmptyState()
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
 
-                  return _ChatBubble(
-                    message: message,
-                    textSize: _textSize,
-                    colors: colors,
-                    isSpeaking:
-                        _ttsService.isPlaying &&
-                        _ttsService.currentText == message.text,
-                    onTapWord: message.isUser ? null : _openSelectedWord,
-                    onTapHint: message.showReplyHint
-                        ? () => _toggleHints(message.id)
-                        : null,
-                    onTapTranslate: message.showTranslate
-                        ? () => _toggleTranslation(message.id)
-                        : null,
-                    onTapTts: message.showTts
-                        ? () => _handleTts(message.id)
-                        : null,
-                    onTapCorrection: message.hasCorrection
-                        ? () => _toggleCorrectionCard(message.id)
-                        : null,
-                    onHintSelected: (hint) => _sendMessage(hint),
-                  );
-                },
-              ),
+                        return _ChatBubble(
+                          message: message,
+                          textSize: _textSize,
+                          colors: colors,
+                          isSpeaking:
+                              _ttsService.isPlaying &&
+                              _ttsService.currentText == message.text,
+                          onTapWord: message.isUser ? null : _openSelectedWord,
+                          onTapHint: message.showReplyHint
+                              ? () => _toggleHints(message.id)
+                              : null,
+                          onTapTranslate: message.showTranslate
+                              ? () => _toggleTranslation(message.id)
+                              : null,
+                          onTapTts: message.showTts
+                              ? () => _handleTts(message.id)
+                              : null,
+                          onTapCorrection: message.hasCorrection
+                              ? () => _toggleCorrectionCard(message.id)
+                              : null,
+                          onHintSelected: (hint) => _sendMessage(hint),
+                        );
+                      },
+                    ),
             ),
             if (showSessionActions)
               Padding(

@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       _buildTextField(
                         controller: _emailController,
                         label: AppLocalizations.of(context).email,
-                        icon: '📧',
+                        icon: Icons.email_rounded,
                         isDark: isDark,
                         keyboardType: TextInputType.emailAddress,
                       ),
@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       _buildTextField(
                         controller: _passwordController,
                         label: AppLocalizations.of(context).password,
-                        icon: '🔒',
+                        icon: Icons.lock_rounded,
                         isDark: isDark,
                         obscureText: _obscurePassword,
                         suffixIcon: IconButton(
@@ -314,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
-    required String icon,
+    required IconData icon,
     required bool isDark,
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
@@ -345,7 +345,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           ),
           prefixIcon: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Text(icon, style: const TextStyle(fontSize: 20)),
+            child: Icon(icon, size: 20, color: isDark ? Colors.white54 : AppColors.duoTextLight),
           ),
           prefixIconConstraints: const BoxConstraints(minWidth: 40),
           suffixIcon: suffixIcon,

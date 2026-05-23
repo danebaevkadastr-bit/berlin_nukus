@@ -8,13 +8,10 @@ class StreakService {
   static const String _currentStreakKey = 'streak_current';
 
   /// Bugungi activity ni yozish
-  static Future<void> recordActivity(String uid) async {
+  static Future<void> recordActivity(String uid, {int minutes = 0}) async {
     final prefs = await SharedPreferences.getInstance();
     final today = _getDateKey(DateTime.now());
     final lastActive = prefs.getString(_lastActiveKey);
-
-    // Agar bugun yozilgan bo'lsa, qayta yozmaslik
-    if (lastActive == today) return;
 
     // Firestore ga yozish
     await _firestore.collection('users').doc(uid).set({
@@ -22,11 +19,21 @@ class StreakService {
       'activityLog': FieldValue.arrayUnion([today]),
     }, SetOptions(merge: true));
 
-    // Local storage ga yozish
-    await prefs.setString(_lastActiveKey, today);
+    // Kunlik daqiqalarni yangilash
+    if (minutes > 0) {
+      await _firestore.collection('users').doc(uid).set({
+        'dailyMinutes': FieldValue.arrayUnion([{'date': today, 'minutes': minutes}]),
+      }, SetOptions(merge: true));
+    }
 
-    // Streak ni hisoblash va yangilash
-    await _updateStreak(uid, lastActive);
+    // Agar bugun birinchi marta kelsa, streakni yangilash
+    if (lastActive != today) {
+      // Local storage ga yozish
+      await prefs.setString(_lastActiveKey, today);
+
+      // Streak ni hisoblash va yangilash
+      await _updateStreak(uid, lastActive);
+    }
   }
 
   /// Streak ni hisoblash va yangilash
@@ -73,28 +80,42 @@ class StreakService {
     await prefs.setInt(_currentStreakKey, streak);
   }
 
-  /// Weekly usage data ni olish (so'nggi 7 kun)
+  /// Weekly usage data ni olish (so'nggi 7 kun) - daqiqalarda
   static Future<List<double>> getWeeklyUsage(String uid) async {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
-        final activityLog = doc.data()?['activityLog'] as List<dynamic>? ?? [];
+        final dailyMinutes = doc.data()?['dailyMinutes'] as List<dynamic>? ?? [];
         final usage = <double>[];
-        
+
         for (int i = 6; i >= 0; i--) {
           final date = _getDateKey(DateTime.now().subtract(Duration(days: i)));
-          final hasActivity = activityLog.contains(date);
-          usage.add(hasActivity ? 1.0 : 0.0);
+          final dayMinutes = dailyMinutes
+              .where((item) => item is Map && item['date'] == date)
+              .fold<int>(0, (sum, item) => sum + (item['minutes'] as int? ?? 0));
+          usage.add(dayMinutes.toDouble());
         }
-        
+
         return usage;
       }
     } catch (e) {
       // Xatolarni ignore qilish
     }
-    
+
     // Default: hozircha random data
     return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+  }
+
+  /// Weekly dates ni olish (so'nggi 7 kun)
+  static Future<List<String>> getWeeklyDates() async {
+    final dates = <String>[];
+    for (int i = 6; i >= 0; i--) {
+      final date = DateTime.now().subtract(Duration(days: i));
+      final day = date.day;
+      final month = date.month;
+      dates.add('$day.$month');
+    }
+    return dates;
   }
 
   /// Date key format: YYYY-MM-DD
@@ -115,5 +136,25 @@ class StreakService {
       // Xatolarni ignore qilish
     }
     return false;
+  }
+
+  /// Bugun birinchi marta kirganmi (streak animatsiyasi uchun)
+  static Future<bool> isFirstLoginToday(String uid) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lastActive = prefs.getString(_lastActiveKey);
+      final today = _getDateKey(DateTime.now());
+      return lastActive != today;
+    } catch (e) {
+      // Xatolarni ignore qilish
+    }
+    return false;
+  }
+
+  /// Birinchi loginni belgilash
+  static Future<void> markFirstLoginToday(String uid) async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getDateKey(DateTime.now());
+    await prefs.setString(_lastActiveKey, today);
   }
 }

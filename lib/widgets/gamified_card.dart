@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 
-class GamifiedCard extends StatelessWidget {
+class GamifiedCard extends StatefulWidget {
   final Widget child;
   final Color color;
   final Color shadowColor;
@@ -22,31 +22,78 @@ class GamifiedCard extends StatelessWidget {
   });
 
   @override
+  State<GamifiedCard> createState() => _GamifiedCardState();
+}
+
+class _GamifiedCardState extends State<GamifiedCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (widget.onTap != null) {
+      _controller.forward();
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _controller.reverse();
+  }
+
+  void _handleTapCancel() {
+    _controller.reverse();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget cardContent = Container(
-      padding: padding,
+      padding: widget.padding,
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(borderRadius),
+        color: widget.color,
+        borderRadius: BorderRadius.circular(widget.borderRadius),
         boxShadow: [
           BoxShadow(
-            color: shadowColor,
-            offset: Offset(0, shadowDepth),
+            color: widget.shadowColor,
+            offset: Offset(0, widget.shadowDepth),
             blurRadius: 0,
           ),
         ],
         border: Border.all(
-          color: shadowColor.withValues(alpha: 0.5),
+          color: widget.shadowColor.withValues(alpha: 0.5),
           width: 2.0,
         ),
       ),
-      child: child,
+      child: widget.child,
     );
 
-    if (onTap != null) {
+    if (widget.onTap != null) {
       return GestureDetector(
-        onTap: onTap,
-        child: cardContent,
+        onTapDown: _handleTapDown,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleTapCancel,
+        onTap: widget.onTap,
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: cardContent,
+        ),
       );
     }
 

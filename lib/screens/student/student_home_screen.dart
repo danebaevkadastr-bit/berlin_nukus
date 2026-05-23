@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/skeleton_loader.dart';
+import '../../widgets/empty_state.dart';
 import '../../utils/app_colors.dart';
 import 'student_group_screen.dart';
 import 'student_learning_screen.dart';
@@ -22,6 +24,33 @@ class StudentHomeScreen extends StatefulWidget {
 
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
   int _currentIndex = 0;
+  bool _showStreakAnimation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkStreakAnimation();
+  }
+
+  Future<void> _checkStreakAnimation() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final isFirstLogin = await StreakService.isFirstLoginToday(userProvider.uid);
+    if (isFirstLogin) {
+      setState(() {
+        _showStreakAnimation = true;
+      });
+      await StreakService.markFirstLoginToday(userProvider.uid);
+      await StreakService.recordActivity(userProvider.uid);
+      // 3 soniyadan keyin animatsiyani yopish
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _showStreakAnimation = false;
+          });
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +86,39 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     },
                   ),
                 ),
+                // Streak animatsiyasi
+                if (_showStreakAnimation)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.7),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('🔥', style: TextStyle(fontSize: 100)),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'STREAK SAQLANDI!',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Har kuni o\'rganishda davom eting!',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -82,6 +144,11 @@ class StudentHomeContent extends StatelessWidget {
     return StreamBuilder<List<Map<String, dynamic>>>(
       stream: FirebaseService().getStudentGroupsStream(userProvider.uid),
       builder: (context, snapshot) {
+        // Loading state
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingState(isDark);
+        }
+
         List<Map<String, dynamic>> pendingHomeworks = [];
         List<Map<String, dynamic>> upcomingLessons = [];
         Map<String, dynamic>? todayLesson;
@@ -141,6 +208,19 @@ class StudentHomeContent extends StatelessWidget {
             }
           }
         }
+
+        // Empty state - agar guruhlar bo'lmasa
+        if (snapshot.data == null || snapshot.data!.isEmpty)
+          return _buildEmptyState(isDark);
+
+        // Empty state - agar darslar bo'lmasa
+        final hasAnyData = snapshot.data!.any((data) {
+          final lessonsMap = data['lessons'] as Map<String, dynamic>? ?? {};
+          return lessonsMap.isNotEmpty;
+        });
+        
+        if (!hasAnyData)
+          return _buildEmptyState(isDark);
 
         return Column(
           children: [
@@ -230,11 +310,17 @@ class StudentHomeContent extends StatelessWidget {
 
             // Asosiy scroll
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  // Refresh data
+                  await Future.delayed(const Duration(seconds: 1));
+                },
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                     // ── Bugungi dars ──
                     if (todayLesson != null)
                       GamifiedCard(
@@ -381,47 +467,105 @@ class StudentHomeContent extends StatelessWidget {
                             const SizedBox(height: 16),
                             ...pendingHomeworks.take(3).map((hw) => Padding(
                               padding: const EdgeInsets.only(bottom: 12),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(12),
+                              child: Dismissible(
+                                key: Key(hw['title']?.toString() ?? hw.toString()),
+                                confirmDismiss: (direction) async {
+                                  if (direction == DismissDirection.endToStart) {
+                                    // Swipe to delete
+                                    return true;
+                                  } else if (direction == DismissDirection.startToEnd) {
+                                    // Swipe to complete
+                                    await Future.delayed(const Duration(milliseconds: 300));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('${hw['title']} tugatildi!'),
+                                        backgroundColor: AppColors.duoGreen,
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                    return false; // Don't dismiss, just mark as complete
+                                  }
+                                  return false;
+                                },
+                                background: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  alignment: Alignment.centerLeft,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.duoGreen.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            hw['title'] ?? 'Vazifa',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            hw['groupName'] ?? 'Guruh',
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white70,
-                                            ),
-                                          ),
-                                        ],
+                                secondaryBackground: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  alignment: Alignment.centerRight,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                                onDismissed: (direction) {
+                                  if (direction == DismissDirection.endToStart) {
+                                    // Delete action
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('${hw['title']} olib tashlandi'),
+                                        duration: const Duration(seconds: 2),
                                       ),
-                                    ),
-                                    Text(
-                                      hw['deadline'] ?? hw['date'] ?? '',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white70,
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              hw['title'] ?? 'Vazifa',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              hw['groupName'] ?? 'Guruh',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white70,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                      Text(
+                                        hw['deadline'] ?? hw['date'] ?? '',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             )),
@@ -516,19 +660,22 @@ class StudentHomeContent extends StatelessWidget {
                       const SizedBox(height: 20),
                     ],
 
-                    // ── Daily Streak & Chart ──
+                    // ── Daily Activity & Chart ──
                     FutureBuilder<Map<String, dynamic>>(
                       future: Future.wait([
                         StreakService.getCurrentStreak(userProvider.uid),
                         StreakService.getWeeklyUsage(userProvider.uid),
+                        StreakService.getWeeklyDates(),
                       ]).then((values) => {
                         'streak': values[0] as int,
                         'weeklyUsage': values[1] as List<double>,
+                        'weeklyDates': values[2] as List<String>,
                       }),
                       builder: (context, streakSnapshot) {
                         final streak = streakSnapshot.data?['streak'] ?? 0;
                         final weeklyUsage = streakSnapshot.data?['weeklyUsage'] ?? [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-                        
+                        final weeklyDates = streakSnapshot.data?['weeklyDates'] ?? ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1'];
+
                         return GamifiedCard(
                           color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
                           shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
@@ -542,7 +689,7 @@ class StudentHomeContent extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      "STREAK: $streak KUN",
+                                      "FAOLIYAT: $streak KUN",
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w900,
@@ -559,9 +706,9 @@ class StudentHomeContent extends StatelessWidget {
                                 children: [
                                   for (int i = 0; i < 7; i++)
                                     _buildVerticalBarChartItem(
-                                      day: ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'][i],
+                                      day: weeklyDates[i],
                                       value: weeklyUsage[i],
-                                      isToday: i == DateTime.now().weekday - 1,
+                                      isToday: i == 6,
                                       isDark: isDark,
                                     )
                                 ],
@@ -703,6 +850,7 @@ class StudentHomeContent extends StatelessWidget {
                     const SizedBox(height: 120), // Bottom nav bar uchun joy
                   ],
                 ),
+                ),
               ),
             ),
           ],
@@ -735,9 +883,24 @@ class StudentHomeContent extends StatelessWidget {
     required bool isDark,
   }) {
     const height = 60.0;
+    // Daqiqalarni daqiqaga aylantirish (max 120 daqiqa deb olamiz)
+    final minutes = value.toInt();
+    final barHeight = (minutes / 120).clamp(0.0, 1.0) * height;
+    
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Daqiqalarni ko'rsatish
+        if (minutes > 0)
+          Text(
+            '${minutes}d',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: isToday ? AppColors.duoOrange : (isDark ? Colors.white70 : AppColors.duoTextLight),
+            ),
+          ),
+        const SizedBox(height: 4),
         Container(
           height: height,
           width: 12,
@@ -747,7 +910,7 @@ class StudentHomeContent extends StatelessWidget {
           ),
           alignment: Alignment.bottomCenter,
           child: Container(
-            height: height * value,
+            height: barHeight,
             width: 12,
             decoration: BoxDecoration(
               color: isToday ? AppColors.duoOrange : AppColors.duoBlue,
@@ -857,6 +1020,87 @@ class StudentHomeContent extends StatelessWidget {
               color: isMe ? AppColors.duoBlue : (isDark ? Colors.white70 : AppColors.duoTextLight),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(bool isDark) {
+    return NoGroupsEmptyState(
+      onAction: () {
+        // Navigate to games screen
+        // This would require access to the parent widget's state
+      },
+    );
+  }
+
+  Widget _buildLoadingState(bool isDark) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          // Header skeleton
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  SkeletonLoader(
+                    width: 52,
+                    height: 52,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SkeletonLoader(
+                        width: 150,
+                        height: 18,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      const SizedBox(height: 4),
+                      SkeletonLoader(
+                        width: 100,
+                        height: 14,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SkeletonLoader(
+                width: 44,
+                height: 44,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          // Today's lesson skeleton
+          const SkeletonLessonCard(),
+          const SizedBox(height: 20),
+          // Homework skeleton
+          const SkeletonCard(height: 120),
+          const SizedBox(height: 20),
+          // Upcoming lessons skeleton
+          const SkeletonCard(height: 100),
+          const SizedBox(height: 20),
+          // Activity chart skeleton
+          const SkeletonCard(height: 150),
+          const SizedBox(height: 20),
+          // Stats skeleton
+          Row(
+            children: [
+              Expanded(child: SkeletonStatItem()),
+              const SizedBox(width: 12),
+              Expanded(child: SkeletonStatItem()),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Leaderboard skeleton
+          const SkeletonCard(height: 200),
         ],
       ),
     );

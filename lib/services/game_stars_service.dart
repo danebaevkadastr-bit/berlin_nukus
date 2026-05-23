@@ -6,6 +6,7 @@ class GameStarsService {
   static String _derDieDasKey(String uid) => 'game_stars_der_die_das_$uid';
   static String _strangeSentencesKey(String uid) =>
       'game_stars_strange_sentences_$uid';
+  static String _grammarGameKey(String uid) => 'game_stars_grammar_game_$uid';
 
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -46,11 +47,30 @@ class GameStarsService {
     return total;
   }
 
+  static Future<int> getGrammarGameStars(String uid) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_grammarGameKey(uid)) ?? 0;
+  }
+
+  static Future<int> addGrammarGameStars(String uid, int earned) async {
+    if (earned <= 0) return getGrammarGameStars(uid);
+    final prefs = await SharedPreferences.getInstance();
+    final key = _grammarGameKey(uid);
+    final total = (prefs.getInt(key) ?? 0) + earned;
+    await prefs.setInt(key, total);
+    
+    // Firestore ga ham saqlash
+    await _syncStarsToFirestore(uid);
+    
+    return total;
+  }
+
   /// Barcha o'yinlar yig'indisi.
   static Future<int> getTotalStars(String uid) async {
     final der = await getDerDieDasStars(uid);
     final strange = await getStrangeSentencesStars(uid);
-    return der + strange;
+    final grammar = await getGrammarGameStars(uid);
+    return der + strange + grammar;
   }
 
   /// Yulduzlarni Firestore users collection ga sinxronizatsiya qiladi

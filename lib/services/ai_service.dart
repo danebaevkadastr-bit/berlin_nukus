@@ -7,8 +7,10 @@ import 'package:http/http.dart' as http;
 
 import '../models/strange_sentences_round.dart';
 import '../models/story_game_round.dart';
+import '../models/grammar_game_round.dart';
 import '../utils/chat_sanitize.dart';
 import '../utils/strange_sentences_fallback.dart';
+import '../utils/grammar_fallback.dart';
 
 class AIService {
   static String get _qwenApiKey => dotenv.env['QWEN_API_KEY']?.trim() ?? '';
@@ -339,7 +341,7 @@ $answer
     try {
       final difficultyStr = difficulty.toString().split('.').last;
       final raw = await _chat(
-        temperature: 0.85,
+        temperature: 0.9,
         messages: [
           {
             'role': 'system',
@@ -349,29 +351,31 @@ Faqat JSON qaytaring: {"rounds":[...]} — boshqa matn yo'q.
 
 Har raund:
 - type: "pick" yoki "order" (aralash, taxminan yarim-yarim)
-- difficulty: "$difficultyStr" (barcha raundlar shu darajada bo'lishi kerak)
+- difficulty: "$difficultyStr" (har bir raundda difficulty qo'ying)
 - correctSentence: nemischa, grammatik TO'G'RI, lekin mantiqan absurdt/g'alati (1 gap, Present)
 - explanationUz: o'zbekcha, 1 qisqa gap nima uchun to'g'ri
 
 "type":"pick" uchun:
 - options: aynan 3 ta nemischa gap. FAQAT BITTASI correctSentence bilan bir xil.
 - Qolgan 2 tasi grammatik XATO (fe'l, artikl, tartib).
-- Variantlarni ARALASHTIRING, to'g'ri javob har doim birinchi bo'lmasligi kerak.
+- Variantlarni HAR DOIM ARALASHTIRING, to'g'ri javob har doim birinchi bo'lmasligi kerak.
 
 "type":"order" uchun:
-- shuffledWords: correctSentence so'zlariga bo'lingan massiv, ARALASHTIRILGAN.
+- shuffledWords: correctSentence so'zlariga bo'lingan massiv, HAR DOIM ARALASHTIRILGAN.
 - So'zlar soni va tarkibi correctSentence bilan mos bo'lsin.
 
 Difficulty bo'yicha:
-- easy: oddiy gaplar, qisqa, asosiy grammatika
-- medium: o'rtacha gaplar, biroz murakkabroq
-- hard: murakkab gaplar, ko'proq so'zlar, qiyinroq grammatika
+- easy: oddiy gaplar, qisqa (5-7 so'z), asosiy grammatika (der/die/das, oddiy fe'llar)
+- medium: o'rtacha gaplar (8-12 so'z), biroz murakkabroq grammatika (akkusativ, dativ)
+- hard: murakkab gaplar (13-18 so'z), qiyinroq grammatika (perfekt, präteritum, modal fe'llar)
 
-$count ta raund, barchasi "$difficultyStr" darajasida.''',
+MUHIM:
+- Har bir raundni BOSHQACHA va UNIQUE qiling - gaplar qaytalanmasin
+- $count ta raund, barchasi "$difficultyStr" darajasida, lekin har biri BOSHQACHA mazmunda.''',
           },
           {
             'role': 'user',
-            'content': '$count ta yangi raund yarating.',
+            'content': '$count ta yangi, BOSHQACHA raund yarating. Har bir gap unique bo\'lishi kerak.',
           },
         ],
       );
@@ -398,7 +402,87 @@ $count ta raund, barchasi "$difficultyStr" darajasida.''',
       debugPrint('generateStrangeSentenceRounds: $e');
     }
 
-    return StrangeSentencesFallback.sample(count: count);
+    return StrangeSentencesFallback.sample(count: count, difficulty: difficulty);
+  }
+
+  /// Grammatik o'yin uchun raundlar yaratish
+  static Future<List<GrammarGameRound>> generateGrammarRounds({
+    int count = 8,
+  }) async {
+    try {
+      final raw = await _chat(
+        temperature: 0.9,
+        messages: [
+          {
+            'role': 'system',
+            'content': '''
+Sen nemis tili A1-A2 grammatik o'yin yaratuvchisisan.
+Faqat JSON qaytaring: {"rounds":[...]} — boshqa matn yo'q.
+
+Har raund:
+- type: "article", "verb", "preposition", yoki "fillBlank" (aralash)
+- question: nemischa savol yoki gap
+- questionUz: o'zbekcha tarjima yoki izoh
+- options: aynan 4 ta variant. FAQAT BITTASI to'g'ri.
+- correctAnswer: to'g'ri variant (options ichidan)
+- explanationUz: o'zbekcha izoh nima uchun to'g'ri
+
+"type":"article" uchun:
+- Der/Die/Das tanlash
+- Masalan: "___ Buch" -> options: ["Der", "Die", "Das", "Den"]
+
+"type":"verb" uchun:
+- Fe'l shaklini tanlash
+- Masalan: "Ich ___ Apfel" -> options: ["esse", "isst", "essen", "ißt"]
+
+"type":"preposition" uchun:
+- Präposition tanlash
+- Masalan: "Ich gehe ___ Schule" -> options: ["zur", "zu", "in", "auf"]
+
+"type":"fillBlank" uchun:
+- Gapni to'ldirish
+- Masalan: "Der Mann ___ im Park" -> options: ["läuft", "laufen", "lief", "gelaufen"]
+
+MUHIM:
+- Har bir raundni BOSHQACHA va UNIQUE qiling - savollar qaytalanmasin
+- $count ta raund, har biri BOSHQACHA mazmunda.''',
+          },
+          {
+            'role': 'user',
+            'content': '$count ta yangi, BOSHQACHA grammatik raund yarating.',
+          },
+        ],
+      );
+
+      final decoded = jsonDecode(_extractJson(raw));
+      if (decoded is! Map) throw Exception('Invalid JSON root');
+
+      final list = decoded['rounds'];
+      if (list is! List || list.isEmpty) throw Exception('Empty rounds');
+
+      final rounds = <GrammarGameRound>[];
+      for (final item in list) {
+        if (item is Map<String, dynamic>) {
+          try {
+            final round = GrammarGameRound.fromJson(item);
+            if (round.isValid) {
+              rounds.add(round);
+            }
+          } catch (e) {
+            debugPrint('Error parsing grammar round: $e');
+          }
+        }
+      }
+
+      if (rounds.length >= count) {
+        rounds.shuffle(Random());
+        return rounds.take(count).toList();
+      }
+    } catch (e) {
+      debugPrint('generateGrammarRounds: $e');
+    }
+
+    return GrammarFallback.sample(count: count);
   }
 
   static Future<String> explainWord({required String word}) async {
@@ -420,8 +504,14 @@ $count ta raund, barchasi "$difficultyStr" darajasida.''',
     int wordCount = 10,
     int minWords = 30,
     int maxWords = 40,
+    String difficulty = 'medium',
+    String? theme,
   }) async {
     try {
+      final themePrompt = theme != null 
+          ? 'Barcha so\'zlar "$theme" mavzusiga tegishli bo\'lishi kerak (masalan: oila, maktab, tabiat, shahar, hayvonlar, kiyimlar, oziq-ovqat kabi).' 
+          : 'So\'zlar bir-biri bilan bog\'liq mavzuga tegishli bo\'lishi kerak, shunda hikoya yozish osonroq bo\'ladi.';
+
       final raw = await _chat(
         temperature: 0.8,
         messages: [
@@ -429,20 +519,24 @@ $count ta raund, barchasi "$difficultyStr" darajasida.''',
             'role': 'system',
             'content': '''
 Sen nemis tili A1-A2 o'yin yaratuvchisisan.
-Faqat JSON qaytaring: {"words":[...],"minWords":$minWords,"maxWords":$maxWords} — boshqa matn yo'q.
+Faqat JSON qaytaring: {"words":[...],"minWords":$minWords,"maxWords":$maxWords,"theme":"..."} — boshqa matn yo'q.
 
 $wordCount ta nemischa so'z ber:
-- Yarmini ot (noun), yarmini fe'l (verb).
-- Otlar uchun artikl (der/die/das) ko'rsatilishi kerak.
+- So'z turlari: ot (noun), fe'l (verb), sifat (adjective), ravish (adverb), olg'ovchi (preposition).
+- Otlar uchun artikl (der/die/das) ko'rsatilishi kerak, lekin "word" maydonida faqat o'zini yozing (masalan: "word":"Hund", "article":"der").
 - Fe'llar infinitiv shaklda bo'lishi kerak (masalan: "essen", "gehen").
+- Sifatlar, ravishlar va olg'ovchilar uchun "article" bo'sh bo'lishi kerak.
+- $themePrompt
 - So'zlar kundalik hayotda ishlatiladigan oddiy so'zlar bo'lishi kerak.
-- Har so'z uchun: "word" (nemischa), "type" ("noun" yoki "verb"), "article" (faqat otlar uchun).
+- Har so'z uchun: "word" (nemischa, artiklsiz), "type" ("noun", "verb", "adjective", "adverb", "preposition"), "article" (faqat otlar uchun, der/die/das).
+
+MUHIM: "word" maydoniga artiklni kiritmang! Masalan, "word":"Hund" emas "word":"der Hund".
 
 Foydalanuvchi shu so'zlardan foydalanib $minWords-$maxWords so'zdan iborat hikoya yozishi kerak.''',
           },
           {
             'role': 'user',
-            'content': '$wordCount ta yangi so\'z yarating.',
+            'content': '$wordCount ta yangi so\'z yarating. Mavzu: ${theme ?? "ixtiyoriy"}',
           },
         ],
       );
@@ -480,6 +574,11 @@ Baholash mezonlari:
 - Berilgan so'zlardan kamida 70% ishlatilishi kerak.
 - Grammatik jihatdan to'g'ri bo'lishi kerak.
 - Mantiqan bog'liq bo'lishi kerak.
+
+MUHIM QOIDALAR:
+- Otlar uchun artikl o'zgartirishga ruxsat beriladi. Masalan, "das Buch" berilgan bo'lsa, "ein Buch" yoki "mein Buch" deb yozish xato emas.
+- Fe'llar uchun shakl o'zgartirishga ruxsat beriladi. Masalan, "lesen" berilgan bo'lsa, "ich lese", "du liest", "er liest" kabi shakllarda ishlatish xato emas.
+- Asosiysi - so'zning ildizi (root) ishlatilgan bo'lishi kerak.
 
 Ball:
 - So'zlar soni mos kelganda: 30 ball
