@@ -5,6 +5,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/image_picker_helper.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/gamified_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class StudentPaymentScreen extends StatefulWidget {
   final String studentId;
@@ -178,6 +179,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
     final bg = isDark ? const Color(0xFF131F24) : AppColors.duoBackground;
 
     return Scaffold(
@@ -301,7 +303,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                   const SizedBox(height: 28),
 
                   // ── Izoh
-                  _sectionTitle(isDark, Icons.edit_note_rounded, 'IZOH (IXTIYORIY)'),
+                  _sectionTitle(isDark, Icons.edit_note_rounded, l.commentOptionalCaps),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _noteController,

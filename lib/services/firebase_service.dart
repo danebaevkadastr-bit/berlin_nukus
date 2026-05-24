@@ -107,7 +107,7 @@ class FirebaseService {
   }
 
   /// Add a student to a group. Ensures the student is not already in another group.
-  /// Returns null on success, or an error message string.
+  /// Returns null on success, or the existing group name if student is already in another group.
   Future<String?> addStudentToGroup(String groupId, String studentId) async {
     // Check if the student is already in ANY group
     final existingGroups = await _firestore
@@ -116,8 +116,7 @@ class FirebaseService {
         .limit(1)
         .get();
     if (existingGroups.docs.isNotEmpty) {
-      final existingGroupName = existingGroups.docs.first.data()['name'] ?? 'Boshqa guruh';
-      return 'Bu talaba allaqachon "$existingGroupName" guruhida o\'qiydi!';
+      return existingGroups.docs.first.data()['name'] as String?;
     }
     await _firestore.collection('groups').doc(groupId).update({
       'students': FieldValue.arrayUnion([studentId]),

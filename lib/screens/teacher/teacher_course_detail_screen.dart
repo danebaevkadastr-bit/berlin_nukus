@@ -957,6 +957,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
     bool isDark,
     StateSetter setModalState,
   ) {
+    final l = AppLocalizations.of(ctx);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -1001,7 +1002,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
           // Title
           _homeworkTextField(
             isDark: isDark,
-            hint: 'Sarlavha...',
+            hint: l.titleHint,
             initialValue: list[idx]['title'] ?? '',
             onChanged: (v) => list[idx]['title'] = v,
             maxLines: 1,
@@ -1011,7 +1012,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
           // Detail
           _homeworkTextField(
             isDark: isDark,
-            hint: 'Batafsil ma\'lumot...',
+            hint: l.detailInfoHint,
             initialValue: list[idx]['detail'] ?? '',
             onChanged: (v) => list[idx]['detail'] = v,
             maxLines: 3,
@@ -1035,7 +1036,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                     const Text('✏️', style: TextStyle(fontSize: 15)),
                     const SizedBox(width: 6),
                     Text(
-                      'TEST JAVOBLARI (ixtiyoriy)',
+                      l.testAnswersOptional,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -1114,6 +1115,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
       builder: (ctx) {
         final isDark = ThemeManager.isDark;
         final cardBg = isDark ? const Color(0xFF131F24) : Colors.white;
+        final l = AppLocalizations.of(ctx);
 
         return Container(
           height: MediaQuery.of(ctx).size.height * 0.78,
@@ -1184,7 +1186,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
               Expanded(
                 child: studentIds.isEmpty
-                    ? const Center(child: Text('Guruhda talabalar yo\'q'))
+                    ? Center(child: Text(l.noStudentsInGroup))
                     : FutureBuilder<QuerySnapshot?>(
                         future: FirebaseFirestore.instance
                             .collection('users')
@@ -1202,7 +1204,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               final doc = docs[i];
                               final udata = doc.data() as Map<String, dynamic>;
                               final name =
-                                  UserProfileUtils.displayName(udata, fallback: 'Talaba');
+                                  UserProfileUtils.displayName(udata, fallback: l.student);
                               final phone = UserProfileUtils.phone(udata);
                               final avatar = UserProfileUtils.avatarUrl(udata);
                               final uid = doc.id;
@@ -1272,16 +1274,59 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                               
                                             // Check for test grades
                                             if (submitted && subData['testGrades'] != null)
-                                              Padding(
-                                                padding: const EdgeInsets.only(top: 4),
-                                                child: Text(
-                                                  'Natija: ${subData['testGrades']['correctCount'] ?? 0}/${subData['testGrades']['totalCount'] ?? 0} to\'g\'ri',
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w800,
-                                                    color: AppColors.duoOrange,
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 4),
+                                                    child: Text(
+                                                      'Natija: ${subData['testGrades']['correctCount'] ?? 0}/${subData['testGrades']['totalCount'] ?? 0} to\'g\'ri',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.w800,
+                                                        color: AppColors.duoOrange,
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
+                                                  if (subData['testGrades']['hwResults'] != null)
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(top: 6),
+                                                      child: Wrap(
+                                                        spacing: 4,
+                                                        runSpacing: 4,
+                                                        children: () {
+                                                          final hwResults = subData['testGrades']['hwResults'] as Map<String, dynamic>;
+                                                          final allGraded = <Map<String, dynamic>>[];
+                                                          for (var hw in hwResults.values) {
+                                                            if (hw['graded'] != null) {
+                                                              allGraded.addAll(List<Map<String, dynamic>>.from(hw['graded']));
+                                                            }
+                                                          }
+                                                          return allGraded.map((g) {
+                                                            final isCorrect = g['isCorrect'] == true;
+                                                            return Container(
+                                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                              decoration: BoxDecoration(
+                                                                color: isCorrect ? AppColors.duoGreen.withValues(alpha: 0.15) : AppColors.duoRed.withValues(alpha: 0.15),
+                                                                borderRadius: BorderRadius.circular(6),
+                                                                border: Border.all(color: isCorrect ? AppColors.duoGreen : AppColors.duoRed, width: 1),
+                                                              ),
+                                                              child: Text(
+                                                                isCorrect
+                                                                    ? '${g['q']}${g['student'].toString().isEmpty ? '?' : g['student']}'
+                                                                    : '${g['q']}${g['student'].toString().isEmpty ? '?' : g['student']} (${g['expected']})',
+                                                                style: TextStyle(
+                                                                  fontSize: 10,
+                                                                  fontWeight: FontWeight.w800,
+                                                                  color: isCorrect ? AppColors.duoGreen : AppColors.duoRed,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }).toList();
+                                                        }(),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
                                           ],
                                         ),
@@ -1597,6 +1642,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
       builder: (ctx) {
         final isDark = ThemeManager.isDark;
         final cardBg = isDark ? const Color(0xFF131F24) : Colors.white;
+        final l = AppLocalizations.of(ctx);
         final studentIds = List<String>.from(groupData['students'] ?? []);
 
         final lessonsMap = groupData['lessons'] as Map<String, dynamic>? ?? {};
@@ -1702,7 +1748,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
                   Expanded(
                     child: studentIds.isEmpty
-                        ? const Center(child: Text('Guruhda talabalar yo\'q'))
+                        ? Center(child: Text(l.noStudentsInGroup))
                         : FutureBuilder<QuerySnapshot?>(
                             future: FirebaseFirestore.instance
                                 .collection('users')
@@ -1721,7 +1767,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                   final uData = doc.data() as Map<String, dynamic>;
                                   final name = UserProfileUtils.displayName(
                                     uData,
-                                    fallback: 'Talaba',
+                                    fallback: l.student,
                                   );
                                   final phone = UserProfileUtils.phone(uData);
                                   final avatar = UserProfileUtils.avatarUrl(uData);

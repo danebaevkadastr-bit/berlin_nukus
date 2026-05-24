@@ -6,6 +6,7 @@ import '../../widgets/safe_bottom_sheet.dart';
 import '../../utils/user_profile_utils.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
+import '../../l10n/app_localizations.dart';
 
 // ==================== ENTRY: Course List ====================
 
@@ -799,6 +800,7 @@ class _AdminActionSectionState extends State<_AdminActionSection> {
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -810,7 +812,7 @@ class _AdminActionSectionState extends State<_AdminActionSection> {
           style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.w600, fontSize: 13),
           maxLines: 2,
           decoration: InputDecoration(
-            hintText: 'Izoh yozing (ixtiyoriy)...',
+            hintText: l.writeCommentOptional,
             hintStyle: TextStyle(color: isDark ? Colors.white30 : AppColors.duoTextLight, fontSize: 13),
             filled: true,
             fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.duoBackground,

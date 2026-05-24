@@ -121,39 +121,49 @@ class HomeworkSubmissionDetail extends StatelessWidget {
           ),
         );
       }
-      for (final g in graded) {
-        if (g is! Map) continue;
-        final q = g['q']?.toString() ?? '?';
-        final stu = (g['student'] as String?)?.isNotEmpty == true
-            ? (g['student'] as String).toUpperCase()
-            : '—';
-        final exp = (g['expected'] as String?)?.toUpperCase() ?? '';
-        final ok = g['isCorrect'] == true;
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Row(
-              children: [
-                Icon(
-                  ok ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                  size: 18,
+      if (graded.isNotEmpty) {
+        final List<Widget> boxes = [];
+        for (final g in graded) {
+          if (g is! Map) continue;
+          final q = g['q']?.toString() ?? '?';
+          final stu = (g['student'] as String?)?.isNotEmpty == true
+              ? (g['student'] as String).toLowerCase()
+              : '?';
+          final exp = (g['expected'] as String?)?.toLowerCase() ?? '';
+          final ok = g['isCorrect'] == true;
+          
+          boxes.add(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: ok ? AppColors.duoGreen.withValues(alpha: 0.15) : AppColors.duoRed.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: ok ? AppColors.duoGreen : AppColors.duoRed, width: 1),
+              ),
+              child: Text(
+                ok ? '$q$stu' : '$q$stu (To\'g\'risi: $exp)',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
                   color: ok ? AppColors.duoGreen : AppColors.duoRed,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '$q-savol: $stu ${exp.isNotEmpty ? '(to\'g\'ri: $exp)' : ''}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white70 : AppColors.duoTextDark,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        );
+          );
+        }
+
+        if (boxes.isNotEmpty) {
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: boxes,
+              ),
+            ),
+          );
+        }
       }
     });
     return widgets;

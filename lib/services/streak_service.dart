@@ -82,16 +82,25 @@ class StreakService {
 
   /// Weekly usage data ni olish (so'nggi 7 kun) - daqiqalarda
   static Future<List<double>> getWeeklyUsage(String uid) async {
+    return getWeeklyUsageForWeek(uid, weekOffset: 0);
+  }
+
+  /// Weekly usage data ni olish (berilgan hafta uchun) - daqiqalarda
+  static Future<List<double>> getWeeklyUsageForWeek(String uid, {int weekOffset = 0}) async {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
         final dailyMinutes = doc.data()?['dailyMinutes'] as List<dynamic>? ?? [];
         final usage = <double>[];
 
-        for (int i = 6; i >= 0; i--) {
-          final date = _getDateKey(DateTime.now().subtract(Duration(days: i)));
+        // Haftaning boshlanish sanasini hisoblash (weekOffset * 7 kun oldin)
+        final weekStart = DateTime.now().subtract(Duration(days: weekOffset * 7 + 6));
+
+        for (int i = 0; i < 7; i++) {
+          final date = weekStart.add(Duration(days: i));
+          final dateKey = _getDateKey(date);
           final dayMinutes = dailyMinutes
-              .where((item) => item is Map && item['date'] == date)
+              .where((item) => item is Map && item['date'] == dateKey)
               .fold<int>(0, (total, item) => total + (item['minutes'] as int? ?? 0));
           usage.add(dayMinutes.toDouble());
         }
@@ -103,14 +112,21 @@ class StreakService {
     }
 
     // Default: hozircha random data
-    return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+    return List.filled(7, 0.0);
   }
 
   /// Weekly dates ni olish (so'nggi 7 kun)
   static Future<List<String>> getWeeklyDates() async {
+    return getWeeklyDatesForWeek(weekOffset: 0);
+  }
+
+  /// Weekly dates ni olish (berilgan hafta uchun)
+  static Future<List<String>> getWeeklyDatesForWeek({int weekOffset = 0}) async {
     final dates = <String>[];
-    for (int i = 6; i >= 0; i--) {
-      final date = DateTime.now().subtract(Duration(days: i));
+    final weekStart = DateTime.now().subtract(Duration(days: weekOffset * 7 + 6));
+
+    for (int i = 0; i < 7; i++) {
+      final date = weekStart.add(Duration(days: i));
       final day = date.day;
       final month = date.month;
       dates.add('$day.$month');

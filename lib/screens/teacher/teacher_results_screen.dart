@@ -74,7 +74,7 @@ class _TeacherResultsScreenState extends State<TeacherResultsScreen> {
               )
             : null,
         title: Text(
-          _appBarTitle().toUpperCase(),
+          _appBarTitle(context).toUpperCase(),
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w900,
@@ -105,8 +105,9 @@ class _TeacherResultsScreenState extends State<TeacherResultsScreen> {
                   );
                 }
                 final groups = snapshot.data ?? [];
+                final l = AppLocalizations.of(context);
                 if (groups.isEmpty) {
-                  return _empty(isDark, 'Guruhlar topilmadi', Icons.school_rounded);
+                  return _empty(isDark, '${l.groups} topilmadi', Icons.school_rounded);
                 }
 
                 switch (_level) {
@@ -137,14 +138,15 @@ class _TeacherResultsScreenState extends State<TeacherResultsScreen> {
     );
   }
 
-  String _appBarTitle() {
+  String _appBarTitle(BuildContext context) {
+    final l = AppLocalizations.of(context);
     switch (_level) {
       case _ResultsLevel.courses:
-        return 'Natijalar';
+        return l.myResults;
       case _ResultsLevel.groups:
-        return _courseTitle ?? 'Guruhlar';
+        return _courseTitle ?? l.groups;
       case _ResultsLevel.students:
-        return _groupData?['name'] as String? ?? 'Talabalar';
+        return _groupData?['name'] as String? ?? l.studentsLabel;
     }
   }
 
@@ -183,6 +185,7 @@ class _CoursesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final courses = <String, _CourseBucket>{};
     for (final g in groups) {
       final id = g['courseId'] as String? ?? '';
@@ -245,7 +248,7 @@ class _CoursesList extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${c.groupCount} guruh · ${c.submissionCount} topshiriq',
+                        '${c.groupCount} ${l.groups.toLowerCase()} · ${c.submissionCount} ${l.task}',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -308,10 +311,11 @@ class _GroupsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     if (groups.isEmpty) {
       return Center(
         child: Text(
-          'Bu kursda guruh yo\'q',
+          'Bu kursda ${l.groups.toLowerCase()} yo\'q',
           style: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight),
         ),
       );
@@ -336,7 +340,7 @@ class _GroupsList extends StatelessWidget {
           );
         }
         final g = groups[i - 1];
-        final name = g['name'] as String? ?? 'Guruh';
+        final name = g['name'] as String? ?? l.groups;
         final students = List<String>.from(g['students'] ?? []);
         final subs = _CoursesList._countSubmissions(g);
 
@@ -373,7 +377,7 @@ class _GroupsList extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${students.length} talaba · $subs topshiriq',
+                        '${students.length} ${l.student} · $subs ${l.task}',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -533,7 +537,8 @@ class _StudentResultCard extends StatelessWidget {
       future: FirebaseFirestore.instance.collection('users').doc(studentId).get(),
       builder: (context, userSnap) {
         final uData = userSnap.data?.data() as Map<String, dynamic>? ?? {};
-        final name = UserProfileUtils.displayName(uData, fallback: 'Talaba');
+        final l = AppLocalizations.of(context);
+        final name = UserProfileUtils.displayName(uData, fallback: l.student);
         final phone = UserProfileUtils.phone(uData);
         final avatar = UserProfileUtils.avatarUrl(uData);
 
@@ -576,7 +581,7 @@ class _StudentResultCard extends StatelessWidget {
                               ),
                             ),
                           Text(
-                            '${entries.length} ta topshiriq',
+                            '${entries.length} ta ${l.task}',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w800,

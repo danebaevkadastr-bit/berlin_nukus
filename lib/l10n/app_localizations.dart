@@ -139,7 +139,7 @@ class AppLocalizations {
   });
   String get vibrationDesc => _t({
     'uz': "Bildirishnomalar va bosishlarda tebranish",
-    'kaa': "Bildiriwler hám basıwlarda tebreniw",
+    'kaa': "Xabarlamalar hám basıwlarda tebreniw",
     'ru': "Вибрация при уведомлениях",
     'de': "Vibration bei Benachrichtigungen",
   });
@@ -439,7 +439,7 @@ class AppLocalizations {
   // ── Learning ───────────────────────────────────────────────────────────────
   String get vocabulary => _t({
     'uz': "Lug'at",
-    'kaa': "Lúǵat",
+    'kaa': "Sózlik",
     'ru': "Словарь",
     'de': "Vokabular",
   });
@@ -481,7 +481,7 @@ class AppLocalizations {
   });
   String get speakWithAi => _t({
     'uz': "AI bilan gaplashish",
-    'kaa': "AI menen sóylesiw",
+    'kaa': "JI menen sóylesiw",
     'ru': "Разговор с ИИ",
     'de': "Sprechen mit KI",
   });
@@ -505,7 +505,7 @@ class AppLocalizations {
   });
   String get vocabAndTranslation => _t({
     'uz': "Lug'at va tarjima",
-    'kaa': "Lúǵat hám awarma",
+    'kaa': "Lúǵat hám awdarma",
     'ru': "Словарь и перевод",
     'de': "Wortschatz & Übersetzung",
   });
@@ -526,7 +526,7 @@ class AppLocalizations {
   });
   String get myStars => _t({
     'uz': "Mening yulduzlarim",
-    'kaa': "Menin juldızlarım",
+    'kaa': "Meniń juldızlarım",
     'ru': "Мои звезды",
     'de': "Meine Sterne",
   });
@@ -580,7 +580,7 @@ class AppLocalizations {
   });
   String get pronunciationAndListening => _t({
     'uz': "Talaffuz va tinglash",
-    'kaa': "Talaffuz hám tıńlaw",
+    'kaa': "Aytılıw hám tıńlaw",
     'ru': "Произношение и слух",
     'de': "Aussprache & Hören",
   });
@@ -598,7 +598,7 @@ class AppLocalizations {
   });
   String get translationBattle => _t({
     'uz': "Bot bilan tarjima musobaqasi",
-    'kaa': "Bot menen awdarma jarısı",
+    'kaa': "Bot penen awdarma jarısı",
     'ru': "Битва переводов с ботом",
     'de': "Übersetzungskampf mit Bot",
   });
@@ -616,13 +616,13 @@ class AppLocalizations {
   });
   String get strangeSentencesDesc => _t({
     'uz': "So'zlardan grammatik to'g'ri, lekin mantiqsiz gap tuzing",
-    'kaa': "Sózlerden grammatikalıq durıs, biraq mantıqsız gáp dúziń",
+    'kaa': "Sózlerden grammatikalıq durıs, biraq aqılsız gáp dúziń",
     'ru': "Составьте грамматически верное, но абсурдное предложение",
     'de': "Bilde grammatisch korrekte, aber unsinnige Sätze",
   });
   String get germanStoryGame => _t({
     'uz': "Nemischa hikoya",
-    'kaa': "Nemis gúrrińi",
+    'kaa': "Nemisshe gúrriń",
     'ru': "Немецкая история",
     'de': "Deutsche Geschichte",
   });
@@ -646,7 +646,7 @@ class AppLocalizations {
   });
   String get gameComingSoonTitle => _t({
     'uz': "Tez orada!",
-    'kaa': "Jańında!",
+    'kaa': "Jaqında!",
     'ru': "Скоро!",
     'de': "Bald verfügbar!",
   });
@@ -654,7 +654,7 @@ class AppLocalizations {
     'uz':
         "Bu o'yin hozircha ishlab chiqilmoqda. Yangiliklar va yangi o'yinlar uchun ilovani yangilab boring — tez orada ochamiz!",
     'kaa':
-        "Bul oyın házirge shekem islenip atır. Jańalıqlardı hám jańa oyınlardı biliw ushın qosımshanı jańalań — jaqında ashıwımız!",
+        "Bul oyın házirge shekem islenip atır. Jańalıqlardı hám jańa oyınlardı biliw ushın qosımshanı jańalań — jaqında qosamız!",
     'ru':
         "Эта игра пока в разработке. Обновляйте приложение — скоро откроем новые игры и функции!",
     'de':
@@ -662,13 +662,13 @@ class AppLocalizations {
   });
   String get gameComingSoonButton => _t({
     'uz': "Tushundim",
-    'kaa': "Túsinim",
+    'kaa': "Túsidnim",
     'ru': "Понятно",
     'de': "Verstanden",
   });
   String get strangeSentencesPickHint => _t({
     'uz': "Grammatik jihatdan to'g'ri g'alati gapni tanlang",
-    'kaa': "Grammatikalıq durıs ajayıp gápti tańlań",
+    'kaa': "Grammatikalıq durıs bir qızıqarlı gápti tańlań",
     'ru': "Выберите грамматически верное абсурдное предложение",
     'de': "Wähle den grammatisch korrekten absurden Satz",
   });
@@ -680,13 +680,13 @@ class AppLocalizations {
   });
   String get strangeSentencesLoading => _t({
     'uz': "AI yangi savollar tayyorlayapti...",
-    'kaa': "AI jańa sorawlar dayarlap atır...",
+    'kaa': "JI jańa sorawlar tayarlap atır...",
     'ru': "ИИ готовит новые вопросы...",
     'de': "KI bereitet neue Fragen vor...",
   });
   String get strangeSentencesRulesHowTo => _t({
     'uz': "O'yin qoidalari",
-    'kaa': "Oyın qagıydaları",
+    'kaa': "Oyın qaǵıydaları",
     'ru': "Правила игры",
     'de': "Spielregeln",
   });
@@ -785,7 +785,7 @@ class AppLocalizations {
   });
   String get noPendingWork => _t({
     'uz': "Kutayotgan ishlar yo'q",
-    'kaa': "Kútiliwshi jumıslar joq",
+    'kaa': "Kútilip atırǵan jumıslar joq",
     'ru': "Нет заданий",
     'de': "Keine ausstehenden Aufgaben",
   });
@@ -899,7 +899,7 @@ class AppLocalizations {
   });
   String get pleaseReLogin => _t({
     'uz': "Iltimos, tizimga qaytadan kiring",
-    'kaa': "Iltimos, sistemaǵa qaytadan kiriń",
+    'kaa': "Iltimos, dástúrge qaytadan kiriń",
     'ru': "Пожалуйста, войдите в систему заново",
     'de': "Bitte melden Sie sich erneut an",
   });
@@ -956,6 +956,42 @@ class AppLocalizations {
     'kaa': "Házirshe kurslar joq",
     'ru': "Курсов пока нет",
     'de': "Noch keine Kurse",
+  });
+  String get student => _t({
+    'uz': "Talaba",
+    'kaa': "Oqıwshı",
+    'ru': "Ученик",
+    'de': "Schüler",
+  });
+  String get studentsLabel => _t({
+    'uz': "Talabalar",
+    'kaa': "Oqıwshılar",
+    'ru': "Ученики",
+    'de': "Schüler",
+  });
+  String get task => _t({
+    'uz': "Topshiriq",
+    'kaa': "Tapsırma",
+    'ru': "Задание",
+    'de': "Aufgabe",
+  });
+  String get noStudentsInGroup => _t({
+    'uz': "Guruhda talabalar yo'q",
+    'kaa': "Toparda oqıwshılar joq",
+    'ru': "В группе нет учеников",
+    'de': "Keine Schüler in der Gruppe",
+  });
+  String get studentAlreadyInGroup => _t({
+    'uz': "Bu talaba allaqachon",
+    'kaa': "Bul oqıwshı álleqashan",
+    'ru': "Этот ученик уже",
+    'de': "Dieser Schüler ist bereits",
+  });
+  String get studyingInGroup => _t({
+    'uz': "guruhida o'qiydi!",
+    'kaa': "toparında oqıydı!",
+    'ru': "в группе учится!",
+    'de': "in der Gruppe lernt!",
   });
   String get willBeAddedSoon => _t({
     'uz': "tez orada qo'shiladi",
@@ -1310,5 +1346,41 @@ class AppLocalizations {
     'kaa': "SAQLAW",
     'ru': "СОХРАНИТЬ",
     'de': "SPEICHERN",
+  });
+  String get titleHint => _t({
+    'uz': "Sarlavha...",
+    'kaa': "Sarlavha...",
+    'ru': "Заголовок...",
+    'de': "Titel...",
+  });
+  String get detailInfoHint => _t({
+    'uz': "Batafsil ma'lumot...",
+    'kaa': "Tolıq maǵlıwmat...",
+    'ru': "Подробная информация...",
+    'de': "Detaillierte Informationen...",
+  });
+  String get commentOptional => _t({
+    'uz': "Izoh (ixtiyoriy)...",
+    'kaa': "Túsindiriw (ixtiyarıy)...",
+    'ru': "Комментарий (необязательно)...",
+    'de': "Kommentar (optional)...",
+  });
+  String get commentOptionalCaps => _t({
+    'uz': "IZOH (IXTIYORIY)",
+    'kaa': "TÚSINDÍRÍW (IXTIYARIY)",
+    'ru': "КОММЕНТАРИЙ (НЕОБЯЗАТЕЛЬНО)",
+    'de': "KOMMENTAR (OPTIONAL)",
+  });
+  String get writeCommentOptional => _t({
+    'uz': "Izoh yozing (ixtiyoriy)...",
+    'kaa': "Túsindiriw jazıń (ixtiyarıy)...",
+    'ru': "Напишите комментарий (необязательно)...",
+    'de': "Schreibe einen Kommentar (optional)...",
+  });
+  String get testAnswersOptional => _t({
+    'uz': "TEST JAVOBLARI (ixtiyoriy)",
+    'kaa': "TEST JUUAPLARI (ixtiyarıy)",
+    'ru': "ОТВЕТЫ НА ТЕСТ (необязательно)",
+    'de': "TESTANTWORTEN (optional)",
   });
 }

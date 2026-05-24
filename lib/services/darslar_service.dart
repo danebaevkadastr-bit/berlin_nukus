@@ -140,6 +140,14 @@ class DarslarService {
     );
   }
 
+  Future<void> _triggerGroupUpdate(String groupId) async {
+    try {
+      await _firestore.collection('groups').doc(groupId).update({
+        'lessonsUpdatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
+  }
+
   Future<void> createLesson({
     required String groupId,
     required String dateKey,
@@ -160,6 +168,7 @@ class DarslarService {
       'attendance': <String, dynamic>{},
       'createdAt': FieldValue.serverTimestamp(),
     });
+    await _triggerGroupUpdate(groupId);
   }
 
   Future<void> updateLesson({
@@ -176,14 +185,17 @@ class DarslarService {
       'room': room,
       'time': time,
     }, SetOptions(merge: true));
+    await _triggerGroupUpdate(groupId);
   }
 
   Future<void> deleteLesson(String groupId, String dateKey) async {
     await lessonRef(groupId, dateKey).delete();
+    await _triggerGroupUpdate(groupId);
   }
 
   Future<void> setMaterials(String groupId, String dateKey, List<dynamic> materials) async {
     await lessonRef(groupId, dateKey).set({'materials': materials}, SetOptions(merge: true));
+    await _triggerGroupUpdate(groupId);
   }
 
   Future<void> addMaterial(String groupId, String dateKey, Map<String, dynamic> material) async {
@@ -192,10 +204,12 @@ class DarslarService {
       'dateKey': dateKey,
       'materials': FieldValue.arrayUnion([material]),
     }, SetOptions(merge: true));
+    await _triggerGroupUpdate(groupId);
   }
 
   Future<void> setHomeworks(String groupId, String dateKey, List<dynamic> homeworks) async {
     await lessonRef(groupId, dateKey).set({'homeworks': homeworks}, SetOptions(merge: true));
+    await _triggerGroupUpdate(groupId);
   }
 
   Future<void> setAttendance(
@@ -204,6 +218,7 @@ class DarslarService {
     Map<String, bool> attendance,
   ) async {
     await lessonRef(groupId, dateKey).set({'attendance': attendance}, SetOptions(merge: true));
+    await _triggerGroupUpdate(groupId);
   }
 
   Future<void> setHomeworkSubmission({
@@ -213,16 +228,18 @@ class DarslarService {
     required Map<String, dynamic> submission,
   }) async {
     await lessonRef(groupId, dateKey).set({
-      'groupId': groupId,
-      'dateKey': dateKey,
-      'homeworkSubmissions.$studentId': submission,
+      'homeworkSubmissions': {
+        studentId: submission,
+      },
     }, SetOptions(merge: true));
+    await _triggerGroupUpdate(groupId);
   }
 
   Future<void> markHomeworkChecked(String groupId, String dateKey, String studentId) async {
     await lessonRef(groupId, dateKey).update({
       'homeworkSubmissions.$studentId.checked': true,
     });
+    await _triggerGroupUpdate(groupId);
   }
 
   /// Agar `darslar` bo'sh va `groups`da eski `lessons` bo'lsa, ko'chiradi.

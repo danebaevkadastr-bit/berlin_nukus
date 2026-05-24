@@ -87,7 +87,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
             Expanded(child: _buildNavItem(context, Icons.home_rounded, l.navHome, 0)),
             Expanded(child: _buildNavItem(context, Icons.group_rounded, l.myGroups, 1)),
             Expanded(
-              child: _buildNavItem(context, Icons.assignment_rounded, 'Natijalar', 2),
+              child: _buildNavItem(context, Icons.assignment_rounded, l.myResults, 2),
             ),
             Expanded(child: _buildNavItem(context, Icons.person_rounded, l.navProfile, 3)),
           ],

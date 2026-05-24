@@ -128,8 +128,15 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   }
 }
 
-class StudentHomeContent extends StatelessWidget {
+class StudentHomeContent extends StatefulWidget {
   const StudentHomeContent({super.key});
+
+  @override
+  State<StudentHomeContent> createState() => _StudentHomeContentState();
+}
+
+class _StudentHomeContentState extends State<StudentHomeContent> {
+  int _currentWeekIndex = 0;
 
   String _formatDateKey(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
@@ -187,6 +194,13 @@ class StudentHomeContent extends StatelessWidget {
                         'date': date,
                         'deadline': lData['homeworkDeadline'] ?? date,
                       });
+                    } else if (hw is Map) {
+                      pendingHomeworks.add({
+                        'title': hw['title'] ?? 'Vazifa',
+                        'groupName': data['name'],
+                        'date': date,
+                        'deadline': lData['homeworkDeadline'] ?? date,
+                      });
                     }
                   }
                 }
@@ -214,15 +228,8 @@ class StudentHomeContent extends StatelessWidget {
           return _buildEmptyState(isDark);
         }
 
-        // Empty state - agar darslar bo'lmasa
-        final hasAnyData = snapshot.data!.any((data) {
-          final lessonsMap = data['lessons'] as Map<String, dynamic>? ?? {};
-          return lessonsMap.isNotEmpty;
-        });
-
-        if (!hasAnyData) {
-          return _buildNoLessonsState(isDark);
-        }
+        // We removed the full screen empty state for no lessons so that the header, stats, and leaderboard still render.
+        // The UI handles no lessons by showing a '😴' card.
 
         return Column(
           children: [
@@ -662,12 +669,58 @@ class StudentHomeContent extends StatelessWidget {
                       const SizedBox(height: 20),
                     ],
 
+                    // ── AI Features (Chat, Translator, Bot) ──
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildFeatureCard(
+                            icon: '💬',
+                            title: 'Chat',
+                            subtitle: 'AI bilan gaplashish',
+                            color: AppColors.duoBlue,
+                            isDark: isDark,
+                            onTap: () {
+                              // Chat screen navigatsiyasi
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildFeatureCard(
+                            icon: '🌐',
+                            title: 'Tarjimon',
+                            subtitle: 'Tarjima qilish',
+                            color: AppColors.duoPurple,
+                            isDark: isDark,
+                            onTap: () {
+                              // Translator screen navigatsiyasi
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildFeatureCard(
+                            icon: '🤖',
+                            title: 'AI Bot',
+                            subtitle: 'Savol-javob',
+                            color: AppColors.duoGreen,
+                            isDark: isDark,
+                            onTap: () {
+                              // AI Bot screen navigatsiyasi
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
                     // ── Daily Activity & Chart ──
                     FutureBuilder<Map<String, dynamic>>(
                       future: Future.wait([
                         StreakService.getCurrentStreak(userProvider.uid),
-                        StreakService.getWeeklyUsage(userProvider.uid),
-                        StreakService.getWeeklyDates(),
+                        StreakService.getWeeklyUsageForWeek(userProvider.uid, weekOffset: _currentWeekIndex),
+                        StreakService.getWeeklyDatesForWeek(weekOffset: _currentWeekIndex),
                       ]).then((values) => {
                         'streak': values[0] as int,
                         'weeklyUsage': values[1] as List<double>,
@@ -703,16 +756,46 @@ class StudentHomeContent extends StatelessWidget {
                               ),
                               const SizedBox(height: 20),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  for (int i = 0; i < 7; i++)
-                                    _buildVerticalBarChartItem(
-                                      day: weeklyDates[i],
-                                      value: weeklyUsage[i],
-                                      isToday: i == 6,
-                                      isDark: isDark,
-                                    )
+                                  IconButton(
+                                    onPressed: _currentWeekIndex > 0
+                                        ? () {
+                                            setState(() {
+                                              _currentWeekIndex--;
+                                            });
+                                          }
+                                        : null,
+                                    icon: Icon(Icons.chevron_left,
+                                        color: _currentWeekIndex > 0
+                                            ? (isDark ? Colors.white : AppColors.duoTextDark)
+                                            : Colors.grey),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        for (int i = 0; i < 7; i++)
+                                          _buildVerticalBarChartItem(
+                                            context: context,
+                                            day: weeklyDates[i],
+                                            value: weeklyUsage[i],
+                                            isToday: _currentWeekIndex == 0 && i == 6,
+                                            isDark: isDark,
+                                          )
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _currentWeekIndex++;
+                                      });
+                                    },
+                                    icon: Icon(Icons.chevron_right,
+                                        color: isDark ? Colors.white : AppColors.duoTextDark),
+                                  ),
                                 ],
                               ),
                             ],
@@ -879,6 +962,7 @@ class StudentHomeContent extends StatelessWidget {
   }
 
   Widget _buildVerticalBarChartItem({
+    required BuildContext context,
     required String day,
     required double value,
     required bool isToday,
@@ -888,50 +972,62 @@ class StudentHomeContent extends StatelessWidget {
     // Daqiqalarni daqiqaga aylantirish (max 120 daqiqa deb olamiz)
     final minutes = value.toInt();
     final barHeight = (minutes / 120).clamp(0.0, 1.0) * height;
-    
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Daqiqalarni ko'rsatish
-        if (minutes > 0)
-          Text(
-            '${minutes}d',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: isToday ? AppColors.duoOrange : (isDark ? Colors.white70 : AppColors.duoTextLight),
+
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$day: $minutes daqiqa'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+        );
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Daqiqalarni ko'rsatish
+          if (minutes > 0)
+            Text(
+              '${minutes}d',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: isToday ? AppColors.duoOrange : (isDark ? Colors.white70 : AppColors.duoTextLight),
+              ),
             ),
-          ),
-        const SizedBox(height: 4),
-        Container(
-          height: height,
-          width: 12,
-          decoration: BoxDecoration(
-            color: isDark ? Colors.white12 : AppColors.duoCardGray,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            height: barHeight,
+          const SizedBox(height: 4),
+          Container(
+            height: height,
             width: 12,
             decoration: BoxDecoration(
-              color: isToday ? AppColors.duoOrange : AppColors.duoBlue,
+              color: isDark ? Colors.white12 : AppColors.duoCardGray,
               borderRadius: BorderRadius.circular(6),
             ),
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: barHeight,
+              width: 12,
+              decoration: BoxDecoration(
+                color: isToday ? AppColors.duoOrange : AppColors.duoBlue,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          day,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: isToday ? FontWeight.w900 : FontWeight.w700,
-            color: isToday
-                ? AppColors.duoOrange
-                : (isDark ? Colors.white54 : AppColors.duoTextLight),
+          const SizedBox(height: 8),
+          Text(
+            day,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: isToday ? FontWeight.w900 : FontWeight.w700,
+              color: isToday
+                  ? AppColors.duoOrange
+                  : (isDark ? Colors.white54 : AppColors.duoTextLight),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -980,6 +1076,50 @@ class StudentHomeContent extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard({
+    required String icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: GamifiedCard(
+        color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
+        shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text(
+              icon,
+              style: const TextStyle(fontSize: 32),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : AppColors.duoTextDark,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

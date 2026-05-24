@@ -6,6 +6,7 @@ import '../../utils/user_profile_utils.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../services/firebase_service.dart';
+import '../../l10n/app_localizations.dart';
 import 'admin_select_student_screen.dart';
 import 'admin_select_teacher_screen.dart';
 
@@ -27,17 +28,20 @@ class AdminGroupDetailScreen extends StatelessWidget {
 
     if (result != null && context.mounted) {
       final studentId = result['id'] as String;
+      final l = AppLocalizations.of(context);
 
-      final error = await FirebaseService().addStudentToGroup(groupId, studentId);
+      final existingGroupName = await FirebaseService().addStudentToGroup(groupId, studentId);
 
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            error ?? '${result['name']} guruhga qo\'shildi',
+            existingGroupName != null
+                ? '${l.studentAlreadyInGroup} "$existingGroupName" ${l.studyingInGroup}'
+                : '${result['name']} guruhga qo\'shildi',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          backgroundColor: error != null ? AppColors.duoOrange : AppColors.duoGreen,
+          backgroundColor: existingGroupName != null ? AppColors.duoOrange : AppColors.duoGreen,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),

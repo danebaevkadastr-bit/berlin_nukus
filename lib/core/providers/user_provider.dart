@@ -50,7 +50,7 @@ class UserProvider extends ChangeNotifier {
       final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
       if (doc.exists) {
         final data = doc.data()!;
-        _name = data['fullName'] ?? data['name'] ?? 'Talaba';
+        _name = data['fullName'] ?? data['name'] ?? 'User';
         _role = data['role'] ?? 'student';
         _phone = data['phone'] ?? '';
         _avatarUrl = data['avatarUrl'] ?? '';

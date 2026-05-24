@@ -714,6 +714,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
         final subColor = isDark ? Colors.white54 : AppColors.duoTextLight;
         final color = currentGroupColor();
         final shadowColor = currentGroupShadow();
+        final l = AppLocalizations.of(ctx);
 
         return SafeBottomSheet.fixedHeight(
           context: ctx,
@@ -883,7 +884,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                         color: isDark ? Colors.white : AppColors.duoTextDark,
                         fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
-                      hintText: 'Izoh (ixtiyoriy)...',
+                      hintText: l.commentOptional,
                       hintStyle:
                           TextStyle(color: isDark ? Colors.white38 : AppColors.duoTextLight),
                       filled: true,
@@ -1032,28 +1033,48 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
       final grades = mySubmission['testGrades']?['hwResults']?['hw_$hwIndex'];
       if (grades != null && grades['graded'] != null) {
         final gradedList = List<Map<String, dynamic>>.from(grades['graded']);
-        resultWidget = Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: gradedList.map((g) {
-            final isCorrect = g['isCorrect'] == true;
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: isCorrect ? AppColors.duoGreen.withValues(alpha: 0.15) : AppColors.duoRed.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: isCorrect ? AppColors.duoGreen : AppColors.duoRed, width: 1),
+        
+        int correctCount = gradedList.where((g) => g['isCorrect'] == true).length;
+        int totalCount = gradedList.length;
+
+        resultWidget = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Natija: $correctCount / $totalCount to\'g\'ri',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: AppColors.duoOrange,
               ),
-              child: Text(
-                '${g['q']}${g['student'].toString().isEmpty ? '?' : g['student']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: isCorrect ? AppColors.duoGreen : AppColors.duoRed,
-                ),
-              ),
-            );
-          }).toList(),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: gradedList.map((g) {
+                final isCorrect = g['isCorrect'] == true;
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isCorrect ? AppColors.duoGreen.withValues(alpha: 0.15) : AppColors.duoRed.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: isCorrect ? AppColors.duoGreen : AppColors.duoRed, width: 1),
+                  ),
+                  child: Text(
+                    isCorrect
+                        ? '${g['q']}${g['student'].toString().isEmpty ? '?' : g['student']}'
+                        : '${g['q']}${g['student'].toString().isEmpty ? '?' : g['student']} (To\'g\'risi: ${g['expected']})',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: isCorrect ? AppColors.duoGreen : AppColors.duoRed,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         );
       } else {
         resultWidget = const Text(
