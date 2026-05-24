@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../../services/notification_service.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/user_avatar.dart';
 import '../../widgets/safe_bottom_sheet.dart';
@@ -7,6 +8,7 @@ import '../../utils/user_profile_utils.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/notification.dart';
 
 // ==================== ENTRY: Course List ====================
 
@@ -781,10 +783,21 @@ class _AdminActionSectionState extends State<_AdminActionSection> {
   }
 
   Future<void> _update(String status) async {
+    // Get payment details before updating
+    final paymentDoc = await FirebaseFirestore.instance.collection('payments').doc(widget.paymentId).get();
+    final paymentData = paymentDoc.data();
+    final studentId = paymentData?['studentId'] as String?;
+
     await FirebaseFirestore.instance.collection('payments').doc(widget.paymentId).update({
       'status': status,
       'adminNote': _adminNoteCtrl.text.trim(),
     });
+
+    // Send notification to student
+    if (studentId != null) {
+      await _sendPaymentStatusNotificationToStudent(studentId, status, _adminNoteCtrl.text.trim());
+    }
+
     if (mounted) {
       final color = status == 'accepted' ? AppColors.duoGreen : AppColors.duoRed;
       final msg = status == 'accepted' ? 'To\'lov qabul qilindi!' : 'To\'lov bekor qilindi';
@@ -794,6 +807,35 @@ class _AdminActionSectionState extends State<_AdminActionSection> {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ));
+    }
+    widget.onDone();
+  }
+
+  Future<void> _sendPaymentStatusNotificationToStudent(String studentId, String status, String adminNote) async {
+    try {
+      final notificationService = NotificationService();
+
+      final title = status == 'accepted' ? 'To\'lov qabul qilindi' : 'To\'lov bekor qilindi';
+      final body = status == 'accepted'
+          ? 'Sizning to\'lovingiz qabul qilindi.'
+          : 'Sizning to\'lovingiz bekor qilindi. ${adminNote.isNotEmpty ? 'Sabab: $adminNote' : ''}';
+
+      await notificationService.createNotification(
+        AppNotification(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: title,
+          body: body,
+          type: 'payment',
+          createdAt: DateTime.now(),
+          userId: studentId,
+          data: {
+            'status': status,
+            'adminNote': adminNote,
+          },
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error sending payment status notification: $e');
     }
   }
 

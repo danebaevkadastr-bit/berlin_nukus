@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/safe_bottom_sheet.dart';
 import '../../utils/app_colors.dart';
@@ -8,6 +9,9 @@ import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/firebase_service.dart';
 import '../../services/darslar_service.dart';
+import '../../services/notification_service.dart';
+import '../../models/notification.dart';
+import 'student_chat_screen.dart';
 
 class StudentGroupScreen extends StatefulWidget {
   const StudentGroupScreen({super.key});
@@ -329,6 +333,26 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
       centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
+      actions: [
+        if (_groups.isNotEmpty)
+          IconButton(
+            icon: Icon(
+              Icons.chat_bubble_outline_rounded,
+              color: isDark ? Colors.white : AppColors.duoTextDark,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => StudentChatScreen(
+                    groupId: _groups[_currentTabIndex]['id'],
+                    groupName: _groups[_currentTabIndex]['name'],
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 
@@ -688,6 +712,47 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
     );
   }
 
+  Future<void> _sendHomeworkSubmissionNotificationToTeacher(
+    String groupId,
+    String studentId,
+    String dateKey,
+  ) async {
+    try {
+      final groupDoc = await FirebaseFirestore.instance.collection('groups').doc(groupId).get();
+      if (!groupDoc.exists) return;
+
+      final groupData = groupDoc.data();
+      final teacherId = groupData?['teacherId'] as String?;
+      final groupName = groupData?['name'] as String?;
+
+      if (teacherId == null || groupName == null) return;
+
+      final notificationService = NotificationService();
+
+      // Get student name
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(studentId).get();
+      final studentName = userDoc.data()?['fullName'] as String? ?? 'Talaba';
+
+      await notificationService.createNotification(
+        AppNotification(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: 'Uy vazifa topshirildi',
+          body: '$studentName $groupName guruhida $dateKey sanasidagi vazifani topshirdi',
+          type: 'homework',
+          createdAt: DateTime.now(),
+          userId: teacherId,
+          data: {
+            'groupName': groupName,
+            'studentName': studentName,
+            'dateKey': dateKey,
+          },
+        ),
+      );
+    } catch (e) {
+      debugPrint('Error sending homework submission notification: $e');
+    }
+  }
+
   // ==================== HOMEWORK SHEET (student view + submit) ====================
 
   void _showHomeworkSheet(
@@ -973,6 +1038,14 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                             'checked': isPurelyTest,
                           },
                         );
+
+                        // Send notification to teacher
+                        await _sendHomeworkSubmissionNotificationToTeacher(
+                          groupId,
+                          uid,
+                          dateKey,
+                        );
+
                         if (ctx.mounted) Navigator.pop(ctx);
                       },
                       child: const Center(

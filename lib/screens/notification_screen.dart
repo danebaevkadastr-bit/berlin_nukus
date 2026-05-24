@@ -7,6 +7,7 @@ import '../../widgets/empty_state.dart';
 import '../../widgets/gamified_card.dart';
 import '../../services/notification_service.dart';
 import '../../models/notification.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -46,16 +47,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
         actions: [
           IconButton(
             icon: Icon(
-              Icons.add_rounded,
-              color: isDark ? Colors.white : AppColors.duoTextDark,
-            ),
-            onPressed: () async {
-              await _addSampleNotifications(userProvider.uid);
-            },
-            tooltip: 'Namuna xabarlar qo\'shish',
-          ),
-          IconButton(
-            icon: Icon(
               Icons.done_all_rounded,
               color: isDark ? Colors.white : AppColors.duoTextDark,
             ),
@@ -76,7 +67,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           final notifications = snapshot.data ?? [];
 
           if (notifications.isEmpty) {
-            return Center(
+            return const Center(
               child: EmptyState(
                 emoji: '🔔',
                 title: 'Hozircha xabarlar yo\'q',
@@ -94,6 +85,150 @@ class _NotificationScreenState extends State<NotificationScreen> {
             },
           );
         },
+      ),
+      floatingActionButton: (userProvider.role == 'admin' || userProvider.role == 'teacher')
+          ? FloatingActionButton(
+              onPressed: () => _showSendNotificationDialog(context, userProvider),
+              backgroundColor: AppColors.duoBlue,
+              child: const Icon(Icons.add_rounded, color: Colors.white),
+            )
+          : null,
+    );
+  }
+
+  void _showSendNotificationDialog(BuildContext context, UserProvider userProvider) {
+    final titleController = TextEditingController();
+    final bodyController = TextEditingController();
+    String? selectedUserId;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Xabar yuborish'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Sarlavha',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: bodyController,
+                  decoration: const InputDecoration(
+                    labelText: 'Xabar matni',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+                if (userProvider.role == 'admin')
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .where('role', whereIn: ['student', 'teacher'])
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const CircularProgressIndicator();
+                      }
+                      final users = snapshot.data!.docs;
+                      return DropdownButtonFormField<String>(
+                        value: selectedUserId,
+                        decoration: const InputDecoration(
+                          labelText: 'Foydalanuvchini tanlang',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: users.map((doc) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          return DropdownMenuItem(
+                            value: doc.id,
+                            child: Text('${data['fullName'] ?? ''} (${data['role']})'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedUserId = value;
+                          });
+                        },
+                      );
+                    },
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Bekor qilish'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (titleController.text.isEmpty || bodyController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sarlavha va xabar matnini kiriting')),
+                  );
+                  return;
+                }
+
+                if (userProvider.role == 'teacher') {
+                  // Teacher sends to their students
+                  final groupsSnapshot = await FirebaseFirestore.instance
+                      .collection('groups')
+                      .where('teacherId', isEqualTo: userProvider.uid)
+                      .get();
+
+                  for (final groupDoc in groupsSnapshot.docs) {
+                    final groupData = groupDoc.data();
+                    final studentIds = groupData['studentIds'] as List<dynamic>?;
+
+                    if (studentIds != null) {
+                      for (final studentId in studentIds) {
+                        await _notificationService.createNotification(
+                          AppNotification(
+                            id: DateTime.now().millisecondsSinceEpoch.toString(),
+                            title: titleController.text,
+                            body: bodyController.text,
+                            type: 'system',
+                            createdAt: DateTime.now(),
+                            userId: studentId as String,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Xabar yuborildi')),
+                  );
+                } else if (userProvider.role == 'admin' && selectedUserId != null) {
+                  // Admin sends to specific user
+                  await _notificationService.createNotification(
+                    AppNotification(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      title: titleController.text,
+                      body: bodyController.text,
+                      type: 'system',
+                      createdAt: DateTime.now(),
+                      userId: selectedUserId!,
+                    ),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Xabar yuborildi')),
+                  );
+                }
+
+                Navigator.pop(context);
+              },
+              child: const Text('Yuborish'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -187,12 +322,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
               ),
             ),
             if (!isRead)
-              Container(
+              const SizedBox(
                 width: 10,
                 height: 10,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.duoBlue,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.duoBlue,
+                  ),
                 ),
               ),
           ],
@@ -217,90 +354,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
       return '${difference.inDays} kun oldin';
     } else {
       return '${date.day}/${date.month}/${date.year}';
-    }
-  }
-
-  Future<void> _addSampleNotifications(String userId) async {
-    final notifications = [
-      AppNotification(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: 'Uyga vazifa eslatmasi',
-        body: 'A1 guruhida "Grammatika: Präteritum" vazifasi bugun topshirilishi kerak',
-        type: 'homework',
-        createdAt: DateTime.now(),
-        isRead: false,
-        userId: userId,
-        data: {
-          'groupName': 'A1',
-          'homeworkTitle': 'Grammatika: Präteritum',
-          'deadline': '2024-05-24',
-        },
-      ),
-      AppNotification(
-        id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
-        title: 'Dars eslatmasi',
-        body: 'B1 guruhida "Hören: Hörverstehen" darsi 14:00 da boshlanadi',
-        type: 'lesson',
-        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-        isRead: false,
-        userId: userId,
-        data: {
-          'groupName': 'B1',
-          'lessonTopic': 'Hören: Hörverstehen',
-          'lessonTime': '14:00',
-        },
-      ),
-      AppNotification(
-        id: (DateTime.now().millisecondsSinceEpoch + 2).toString(),
-        title: 'To\'lov eslatmasi',
-        body: 'A2 guruhiga 500,000 so\'m to\'lov 2024-05-30 sanasiga qadar amalga oshirilishi kerak',
-        type: 'payment',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        isRead: true,
-        userId: userId,
-        data: {
-          'groupName': 'A2',
-          'amount': '500,000',
-          'dueDate': '2024-05-30',
-        },
-      ),
-      AppNotification(
-        id: (DateTime.now().millisecondsSinceEpoch + 3).toString(),
-        title: 'Yangi guruhga qo\'shildi',
-        body: 'Tabriklaymiz! Siz "Deutsch für Anfänger" guruhiga muvaffaqiyatli qo\'shildingiz',
-        type: 'system',
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
-        isRead: true,
-        userId: userId,
-      ),
-      AppNotification(
-        id: (DateTime.now().millisecondsSinceEpoch + 4).toString(),
-        title: 'Uyga vazifa eslatmasi',
-        body: 'B2 guruhida "Schreiben: Aufsatz" vazifasi ertaga topshirilishi kerak',
-        type: 'homework',
-        createdAt: DateTime.now().subtract(const Duration(days: 5)),
-        isRead: true,
-        userId: userId,
-        data: {
-          'groupName': 'B2',
-          'homeworkTitle': 'Schreiben: Aufsatz',
-          'deadline': '2024-05-19',
-        },
-      ),
-    ];
-
-    for (final notification in notifications) {
-      await _notificationService.createNotification(notification);
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Namuna xabarlar qo\'shildi!'),
-          backgroundColor: AppColors.duoGreen,
-          duration: Duration(seconds: 2),
-        ),
-      );
     }
   }
 }

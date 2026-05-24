@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../services/cloudinary_service.dart';
+import '../../services/notification_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/image_picker_helper.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/gamified_card.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/notification.dart';
 
 class StudentPaymentScreen extends StatefulWidget {
   final String studentId;
@@ -153,6 +155,10 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
         'status': 'pending',
         'createdAt': FieldValue.serverTimestamp(),
       });
+
+      // Send notification to admin
+      await _sendPaymentNotificationToAdmin(widget.studentId, period);
+
       if (mounted) {
         _showSnack('To\'lov muvaffaqiyatli yuborildi!', AppColors.duoGreen);
         await Future.delayed(const Duration(milliseconds: 800));
@@ -162,6 +168,45 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
       if (mounted) _showSnack('Xatolik yuz berdi: $e', AppColors.duoRed);
     }
     if (mounted) setState(() => _isSending = false);
+  }
+
+  Future<void> _sendPaymentNotificationToAdmin(String studentId, _Period period) async {
+    try {
+      // Get admin users
+      final adminSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .where('role', isEqualTo: 'admin')
+          .get();
+
+      if (adminSnap.docs.isEmpty) return;
+
+      // Get student name
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(studentId).get();
+      final studentName = userDoc.data()?['fullName'] as String? ?? 'Talaba';
+
+      final notificationService = NotificationService();
+      final formattedPeriod = '${period.start.day}/${period.start.month} - ${period.end.day}/${period.end.month}';
+
+      for (final adminDoc in adminSnap.docs) {
+        await notificationService.createNotification(
+          AppNotification(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: 'Yangi to\'lov keldi',
+            body: '$studentName to\'lov yubordi: $formattedPeriod davri',
+            type: 'payment',
+            createdAt: DateTime.now(),
+            userId: adminDoc.id,
+            data: {
+              'studentName': studentName,
+              'period': formattedPeriod,
+              'studentId': studentId,
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error sending payment notification: $e');
+    }
   }
 
   void _showSnack(String msg, Color color) {

@@ -41,6 +41,8 @@ dependencies:
   animated_theme_switcher: ^2.0.10
   mask_text_input_formatter: ^2.9.0
   audioplayers: ^6.6.0
+  firebase_messaging: ^15.2.10
+  flutter_local_notifications: ^21.0.0
 
 dev_dependencies:
   flutter_test:

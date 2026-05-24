@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/darslar_service.dart';
+import '../../services/notification_service.dart';
 import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/course_week_utils.dart';
@@ -541,7 +542,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         const SizedBox(width: 8),
                         Text(
                           l.markAttendance,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
@@ -1608,6 +1609,15 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               room: roomController.text.trim(),
                               time: timeController.text.trim(),
                             );
+
+                            // Send notification to students
+                            await _sendLessonNotificationToStudents(
+                              widget.groupId,
+                              widget.groupName,
+                              selectedType,
+                              timeController.text.trim(),
+                              day.date,
+                            );
                           }
                           if (ctx.mounted) Navigator.pop(ctx);
                         },
@@ -1629,6 +1639,38 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
         );
       },
     );
+  }
+
+  Future<void> _sendLessonNotificationToStudents(
+    String groupId,
+    String groupName,
+    String lessonType,
+    String time,
+    DateTime date,
+  ) async {
+    try {
+      final groupDoc = await FirebaseFirestore.instance.collection('groups').doc(groupId).get();
+      if (!groupDoc.exists) return;
+
+      final groupData = groupDoc.data();
+      final studentIds = groupData?['students'] as List<dynamic>?;
+
+      if (studentIds == null || studentIds.isEmpty) return;
+
+      final notificationService = NotificationService();
+      final formattedDate = '${date.day}/${date.month}/${date.year}';
+
+      for (final studentId in studentIds) {
+        await notificationService.createLessonReminder(
+          userId: studentId as String,
+          groupName: groupName,
+          lessonTopic: lessonType,
+          lessonTime: '$formattedDate $time',
+        );
+      }
+    } catch (e) {
+      debugPrint('Error sending lesson notification: $e');
+    }
   }
 
   // ==================== ATTENDANCE SHEET ====================

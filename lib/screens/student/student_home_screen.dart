@@ -10,11 +10,16 @@ import 'student_group_screen.dart';
 import 'student_learning_screen.dart';
 import 'student_games_screen.dart';
 import 'student_profile_screen.dart';
+import 'student_leaderboard_screen.dart';
+import 'student_statistics_screen.dart';
+import 'translation_screen.dart';
+import 'chat_screen.dart';
 import '../notification_screen.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/firebase_service.dart';
 import '../../services/streak_service.dart';
+import '../../services/notification_service.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -304,18 +309,25 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                       children: [
                         Icon(Icons.notifications_rounded,
                             color: isDark ? Colors.white : AppColors.duoTextDark, size: 28),
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.duoRed,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                          ),
+                        StreamBuilder<int>(
+                          stream: NotificationService().getUnreadCount(userProvider.uid),
+                          builder: (context, snapshot) {
+                            final unreadCount = snapshot.data ?? 0;
+                            if (unreadCount == 0) return const SizedBox.shrink();
+                            return Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.duoRed,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -494,6 +506,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                   } else if (direction == DismissDirection.startToEnd) {
                                     // Swipe to complete
                                     await Future.delayed(const Duration(milliseconds: 300));
+                                    if (!mounted) return false;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('${hw['title']} tugatildi!'),
@@ -702,7 +715,12 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                             color: AppColors.duoPurple,
                             isDark: isDark,
                             onTap: () {
-                              // Translator screen navigatsiyasi
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const TranslationScreen(),
+                                ),
+                              );
                             },
                           ),
                         ),
@@ -715,7 +733,15 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                             color: AppColors.duoGreen,
                             isDark: isDark,
                             onTap: () {
-                              // AI Bot screen navigatsiyasi
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const ChatScreen(
+                                    title: 'Erkin suhbat',
+                                    sourceType: 'conversation',
+                                  ),
+                                ),
+                              );
                             },
                           ),
                         ),
@@ -816,53 +842,73 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                     const SizedBox(height: 20),
 
                     // ── Statistika va Natijalar ──
-                    GamifiedCard(
-                      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
-                      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Text('📊', style: TextStyle(fontSize: 24)),
-                              const SizedBox(width: 8),
-                              Text(
-                                l.statisticsAndResults,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : AppColors.duoTextDark,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const StudentStatisticsScreen(),
                           ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildStatItem(
-                                  icon: '🎯',
-                                  title: 'Davomat',
-                                  value: '95%',
-                                  color: AppColors.duoGreen,
-                                  isDark: isDark,
+                        );
+                      },
+                      child: GamifiedCard(
+                        color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
+                        shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text('📊', style: TextStyle(fontSize: 24)),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      l.statisticsAndResults,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w900,
+                                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildStatItem(
-                                  icon: '⭐',
-                                  title: 'O\'rtacha Ball',
-                                  value: '8.4',
-                                  color: AppColors.duoPurple,
-                                  isDark: isDark,
+                                Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                                  size: 16,
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildStatItem(
+                                    icon: '🎯',
+                                    title: 'Davomat',
+                                    value: '95%',
+                                    color: AppColors.duoGreen,
+                                    isDark: isDark,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _buildStatItem(
+                                    icon: '⭐',
+                                    title: 'O\'rtacha Ball',
+                                    value: '8.4',
+                                    color: AppColors.duoPurple,
+                                    isDark: isDark,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -870,7 +916,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
 
                     // ── Peshqadamlar jadvali ──
                     StreamBuilder<List<Map<String, dynamic>>>(
-                      stream: FirebaseService().getLeaderboardStream(),
+                      stream: snapshot.hasData && snapshot.data!.isNotEmpty
+                          ? FirebaseService().getGroupLeaderboardStream(snapshot.data!.first['id'])
+                          : Stream.value([]),
                       builder: (context, leaderboardSnapshot) {
                         final leaderboard = leaderboardSnapshot.data ?? [];
                         
@@ -898,6 +946,24 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                         ),
                                       ),
                                     ],
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const StudentLeaderboardScreen(),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      'BARCHASINI KO\'RISH',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.duoBlue,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1183,10 +1249,6 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
         // This would require access to the parent widget's state
       },
     );
-  }
-
-  Widget _buildNoLessonsState(bool isDark) {
-    return const NoLessonsEmptyState();
   }
 
   Widget _buildLoadingState(bool isDark) {

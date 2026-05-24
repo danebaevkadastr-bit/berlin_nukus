@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'notification_service.dart';
 
 /// Darslar alohida `darslar` collectionda saqlanadi.
 /// Har bir hujjat ID: `{groupId}_{dateKey}` (masalan: `abc123_2026-05-21`)
@@ -169,6 +170,24 @@ class DarslarService {
       'createdAt': FieldValue.serverTimestamp(),
     });
     await _triggerGroupUpdate(groupId);
+
+    // Send notification to all students in the group
+    final groupDoc = await _firestore.collection('groups').doc(groupId).get();
+    if (groupDoc.exists) {
+      final groupData = groupDoc.data();
+      final students = List<String>.from(groupData?['students'] ?? []);
+      final groupName = groupData?['name'] ?? 'Guruh';
+      final notificationService = NotificationService();
+
+      for (final studentId in students) {
+        await notificationService.createLessonReminder(
+          userId: studentId,
+          groupName: groupName,
+          lessonTopic: lessonType,
+          lessonTime: time,
+        );
+      }
+    }
   }
 
   Future<void> updateLesson({
@@ -210,6 +229,29 @@ class DarslarService {
   Future<void> setHomeworks(String groupId, String dateKey, List<dynamic> homeworks) async {
     await lessonRef(groupId, dateKey).set({'homeworks': homeworks}, SetOptions(merge: true));
     await _triggerGroupUpdate(groupId);
+
+    // Send notification to all students in the group if homeworks were added
+    if (homeworks.isNotEmpty) {
+      final groupDoc = await _firestore.collection('groups').doc(groupId).get();
+      if (groupDoc.exists) {
+        final groupData = groupDoc.data();
+        final students = List<String>.from(groupData?['students'] ?? []);
+        final groupName = groupData?['name'] ?? 'Guruh';
+        final notificationService = NotificationService();
+
+        for (final studentId in students) {
+          final hwTitle = homeworks.first is Map
+              ? (homeworks.first as Map)['title'] ?? 'Uy vazifa'
+              : 'Uy vazifa';
+          await notificationService.createHomeworkReminder(
+            userId: studentId,
+            groupName: groupName,
+            homeworkTitle: hwTitle,
+            deadline: dateKey,
+          );
+        }
+      }
+    }
   }
 
   Future<void> setAttendance(

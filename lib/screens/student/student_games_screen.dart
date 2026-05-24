@@ -72,6 +72,7 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
 
   Future<void> _openDerDieDasGame() async {
     await HapticService.mediumImpact();
+    if (!mounted) return;
     await Navigator.push(
       context,
       SlideTransitionPage(
@@ -85,6 +86,7 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
 
   Future<void> _openStrangeSentencesGame() async {
     await HapticService.mediumImpact();
+    if (!mounted) return;
     await Navigator.push(
       context,
       SlideTransitionPage(
@@ -98,6 +100,7 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
 
   Future<void> _openStoryGame() async {
     await HapticService.mediumImpact();
+    if (!mounted) return;
     await Navigator.push(
       context,
       SlideTransitionPage(
@@ -111,6 +114,7 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
 
   Future<void> _openGrammarGame() async {
     await HapticService.mediumImpact();
+    if (!mounted) return;
     await Navigator.push(
       context,
       SlideTransitionPage(
@@ -329,26 +333,26 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
   }
 
   Widget _buildLoadingState(bool isDark) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 110),
+    return const SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(24, 8, 24, 110),
       child: Column(
         children: [
-          const SkeletonGameCard(),
-          const SizedBox(height: 14),
-          const SkeletonGameCard(),
-          const SizedBox(height: 14),
-          const SkeletonGameCard(),
-          const SizedBox(height: 14),
-          const SkeletonGameCard(),
-          const SizedBox(height: 14),
-          const SkeletonGameCard(),
-          const SizedBox(height: 14),
-          const SkeletonGameCard(),
-          const SizedBox(height: 14),
-          const SkeletonGameCard(),
-          const SizedBox(height: 14),
-          const SkeletonGameCard(),
-          const SizedBox(height: 30),
+          SkeletonGameCard(),
+          SizedBox(height: 14),
+          SkeletonGameCard(),
+          SizedBox(height: 14),
+          SkeletonGameCard(),
+          SizedBox(height: 14),
+          SkeletonGameCard(),
+          SizedBox(height: 14),
+          SkeletonGameCard(),
+          SizedBox(height: 14),
+          SkeletonGameCard(),
+          SizedBox(height: 14),
+          SkeletonGameCard(),
+          SizedBox(height: 14),
+          SkeletonGameCard(),
+          SizedBox(height: 30),
         ],
       ),
     );

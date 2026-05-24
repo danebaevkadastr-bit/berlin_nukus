@@ -374,6 +374,7 @@ class FirebaseService {
   // ── LEADERBOARD ─────────────────────────────────────────────────────────────
 
   /// Stream of leaderboard (top students by total stars)
+  /// @deprecated Use getGroupLeaderboardStream instead for group-specific leaderboard
   Stream<List<Map<String, dynamic>>> getLeaderboardStream() {
     return _firestore
         .collection('users')
@@ -386,5 +387,31 @@ class FirebaseService {
               data['id'] = doc.id;
               return data;
             }).toList());
+  }
+
+  /// Stream of leaderboard for a specific group (top students by total stars)
+  Stream<List<Map<String, dynamic>>> getGroupLeaderboardStream(String groupId) {
+    return _firestore.collection('groups').doc(groupId).snapshots().asyncMap((groupDoc) async {
+      if (!groupDoc.exists) return [];
+
+      final groupData = groupDoc.data();
+      final studentIds = List<String>.from(groupData?['students'] ?? []);
+
+      if (studentIds.isEmpty) return [];
+
+      final usersSnapshot = await _firestore
+          .collection('users')
+          .where('role', isEqualTo: 'student')
+          .where(FieldPath.documentId, whereIn: studentIds)
+          .orderBy('totalStars', descending: true)
+          .limit(10)
+          .get();
+
+      return usersSnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    });
   }
 }

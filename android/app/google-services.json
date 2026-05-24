@@ -29,6 +29,13 @@
             {
               "client_id": "901891657911-un0jqsg46o6i3chmm1q8657lsq8ck4do.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "901891657911-611t5vcc45ojg3limu7f92npl6sk0knv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.berlinNukus"
+              }
             }
           ]
         }

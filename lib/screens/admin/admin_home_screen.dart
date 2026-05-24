@@ -6,6 +6,7 @@ import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/notification_service.dart';
 import '../notification_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -137,18 +138,25 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                           color:
                                               isDark ? Colors.white : AppColors.duoTextDark,
                                           size: 28),
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: Container(
-                                          width: 12,
-                                          height: 12,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: AppColors.duoRed,
-                                            border: Border.all(color: Colors.white, width: 2),
-                                          ),
-                                        ),
+                                      StreamBuilder<int>(
+                                        stream: NotificationService().getUnreadCount(userProvider.uid),
+                                        builder: (context, snapshot) {
+                                          final unreadCount = snapshot.data ?? 0;
+                                          if (unreadCount == 0) return const SizedBox.shrink();
+                                          return Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: Container(
+                                              width: 12,
+                                              height: 12,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: AppColors.duoRed,
+                                                border: Border.all(color: Colors.white, width: 2),
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),

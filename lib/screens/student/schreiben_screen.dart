@@ -653,7 +653,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
               const SizedBox(width: 8),
               Text(
                 l.evaluation,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
                   color: AppColors.duoGreen,
