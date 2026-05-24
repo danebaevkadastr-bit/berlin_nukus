@@ -4,6 +4,7 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/decorative_pattern_background.dart';
 import '../../../widgets/gamified_card.dart';
+import '../../../l10n/app_localizations.dart';
 
 class TranslationScreen extends StatefulWidget {
   const TranslationScreen({super.key});
@@ -53,12 +54,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
       appBar: AppBar(
         title: Text(
-          'TARJIMA',
+          l.translationTitle,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w900,
@@ -87,7 +89,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Nemis so\'z yoki ibora kiriting',
+                      l.enterGermanWord,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -105,7 +107,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                         color: isDark ? Colors.white : AppColors.duoTextDark,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Masalan: der Tisch, gehen, das Haus...',
+                        hintText: l.translationHint,
                         hintStyle: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -139,8 +141,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
-                              : const Text(
-                                  'TARJIMA QILISH',
+                              : Text(
+                                  l.translateButton,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900,
@@ -191,7 +193,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Tarjima olish uchun nemis so\'z kiriting',
+                              l.enterWordToTranslate,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 16,
@@ -215,7 +217,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'ASL SO\'Z',
+                                    l.originalWord,
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
@@ -239,7 +241,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
                             // Meanings
                             Text(
-                              'MA\'NOLAR',
+                              l.meanings,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
@@ -271,6 +273,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
   }
 
   Widget _buildMeaningCard(Map<String, dynamic> meaning, bool isDark, int index) {
+    final l = AppLocalizations.of(context);
     final translation = meaning['translation'] ?? '';
     final exampleGerman = meaning['exampleGerman'] ?? '';
     final exampleUzbek = meaning['exampleUzbek'] ?? '';
@@ -332,13 +335,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Text('💡', style: TextStyle(fontSize: 16)),
-                      SizedBox(width: 8),
+                      const Text('💡', style: TextStyle(fontSize: 16)),
+                      const SizedBox(width: 8),
                       Text(
-                        'MISOL',
-                        style: TextStyle(
+                        l.example,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                           color: AppColors.duoOrange,

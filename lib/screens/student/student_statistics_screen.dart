@@ -199,7 +199,7 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
                 Expanded(
                   child: _buildStatCard(
                     icon: '📊',
-                    title: 'Davomat',
+                    title: l.attendance,
                     value: '$attendancePercentage%',
                     color: AppColors.duoGreen,
                     isDark: isDark,
@@ -209,7 +209,7 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
                 Expanded(
                   child: _buildStatCard(
                     icon: '📝',
-                    title: 'Vazifa tugatilishi',
+                    title: l.homeworkCompletion,
                     value: '$homeworkCompletionRate%',
                     color: AppColors.duoBlue,
                     isDark: isDark,
@@ -225,7 +225,7 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
                 Expanded(
                   child: _buildStatCard(
                     icon: '⭐',
-                    title: 'O\'rtacha ball',
+                    title: l.averageScore,
                     value: _averageHomeworkScore.toStringAsFixed(1),
                     color: AppColors.duoPurple,
                     isDark: isDark,
@@ -235,7 +235,7 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
                 Expanded(
                   child: _buildStatCard(
                     icon: '🔥',
-                    title: 'Streak',
+                    title: l.streak,
                     value: '$_currentStreak',
                     color: AppColors.duoOrange,
                     isDark: isDark,
@@ -249,11 +249,11 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
             // Detailed statistics
             _buildDetailSection(
               isDark: isDark,
-              title: 'Darslar',
+              title: l.lessons,
               items: [
-                {'label': 'Jami darslar', 'value': '$_totalLessons'},
-                {'label': 'Qatnashgan', 'value': '$_attendedLessons'},
-                {'label': 'Qatnashmagan', 'value': '${_totalLessons - _attendedLessons}'},
+                {'label': l.totalLessons, 'value': '$_totalLessons'},
+                {'label': l.attended, 'value': '$_attendedLessons'},
+                {'label': l.notAttended, 'value': '${_totalLessons - _attendedLessons}'},
               ],
             ),
 
@@ -261,11 +261,11 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
 
             _buildDetailSection(
               isDark: isDark,
-              title: 'Uyga vazifalar',
+              title: l.homework,
               items: [
-                {'label': 'Jami vazifalar', 'value': '$_totalHomeworks'},
-                {'label': 'Bajarilgan', 'value': '$_completedHomeworks'},
-                {'label': 'Bajarilmagan', 'value': '${_totalHomeworks - _completedHomeworks}'},
+                {'label': l.totalHomeworks, 'value': '$_totalHomeworks'},
+                {'label': l.completed, 'value': '$_completedHomeworks'},
+                {'label': l.notCompleted, 'value': '${_totalHomeworks - _completedHomeworks}'},
               ],
             ),
 
@@ -273,11 +273,11 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
 
             _buildDetailSection(
               isDark: isDark,
-              title: 'Yutuqlar',
+              title: l.achievements,
               items: [
-                {'label': 'Jami yulduzlar', 'value': '$_totalStars'},
-                {'label': 'Hozirgi streak', 'value': '$_currentStreak kun'},
-                {'label': 'O\'rtacha ball', 'value': '${_averageHomeworkScore.toStringAsFixed(1)}/10'},
+                {'label': l.totalStars, 'value': '$_totalStars'},
+                {'label': l.currentStreak, 'value': l.streakDays(_currentStreak)},
+                {'label': l.averageScore, 'value': l.scoreOutOf(_averageHomeworkScore)},
               ],
             ),
           ],

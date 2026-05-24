@@ -295,26 +295,26 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   const SizedBox(height: 12),
                                   _buildActivityCard(
                                     icon: '📈',
-                                    title: 'Faol guruhlar',
-                                    subtitle: 'Hozirda $groupsCount ta faol guruh mavjud',
+                                    title: AppLocalizations.of(context).activeGroupsLabel,
+                                    subtitle: AppLocalizations.of(context).activeGroupsCountText(groupsCount),
                                     color: AppColors.duoBlue,
                                     isDark: isDark,
                                   ),
                                   const SizedBox(height: 10),
                                   _buildActivityCard(
                                     icon: '📝',
-                                    title: 'Yangi testlar',
-                                    subtitle: 'Hali yangi testlar qo\'shilmadi',
+                                    title: AppLocalizations.of(context).newTestsLabel,
+                                    subtitle: AppLocalizations.of(context).noNewTestsLabel,
                                     color: AppColors.duoGreen,
                                     isDark: isDark,
                                   ),
                                   const SizedBox(height: 10),
                                   _buildActivityCard(
                                     icon: '💰',
-                                    title: 'To\'lov nazorati',
+                                    title: AppLocalizations.of(context).paymentControlLabel,
                                     subtitle: pendingPaymentsCount > 0
-                                        ? '$pendingPaymentsCount ta to\'lov tasdiqlanishi kutilmoqda'
-                                        : 'Barcha to\'lovlar tasdiqlangan',
+                                        ? AppLocalizations.of(context).pendingPaymentsCount(pendingPaymentsCount)
+                                        : AppLocalizations.of(context).allPaymentsConfirmed,
                                     color: AppColors.duoOrange,
                                     isDark: isDark,
                                   ),

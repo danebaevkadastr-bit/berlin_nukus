@@ -26,6 +26,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
   final String _userName = 'Alisher Karimov';
 
   void _showEditDialog(BuildContext context, userProvider, bool isDark) {
+    final l = AppLocalizations.of(context);
     final nameCtrl = TextEditingController(text: userProvider.name);
     final phoneCtrl = TextEditingController(text: userProvider.phone);
     showModalBottomSheet(
@@ -47,13 +48,13 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
               Center(child: Container(width: 50, height: 6,
                 decoration: BoxDecoration(color: AppColors.duoCardGrayShadow, borderRadius: BorderRadius.circular(20)))),
               const SizedBox(height: 20),
-              Text('PROFILNI TAHRIRLASH ✏️', style: TextStyle(
+              Text('${l.editProfileCaps} ✏️', style: TextStyle(
                 fontSize: 18, fontWeight: FontWeight.w900,
                 color: isDark ? Colors.white : AppColors.duoTextDark)),
               const SizedBox(height: 20),
               _editField(nameCtrl, 'Ism Familiya', isDark),
               const SizedBox(height: 12),
-              _editField(phoneCtrl, 'Telefon raqam', isDark, keyboardType: TextInputType.phone),
+              _editField(phoneCtrl, l.phoneNumber, isDark, keyboardType: TextInputType.phone),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(14),
@@ -87,7 +88,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 4,
                   ),
-                  child: const Text('SAQLASH',
+                  child: Text(l.saveBtn,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white)),
                 ),
               ),
@@ -548,6 +549,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
   }
 
   void _showAboutDialog() {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -633,8 +635,8 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                       borderRadius: BorderRadius.circular(16),
                       gradient: const LinearGradient(colors: [Color(0xFF5C6BC0), Color(0xFF7C4DFF)]),
                     ),
-                    child: const Center(
-                      child: Text('Yopish', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+                    child: Center(
+                      child: Text(l.close, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
                     ),
                   ),
                 ),

@@ -229,7 +229,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: _buildStatCard("$totalStudents", '🧑‍🎓', "O'quvchi",
+                            child: _buildStatCard("$totalStudents", '🧑‍🎓', l.studentsShort,
                                 AppColors.duoGreen, AppColors.duoGreenShadow),
                           ),
                           const SizedBox(width: 12),
@@ -237,7 +237,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             child: _buildStatCard(
                                 '${todayLessons.length}',
                                 '📚',
-                                'Darslar',
+                                l.lessonsShort,
                                 AppColors.duoOrange,
                                 AppColors.duoOrangeShadow),
                           ),
@@ -598,7 +598,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '$remaining ta qoldi',
+                    '$remaining ${AppLocalizations.of(context).remainingShort}',
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -632,16 +632,16 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${work.submissions}/${work.totalStudents} topshirilgan',
+                '${work.submissions}/${work.totalStudents} ${AppLocalizations.of(context).submittedShort}',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: isDark ? Colors.white54 : AppColors.duoTextLight,
                 ),
               ),
-              const Text(
-                'TEKSHIRISH',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context).checkUpper,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   color: AppColors.duoBlue,

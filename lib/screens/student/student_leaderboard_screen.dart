@@ -54,7 +54,7 @@ class StudentLeaderboardScreen extends StatelessWidget {
                   const Text('🏆', style: TextStyle(fontSize: 64)),
                   const SizedBox(height: 16),
                   Text(
-                    'Hozircha ma\'lumot yo\'q',
+                    l.noDataYet,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -91,7 +91,7 @@ class StudentLeaderboardScreen extends StatelessWidget {
                 rankColor = isDark ? Colors.white54 : AppColors.duoTextLight;
               }
 
-              final name = user['fullName'] ?? user['name'] ?? 'Noma\'lum';
+              final name = user['fullName'] ?? user['name'] ?? l.unknown;
               final stars = user['totalStars'] ?? 0;
               final avatarUrl = user['avatarUrl'] ?? '';
 

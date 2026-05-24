@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/empty_state.dart';
@@ -20,9 +21,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
   final NotificationService _notificationService = NotificationService();
 
   @override
+  void initState() {
+    super.initState();
+    // Don't mark as read automatically - let user mark them manually
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
     final userProvider = Provider.of<UserProvider>(context);
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
@@ -37,7 +45,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Xabarnomalar',
+          l.notificationsTitle,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
@@ -53,7 +61,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             onPressed: () async {
               await _notificationService.markAllAsRead(userProvider.uid);
             },
-            tooltip: 'Barchasini o\'qildi deb belgilash',
+            tooltip: l.markAllAsRead,
           ),
         ],
       ),
@@ -67,11 +75,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
           final notifications = snapshot.data ?? [];
 
           if (notifications.isEmpty) {
-            return const Center(
+            return Center(
               child: EmptyState(
                 emoji: '🔔',
-                title: 'Hozircha xabarlar yo\'q',
-                subtitle: 'Sizga yangi xabarlar kelganda bu yerda ko\'rsatiladi',
+                title: l.noNotificationsYet,
+                subtitle: l.noNotificationsSubtitle,
               ),
             );
           }
@@ -81,14 +89,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
             itemCount: notifications.length,
             itemBuilder: (context, index) {
               final notification = notifications[index];
-              return _buildNotificationCard(notification, isDark);
+              return _buildNotificationCard(notification, isDark, l);
             },
           );
         },
       ),
-      floatingActionButton: (userProvider.role == 'admin' || userProvider.role == 'teacher')
+      floatingActionButton: userProvider.role == 'admin'
           ? FloatingActionButton(
-              onPressed: () => _showSendNotificationDialog(context, userProvider),
+              onPressed: () => _showSendNotificationDialog(context, userProvider, l),
               backgroundColor: AppColors.duoBlue,
               child: const Icon(Icons.add_rounded, color: Colors.white),
             )
@@ -96,7 +104,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  void _showSendNotificationDialog(BuildContext context, UserProvider userProvider) {
+  void _showSendNotificationDialog(
+    BuildContext context,
+    UserProvider userProvider,
+    AppLocalizations l,
+  ) {
     final titleController = TextEditingController();
     final bodyController = TextEditingController();
     String? selectedUserId;
@@ -105,7 +117,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Xabar yuborish'),
+          title: Text(l.sendMessage),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -113,17 +125,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
               children: [
                 TextField(
                   controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Sarlavha',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l.titleLabel,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: bodyController,
-                  decoration: const InputDecoration(
-                    labelText: 'Xabar matni',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l.messageBodyLabel,
+                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 3,
                 ),
@@ -140,10 +152,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       }
                       final users = snapshot.data!.docs;
                       return DropdownButtonFormField<String>(
-                        value: selectedUserId,
-                        decoration: const InputDecoration(
-                          labelText: 'Foydalanuvchini tanlang',
-                          border: OutlineInputBorder(),
+                        initialValue: selectedUserId,
+                        decoration: InputDecoration(
+                          labelText: l.selectUserLabel,
+                          border: const OutlineInputBorder(),
                         ),
                         items: users.map((doc) {
                           final data = doc.data() as Map<String, dynamic>;
@@ -166,19 +178,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Bekor qilish'),
+              child: Text(l.cancel),
             ),
             ElevatedButton(
               onPressed: () async {
                 if (titleController.text.isEmpty || bodyController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sarlavha va xabar matnini kiriting')),
+                    SnackBar(content: Text(l.enterTitleAndMessage)),
                   );
                   return;
                 }
 
                 if (userProvider.role == 'teacher') {
-                  // Teacher sends to their students
                   final groupsSnapshot = await FirebaseFirestore.instance
                       .collection('groups')
                       .where('teacherId', isEqualTo: userProvider.uid)
@@ -203,11 +214,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       }
                     }
                   }
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Xabar yuborildi')),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l.messageSent)),
+                    );
+                  }
                 } else if (userProvider.role == 'admin' && selectedUserId != null) {
-                  // Admin sends to specific user
                   await _notificationService.createNotification(
                     AppNotification(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -218,14 +230,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       userId: selectedUserId!,
                     ),
                   );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Xabar yuborildi')),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l.messageSent)),
+                    );
+                  }
                 }
 
-                Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
               },
-              child: const Text('Yuborish'),
+              child: Text(l.submit),
             ),
           ],
         ),
@@ -233,13 +247,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  Widget _buildNotificationCard(dynamic notification, bool isDark) {
+  Widget _buildNotificationCard(dynamic notification, bool isDark, AppLocalizations l) {
     final isRead = notification.isRead ?? false;
     final type = notification.type ?? 'system';
-    
+    final notificationId = notification.id;
+
     String icon;
     Color color;
-    
+
     switch (type) {
       case 'homework':
         icon = '📝';
@@ -269,7 +284,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         shadowDepth: isRead ? 2 : 4,
         onTap: () async {
           if (!isRead) {
-            await _notificationService.markAsRead(notification.id);
+            await _notificationService.markAsRead(notificationId);
           }
         },
         child: Row(
@@ -291,7 +306,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    notification.title ?? 'Xabar',
+                    notification.title ?? l.messageFallback,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: isRead ? FontWeight.w600 : FontWeight.w800,
@@ -311,7 +326,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    _formatDate(notification.createdAt),
+                    _formatDate(notification.createdAt, l),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -338,22 +353,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  String _formatDate(DateTime? date) {
+  String _formatDate(DateTime? date, AppLocalizations l) {
     if (date == null) return '';
-
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inMinutes < 1) {
-      return 'Hozirgina';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} daqiqa oldin';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours} soat oldin';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} kun oldin';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
+    return l.formatRelativeTime(date);
   }
 }

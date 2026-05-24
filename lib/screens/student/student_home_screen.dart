@@ -12,6 +12,7 @@ import 'student_games_screen.dart';
 import 'student_profile_screen.dart';
 import 'student_leaderboard_screen.dart';
 import 'student_statistics_screen.dart';
+import 'student_chat_screen.dart';
 import 'translation_screen.dart';
 import 'chat_screen.dart';
 import '../notification_screen.dart';
@@ -94,36 +95,41 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 ),
                 // Streak animatsiyasi
                 if (_showStreakAnimation)
-                  Positioned.fill(
-                    child: Container(
-                      color: Colors.black.withValues(alpha: 0.7),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('🔥', style: TextStyle(fontSize: 100)),
-                            const SizedBox(height: 20),
-                            const Text(
-                              'STREAK SAQLANDI!',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
+                  Builder(
+                    builder: (context) {
+                      final streakL = AppLocalizations.of(context);
+                      return Positioned.fill(
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text('🔥', style: TextStyle(fontSize: 100)),
+                                const SizedBox(height: 20),
+                                Text(
+                                  streakL.streakSavedTitle,
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  streakL.keepLearningDaily,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Har kuni o\'rganishda davom eting!',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withValues(alpha: 0.8),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
               ],
             ),
@@ -202,7 +208,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                       });
                     } else if (hw is Map) {
                       pendingHomeworks.add({
-                        'title': hw['title'] ?? 'Vazifa',
+                        'title': hw['title'] ?? l.task,
                         'groupName': data['name'],
                         'date': date,
                         'deadline': lData['homeworkDeadline'] ?? date,
@@ -220,7 +226,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                 final lData = lessonsMap[date] as Map<String, dynamic>;
                 upcomingLessons.add({
                   'date': date,
-                  'topic': lData['topic'] ?? 'Dars',
+                  'topic': lData['topic'] ?? l.lesson,
                   'groupName': data['name'],
                   'teacherName': data['teacherName'],
                 });
@@ -412,9 +418,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildDarsInfo('⏰', todayLesson['time'] ?? 'Noma\'lum'),
-                                _buildDarsInfo('🏫', todayLesson['room'] ?? 'Noma\'lum'),
-                                _buildDarsInfo('👨‍🏫', todayTeacher ?? 'Ustoz'),
+                                _buildDarsInfo('⏰', todayLesson['time'] ?? l.unknown),
+                                _buildDarsInfo('🏫', todayLesson['room'] ?? l.unknown),
+                                _buildDarsInfo('👨‍🏫', todayTeacher ?? l.teacherBadge),
                               ],
                             ),
                           ],
@@ -482,7 +488,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        '${pendingHomeworks.length} ta vazifa',
+                                        l.homeworkTasksCount(pendingHomeworks.length),
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -509,7 +515,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                     if (!mounted) return false;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('${hw['title']} tugatildi!'),
+                                        content: Text(l.homeworkMarkedDone(hw['title'] as String? ?? '')),
                                         backgroundColor: AppColors.duoGreen,
                                         duration: const Duration(seconds: 2),
                                       ),
@@ -549,7 +555,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                     // Delete action
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('${hw['title']} olib tashlandi'),
+                                        content: Text(l.homeworkUnmarked(hw['title'] as String? ?? '')),
                                         duration: const Duration(seconds: 2),
                                       ),
                                     );
@@ -568,7 +574,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              hw['title'] ?? 'Vazifa',
+                                              hw['title'] ?? l.task,
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w700,
@@ -577,7 +583,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              hw['groupName'] ?? 'Guruh',
+                                              hw['groupName'] ?? l.navGroup,
                                               style: const TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
@@ -662,7 +668,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            lesson['topic'] ?? 'Dars',
+                                            lesson['topic'] ?? l.lesson,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w700,
@@ -671,7 +677,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            lesson['groupName'] ?? 'Guruh',
+                                            lesson['groupName'] ?? l.navGroup,
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
@@ -697,12 +703,23 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                         Expanded(
                           child: _buildFeatureCard(
                             icon: '💬',
-                            title: 'Chat',
-                            subtitle: 'AI bilan gaplashish',
+                            title: l.chat,
+                            subtitle: l.groupChat,
                             color: AppColors.duoBlue,
                             isDark: isDark,
-                            onTap: () {
-                              // Chat screen navigatsiyasi
+                            onTap: () async {
+                              final groups = await FirebaseService().getStudentGroupsStream(userProvider.uid).first;
+                              if (groups.isNotEmpty) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => StudentChatScreen(
+                                      groupId: groups.first['id'],
+                                      groupName: groups.first['name'],
+                                    ),
+                                  ),
+                                );
+                              }
                             },
                           ),
                         ),
@@ -710,8 +727,8 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                         Expanded(
                           child: _buildFeatureCard(
                             icon: '🌐',
-                            title: 'Tarjimon',
-                            subtitle: 'Tarjima qilish',
+                            title: l.translator,
+                            subtitle: l.translateAction,
                             color: AppColors.duoPurple,
                             isDark: isDark,
                             onTap: () {
@@ -728,16 +745,16 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                         Expanded(
                           child: _buildFeatureCard(
                             icon: '🤖',
-                            title: 'AI Bot',
-                            subtitle: 'Savol-javob',
+                            title: l.aiBot,
+                            subtitle: l.qaSubtitle,
                             color: AppColors.duoGreen,
                             isDark: isDark,
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const ChatScreen(
-                                    title: 'Erkin suhbat',
+                                  builder: (_) => ChatScreen(
+                                    title: l.freeConversation,
                                     sourceType: 'conversation',
                                   ),
                                 ),
@@ -779,7 +796,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
-                                      "FAOLIYAT: $streak KUN",
+                                      l.activityStreakDays(streak),
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w900,
@@ -889,7 +906,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                 Expanded(
                                   child: _buildStatItem(
                                     icon: '🎯',
-                                    title: 'Davomat',
+                                    title: l.attendance,
                                     value: '95%',
                                     color: AppColors.duoGreen,
                                     isDark: isDark,
@@ -899,7 +916,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                 Expanded(
                                   child: _buildStatItem(
                                     icon: '⭐',
-                                    title: 'O\'rtacha Ball',
+                                    title: l.averageScore,
                                     value: '8.4',
                                     color: AppColors.duoPurple,
                                     isDark: isDark,
@@ -957,7 +974,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                       );
                                     },
                                     child: Text(
-                                      'BARCHASINI KO\'RISH',
+                                      l.viewAll.toUpperCase(),
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w800,
@@ -971,7 +988,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                               if (leaderboard.isEmpty)
                                 Center(
                                   child: Text(
-                                    'Hozircha ma\'lumot yo\'q',
+                                    l.noDataYet,
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -984,7 +1001,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                   final index = entry.key;
                                   final user = entry.value;
                                   final rankEmoji = index == 0 ? '🥇' : index == 1 ? '🥈' : '🥉';
-                                  final name = user['fullName'] ?? user['name'] ?? 'Noma\'lum';
+                                  final name = user['fullName'] ?? user['name'] ?? l.unknown;
                                   final stars = user['totalStars'] ?? 0;
                                   final isMe = user['id'] == userProvider.uid;
                                   
@@ -1050,9 +1067,10 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
 
     return GestureDetector(
       onTap: () {
+        final snackL = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$day: $minutes daqiqa'),
+            content: Text(snackL.dayMinutes(day, minutes)),
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

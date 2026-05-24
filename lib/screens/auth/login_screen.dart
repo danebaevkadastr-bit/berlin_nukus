@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Barcha maydonlarni to\'ldiring', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(l.fillAllFields, style: const TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.duoOrange,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -71,9 +71,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       String errorMsg = l.wrongCredentials;
       if (e is FirebaseAuthException) {
         if (e.code == 'user-not-found') {
-          errorMsg = "Ushbu elektron pochta ro'yxatdan o'tmagan.";
+          errorMsg = l.emailNotRegistered;
         } else if (e.code == 'wrong-password') {
-          errorMsg = "Parol noto'g'ri kiritildi.";
+          errorMsg = l.wrongPasswordEntered;
         } else if (e.message != null) {
           errorMsg = e.message!;
         }
@@ -261,8 +261,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         width: double.infinity,
                         child: GamifiedCard(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          color: isDark ? AppColors.duoCardGray : Colors.white,
-                          shadowColor: isDark ? Colors.black45 : AppColors.duoCardGrayShadow,
+                          color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                          shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
                           shadowDepth: 3,
                           onTap: () {},
                           child: Row(

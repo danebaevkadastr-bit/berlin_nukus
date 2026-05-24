@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
+import '../../l10n/app_localizations.dart';
 
 import 'admin_courses_screen.dart';
 import 'admin_home_screen.dart';
@@ -89,12 +90,12 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildNavItem(context, Icons.dashboard_rounded, 'Bosh', 0),
-            _buildNavItem(context, Icons.people_rounded, 'O\'quvchi', 1),
-            _buildNavItem(context, Icons.school_rounded, 'Ustoz', 2),
-            _buildNavItem(context, Icons.menu_book_rounded, 'Kurs', 3),
-            _buildNavItem(context, Icons.payments_rounded, 'To\'lov', 4),
-            _buildNavItem(context, Icons.person_rounded, 'Profil', 5),
+            _buildNavItem(context, Icons.dashboard_rounded, AppLocalizations.of(context).navHome, 0),
+            _buildNavItem(context, Icons.people_rounded, AppLocalizations.of(context).navStudent, 1),
+            _buildNavItem(context, Icons.school_rounded, AppLocalizations.of(context).navTeacher, 2),
+            _buildNavItem(context, Icons.menu_book_rounded, AppLocalizations.of(context).navCourse, 3),
+            _buildNavItem(context, Icons.payments_rounded, AppLocalizations.of(context).navPayment, 4),
+            _buildNavItem(context, Icons.person_rounded, AppLocalizations.of(context).navProfile, 5),
           ],
         ),
       ),

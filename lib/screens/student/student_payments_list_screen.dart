@@ -43,9 +43,9 @@ class StudentPaymentsListScreen extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.add_rounded, size: 20, color: AppColors.duoGreen),
-            label: const Text(
-              'TO\'LOV QO\'SHISH',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.duoGreen),
+            label: Text(
+              l.addPaymentTitle,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.duoGreen),
             ),
           ),
         ],
@@ -82,7 +82,7 @@ class StudentPaymentsListScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'To\'lov tarixi yo\'q',
+                        l.paymentHistoryEmpty,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -100,9 +100,9 @@ class StudentPaymentsListScreen extends StatelessWidget {
                             builder: (_) => StudentPaymentScreen(studentId: studentId),
                           ),
                         ),
-                        child: const Text(
-                          'TO\'LOV QO\'SHISH',
-                          style: TextStyle(
+                        child: Text(
+                          l.addPaymentTitle,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../utils/app_colors.dart';
 import '../utils/theme_manager.dart';
 import 'animated_button.dart';
@@ -24,11 +25,12 @@ class ErrorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark 
+        color: isDark
             ? AppColors.duoCardGray.withValues(alpha: 0.1)
             : Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -85,7 +87,7 @@ class ErrorCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               borderRadius: BorderRadius.circular(12),
               child: Text(
-                retryText ?? 'Qayta urinish',
+                retryText ?? l.retry,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
@@ -106,12 +108,13 @@ class NetworkErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ErrorCard(
       emoji: '📡',
-      title: 'Internet aloqasi yo\'q',
-      message: 'Internet aloqasini tekshiring va qayta urining.',
+      title: l.noInternetTitle,
+      message: l.noInternetMessage,
       onRetry: onRetry,
-      retryText: 'Qayta urinish',
+      retryText: l.retry,
     );
   }
 }
@@ -123,12 +126,13 @@ class ServerErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ErrorCard(
       emoji: '🔧',
-      title: 'Server xatosi',
-      message: 'Serverda xatolik yuz berdi. Iltimos, keyinroq qayta urining.',
+      title: l.serverErrorTitle,
+      message: l.serverErrorMessage,
       onRetry: onRetry,
-      retryText: 'Qayta urinish',
+      retryText: l.retry,
     );
   }
 }
@@ -140,12 +144,13 @@ class TimeoutErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ErrorCard(
       emoji: '⏱️',
-      title: 'Vaqt tugadi',
-      message: 'So\'rov tugadi. Internet aloqasini tekshiring va qayta urining.',
+      title: l.timeoutTitle,
+      message: l.timeoutMessage,
       onRetry: onRetry,
-      retryText: 'Qayta urinish',
+      retryText: l.retry,
     );
   }
 }
@@ -162,12 +167,13 @@ class GenericErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ErrorCard(
       emoji: '😕',
-      title: 'Xatolik yuz berdi',
-      message: message ?? 'Noma\'lum xatolik yuz berdi.',
+      title: l.genericError,
+      message: message ?? l.unknownErrorMessage,
       onRetry: onRetry,
-      retryText: 'Qayta urinish',
+      retryText: l.retry,
     );
   }
 }
@@ -179,12 +185,13 @@ class NoDataErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ErrorCard(
       emoji: '📭',
-      title: 'Ma\'lumot topilmadi',
-      message: 'So\'ralgan ma\'lumotlar topilmadi.',
+      title: l.dataNotFoundTitle,
+      message: l.dataNotFoundMessage,
       onRetry: onRetry,
-      retryText: 'Qayta urinish',
+      retryText: l.retry,
     );
   }
 }
@@ -201,12 +208,13 @@ class PermissionErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ErrorCard(
       emoji: '🔒',
-      title: 'Ruxsat kerak',
-      message: '$permission ruxsatini berishingiz kerak.',
+      title: l.permissionRequiredTitle,
+      message: l.permissionRequiredMessage(permission),
       onRetry: onRetry,
-      retryText: 'Ruxsat berish',
+      retryText: l.grantPermission,
     );
   }
 }

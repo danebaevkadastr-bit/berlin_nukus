@@ -84,8 +84,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                     if (!mounted) return;
                     if (url != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Profil rasmi yangilandi'),
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context).profilePhotoUpdated),
                           backgroundColor: AppColors.duoGreen,
                         ),
                       );

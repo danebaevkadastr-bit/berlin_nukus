@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_colors.dart';
 import '../utils/theme_manager.dart';
+import '../l10n/app_localizations.dart';
 import 'gamified_card.dart';
 
 class StudentPaymentCard extends StatelessWidget {
@@ -12,6 +13,7 @@ class StudentPaymentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
     final status = payment['status'] ?? 'pending';
     final periodStart = (payment['periodStart'] as Timestamp?)?.toDate();
@@ -26,17 +28,17 @@ class StudentPaymentCard extends StatelessWidget {
     switch (status) {
       case 'accepted':
         statusColor = AppColors.duoGreen;
-        statusText = 'QABUL QILINDI';
+        statusText = l.paymentAcceptedMsg;
         statusIcon = Icons.check_circle_rounded;
         break;
       case 'rejected':
         statusColor = AppColors.duoRed;
-        statusText = 'BEKOR QILINDI';
+        statusText = l.paymentRejectedMsg;
         statusIcon = Icons.cancel_rounded;
         break;
       default:
         statusColor = AppColors.duoOrange;
-        statusText = 'KUTILMOQDA';
+        statusText = l.paymentPending;
         statusIcon = Icons.pending_rounded;
     }
 
@@ -67,7 +69,7 @@ class StudentPaymentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  periodText.isNotEmpty ? periodText : 'Period noma\'lum',
+                  periodText.isNotEmpty ? periodText : l.periodUnknown,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -87,7 +89,7 @@ class StudentPaymentCard extends StatelessWidget {
                 if (adminNote.isNotEmpty && status != 'pending') ...[
                   const SizedBox(height: 3),
                   Text(
-                    'Admin: $adminNote',
+                    '${l.adminLabel}: $adminNote',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -97,7 +99,7 @@ class StudentPaymentCard extends StatelessWidget {
                 ],
                 const SizedBox(height: 4),
                 Text(
-                  type == 'cash' ? 'NAQD' : 'PLASTIK',
+                  type == 'cash' ? l.cashLabel : l.cardLabel,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,

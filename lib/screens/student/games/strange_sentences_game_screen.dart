@@ -263,13 +263,13 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                   _loadRounds();
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: StrangeDifficulty.easy,
                     child: Row(
                       children: [
                         Icon(Icons.looks_one, size: 20),
                         SizedBox(width: 8),
-                        Text('Oson'),
+                        Text(l.easy),
                         Spacer(),
                         Text(
                           '10⭐',
@@ -281,13 +281,13 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: StrangeDifficulty.medium,
                     child: Row(
                       children: [
                         Icon(Icons.looks_two, size: 20),
                         SizedBox(width: 8),
-                        Text('O\'rta'),
+                        Text(l.medium),
                         Spacer(),
                         Text(
                           '15⭐',
@@ -299,13 +299,13 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: StrangeDifficulty.hard,
                     child: Row(
                       children: [
                         Icon(Icons.looks_3, size: 20),
                         SizedBox(width: 8),
-                        Text('Qiyin'),
+                        Text(l.hard),
                         Spacer(),
                         Text(
                           '20⭐',

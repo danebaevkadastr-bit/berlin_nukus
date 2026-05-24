@@ -3,6 +3,7 @@ import '../../widgets/gamified_card.dart';
 import '../../services/firebase_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
+import '../../l10n/app_localizations.dart';
 import 'admin_group_detail_screen.dart';
 
 class AdminCourseGroupsScreen extends StatefulWidget {
@@ -70,7 +71,7 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'YANGI GURUH ➕',
+                      AppLocalizations.of(context).newGroupTitle,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
@@ -79,7 +80,7 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildDialogField(_nameController, 'Guruh nomi', isDark),
+                    _buildDialogField(_nameController, AppLocalizations.of(context).groupNameHint, isDark),
                     const SizedBox(height: 12),
                     // Date Picker field
                     StatefulBuilder(
@@ -119,7 +120,7 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
                               const SizedBox(width: 12),
                               Text(
                                 _selectedStartDate == null
-                                    ? 'Boshlangan sana tanlang'
+                                    ? AppLocalizations.of(context).selectStartDate
                                     : '${_selectedStartDate!.day.toString().padLeft(2, '0')}.${_selectedStartDate!.month.toString().padLeft(2, '0')}.${_selectedStartDate!.year}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
@@ -162,7 +163,7 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'RANG TANLANG',
+                      AppLocalizations.of(context).selectColor,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -228,10 +229,10 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
                           
                           if (bottomSheetContext.mounted) Navigator.pop(bottomSheetContext);
                         },
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            'SAQLASH',
-                            style: TextStyle(
+                            AppLocalizations.of(context).save,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w900,
                               color: Colors.white,

@@ -467,7 +467,7 @@ class _StudentsResultsList extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'Hali uy vazifa topshirilmagan',
+            AppLocalizations.of(context).noHomeworkSubmittedYet,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontWeight: FontWeight.w700,

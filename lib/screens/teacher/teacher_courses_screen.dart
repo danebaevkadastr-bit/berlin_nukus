@@ -6,9 +6,18 @@ import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import 'teacher_course_detail_screen.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/notification_service.dart';
+import '../../models/notification.dart';
 
-class TeacherCoursesScreen extends StatelessWidget {
+class TeacherCoursesScreen extends StatefulWidget {
   const TeacherCoursesScreen({super.key});
+
+  @override
+  State<TeacherCoursesScreen> createState() => _TeacherCoursesScreenState();
+}
+
+class _TeacherCoursesScreenState extends State<TeacherCoursesScreen> {
+  final NotificationService _notificationService = NotificationService();
 
   @override
   Widget build(BuildContext context) {
@@ -102,122 +111,171 @@ class TeacherCoursesScreen extends StatelessWidget {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(24, 10, 24, 110),
-            itemCount: groups.length,
-            itemBuilder: (context, index) {
-              final doc = groups[index];
-              final data = doc.data() as Map<String, dynamic>;
-              final name = data['name'] ?? l.noData;
-              final courseTitle = data['courseTitle'] ?? l.noData;
-              final started = data['started'] ?? l.noData;
+          // Group groups by courseId
+          final Map<String, List<QueryDocumentSnapshot>> groupedByCourse = {};
+          for (final doc in groups) {
+            final data = doc.data() as Map<String, dynamic>;
+            final courseId = data['courseId'] as String?;
+            if (courseId != null) {
+              groupedByCourse.putIfAbsent(courseId, () => []).add(doc);
+            }
+          }
 
-              // Alternating colors for groups
-              final colors = [
-                AppColors.duoBlue,
-                AppColors.duoGreen,
-                AppColors.duoOrange,
-                AppColors.duoPurple,
-                AppColors.duoRed,
-              ];
-              final shadows = [
-                AppColors.duoBlueShadow,
-                AppColors.duoGreenShadow,
-                AppColors.duoOrangeShadow,
-                AppColors.duoPurpleShadow,
-                AppColors.duoRedShadow,
-              ];
-              
-              final cIndex = index % colors.length;
+          // Get course details for each courseId
+          return FutureBuilder<Map<String, Map<String, dynamic>>>(
+            future: _fetchCourseDetails(groupedByCourse.keys.toList()),
+            builder: (context, courseSnapshot) {
+              if (courseSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: GamifiedCard(
-                  padding: const EdgeInsets.all(20),
-                  color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
-                  shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TeacherCourseDetailScreen(
-                          groupId: doc.id,
-                          groupName: name,
-                          courseTitle: courseTitle,
-                          startDate: started,
-                          color: colors[cIndex],
-                          shadowColor: shadows[cIndex],
+              final courseDetails = courseSnapshot.data ?? {};
+
+              return ListView.builder(
+                padding: const EdgeInsets.fromLTRB(24, 10, 24, 110),
+                itemCount: groupedByCourse.length,
+                itemBuilder: (context, index) {
+                  final courseId = groupedByCourse.keys.elementAt(index);
+                  final courseGroups = groupedByCourse[courseId]!;
+                  final courseData = courseDetails[courseId] ?? {};
+                  final courseTitle = courseData['title'] ?? l.noData;
+                  final courseType = courseData['type'] ?? l.noData;
+
+                  // Alternating colors for courses
+                  final colors = [
+                    AppColors.duoBlue,
+                    AppColors.duoGreen,
+                    AppColors.duoOrange,
+                    AppColors.duoPurple,
+                    AppColors.duoRed,
+                  ];
+                  final shadows = [
+                    AppColors.duoBlueShadow,
+                    AppColors.duoGreenShadow,
+                    AppColors.duoOrangeShadow,
+                    AppColors.duoPurpleShadow,
+                    AppColors.duoRedShadow,
+                  ];
+                  
+                  final cIndex = index % colors.length;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Course header
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, bottom: 12),
+                          child: Text(
+                            courseTitle,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: colors[cIndex],
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            height: 64,
-                            width: 64,
+                        // Course type badge
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, bottom: 16),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: colors[cIndex].withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Center(
-                              child: Text('👥', style: TextStyle(fontSize: 30)),
+                            child: Text(
+                              courseType,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: colors[cIndex],
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  name,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w900,
-                                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                        ),
+                        // Groups in this course
+                        ...courseGroups.map((groupDoc) {
+                          final groupData = groupDoc.data() as Map<String, dynamic>;
+                          final groupName = groupData['name'] ?? l.noData;
+                          final students = groupData['students'] as List? ?? [];
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: GamifiedCard(
+                              padding: const EdgeInsets.all(16),
+                              color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                              shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => TeacherCourseDetailScreen(
+                                      groupId: groupDoc.id,
+                                      groupName: groupName,
+                                      courseTitle: courseTitle,
+                                      startDate: '',
+                                      color: colors[cIndex],
+                                      shadowColor: shadows[cIndex],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  courseTitle,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Container(
+                                    height: 48,
+                                    width: 48,
+                                    decoration: BoxDecoration(
+                                      color: colors[cIndex].withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    child: const Center(
+                                      child: Text('👥', style: TextStyle(fontSize: 24)),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          groupName,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w800,
+                                            color: isDark ? Colors.white : AppColors.duoTextDark,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '${students.length} talaba',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.notifications_outlined, color: colors[cIndex]),
+                                    onPressed: () => _showNotificationDialog(context, groupDoc.id, groupName, students, isDark),
+                                  ),
+                                  const Icon(Icons.chevron_right_rounded, color: AppColors.duoTextLight),
+                                ],
+                              ),
                             ),
-                          ),
-                          const Icon(Icons.chevron_right_rounded, color: AppColors.duoTextLight),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Row(
-                        children: [
-                          _buildInfoChip(
-                            emoji: '🧑‍🎓',
-                            label: l.totalStudents,
-                            value: '${(data['students'] as List?)?.length ?? 0}',
-                            color: colors[cIndex],
-                            isDark: isDark,
-                          ),
-                          const SizedBox(width: 12),
-                          _buildInfoChip(
-                            emoji: '📅',
-                            label: l.started,
-                            value: started,
-                            color: colors[cIndex],
-                            isDark: isDark,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                          );
+                        }),
+                      ],
+                    ),
+                  );
+                },
               );
             },
           );
@@ -226,43 +284,193 @@ class TeacherCoursesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoChip({
-    required String emoji,
-    required String label,
-    required String value,
-    required Color color,
-    required bool isDark,
-  }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 6),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-                color: isDark ? Colors.white : AppColors.duoTextDark,
+  Future<Map<String, Map<String, dynamic>>> _fetchCourseDetails(List<String> courseIds) async {
+    final Map<String, Map<String, dynamic>> courseDetails = {};
+    for (final courseId in courseIds) {
+      final doc = await FirebaseFirestore.instance.collection('courses').doc(courseId).get();
+      if (doc.exists) {
+        courseDetails[courseId] = doc.data() as Map<String, dynamic>;
+      }
+    }
+    return courseDetails;
+  }
+
+  void _showNotificationDialog(BuildContext context, String groupId, String groupName, List? students, bool isDark) {
+    final l = AppLocalizations.of(context);
+    final titleController = TextEditingController();
+    final bodyController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E2A32) : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.duoBlue.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.notifications_outlined, color: AppColors.duoBlue, size: 24),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l.sendMessage,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : AppColors.duoTextDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          groupName,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: color,
-                letterSpacing: 0.5,
+              const SizedBox(height: 24),
+              GamifiedCard(
+                padding: const EdgeInsets.all(16),
+                color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                child: TextField(
+                  controller: titleController,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: l.titleLabel,
+                    labelStyle: TextStyle(
+                      color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    border: InputBorder.none,
+                  ),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              GamifiedCard(
+                padding: const EdgeInsets.all(16),
+                color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                child: TextField(
+                  controller: bodyController,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: l.messageBodyLabel,
+                    labelStyle: TextStyle(
+                      color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    border: InputBorder.none,
+                  ),
+                  maxLines: 3,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: GamifiedCard(
+                      onTap: () => Navigator.pop(context),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                      child: Center(
+                        child: Text(
+                          l.cancel,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white70 : AppColors.duoTextDark,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GamifiedCard(
+                      onTap: () async {
+                        if (titleController.text.isEmpty || bodyController.text.isEmpty) return;
+
+                        final studentIds = students?.cast<String>() ?? [];
+                        for (final studentId in studentIds) {
+                          final notification = AppNotification(
+                            id: DateTime.now().millisecondsSinceEpoch.toString() + studentId,
+                            title: titleController.text,
+                            body: bodyController.text,
+                            type: 'system',
+                            createdAt: DateTime.now(),
+                            userId: studentId,
+                            groupId: groupId,
+                            data: {'groupName': groupName},
+                          );
+                          await _notificationService.createNotification(notification);
+                        }
+
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l.messageSent),
+                              backgroundColor: AppColors.duoGreen,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      },
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      color: AppColors.duoBlue,
+                      shadowColor: AppColors.duoBlueShadow,
+                      child: Center(
+                        child: Text(
+                          l.submit,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

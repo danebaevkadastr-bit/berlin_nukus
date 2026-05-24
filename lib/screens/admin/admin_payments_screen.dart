@@ -18,6 +18,7 @@ class AdminPaymentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
@@ -26,7 +27,7 @@ class AdminPaymentsScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'TO\'LOVLAR',
+          l.paymentsTitle,
           style: TextStyle(
             color: isDark ? Colors.white : AppColors.duoTextDark,
             fontWeight: FontWeight.w900,
@@ -43,7 +44,7 @@ class AdminPaymentsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator(color: AppColors.duoOrange));
           }
           final courses = snapshot.data?.docs ?? [];
-          if (courses.isEmpty) return _emptyState(isDark, 'Kurslar topilmadi', Icons.school_rounded);
+          if (courses.isEmpty) return _emptyState(isDark, l.coursesNotFound, Icons.school_rounded);
 
           return ListView.builder(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 110),
@@ -51,8 +52,8 @@ class AdminPaymentsScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final course = courses[index].data() as Map<String, dynamic>;
               final courseId = courses[index].id;
-              final courseTitle = course['title'] ?? 'Noma\'lum';
-              final type = course['type'] ?? 'Offline';
+              final courseTitle = course['title'] ?? l.unknown;
+              final type = course['type'] ?? l.offline;
               final color = type == 'Online' ? AppColors.duoOrange : AppColors.duoBlue;
               final shadowColor = type == 'Online' ? AppColors.duoOrangeShadow : AppColors.duoBlueShadow;
 
@@ -123,6 +124,7 @@ class _PaymentGroupsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
@@ -140,7 +142,7 @@ class _PaymentGroupsScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator(color: AppColors.duoOrange));
           }
           final groups = snapshot.data?.docs ?? [];
-          if (groups.isEmpty) return AdminPaymentsScreen._emptyState(isDark, 'Guruhlar topilmadi', Icons.group_rounded);
+          if (groups.isEmpty) return AdminPaymentsScreen._emptyState(isDark, l.groupsNotFound, Icons.group_rounded);
 
           return ListView.builder(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -148,7 +150,7 @@ class _PaymentGroupsScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final group = groups[index].data() as Map<String, dynamic>;
               final groupId = groups[index].id;
-              final groupName = group['name'] ?? 'Noma\'lum';
+              final groupName = group['name'] ?? l.unknown;
               final studentIds = List<String>.from(group['students'] ?? []);
 
               return Padding(
@@ -174,7 +176,7 @@ class _PaymentGroupsScreen extends StatelessWidget {
                           children: [
                             Text(groupName, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.duoTextDark)),
                             const SizedBox(height: 4),
-                            Text('${studentIds.length} ta student', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : AppColors.duoTextLight)),
+                            Text(l.studentsCountShort(studentIds.length), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : AppColors.duoTextLight)),
                           ],
                         ),
                       ),
@@ -202,18 +204,19 @@ class _PaymentStudentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
       appBar: AppBar(
-        title: Text('$groupName — STUDENTLAR', style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.w900, fontSize: 15)),
+        title: Text(l.groupStudentsTitle(groupName), style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.w900, fontSize: 15)),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.duoTextDark),
       ),
       body: studentIds.isEmpty
-          ? AdminPaymentsScreen._emptyState(isDark, 'Guruhda studentlar yo\'q', Icons.person_rounded)
+          ? AdminPaymentsScreen._emptyState(isDark, l.noStudentsInGroupPayment, Icons.person_rounded)
           : ListView.builder(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
               itemCount: studentIds.length,
@@ -298,14 +301,15 @@ class _StudentPaymentHistoryScreen extends StatefulWidget {
 class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScreen> {
   String _fmtDate(DateTime d) => '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 
-  String _fmtPeriod(Timestamp? s, Timestamp? e) {
-    if (s == null || e == null) return 'Period noma\'lum';
+  String _fmtPeriod(Timestamp? s, Timestamp? e, AppLocalizations l) {
+    if (s == null || e == null) return l.periodUnknown;
     return '${_fmtDate(s.toDate())} – ${_fmtDate(e.toDate())}';
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
@@ -321,7 +325,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
           TextButton.icon(
             onPressed: () => _showAddCashPaymentSheet(context),
             icon: const Icon(Icons.add_rounded, color: AppColors.duoGreen, size: 20),
-            label: const Text('NAQD', style: TextStyle(color: AppColors.duoGreen, fontWeight: FontWeight.w900, fontSize: 13)),
+            label: Text(l.cash, style: const TextStyle(color: AppColors.duoGreen, fontWeight: FontWeight.w900, fontSize: 13)),
           ),
         ],
       ),
@@ -344,7 +348,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
             return tb.compareTo(ta);
           });
           if (payments.isEmpty) {
-            return AdminPaymentsScreen._emptyState(isDark, 'To\'lov tarixi yo\'q', Icons.receipt_long_rounded);
+            return AdminPaymentsScreen._emptyState(isDark, l.paymentHistoryEmpty, Icons.receipt_long_rounded);
           }
 
           return ListView.builder(
@@ -356,7 +360,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
               final paymentId = doc.id;
               final status = p['status'] ?? 'pending';
               final type = p['type'] ?? 'card';
-              final periodText = _fmtPeriod(p['periodStart'] as Timestamp?, p['periodEnd'] as Timestamp?);
+              final periodText = _fmtPeriod(p['periodStart'] as Timestamp?, p['periodEnd'] as Timestamp?, l);
               final note = p['note'] ?? '';
               final adminNote = p['adminNote'] ?? '';
               final receiptUrl = p['receiptUrl'] as String? ?? '';
@@ -369,17 +373,17 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
               switch (status) {
                 case 'accepted':
                   statusColor = AppColors.duoGreen;
-                  statusText = 'QABUL QILINDI';
+                  statusText = l.paymentAccepted;
                   statusIcon = Icons.check_circle_rounded;
                   break;
                 case 'rejected':
                   statusColor = AppColors.duoRed;
-                  statusText = 'BEKOR QILINDI';
+                  statusText = l.paymentRejected;
                   statusIcon = Icons.cancel_rounded;
                   break;
                 default:
                   statusColor = AppColors.duoOrange;
-                  statusText = 'KUTILMOQDA';
+                  statusText = l.paymentPending;
                   statusIcon = Icons.pending_rounded;
               }
 
@@ -408,7 +412,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                                 Text(periodText, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.duoTextDark)),
                                 const SizedBox(height: 3),
                                 Text(
-                                  type == 'cash' ? 'NAQD' : 'PLASTIK (KARTA)',
+                                  type == 'cash' ? l.cashLabel : l.cardWithParentheses,
                                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: isDark ? Colors.white38 : AppColors.duoTextLight),
                                 ),
                               ],
@@ -425,7 +429,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                       // Student note
                       if (note.isNotEmpty) ...[
                         const SizedBox(height: 12),
-                        _infoRow(isDark, Icons.comment_rounded, 'IZOH', note),
+                        _infoRow(isDark, Icons.comment_rounded, l.noteLabel, note),
                       ],
 
                       // Chek
@@ -472,8 +476,8 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                                     const SizedBox(width: 8),
                                     Text(
                                       hasReceipt
-                                          ? 'Chek biriktirilgan'
-                                          : 'Chek biriktirilmagan',
+                                          ? AppLocalizations.of(context).receiptAttached
+                                          : AppLocalizations.of(context).receiptNotAttached,
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
@@ -497,7 +501,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Kattalashtirish uchun bosing',
+                                    l.tapToZoom,
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: isDark
@@ -515,7 +519,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                       // Admin note (if exists)
                       if (adminNote.isNotEmpty) ...[
                         const SizedBox(height: 10),
-                        _infoRow(isDark, Icons.admin_panel_settings_rounded, 'ADMIN IZOHI', adminNote, color: statusColor),
+                        _infoRow(isDark, Icons.admin_panel_settings_rounded, l.adminNoteLabel, adminNote, color: statusColor),
                       ],
 
                       // Pending card actions
@@ -530,8 +534,8 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                       // Cash payment: just show confirmation info
                       if (status == 'pending' && type == 'cash') ...[
                         const SizedBox(height: 16),
-                        const Text(
-                          'Naqd to\'lov — tasdiqlash kutilmoqda',
+                        Text(
+                          l.cashPaymentPending,
                           style: TextStyle(fontSize: 12, color: AppColors.duoOrange, fontWeight: FontWeight.w600),
                         ),
                       ],
@@ -568,6 +572,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
 
   // ── Naqd to'lov qo'shish (admin)
   void _showAddCashPaymentSheet(BuildContext context) async {
+    final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
     final noteController = TextEditingController();
     List<_Period> periods = [];
@@ -614,13 +619,13 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                 children: [
                   Center(child: Container(width: 50, height: 6, decoration: BoxDecoration(color: AppColors.duoCardGrayShadow, borderRadius: BorderRadius.circular(20)))),
                   const SizedBox(height: 20),
-                  Text('NAQD TO\'LOV QO\'SHISH', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.duoTextDark)),
+                  Text(l.addCashPayment, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.duoTextDark)),
                   const SizedBox(height: 6),
                   Text(widget.studentName, style: TextStyle(fontSize: 14, color: isDark ? Colors.white60 : AppColors.duoTextLight, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 20),
 
                   // Period scroll
-                  Text('PERIOD', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: isDark ? Colors.white54 : AppColors.duoTextLight, letterSpacing: 0.5)),
+                  Text(l.periodLabel, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: isDark ? Colors.white54 : AppColors.duoTextLight, letterSpacing: 0.5)),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 82,
@@ -676,14 +681,14 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                   const SizedBox(height: 20),
 
                   // Note field
-                  Text('IZOH', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: isDark ? Colors.white54 : AppColors.duoTextLight, letterSpacing: 0.5)),
+                  Text(l.noteLabel, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: isDark ? Colors.white54 : AppColors.duoTextLight, letterSpacing: 0.5)),
                   const SizedBox(height: 8),
                   TextField(
                     controller: noteController,
                     style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.w600),
                     maxLines: 2,
                     decoration: InputDecoration(
-                      hintText: 'Masalan: Aprel oyi naqd to\'lovi...',
+                      hintText: l.cashPaymentExampleHint,
                       hintStyle: TextStyle(color: isDark ? Colors.white38 : AppColors.duoTextLight),
                       filled: true,
                       fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.duoBackground,
@@ -719,7 +724,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                         if (hasActivePayment) {
                           if (ctx.mounted) {
                             ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
-                              content: const Text('Bu davr uchun allaqachon to\'lov kiritilgan!', style: TextStyle(fontWeight: FontWeight.bold)),
+                              content: Text(l.paymentAlreadyExists, style: const TextStyle(fontWeight: FontWeight.bold)),
                               backgroundColor: AppColors.duoOrange,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -743,14 +748,14 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                         if (ctx.mounted) Navigator.pop(ctx);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: const Text('Naqd to\'lov tasdiqlandi!', style: TextStyle(fontWeight: FontWeight.bold)),
+                            content: Text(l.cashPaymentConfirmed, style: const TextStyle(fontWeight: FontWeight.bold)),
                             backgroundColor: AppColors.duoGreen,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ));
                         }
                       },
-                      child: const Center(child: Text('TASDIQLASH VA SAQLASH', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5))),
+                      child: Center(child: Text(l.confirmAndSave, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.5))),
                     ),
                   ),
                 ],
@@ -847,7 +852,7 @@ class _AdminActionSectionState extends State<_AdminActionSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('ADMIN IZOHI', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: isDark ? Colors.white54 : AppColors.duoTextLight, letterSpacing: 0.5)),
+        Text(l.adminNote, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: isDark ? Colors.white54 : AppColors.duoTextLight, letterSpacing: 0.5)),
         const SizedBox(height: 8),
         TextField(
           controller: _adminNoteCtrl,
@@ -871,7 +876,7 @@ class _AdminActionSectionState extends State<_AdminActionSection> {
               child: OutlinedButton.icon(
                 onPressed: () => _update('rejected'),
                 icon: const Icon(Icons.close_rounded, color: AppColors.duoRed, size: 18),
-                label: const Text('BEKOR QILISH', style: TextStyle(color: AppColors.duoRed, fontWeight: FontWeight.w900, fontSize: 13)),
+                label: Text(l.rejectPayment, style: const TextStyle(color: AppColors.duoRed, fontWeight: FontWeight.w900, fontSize: 13)),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 13),
                   side: const BorderSide(color: AppColors.duoRed, width: 2),
@@ -884,7 +889,7 @@ class _AdminActionSectionState extends State<_AdminActionSection> {
               child: ElevatedButton.icon(
                 onPressed: () => _update('accepted'),
                 icon: const Icon(Icons.check_rounded, color: Colors.white, size: 18),
-                label: const Text('QABUL QILISH', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                label: Text(l.acceptPayment, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.duoGreen,
                   padding: const EdgeInsets.symmetric(vertical: 13),

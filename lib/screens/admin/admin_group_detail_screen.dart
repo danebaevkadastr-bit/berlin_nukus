@@ -38,7 +38,7 @@ class AdminGroupDetailScreen extends StatelessWidget {
           content: Text(
             existingGroupName != null
                 ? '${l.studentAlreadyInGroup} "$existingGroupName" ${l.studyingInGroup}'
-                : '${result['name']} guruhga qo\'shildi',
+                : AppLocalizations.of(context).studentAddedToGroupMsg(result['name']),
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           backgroundColor: existingGroupName != null ? AppColors.duoOrange : AppColors.duoGreen,
@@ -54,7 +54,7 @@ class AdminGroupDetailScreen extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$studentName guruhdan chiqarildi', style: const TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(AppLocalizations.of(context).studentRemovedFromGroupMsg(studentName), style: const TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.duoRed,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -107,7 +107,7 @@ class AdminGroupDetailScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              const _SectionTitle('GURUH HAQIDA ℹ️'),
+              _SectionTitle(AppLocalizations.of(context).groupAboutHeader),
               GamifiedCard(
                 padding: const EdgeInsets.all(20),
                 color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
@@ -115,22 +115,22 @@ class AdminGroupDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _InfoLine(title: 'Guruh nomi', value: groupName, isDark: isDark),
+                    _InfoLine(title: AppLocalizations.of(context).groupNameInfo, value: groupName, isDark: isDark),
                     if (groupData['started'] != null) ...[
                       const SizedBox(height: 12),
-                      _InfoLine(title: 'Boshlangan', value: groupData['started'], isDark: isDark),
+                      _InfoLine(title: AppLocalizations.of(context).startedInfo, value: groupData['started'], isDark: isDark),
                     ],
                     if (groupData['duration'] != null) ...[
                       const SizedBox(height: 12),
-                      _InfoLine(title: 'Davomiyligi', value: '${groupData['duration']} oy', isDark: isDark),
+                      _InfoLine(title: AppLocalizations.of(context).durationInfo, value: '${groupData['duration']} ${AppLocalizations.of(context).monthsLabel}', isDark: isDark),
                     ],
                     const SizedBox(height: 12),
-                    _InfoLine(title: 'Studentlar soni', value: '${studentIds.length} ta', isDark: isDark),
+                    _InfoLine(title: AppLocalizations.of(context).studentCountInfo, value: AppLocalizations.of(context).studentsCountShort(studentIds.length), isDark: isDark),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
-              const _SectionTitle('O\'QITUVCHI 👨‍🏫'),
+              _SectionTitle(AppLocalizations.of(context).teacherHeader),
               GamifiedCard(
                 padding: const EdgeInsets.all(20),
                 color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
@@ -228,7 +228,7 @@ class AdminGroupDetailScreen extends StatelessWidget {
                           });
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: const Text('O\'qituvchi biriktirildi', style: TextStyle(fontWeight: FontWeight.bold)),
+                              content: Text(AppLocalizations.of(context).teacherAssigned, style: const TextStyle(fontWeight: FontWeight.bold)),
                               backgroundColor: AppColors.duoGreen,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -242,9 +242,9 @@ class AdminGroupDetailScreen extends StatelessWidget {
                           color: AppColors.duoBlue.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
-                          'O\'ZGARTIRISH',
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context).changeTeacher,
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w900,
                             color: AppColors.duoBlue,
@@ -259,7 +259,7 @@ class AdminGroupDetailScreen extends StatelessWidget {
               const SizedBox(height: 24),
               Row(
                 children: [
-                  const Expanded(child: _SectionTitle('STUDENTLAR 🧑‍🎓')),
+                  Expanded(child: _SectionTitle(AppLocalizations.of(context).studentsHeader)),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
@@ -285,7 +285,7 @@ class AdminGroupDetailScreen extends StatelessWidget {
                   shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
                   child: Center(
                     child: Text(
-                      'Hali studentlar qo\'shilmagan',
+                      AppLocalizations.of(context).noStudentsAddedYet,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: isDark ? Colors.white54 : AppColors.duoTextLight,

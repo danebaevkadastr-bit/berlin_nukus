@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../l10n/app_localizations.dart';
 import '../widgets/safe_bottom_sheet.dart';
 
 class ImagePickerHelper {
@@ -8,6 +9,7 @@ class ImagePickerHelper {
 
   /// Galereya yoki kameradan bitta rasm tanlash.
   static Future<XFile?> pickImage(BuildContext context) async {
+    final l = AppLocalizations.of(context);
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -22,12 +24,12 @@ class ImagePickerHelper {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded),
-                title: const Text('Galereya'),
+                title: Text(l.gallery),
                 onTap: () => Navigator.pop(ctx, ImageSource.gallery),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_camera_rounded),
-                title: const Text('Kamera'),
+                title: Text(l.camera),
                 onTap: () => Navigator.pop(ctx, ImageSource.camera),
               ),
             ],

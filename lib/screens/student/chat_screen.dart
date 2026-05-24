@@ -13,6 +13,7 @@ import '../../widgets/chat/selected_word_sheet.dart';
 import '../../widgets/decorative_pattern_background.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/empty_state.dart';
+import '../../l10n/app_localizations.dart';
 
 class ChatScreen extends StatefulWidget {
   final String title;
@@ -673,7 +674,7 @@ SUHBAT USLUBI:
                       Row(
                         children: [
                           Text(
-                            'Sozlamalar',
+                            AppLocalizations.of(sheetContext).settings,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -683,13 +684,13 @@ SUHBAT USLUBI:
                           const Spacer(),
                           TextButton(
                             onPressed: () => Navigator.pop(sheetContext),
-                            child: const Text('Yopish'),
+                            child: Text(AppLocalizations.of(sheetContext).close),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       _SettingsSlider(
-                        title: 'Text size',
+                        title: AppLocalizations.of(sheetContext).textSize,
                         value: tempTextSize,
                         min: 13,
                         max: 22,
@@ -698,7 +699,7 @@ SUHBAT USLUBI:
                       ),
                       const SizedBox(height: 10),
                       _SettingsSlider(
-                        title: 'Ijro tezligi',
+                        title: AppLocalizations.of(sheetContext).playbackSpeed,
                         value: tempTtsSpeed,
                         min: 0.6,
                         max: 1.3,
@@ -707,32 +708,34 @@ SUHBAT USLUBI:
                       ),
                       const SizedBox(height: 10),
                       _SettingsSwitch(
-                        title: 'AI javobini avtomatik o‘qish',
+                        title: AppLocalizations.of(sheetContext).autoReadAi,
                         value: tempAutoRead,
                         onChanged: (v) => setModal(() => tempAutoRead = v),
                       ),
                       _SettingsSwitch(
-                        title: 'Tarjimani default ochish',
+                        title: AppLocalizations.of(sheetContext).openTranslationDefault,
                         value: tempOpenTranslation,
                         onChanged: (v) =>
                             setModal(() => tempOpenTranslation = v),
                       ),
                       _SettingsSwitch(
-                        title: 'Correction ko‘rsatish',
+                        title: AppLocalizations.of(sheetContext).showCorrections,
                         value: tempShowCorrections,
                         onChanged: (v) =>
                             setModal(() => tempShowCorrections = v),
                       ),
                       const SizedBox(height: 10),
                       _SettingsSlider(
-                        title: 'Chat uzunligi',
+                        title: AppLocalizations.of(sheetContext).chatLength,
                         value: tempChatWordLimit,
                         min: ChatProgressService.minChatWordLimit.toDouble(),
                         max: ChatProgressService.maxChatWordLimit.toDouble(),
                         divisions: ChatProgressService.maxChatWordLimit -
                             ChatProgressService.minChatWordLimit,
-                        valueText:
-                            '${tempChatWordLimit.round()} so\'z (maks. ${ChatProgressService.maxChatWordLimit})',
+                        valueText: AppLocalizations.of(sheetContext).chatWordLimit(
+                          tempChatWordLimit.round(),
+                          ChatProgressService.maxChatWordLimit,
+                        ),
                         onChanged: (v) =>
                             setModal(() => tempChatWordLimit = v),
                       ),
@@ -755,7 +758,7 @@ SUHBAT USLUBI:
                               Navigator.pop(sheetContext);
                             }
                           },
-                          child: const Text('Saqlash'),
+                          child: Text(AppLocalizations.of(sheetContext).save),
                         ),
                       ),
                     ],
@@ -1270,7 +1273,7 @@ class _BottomBarState extends State<_BottomBar>
                             textInputAction: TextInputAction.send,
                             onSubmitted: (_) => widget.onSend(),
                             decoration: InputDecoration(
-                              hintText: 'Yozing...',
+                              hintText: AppLocalizations.of(context).typeHere,
                               hintStyle:
                                   TextStyle(color: colors.textSecondary),
                               border: InputBorder.none,

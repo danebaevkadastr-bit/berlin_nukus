@@ -100,7 +100,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Single
         _isLoading = false;
       });
 
-      String errorMsg = "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.";
+      String errorMsg = l.tryAgainLater;
       if (e is FirebaseAuthException && e.message != null) {
         errorMsg = e.message!;
       }

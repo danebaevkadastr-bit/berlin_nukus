@@ -809,7 +809,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                   children: [
                     const Text('📚', style: TextStyle(fontSize: 22)),
                     const SizedBox(width: 10),
-                    Text('UY VAZIFASI',
+                    Text(l.homeworkHeader,
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w900,

@@ -58,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Parollar mos kelmadi', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(l.passwordsDontMatch, style: const TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.duoRed,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -70,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Parol kamida 6 ta belgidan iborat bo\'lishi kerak', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(l.passwordMin6, style: const TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.duoRed,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -96,7 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Muvaffaqiyatli ro\'yxatdan o\'tdingiz! 🎉', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(l.registerSuccess, style: const TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.duoGreen,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -109,10 +109,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       setState(() {
         _isLoading = false;
       });
-      String errorMsg = 'Xatolik yuz berdi';
+      String errorMsg = l.genericError;
       if (e is FirebaseAuthException) {
         if (e.code == 'email-already-in-use') {
-          errorMsg = 'Bu email band. Boshqa email kiriting.';
+          errorMsg = l.emailInUse;
         } else if (e.message != null) {
           errorMsg = e.message!;
         }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/providers/user_provider.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/auth_navigation.dart';
@@ -21,12 +22,13 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
     final isDark = ThemeManager.isDark;
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text('ADMIN PROFIL', style: TextStyle(
+        title: Text(l.adminProfile, style: TextStyle(
           fontSize: 18, fontWeight: FontWeight.w900,
           color: isDark ? Colors.white : AppColors.duoTextDark, letterSpacing: 1.0)),
         centerTitle: true,
@@ -53,8 +55,8 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             if (url != null && mounted) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Profil rasmi yangilandi'),
+                                  SnackBar(
+                                    content: Text(l.profilePhotoUpdated),
                                     backgroundColor: AppColors.duoGreen,
                                   ),
                                 );

@@ -2,7 +2,7 @@
 class UserProfileUtils {
   static String displayName(
     Map<String, dynamic> data, {
-    String fallback = 'Noma\'lum',
+    String fallback = '',
   }) {
     final full = (data['fullName'] as String?)?.trim() ?? '';
     if (full.isNotEmpty) return full;

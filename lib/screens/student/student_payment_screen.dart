@@ -113,8 +113,9 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
   }
 
   Future<void> _submitPayment() async {
+    final l = AppLocalizations.of(context);
     if (_selectedPeriodIndex < 0) {
-      _showSnack('Iltimos, period tanlang', AppColors.duoOrange);
+      _showSnack(l.pleaseSelectPeriod, AppColors.duoOrange);
       return;
     }
     setState(() => _isSending = true);
@@ -137,7 +138,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
       });
 
       if (hasActivePayment) {
-        _showSnack('Bu davr uchun allaqachon to\'lov kiritilgan!', AppColors.duoOrange);
+        _showSnack(l.paymentAlreadyExists, AppColors.duoOrange);
         setState(() => _isSending = false);
         return;
       }
@@ -160,12 +161,12 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
       await _sendPaymentNotificationToAdmin(widget.studentId, period);
 
       if (mounted) {
-        _showSnack('To\'lov muvaffaqiyatli yuborildi!', AppColors.duoGreen);
+        _showSnack(l.paymentSubmittedSuccess, AppColors.duoGreen);
         await Future.delayed(const Duration(milliseconds: 800));
         if (mounted) Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) _showSnack('Xatolik yuz berdi: $e', AppColors.duoRed);
+      if (mounted) _showSnack('${l.genericError}: $e', AppColors.duoRed);
     }
     if (mounted) setState(() => _isSending = false);
   }
@@ -182,7 +183,8 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
 
       // Get student name
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(studentId).get();
-      final studentName = userDoc.data()?['fullName'] as String? ?? 'Talaba';
+      final l = AppLocalizations.of(context);
+      final studentName = userDoc.data()?['fullName'] as String? ?? l.student;
 
       final notificationService = NotificationService();
       final formattedPeriod = '${period.start.day}/${period.start.month} - ${period.end.day}/${period.end.month}';
@@ -191,8 +193,8 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
         await notificationService.createNotification(
           AppNotification(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
-            title: 'Yangi to\'lov keldi',
-            body: '$studentName to\'lov yubordi: $formattedPeriod davri',
+            title: l.newPaymentReceived,
+            body: l.paymentSentBody(studentName, formattedPeriod),
             type: 'payment',
             createdAt: DateTime.now(),
             userId: adminDoc.id,
@@ -231,7 +233,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
       backgroundColor: bg,
       appBar: AppBar(
         title: Text(
-          'TO\'LOV QO\'SHISH',
+          l.addPaymentTitle,
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w900,
@@ -252,7 +254,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Period sarlavhasi
-                  _sectionTitle(isDark, Icons.calendar_month_rounded, 'PERIOD TANLANG'),
+                  _sectionTitle(isDark, Icons.calendar_month_rounded, l.selectPeriod),
                   const SizedBox(height: 12),
 
                   // ── Gorizontal period scroll
@@ -358,7 +360,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                       color: isDark ? Colors.white : AppColors.duoTextDark,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Masalan: Aprel oyi to\'lovi...',
+                      hintText: l.paymentNoteHint,
                       hintStyle: TextStyle(
                         color: isDark ? Colors.white38 : AppColors.duoTextLight,
                         fontWeight: FontWeight.w500,
@@ -387,7 +389,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                   const SizedBox(height: 28),
 
                   // ── Chek biriktirish
-                  _sectionTitle(isDark, Icons.receipt_long_rounded, 'CHEK BIRIKTIRISH'),
+                  _sectionTitle(isDark, Icons.receipt_long_rounded, l.attachReceipt),
                   const SizedBox(height: 12),
                   GestureDetector(
                     onTap: _isUploadingReceipt ? null : _pickAndUploadReceipt,
@@ -433,8 +435,8 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                           const SizedBox(height: 10),
                           Text(
                             _receiptUrl != null
-                                ? 'CHEK BIRIKTIRILDI ✓'
-                                : 'CHEK RASMINI TANLANG',
+                                ? l.receiptAttachedCaps
+                                : l.selectReceiptImage,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w900,
@@ -447,7 +449,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                           if (_receiptUrl == null && !_isUploadingReceipt) ...[
                             const SizedBox(height: 6),
                             Text(
-                              'Galereya yoki kameradan tanlang',
+                              l.selectFromGalleryCamera,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark ? Colors.white30 : AppColors.duoTextLight,
@@ -477,8 +479,8 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                                 width: 22,
                                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                               )
-                            : const Text(
-                                'YUBORISH',
+                            : Text(
+                                l.submitBtn,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,

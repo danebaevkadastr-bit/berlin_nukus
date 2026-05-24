@@ -7,6 +7,7 @@ import '../../widgets/gamified_card.dart';
 import '../../widgets/user_avatar.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
+import '../../l10n/app_localizations.dart';
 
 class StudentChatScreen extends StatefulWidget {
   final String groupId;
@@ -41,12 +42,14 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     try {
       await _firestore.collection('groups').doc(widget.groupId).collection('messages').add({
         'text': text,
         'senderId': user.uid,
-        'senderName': Provider.of<UserProvider>(context, listen: false).name,
-        'senderAvatar': Provider.of<UserProvider>(context, listen: false).avatarUrl,
+        'senderName': userProvider.name,
+        'senderAvatar': userProvider.avatarUrl,
         'timestamp': FieldValue.serverTimestamp(),
         'type': 'text',
       });
@@ -72,6 +75,7 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
     final userProvider = Provider.of<UserProvider>(context);
+    final l = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
@@ -85,44 +89,52 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.duoGreen.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(20),
+        title: GestureDetector(
+          onTap: () => _showGroupMembers(context, isDark, l),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.duoGreen.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Center(
+                  child: Text('👥', style: TextStyle(fontSize: 20)),
+                ),
               ),
-              child: const Center(
-                child: Text('👥', style: TextStyle(fontSize: 20)),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.groupName,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : AppColors.duoTextDark,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.groupName,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Guruh chati',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                    Text(
+                      l.groupChat,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+              Icon(
+                Icons.info_outline_rounded,
+                color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                size: 18,
+              ),
+            ],
+          ),
         ),
       ),
       body: Column(
@@ -150,7 +162,7 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
                         const Text('💬', style: TextStyle(fontSize: 64)),
                         const SizedBox(height: 16),
                         Text(
-                          'Hali xabarlar yo\'q',
+                          l.noMessagesYet,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -159,7 +171,7 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Birinchi xabarni yuboring!',
+                          l.sendFirstMessage,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -180,7 +192,7 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
                     final message = messages[index];
                     final data = message.data() as Map<String, dynamic>;
                     final isMe = data['senderId'] == userProvider.uid;
-                    final senderName = data['senderName'] ?? 'Noma\'lum';
+                    final senderName = data['senderName'] ?? l.unknown;
                     final senderAvatar = data['senderAvatar'] ?? '';
                     final text = data['text'] ?? '';
                     final timestamp = data['timestamp'] as Timestamp?;
@@ -192,13 +204,14 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
                       text: text,
                       timestamp: timestamp,
                       isDark: isDark,
+                      l: l,
                     );
                   },
                 );
               },
             ),
           ),
-          _buildMessageInput(isDark),
+          _buildMessageInput(isDark, l),
         ],
       ),
     );
@@ -211,6 +224,7 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
     required String text,
     required Timestamp? timestamp,
     required bool isDark,
+    required AppLocalizations l,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -274,7 +288,7 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            _formatTime(timestamp),
+            _formatTime(timestamp, l),
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w500,
@@ -286,7 +300,7 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
     );
   }
 
-  Widget _buildMessageInput(bool isDark) {
+  Widget _buildMessageInput(bool isDark, AppLocalizations l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -315,7 +329,7 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
                   color: isDark ? Colors.white : AppColors.duoTextDark,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Xabar yozing...',
+                  hintText: l.writeMessageHint,
                   hintStyle: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -351,23 +365,173 @@ class _StudentChatScreenState extends State<StudentChatScreen> {
     );
   }
 
-  String _formatTime(Timestamp? timestamp) {
+  String _formatTime(Timestamp? timestamp, AppLocalizations l) {
     if (timestamp == null) return '';
+    return l.formatChatTime(timestamp.toDate());
+  }
 
-    final dateTime = timestamp.toDate();
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
+  Future<void> _showGroupMembers(BuildContext context, bool isDark, AppLocalizations l) async {
+    final groupDoc = await _firestore.collection('groups').doc(widget.groupId).get();
+    if (!groupDoc.exists) return;
 
-    if (difference.inMinutes < 1) {
-      return 'Hozirgina';
-    } else if (difference.inHours < 1) {
-      return '${difference.inMinutes} daqiqa oldin';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours} soat oldin';
-    } else if (difference.inDays == 1) {
-      return 'Kecha';
-    } else {
-      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    final groupData = groupDoc.data();
+    final studentIds = List<String>.from(groupData?['students'] ?? []);
+    final teacherId = groupData?['teacherId'] as String?;
+
+    if (studentIds.isEmpty && teacherId == null) return;
+
+    final users = <Map<String, dynamic>>[];
+
+    // Get teacher
+    if (teacherId != null) {
+      final teacherDoc = await _firestore.collection('users').doc(teacherId).get();
+      if (teacherDoc.exists) {
+        final teacherData = teacherDoc.data();
+        teacherData?['id'] = teacherDoc.id;
+        teacherData?['role'] = 'teacher';
+        users.add(teacherData!);
+      }
     }
+
+    // Get students
+    for (final studentId in studentIds) {
+      final studentDoc = await _firestore.collection('users').doc(studentId).get();
+      if (studentDoc.exists) {
+        final studentData = studentDoc.data();
+        studentData?['id'] = studentDoc.id;
+        studentData?['role'] = 'student';
+        users.add(studentData!);
+      }
+    }
+
+    if (!context.mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E2A32) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.black12,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    l.groupMembersTitle,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : AppColors.duoTextDark,
+                    ),
+                  ),
+                  Text(
+                    l.peopleCount(users.length),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final user = users[index];
+                  final name = user['fullName'] ?? user['name'] ?? l.unknown;
+                  final avatarUrl = user['avatarUrl'] ?? '';
+                  final role = user['role'] ?? 'student';
+                  final isTeacher = role == 'teacher';
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        UserAvatar(
+                          imageUrl: avatarUrl,
+                          size: 48,
+                          fallbackEmoji: isTeacher ? '👨‍🏫' : '👤',
+                          backgroundColor: isTeacher
+                              ? AppColors.duoPurple.withValues(alpha: 0.15)
+                              : AppColors.duoGreen.withValues(alpha: 0.15),
+                          borderRadius: 16,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    name,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? Colors.white : AppColors.duoTextDark,
+                                    ),
+                                  ),
+                                  if (isTeacher) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.duoPurple,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        l.teacherBadge,
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                isTeacher ? l.groupTeacherRole : l.student,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -6,6 +6,7 @@ import 'teacher_courses_screen.dart';
 import 'teacher_home_screen.dart';
 import 'teacher_profile_screen.dart';
 import 'teacher_results_screen.dart';
+import 'teacher_chat_screen.dart';
 
 class TeacherMainScreen extends StatefulWidget {
   const TeacherMainScreen({super.key});
@@ -36,6 +37,7 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
                     TeacherHomeScreen(),
                     TeacherCoursesScreen(),
                     TeacherResultsScreen(),
+                    TeacherChatScreen(),
                     TeacherProfileScreen(),
                   ],
                 ),
@@ -85,11 +87,10 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
         child: Row(
           children: [
             Expanded(child: _buildNavItem(context, Icons.home_rounded, l.navHome, 0)),
-            Expanded(child: _buildNavItem(context, Icons.group_rounded, l.myGroups, 1)),
-            Expanded(
-              child: _buildNavItem(context, Icons.assignment_rounded, l.myResults, 2),
-            ),
-            Expanded(child: _buildNavItem(context, Icons.person_rounded, l.navProfile, 3)),
+            Expanded(child: _buildNavItem(context, Icons.book_rounded, l.courses, 1)),
+            Expanded(child: _buildNavItem(context, Icons.assignment_rounded, l.myResults, 2)),
+            Expanded(child: _buildNavItem(context, Icons.chat_bubble_outline_rounded, l.chat, 3)),
+            Expanded(child: _buildNavItem(context, Icons.person_rounded, l.navProfile, 4)),
           ],
         ),
       ),

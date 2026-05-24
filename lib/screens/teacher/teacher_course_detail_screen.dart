@@ -931,9 +931,9 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               .setHomeworks(widget.groupId, dateKey, validHomeworks);
                           if (ctx.mounted) Navigator.pop(ctx);
                         },
-                        child: const Center(
-                          child: Text('SAQLASH',
-                              style: TextStyle(
+                        child: Center(
+                          child: Text(l.saveBtn,
+                              style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
@@ -1404,20 +1404,21 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
   // ==================== ADD LESSON SHEET ====================
 
   void _deleteLesson(BuildContext context, _LessonDay day) async {
+    final l = AppLocalizations.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: ThemeManager.isDark ? const Color(0xFF131F24) : Colors.white,
-        title: Text('Darsni o\'chirish', style: TextStyle(color: ThemeManager.isDark ? Colors.white : AppColors.duoTextDark)),
-        content: Text('Rostdan ham ushbu darsni o\'chirmoqchimisiz?', style: TextStyle(color: ThemeManager.isDark ? Colors.white70 : AppColors.duoTextLight)),
+        title: Text(l.deleteLessonTitle, style: TextStyle(color: ThemeManager.isDark ? Colors.white : AppColors.duoTextDark)),
+        content: Text(l.deleteLessonConfirm, style: TextStyle(color: ThemeManager.isDark ? Colors.white70 : AppColors.duoTextLight)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('BEKOR QILISH', style: TextStyle(color: AppColors.duoTextLight)),
+            child: Text(l.cancelUpper, style: const TextStyle(color: AppColors.duoTextLight)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('O\'CHIRISH', style: TextStyle(color: AppColors.duoRed)),
+            child: Text(l.deleteUpper, style: const TextStyle(color: AppColors.duoRed)),
           ),
         ],
       ),
@@ -1452,6 +1453,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
+        final l = AppLocalizations.of(ctx);
         final isDark = ThemeManager.isDark;
         final cardBg = isDark ? const Color(0xFF131F24) : Colors.white;
 
@@ -1621,9 +1623,9 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                           }
                           if (ctx.mounted) Navigator.pop(ctx);
                         },
-                        child: const Center(
-                          child: Text('SAQLASH',
-                              style: TextStyle(
+                        child: Center(
+                          child: Text(l.saveBtn,
+                              style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
@@ -1762,7 +1764,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               Navigator.pop(ctx);
                               messenger.showSnackBar(
                                 SnackBar(
-                                  content: const Text('Davomat saqlandi ✅',
+                                  content: Text(l.attendanceSaved,
                                       style: TextStyle(fontWeight: FontWeight.bold)),
                                   backgroundColor: AppColors.duoGreen,
                                   behavior: SnackBarBehavior.floating,

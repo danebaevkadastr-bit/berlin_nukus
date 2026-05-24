@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../utils/app_colors.dart';
 import '../utils/theme_manager.dart';
 import 'lottie_animation.dart';
@@ -91,7 +92,6 @@ class EmptyState extends StatelessWidget {
   }
 }
 
-// Predefined empty states for common use cases
 class NoLessonsEmptyState extends StatelessWidget {
   final VoidCallback? onAction;
 
@@ -99,11 +99,12 @@ class NoLessonsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return EmptyState(
       emoji: '📚',
-      title: 'Hozircha darslar yo\'q',
-      subtitle: 'Tez orada yangi darslar qo\'shiladi.\nKuting yoki qo\'shimcha mashq qiling!',
-      actionText: 'O\'yinlarni ko\'rish',
+      title: l.noLessonsYet,
+      subtitle: l.noLessonsSubtitle,
+      actionText: l.viewGames,
       onAction: onAction,
     );
   }
@@ -114,10 +115,11 @@ class NoHomeworkEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const EmptyState(
+    final l = AppLocalizations.of(context);
+    return EmptyState(
       emoji: '✅',
-      title: 'Barcha vazifalar tugatildi!',
-      subtitle: 'Ajoyib! Siz barcha uyga vazifalarni bajardingiz.',
+      title: l.allHomeworkDone,
+      subtitle: l.allHomeworkDoneSubtitle,
     );
   }
 }
@@ -127,10 +129,11 @@ class NoGamesEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const EmptyState(
+    final l = AppLocalizations.of(context);
+    return EmptyState(
       emoji: '🎮',
-      title: 'O\'yinlar yo\'q',
-      subtitle: 'Hozircha mavjud o\'yinlar yo\'q.\nTez orada yangilari qo\'shiladi.',
+      title: l.noGamesYet,
+      subtitle: l.noGamesSubtitle,
     );
   }
 }
@@ -140,10 +143,11 @@ class NoMessagesEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const EmptyState(
+    final l = AppLocalizations.of(context);
+    return EmptyState(
       emoji: '💬',
-      title: 'Xabarlar yo\'q',
-      subtitle: 'Suhbatni boshlash uchun biror narsa yozing.',
+      title: l.noMessagesTitle,
+      subtitle: l.noMessagesSubtitle,
     );
   }
 }
@@ -155,11 +159,12 @@ class NoGroupsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return EmptyState(
       emoji: '👥',
-      title: 'Guruhlar yo\'q',
-      subtitle: 'Siz hali hech qanday guruhga qo\'shilmagansiz.\nGuruhga qo\'shiling va darslarni boshlang!',
-      actionText: 'Guruhga qo\'shilish',
+      title: l.noGroupsTitle,
+      subtitle: l.noGroupsSubtitle,
+      actionText: l.joinGroup,
       onAction: onAction,
     );
   }
@@ -170,10 +175,11 @@ class NoAchievementsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const EmptyState(
+    final l = AppLocalizations.of(context);
+    return EmptyState(
       emoji: '🏆',
-      title: 'Yutuqlar yo\'q',
-      subtitle: 'O\'yinlarda qatnashib yutuqlarni qo\'lga kiting!',
+      title: l.noAchievementsYet,
+      subtitle: l.noAchievementsSubtitle,
     );
   }
 }
@@ -190,11 +196,12 @@ class ErrorEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return EmptyState(
       emoji: '😕',
-      title: 'Xatolik yuz berdi',
-      subtitle: message ?? 'Ma\'lumotlarni yuklab bo\'lmadi.',
-      actionText: 'Qayta urinish',
+      title: l.genericError,
+      subtitle: message ?? l.failedToLoadData,
+      actionText: l.retry,
       onAction: onRetry,
     );
   }
@@ -207,11 +214,12 @@ class NoInternetEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return EmptyState(
       emoji: '📡',
-      title: 'Internet aloqasi yo\'q',
-      subtitle: 'Internet aloqasini tekshiring va qayta urining.',
-      actionText: 'Qayta urinish',
+      title: l.noInternetTitle,
+      subtitle: l.noInternetMessage,
+      actionText: l.retry,
       onAction: onRetry,
     );
   }
