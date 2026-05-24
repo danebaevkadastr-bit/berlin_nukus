@@ -10,6 +10,7 @@ import 'student_group_screen.dart';
 import 'student_learning_screen.dart';
 import 'student_games_screen.dart';
 import 'student_profile_screen.dart';
+import '../notification_screen.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/firebase_service.dart';
@@ -291,6 +292,14 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                     color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
                     shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
                     shadowDepth: 4,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationScreen(),
+                        ),
+                      );
+                    },
                     child: Stack(
                       children: [
                         Icon(Icons.notifications_rounded,

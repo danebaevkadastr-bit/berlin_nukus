@@ -7,6 +7,7 @@ import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/darslar_service.dart';
 import 'teacher_course_detail_screen.dart';
+import '../notification_screen.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -169,6 +170,14 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       shadowColor:
                           isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
                       shadowDepth: 4,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationScreen(),
+                          ),
+                        );
+                      },
                       child: Stack(
                         children: [
                           Icon(Icons.notifications_rounded,

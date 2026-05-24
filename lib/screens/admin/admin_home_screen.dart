@@ -6,6 +6,7 @@ import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
+import '../notification_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -122,6 +123,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   shadowColor:
                                       isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
                                   shadowDepth: 4,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const NotificationScreen(),
+                                      ),
+                                    );
+                                  },
                                   child: Stack(
                                     children: [
                                       Icon(Icons.notifications_rounded,
