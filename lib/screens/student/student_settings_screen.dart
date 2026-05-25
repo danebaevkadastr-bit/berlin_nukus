@@ -89,7 +89,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                     elevation: 4,
                   ),
                   child: Text(l.saveBtn,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white)),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.white)),
                 ),
               ),
             ],

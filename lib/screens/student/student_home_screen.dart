@@ -511,11 +511,14 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                     return true;
                                   } else if (direction == DismissDirection.startToEnd) {
                                     // Swipe to complete
+                                    final messenger = ScaffoldMessenger.of(context);
+                                    final title = hw['title'] as String? ?? '';
+                                    final doneText = l.homeworkMarkedDone(title);
                                     await Future.delayed(const Duration(milliseconds: 300));
                                     if (!mounted) return false;
-                                    ScaffoldMessenger.of(context).showSnackBar(
+                                    messenger.showSnackBar(
                                       SnackBar(
-                                        content: Text(l.homeworkMarkedDone(hw['title'] as String? ?? '')),
+                                        content: Text(doneText),
                                         backgroundColor: AppColors.duoGreen,
                                         duration: const Duration(seconds: 2),
                                       ),
@@ -708,10 +711,10 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                             color: AppColors.duoBlue,
                             isDark: isDark,
                             onTap: () async {
+                              final navigator = Navigator.of(context);
                               final groups = await FirebaseService().getStudentGroupsStream(userProvider.uid).first;
                               if (groups.isNotEmpty) {
-                                Navigator.push(
-                                  context,
+                                navigator.push(
                                   MaterialPageRoute(
                                     builder: (_) => StudentChatScreen(
                                       groupId: groups.first['id'],
@@ -975,7 +978,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                     },
                                     child: Text(
                                       l.viewAll.toUpperCase(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w800,
                                         color: AppColors.duoBlue,

@@ -1765,7 +1765,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               messenger.showSnackBar(
                                 SnackBar(
                                   content: Text(l.attendanceSaved,
-                                      style: TextStyle(fontWeight: FontWeight.bold)),
+                                      style: const TextStyle(fontWeight: FontWeight.bold)),
                                   backgroundColor: AppColors.duoGreen,
                                   behavior: SnackBarBehavior.floating,
                                   shape: RoundedRectangleBorder(

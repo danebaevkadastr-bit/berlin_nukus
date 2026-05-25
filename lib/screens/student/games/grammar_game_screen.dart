@@ -353,29 +353,35 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
                     Color cardColor;
                     Color borderColor;
                 Color textColor;
+                Color badgeColor;
 
                 if (!_showFeedback) {
                   cardColor = isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white;
                   borderColor = isDark ? Colors.white12 : AppColors.duoCardGrayShadow;
                   textColor = isDark ? Colors.white : AppColors.duoTextDark;
+                  badgeColor = AppColors.duoBlue;
                 } else if (isSelected) {
                   if (_isCorrect) {
                     cardColor = AppColors.duoGreen.withValues(alpha: 0.2);
                     borderColor = AppColors.duoGreen;
                     textColor = AppColors.duoGreen;
+                    badgeColor = AppColors.duoGreen;
                   } else {
                     cardColor = AppColors.duoRed.withValues(alpha: 0.2);
                     borderColor = AppColors.duoRed;
                     textColor = AppColors.duoRed;
+                    badgeColor = AppColors.duoRed;
                   }
                 } else if (isCorrectOption && !_isCorrect) {
                   cardColor = AppColors.duoGreen.withValues(alpha: 0.2);
                   borderColor = AppColors.duoGreen;
                   textColor = AppColors.duoGreen;
+                  badgeColor = AppColors.duoGreen;
                 } else {
-                  cardColor = isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.3);
-                  borderColor = isDark ? Colors.white12 : Colors.black12;
-                  textColor = isDark ? Colors.white38 : Colors.black38;
+                  cardColor = isDark ? AppColors.duoCardGray.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.6);
+                  borderColor = isDark ? Colors.white24 : AppColors.duoCardGrayShadow;
+                  textColor = isDark ? Colors.white60 : AppColors.duoTextDark.withValues(alpha: 0.45);
+                  badgeColor = isDark ? Colors.white24 : Colors.black12;
                 }
 
                 return Padding(
@@ -392,7 +398,7 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: borderColor,
+                            color: badgeColor,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(

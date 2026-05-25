@@ -72,13 +72,13 @@ void main() async {
     },
   ];
 
-  print('Adding ${notifications.length} sample notifications...');
+  // print('Adding ${notifications.length} sample notifications...');
   
   for (final notification in notifications) {
     final docRef = firestore.collection('notifications').doc();
     await docRef.set(notification);
-    print('✓ Added notification: ${notification['title']}');
+    // print('✓ Added notification: ${notification['title']}');
   }
   
-  print('\nAll sample notifications added successfully!');
+  // print('\nAll sample notifications added successfully!');
 }

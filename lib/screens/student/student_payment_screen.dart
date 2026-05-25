@@ -114,6 +114,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
 
   Future<void> _submitPayment() async {
     final l = AppLocalizations.of(context);
+    final navigator = Navigator.of(context);
     if (_selectedPeriodIndex < 0) {
       _showSnack(l.pleaseSelectPeriod, AppColors.duoOrange);
       return;
@@ -158,12 +159,12 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
       });
 
       // Send notification to admin
-      await _sendPaymentNotificationToAdmin(widget.studentId, period);
+      await _sendPaymentNotificationToAdmin(l, widget.studentId, period);
 
       if (mounted) {
         _showSnack(l.paymentSubmittedSuccess, AppColors.duoGreen);
         await Future.delayed(const Duration(milliseconds: 800));
-        if (mounted) Navigator.pop(context);
+        if (mounted) navigator.pop();
       }
     } catch (e) {
       if (mounted) _showSnack('${l.genericError}: $e', AppColors.duoRed);
@@ -171,8 +172,12 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
     if (mounted) setState(() => _isSending = false);
   }
 
-  Future<void> _sendPaymentNotificationToAdmin(String studentId, _Period period) async {
+  Future<void> _sendPaymentNotificationToAdmin(AppLocalizations l, String studentId, _Period period) async {
     try {
+      // Lokalizatsiya string'lari await oldidan olingan (parametr orqali keladi)
+      final studentLabel = l.student;
+      final newPaymentTitle = l.newPaymentReceived;
+
       // Get admin users
       final adminSnap = await FirebaseFirestore.instance
           .collection('users')
@@ -181,10 +186,8 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
 
       if (adminSnap.docs.isEmpty) return;
 
-      // Get student name
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(studentId).get();
-      final l = AppLocalizations.of(context);
-      final studentName = userDoc.data()?['fullName'] as String? ?? l.student;
+      final studentName = userDoc.data()?['fullName'] as String? ?? studentLabel;
 
       final notificationService = NotificationService();
       final formattedPeriod = '${period.start.day}/${period.start.month} - ${period.end.day}/${period.end.month}';
@@ -193,7 +196,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
         await notificationService.createNotification(
           AppNotification(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
-            title: l.newPaymentReceived,
+            title: newPaymentTitle,
             body: l.paymentSentBody(studentName, formattedPeriod),
             type: 'payment',
             createdAt: DateTime.now(),
@@ -481,7 +484,7 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                               )
                             : Text(
                                 l.submitBtn,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,

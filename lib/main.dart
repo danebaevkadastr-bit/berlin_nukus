@@ -78,10 +78,10 @@ Future<void> setupFirebaseMessaging() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
 
-  final DarwinInitializationSettings initializationSettingsDarwin =
+  const DarwinInitializationSettings initializationSettingsDarwin =
       DarwinInitializationSettings();
 
-  final InitializationSettings initializationSettings =
+  const InitializationSettings initializationSettings =
       InitializationSettings(
         android: initializationSettingsAndroid,
         iOS: initializationSettingsDarwin,

@@ -458,7 +458,7 @@ class _TeacherCoursesScreenState extends State<TeacherCoursesScreen> {
                       child: Center(
                         child: Text(
                           l.submit,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,

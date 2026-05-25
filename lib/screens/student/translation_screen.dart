@@ -143,7 +143,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                                 )
                               : Text(
                                   l.translateButton,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900,
                                     color: Colors.white,

@@ -536,7 +536,7 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                         const SizedBox(height: 16),
                         Text(
                           l.cashPaymentPending,
-                          style: TextStyle(fontSize: 12, color: AppColors.duoOrange, fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontSize: 12, color: AppColors.duoOrange, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ],

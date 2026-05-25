@@ -267,11 +267,11 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                     value: StrangeDifficulty.easy,
                     child: Row(
                       children: [
-                        Icon(Icons.looks_one, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.looks_one, size: 20),
+                        const SizedBox(width: 8),
                         Text(l.easy),
-                        Spacer(),
-                        Text(
+                        const Spacer(),
+                        const Text(
                           '10⭐',
                           style: TextStyle(
                             color: AppColors.duoGreen,
@@ -285,11 +285,11 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                     value: StrangeDifficulty.medium,
                     child: Row(
                       children: [
-                        Icon(Icons.looks_two, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.looks_two, size: 20),
+                        const SizedBox(width: 8),
                         Text(l.medium),
-                        Spacer(),
-                        Text(
+                        const Spacer(),
+                        const Text(
                           '15⭐',
                           style: TextStyle(
                             color: AppColors.duoOrange,
@@ -303,11 +303,11 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                     value: StrangeDifficulty.hard,
                     child: Row(
                       children: [
-                        Icon(Icons.looks_3, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.looks_3, size: 20),
+                        const SizedBox(width: 8),
                         Text(l.hard),
-                        Spacer(),
-                        Text(
+                        const Spacer(),
+                        const Text(
                           '20⭐',
                           style: TextStyle(
                             color: AppColors.duoRed,
