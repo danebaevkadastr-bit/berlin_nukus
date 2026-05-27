@@ -15,6 +15,7 @@ class StudentLeaderboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
     final l = AppLocalizations.of(context);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
@@ -44,6 +45,39 @@ class StudentLeaderboardScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: 64,
+                    color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    l.errorOccurred,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    snapshot.error.toString(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white38 : AppColors.duoTextLight,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+
           final leaderboard = snapshot.data ?? [];
 
           if (leaderboard.isEmpty) {
@@ -51,7 +85,11 @@ class StudentLeaderboardScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('🏆', style: TextStyle(fontSize: 64)),
+                  Icon(
+                    Icons.emoji_events_rounded,
+                    size: 64,
+                    color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     l.noDataYet,
@@ -71,23 +109,22 @@ class StudentLeaderboardScreen extends StatelessWidget {
             itemCount: leaderboard.length,
             itemBuilder: (context, index) {
               final user = leaderboard[index];
-              final userProvider = Provider.of<UserProvider>(context, listen: false);
               final isMe = user['id'] == userProvider.uid;
               final rank = index + 1;
-              String rankEmoji;
+              IconData rankIcon;
               Color rankColor;
 
               if (rank == 1) {
-                rankEmoji = '🥇';
+                rankIcon = Icons.looks_one_rounded;
                 rankColor = const Color(0xFFFFD700);
               } else if (rank == 2) {
-                rankEmoji = '🥈';
+                rankIcon = Icons.looks_two_rounded;
                 rankColor = const Color(0xFFC0C0C0);
               } else if (rank == 3) {
-                rankEmoji = '🥉';
+                rankIcon = Icons.looks_3_rounded;
                 rankColor = const Color(0xFFCD7F32);
               } else {
-                rankEmoji = '$rank';
+                rankIcon = Icons.person_rounded;
                 rankColor = isDark ? Colors.white54 : AppColors.duoTextLight;
               }
 
@@ -100,8 +137,10 @@ class StudentLeaderboardScreen extends StatelessWidget {
                 child: GamifiedCard(
                   padding: const EdgeInsets.all(16),
                   color: isMe
-                      ? (isDark ? AppColors.duoBlue.withValues(alpha: 0.15) : AppColors.duoBlue.withValues(alpha: 0.1))
-                      : (isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white),
+                      ? (isDark 
+                          ? Color.alphaBlend(AppColors.duoBlue.withValues(alpha: 0.15), const Color(0xFF131F24))
+                          : Color.alphaBlend(AppColors.duoBlue.withValues(alpha: 0.1), Colors.white))
+                      : (isDark ? Color.alphaBlend(AppColors.duoCardGray.withValues(alpha: 0.05), const Color(0xFF131F24)) : Colors.white),
                   shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
                   shadowDepth: isMe ? 4 : 2,
                   child: Row(
@@ -115,13 +154,20 @@ class StudentLeaderboardScreen extends StatelessWidget {
                           color: rankColor.withValues(alpha: 0.15),
                         ),
                         child: Center(
-                          child: Text(
-                            rankEmoji,
-                            style: TextStyle(
-                              fontSize: rank <= 3 ? 24 : 18,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
+                          child: rank <= 3
+                              ? Icon(
+                                  rankIcon,
+                                  size: 32,
+                                  color: rankColor,
+                                )
+                              : Text(
+                                  '$rank',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: rankColor,
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(width: 16),

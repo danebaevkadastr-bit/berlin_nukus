@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../services/cloudinary_service.dart';
 import '../../services/notification_service.dart';
 import '../../utils/app_colors.dart';
@@ -422,11 +423,15 @@ class _StudentPaymentScreenState extends State<StudentPaymentScreen> {
                           else if (_receiptUrl != null)
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: Image.network(
-                                _receiptUrl!,
+                              child: CachedNetworkImage(
+                                imageUrl: _receiptUrl!,
                                 height: 120,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
+                                placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator(color: AppColors.duoGreen),
+                                ),
+                                errorWidget: (context, url, error) => const Icon(Icons.error_outline),
                               ),
                             )
                           else

@@ -579,11 +579,13 @@ SUHBAT USLUBI:
     if (!_isFreeChat && _lessonFinished) return;
 
     if (_isRecording) {
+      // Stop recording
       _amplitudeSubscription?.cancel();
       _amplitudeSubscription = null;
 
       final text = await _sttService.stopAndTranscribe();
       if (!mounted) return;
+      
       setState(() {
         _isRecording = false;
       });
@@ -601,34 +603,67 @@ SUHBAT USLUBI:
       return;
     }
 
+    // Start recording
+    setState(() {
+      _isRecording = true; // Set immediately for UI feedback
+    });
+
     final ok = await _sttService.startRecording();
     if (!mounted) return;
 
-    setState(() {
-      _isRecording = ok;
-    });
+    if (!ok) {
+      // Recording failed to start
+      setState(() {
+        _isRecording = false;
+      });
+      _micLevel.value = 0.02;
+      
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).microphoneError),
+            backgroundColor: AppColors.duoRed,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
 
-    if (!ok) return;
-
+    // Start amplitude animation
     _amplitudeSubscription?.cancel();
     _amplitudeSubscription = _sttService
         .onAmplitudeChanged(const Duration(milliseconds: 120))
-        .listen((amp) {
-          final db = amp.current;
-          double normalized;
+        .listen(
+          (amp) {
+            if (!mounted) return;
+            
+            final db = amp.current;
+            double normalized;
 
-          if (db <= -45) {
-            normalized = 0.04;
-          } else if (db >= -5) {
-            normalized = 1.0;
-          } else {
-            normalized = ((db + 45) / 40).clamp(0.04, 1.0);
-          }
+            if (db <= -45) {
+              normalized = 0.04;
+            } else if (db >= -5) {
+              normalized = 1.0;
+            } else {
+              normalized = ((db + 45) / 40).clamp(0.04, 1.0);
+            }
 
-          // Vizual effekt uchun past balandlikni kuchaytiramiz.
-          final boosted = math.pow(normalized, 0.65).toDouble() * 1.25;
-          _micLevel.value = boosted.clamp(0.08, 1.0);
-        });
+            // Boost lower levels for better visual effect
+            final boosted = math.pow(normalized, 0.65).toDouble() * 1.25;
+            _micLevel.value = boosted.clamp(0.08, 1.0);
+          },
+          onError: (error) {
+            debugPrint('Amplitude stream error: $error');
+          },
+          onDone: () {
+            debugPrint('Amplitude stream done');
+            if (mounted) {
+              _micLevel.value = 0.02;
+            }
+          },
+        );
   }
 
   Future<void> _showSettings() async {
@@ -1375,14 +1410,23 @@ class _VoiceMicPanel extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: List.generate(17, (i) {
+                      // Create more dynamic wave effect
+                      final phaseShift = i * 0.42;
                       final wave = isRecording
-                          ? (math.sin(pulse.value * math.pi * 2 + i * 0.42) +
-                                  1) /
-                              2
+                          ? (math.sin(pulse.value * math.pi * 2 + phaseShift) + 1) / 2
                           : 0.12;
+                      
+                      // Add secondary wave for more complexity
+                      final secondaryWave = isRecording
+                          ? (math.sin(pulse.value * math.pi * 3 + phaseShift * 1.5) + 1) / 2
+                          : 0.0;
+                      
+                      final combinedWave = (wave * 0.7 + secondaryWave * 0.3);
+                      
                       final h = isRecording
-                          ? 10 + level * 46 * (0.3 + 0.7 * wave)
+                          ? 10 + level * 46 * (0.3 + 0.7 * combinedWave)
                           : 8.0;
+                      
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 45),
                         width: 4,
@@ -1410,23 +1454,47 @@ class _VoiceMicPanel extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       if (isRecording) ...[
-                        _MicRing(
-                          size: 88 + level * 52,
-                          color: accent,
-                          opacity: 0.12 + level * 0.1,
-                          borderWidth: 1.5,
+                        // Outer ring - subtle pulse
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          width: 88 + level * 52,
+                          height: 88 + level * 52,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: accent.withValues(alpha: (0.12 + level * 0.1) * 0.35),
+                            border: Border.all(
+                              color: accent.withValues(alpha: 0.12 + level * 0.1),
+                              width: 1.5,
+                            ),
+                          ),
                         ),
-                        _MicRing(
-                          size: 72 + level * 40,
-                          color: accent,
-                          opacity: 0.2 + level * 0.15,
-                          borderWidth: 2 + level * 2,
+                        // Middle ring - medium pulse
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 120),
+                          width: 72 + level * 40,
+                          height: 72 + level * 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: accent.withValues(alpha: (0.2 + level * 0.15) * 0.35),
+                            border: Border.all(
+                              color: accent.withValues(alpha: 0.2 + level * 0.15),
+                              width: 2 + level * 2,
+                            ),
+                          ),
                         ),
-                        _MicRing(
-                          size: 58 + level * 28,
-                          color: accent,
-                          opacity: 0.35 + level * 0.25,
-                          borderWidth: 2.5 + level * 3,
+                        // Inner ring - strong pulse
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 100),
+                          width: 58 + level * 28,
+                          height: 58 + level * 28,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: accent.withValues(alpha: (0.35 + level * 0.25) * 0.35),
+                            border: Border.all(
+                              color: accent.withValues(alpha: 0.35 + level * 0.25),
+                              width: 2.5 + level * 3,
+                            ),
+                          ),
                         ),
                       ],
                       Transform.scale(
@@ -1458,36 +1526,6 @@ class _VoiceMicPanel extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _MicRing extends StatelessWidget {
-  final double size;
-  final Color color;
-  final double opacity;
-  final double borderWidth;
-
-  const _MicRing({
-    required this.size,
-    required this.color,
-    required this.opacity,
-    required this.borderWidth,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color.withValues(alpha: opacity * 0.35),
-        border: Border.all(
-          color: color.withValues(alpha: opacity),
-          width: borderWidth,
-        ),
-      ),
     );
   }
 }

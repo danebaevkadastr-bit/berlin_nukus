@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
+import '../services/haptic_service.dart';
 
 class GamifiedCard extends StatefulWidget {
   final Widget child;
@@ -50,6 +51,7 @@ class _GamifiedCardState extends State<GamifiedCard>
 
   void _handleTapDown(TapDownDetails details) {
     if (widget.onTap != null) {
+      HapticService.lightImpact();
       _controller.forward();
     }
   }

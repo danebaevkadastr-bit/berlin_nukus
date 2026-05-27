@@ -127,6 +127,12 @@ class AppLocalizations {
     'ru': "Тёмный режим",
     'de': "Dunkelmodus",
   });
+  String get lightMode => _t({
+    'uz': "Yorug' rejim",
+    'kaa': "Jarıq rejim",
+    'ru': "Светлый режим",
+    'de': "Heller Modus",
+  });
   String get changeTheme => _t({
     'uz': "Ilova mavzusini o'zgartirish",
     'kaa': "Dástúr temasın ózgertiriw",
@@ -532,6 +538,12 @@ class AppLocalizations {
     'ru': "Мои звезды",
     'de': "Meine Sterne",
   });
+  String get all => _t({
+    'uz': "Barchasi",
+    'kaa': "Barlıǵı",
+    'ru': "Все",
+    'de': "Alle",
+  });
   String get allGames => _t({
     'uz': "Barcha o'yinlar",
     'kaa': "Barlıq oyınlar",
@@ -668,6 +680,25 @@ class AppLocalizations {
     'ru': "Понятно",
     'de': "Verstanden",
   });
+  String get noGroupTitle => _t({
+    'uz': "Guruhga qo'shilmagansiz",
+    'kaa': "Toparga qosılmadıńız",
+    'ru': "Вы не в группе",
+    'de': "Keine Gruppe",
+  });
+  String get noGroupMessage => _t({
+    'uz': "Siz hali hech qanday guruhga qo'shilmagansiz. Iltimos, admin yoki ustozingizga xabar bering!",
+    'kaa': "Siz ele hesh qanday toparǵa qosılmaǵansız. Iltimas, admin yáki ustazıńızga xabar beriń!",
+    'ru': "Вы ещё не добавлены ни в одну группу. Пожалуйста, свяжитесь с администратором или преподавателем!",
+    'de': "Sie sind noch in keiner Gruppe. Bitte wenden Sie sich an Ihren Administrator oder Lehrer!",
+  });
+  String get noGroupButton => _t({
+    'uz': "Tushundim",
+    'kaa': "Túsindim",
+    'ru': "Понятно",
+    'de': "Verstanden",
+  });
+
   String get strangeSentencesPickHint => _t({
     'uz': "Grammatik jihatdan to'g'ri g'alati gapni tanlang",
     'kaa': "Grammatikalıq durıs bir qızıqarlı gápti tańlań",
@@ -901,7 +932,7 @@ class AppLocalizations {
   });
   String get pleaseReLogin => _t({
     'uz': "Iltimos, tizimga qaytadan kiring",
-    'kaa': "Iltimos, dástúrge qaytadan kiriń",
+    'kaa': "Iltimas, dástúrge qaytadan kiriń",
     'ru': "Пожалуйста, войдите в систему заново",
     'de': "Bitte melden Sie sich erneut an",
   });
@@ -1105,7 +1136,7 @@ class AppLocalizations {
   });
   String get materials => _t({
     'uz': "Dars materiallari",
-    'kaa': "Dars materialları",
+    'kaa': "Sabaq materialları",
     'ru': "Материалы урока",
     'de': "Unterrichtsmaterialien",
   });
@@ -1137,20 +1168,20 @@ class AppLocalizations {
   });
   String get sampleAnswerComingSoon => _t({
     'uz': "Beispielantwort tez orada qo'shiladi.",
-    'kaa': "Beispielantwort tez orada qosıladı.",
+    'kaa': "Beispielantwort tez arada qosıladı.",
     'ru': "Beispielantwort скоро будет добавлена.",
     'de': "Beispielantwort wird bald hinzugefügt.",
   });
   String get aiPoweredEvaluation => _t({
-    'uz': "AI-Powered Evaluation",
-    'kaa': "AI-Powered Evaluation",
-    'ru': "AI-Powered Evaluation",
+    'uz': "Sun'iy intellekt yordamida baholash",
+    'kaa': "Jasalma intellekt járdeminde bahalaw",
+    'ru': "Оценка на основе искусственного интеллекта",
     'de': "AI-Powered Evaluation",
   });
   String get yourAnswer => _t({
-    'uz': "Your Answer",
-    'kaa': "Your Answer",
-    'ru': "Your Answer",
+    'uz': "Namuna javobni ko‘rsatish",
+    'kaa': "Úlgi juwaplardı kórsetiw",
+    'ru': "Показать пример ответа",
     'de': "Your Answer",
   });
   String get wordCountLabel => _t({
@@ -1185,7 +1216,7 @@ class AppLocalizations {
   });
   String get evaluation => _t({
     'uz': "BAHOLASH",
-    'kaa': "BAHOLAW",
+    'kaa': "BAXALAW",
     'ru': "ОЦЕНКА",
     'de': "BEWERTUNG",
   });
@@ -1217,7 +1248,7 @@ class AppLocalizations {
   });
   String get markAttendance => _t({
     'uz': "DAVOMATNI BELGILASH",
-    'kaa': "DAVOMATNI BELGILEW",
+    'kaa': "QATNASDÍ BELGILEW",
     'ru': "ОТМЕТИТЬ ПОСЕЩАЕМОСТЬ",
     'de': "ANWESENHEIT MARKIEREN",
   });
@@ -1243,67 +1274,67 @@ class AppLocalizations {
   // ── Student Learning ────────────────────────────────────────────────────────
   String get statisticsAndResults => _t({
     'uz': "STATISTIKA VA NATIJALAR",
-    'kaa': "STATISTIKA HÁM NATIJALAR",
+    'kaa': "STATISTIKA HÁM NÁTIYJELER",
     'ru': "СТАТИСТИКА И РЕЗУЛЬТАТЫ",
     'de': "STATISTIK UND ERGEBNISSE",
   });
   String get upcomingLessons => _t({
     'uz': "KEYINGI DARSLAR",
-    'kaa': "KEYINGI DÁRSLER",
+    'kaa': "KEYINGI SABAQLAR",
     'ru': "БЛИЖАЙШИЕ УРОКИ",
     'de': "KOMMENDE UNTERRICHTSSTUNDEN",
   });
   String get noLessonToday => _t({
     'uz': "Bugun dars yo'q, dam oling yoki qo'shimcha mashq qiling",
-    'kaa': "Bugún dars joq, dam alıń yamasa qosımsha maqtaq qılıń",
+    'kaa': "Bugún sabaq joq, dem alıń yamasa qosımsha shınıǵıw qılıń",
     'ru': "Сегодня нет урока, отдохните или сделайте дополнительные упражнения",
     'de': "Heute keine Lektion, ruhen Sie sich aus oder machen Sie zusätzliche Übungen",
   });
   String get viewHomework => _t({
     'uz': "UY VAZIFASINI KO'RISH",
-    'kaa': "UY WAZIFASINÍ KÓRİW",
+    'kaa': "ÚY JUMÍSÍN KÓRIW",
     'ru': "ПОСМОТРЕТЬ ДОМАШНЕЕ ЗАДАНИЕ",
     'de': "HAUSAUFGABE ANSEHEN",
   });
   String get homeworkSubmitted => _t({
     'uz': "UY VAZIFASI TOPSHIRILDI",
-    'kaa': "UY WAZIFASI TOPSHIRILDI",
+    'kaa': "ÚY JUMÍSÍ TAPSÍRÍLDÍ TAPSÍRÍLDÍ",
     'ru': "ДОМАШНЕЕ ЗАДАНИЕ СДАНО",
     'de': "HAUSAUFGABE ABGEGEBEN",
   });
   String get curriculum => _t({
     'uz': "O'QUV REJASI",
-    'kaa': "ÓQIW REJASI",
+    'kaa': "OQÍW REJESI",
     'ru': "УЧЕБНЫЙ ПЛАН",
     'de': "STUDIENPLAN",
   });
   String get addHomework => _t({
     'uz': "UY VAZIFA QO'SHISH",
-    'kaa': "UY WAZIFA QOSÍW",
+    'kaa': "ÚY JUMÍSÍN QOSÍW",
     'ru': "ДОБАВИТЬ ДОМАШНЕЕ ЗАДАНИЕ",
     'de': "HAUSAUFGABE HINZUFÜGEN",
   });
   String get homeworkCount => _t({
     'uz': "UY VAZIFA",
-    'kaa': "UY WAZIFA",
+    'kaa': "ÚYGE TAPSÍRMA",
     'ru': "ДОМАШНЕЕ ЗАДАНИЕ",
     'de': "HAUSAUFGABE",
   });
   String get tapToAddHomework => _t({
     'uz': "+ tugmasini bosib uy vazifa qo'shing",
-    'kaa': "+ túymesin basıp uy wazifa qosıń",
+    'kaa': "+ túymesin basıp úy jumısın qosıń",
     'ru': "Нажмите + чтобы добавить домашнее задание",
     'de': "Drücken Sie + um Hausaufgabe hinzuzufügen",
   });
   String get lesson => _t({
     'uz': "Dars",
-    'kaa': "Dars",
+    'kaa': "Sabaq",
     'ru': "Урок",
     'de': "Lektion",
   });
   String get addLesson => _t({
     'uz': "DARS QO'SHISH",
-    'kaa': "DARS QOSÍW",
+    'kaa': "SABAQ QOSÍW",
     'ru': "ДОБАВИТЬ УРОК",
     'de': "LEKTION HINZUFÜGEN",
   });
@@ -1479,6 +1510,60 @@ class AppLocalizations {
     'ru': "Напишите сообщение...",
     'de': "Nachricht schreiben...",
   });
+  String get reply => _t({
+    'uz': "Javob berish",
+    'kaa': "Juwap berıw",
+    'ru': "Ответить",
+    'de': "Antworten",
+  });
+  String get copy => _t({
+    'uz': "Nusxa olish",
+    'kaa': "Kóshirme alıw",
+    'ru': "Копировать",
+    'de': "Kopieren",
+  });
+  String get edited => _t({
+    'uz': "tahrirlangan",
+    'kaa': "ózgertilgen",
+    'ru': "изменено",
+    'de': "bearbeitet",
+  });
+  String get deleteMessage => _t({
+    'uz': "Xabarni o'chirish",
+    'kaa': "Xabardı óshirıw",
+    'ru': "Удалить сообщение",
+    'de': "Nachricht löschen",
+  });
+  String get deleteMessageConfirm => _t({
+    'uz': "Ushbu xabarni o'chirishni xohlaysizmi?",
+    'kaa': "Bul xabardı óshirıwdı qalaýsız ba?",
+    'ru': "Вы хотите удалить это сообщение?",
+    'de': "Möchten Sie diese Nachricht löschen?",
+  });
+  String get messageDeleted => _t({
+    'uz': "Xabar o'chirildi",
+    'kaa': "Xabar óshirildi",
+    'ru': "Сообщение удалено",
+    'de': "Nachricht gelöscht",
+  });
+  String get copiedToClipboard => _t({
+    'uz': "Nusxa olindi",
+    'kaa': "Kóshirme alındı",
+    'ru': "Скопировано",
+    'de': "Kopiert",
+  });
+  String get editingMessage => _t({
+    'uz': "Xabarni tahrirlash",
+    'kaa': "Xabardı ózgertıw",
+    'ru': "Редактирование сообщения",
+    'de': "Nachricht bearbeiten",
+  });
+  String get replyingTo => _t({
+    'uz': "Javob berish",
+    'kaa': "Juwap berıw",
+    'ru': "Ответ на",
+    'de': "Antwort auf",
+  });
   String get groupMembersTitle => _t({
     'uz': "Guruh a'zolari",
     'kaa': "Topar a'zaları",
@@ -1529,7 +1614,7 @@ class AppLocalizations {
   });
   String get qaSubtitle => _t({
     'uz': "Savol-javob",
-    'kaa': "Suraq-juwap",
+    'kaa': "Suraw-juwap",
     'ru': "Вопросы и ответы",
     'de': "Fragen & Antworten",
   });
@@ -1549,7 +1634,7 @@ class AppLocalizations {
   });
   String get keepLearningDaily => _t({
     'uz': "Har kuni o'rganishda davom eting!",
-    'kaa': "Hár kún úyreniwde dawam etiń!",
+    'kaa': "Hár kún úyreniwdi dawam etiń!",
     'ru': "Продолжайте учиться каждый день!",
     'de': "Lernen Sie jeden Tag weiter!",
   });
@@ -1564,6 +1649,12 @@ class AppLocalizations {
     'kaa': "Házirshe maǵlıwmat joq",
     'ru': "Данных пока нет",
     'de': "Noch keine Daten",
+  });
+  String get errorOccurred => _t({
+    'uz': "Xatolik yuz berdi",
+    'kaa': "Qátelik júz berdi",
+    'ru': "Произошла ошибка",
+    'de': "Ein Fehler ist aufgetreten",
   });
   String get emailNotRegistered => _t({
     'uz': "Ushbu elektron pochta ro'yxatdan o'tmagan.",
@@ -1735,7 +1826,7 @@ class AppLocalizations {
   });
   String get timeoutTitle => _t({
     'uz': "Vaqt tugadi",
-    'kaa': "Waqıt tamamlandı",
+    'kaa': "Waqıt tawsıldı",
     'ru': "Время истекло",
     'de': "Zeit abgelaufen",
   });
@@ -1798,7 +1889,7 @@ class AppLocalizations {
   });
   String get tryAgainLater => _t({
     'uz': "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.",
-    'kaa': "Qátelik júz berdi. Iltimos, qayta urınıń.",
+    'kaa': "Qátelik júz berdi. Iltimas, qayta urınıń.",
     'ru': "Произошла ошибка. Попробуйте снова.",
     'de': "Ein Fehler ist aufgetreten. Bitte erneut versuchen.",
   });
@@ -1885,6 +1976,44 @@ class AppLocalizations {
         .replaceAll('{minutes}', minutes.toString());
   }
 
+  String get thisWeek => _t({
+    'uz': "Shu hafta",
+    'kaa': "Bul hápte",
+    'ru': "Эта неделя",
+    'de': "Diese Woche",
+  });
+
+  String weeksAgo(int weeks) {
+    final template = _t({
+      'uz': '{n} hafta oldin',
+      'kaa': '{n} hápte aldın',
+      'ru': '{n} нед. назад',
+      'de': 'vor {n} Wochen',
+    });
+    return template.replaceAll('{n}', weeks.toString());
+  }
+
+  String get totalTime => _t({
+    'uz': "Jami",
+    'kaa': "Barlıǵı",
+    'ru': "Всего",
+    'de': "Gesamt",
+  });
+
+  String get activeDays => _t({
+    'uz': "Faol kunlar",
+    'kaa': "Faol kúnler",
+    'ru': "Акт. дни",
+    'de': "Akt. Tage",
+  });
+
+  String get average => _t({
+    'uz': "O'rtacha",
+    'kaa': "Ortasha",
+    'ru': "Средн.",
+    'de': "Durchschn.",
+  });
+
   String formatRelativeTime(DateTime date) {
     final difference = DateTime.now().difference(date);
     if (difference.inMinutes < 1) return justNow;
@@ -1969,19 +2098,19 @@ class AppLocalizations {
   });
   String get originalWord => _t({
     'uz': "ASL SO'Z",
-    'kaa': "ÁSIL SÓZ",
+    'kaa': "KIRITILGEN SÓZ",
     'ru': "ИСХОДНОЕ СЛОВО",
     'de': "ORIGINALWORT",
   });
   String get meanings => _t({
     'uz': "MA'NOLAR",
-    'kaa': "MAǴINI",
+    'kaa': "MÁNISLERI",
     'ru': "ЗНАЧЕНИЯ",
     'de': "BEDEUTUNGEN",
   });
   String get example => _t({
     'uz': "MISOL",
-    'kaa': "MYSAL",
+    'kaa': "MÍSAL",
     'ru': "ПРИМЕР",
     'de': "BEISPIEL",
   });
@@ -1995,31 +2124,31 @@ class AppLocalizations {
   });
   String get textSize => _t({
     'uz': "Matn o'lchami",
-    'kaa': "Matin ólshemi",
+    'kaa': "Tekst ólshemi",
     'ru': "Размер текста",
     'de': "Textgröße",
   });
   String get playbackSpeed => _t({
     'uz': "Ijro tezligi",
-    'kaa': "Ijro tezligi",
+    'kaa': "Atqarıw tezligi",
     'ru': "Скорость воспроизведения",
     'de': "Wiedergabegeschwindigkeit",
   });
   String get autoReadAi => _t({
     'uz': "AI javobini avtomatik o'qish",
-    'kaa': "AI juwapın avtomatik oqıw",
+    'kaa': "AI juwabın avtomatik oqıw",
     'ru': "Автоозвучка ответа ИИ",
     'de': "KI-Antwort automatisch vorlesen",
   });
   String get openTranslationDefault => _t({
     'uz': "Tarjimani default ochish",
-    'kaa': "Awdarmanı ádebiy ashıw",
+    'kaa': "Awdarmanı hár dayım ashıw",
     'ru': "Перевод открывать по умолчанию",
     'de': "Übersetzung standardmäßig öffnen",
   });
   String get showCorrections => _t({
     'uz': "Correction ko'rsatish",
-    'kaa': "Túzetiwlerdi kórsetiw",
+    'kaa': "Dúzetiwlerdi kórsetiw",
     'ru': "Показывать исправления",
     'de': "Korrekturen anzeigen",
   });
@@ -2050,9 +2179,15 @@ class AppLocalizations {
     'ru': "Напишите...",
     'de': "Schreiben...",
   });
+  String get microphoneError => _t({
+    'uz': "Mikrofon ishlamadi. Ruxsat berilganligini tekshiring.",
+    'kaa': "Mikrofon jumıs istemeydı. Ruxsat berilgenligin tekserıń.",
+    'ru': "Микрофон не работает. Проверьте разрешения.",
+    'de': "Mikrofon funktioniert nicht. Überprüfen Sie die Berechtigungen.",
+  });
   String get errorFound => _t({
     'uz': "Xato topildi",
-    'kaa': "Qáte topıldı",
+    'kaa': "Qáte tabıldı",
     'ru': "Найдена ошибка",
     'de': "Fehler gefunden",
   });
@@ -2072,13 +2207,13 @@ class AppLocalizations {
   });
   String get attended => _t({
     'uz': "Qatnashgan",
-    'kaa': "Qatnasıwǵan",
+    'kaa': "Qatnasqan",
     'ru': "Посещено",
     'de': "Teilgenommen",
   });
   String get notAttended => _t({
     'uz': "Qatnashmagan",
-    'kaa': "Qatnasmaǵan",
+    'kaa': "Qatnaspaǵan",
     'ru': "Пропущено",
     'de': "Nicht teilgenommen",
   });
@@ -2096,7 +2231,7 @@ class AppLocalizations {
   });
   String get notCompleted => _t({
     'uz': "Bajarilmagan",
-    'kaa': "Orınlanbagen",
+    'kaa': "Orınlanbaǵan",
     'ru': "Не выполнено",
     'de': "Nicht erledigt",
   });
@@ -2164,13 +2299,13 @@ class AppLocalizations {
   });
   String get paymentAccepted => _t({
     'uz': "QABUL QILINDI",
-    'kaa': "QABUL ETILDI",
+    'kaa': "QABUL QÍLÍNDÍ",
     'ru': "ПРИНЯТО",
     'de': "ANGENOMMEN",
   });
   String get paymentRejected => _t({
     'uz': "BEKOR QILINDI",
-    'kaa': "BEKOR ETILDI",
+    'kaa': "BIYKAR QÍLÍNDÍ",
     'ru': "ОТМЕНЕНО",
     'de': "ABGELEHNT",
   });
@@ -2224,31 +2359,31 @@ class AppLocalizations {
   });
   String get acceptPayment => _t({
     'uz': "QABUL QILISH",
-    'kaa': "QABUL ETİW",
+    'kaa': "QABUL QÍLÍW",
     'ru': "ПРИНЯТЬ",
     'de': "ANNEHMEN",
   });
   String get rejectPayment => _t({
     'uz': "BEKOR QILISH",
-    'kaa': "BEKOR ETİW",
+    'kaa': "BIYKAR QÍLÍW",
     'ru': "ОТКЛОНИТЬ",
     'de': "ABLEHNEN",
   });
   String get adminNote => _t({
     'uz': "ADMIN IZOHI",
-    'kaa': "ADMIN TÚSINDIRIWI",
+    'kaa': "ADMIN TÚSINDIRMESI",
     'ru': "КОММЕНТАРИЙ АДМИНА",
     'de': "ADMIN-NOTIZ",
   });
   String get paymentAcceptedMsg => _t({
     'uz': "To'lov qabul qilindi!",
-    'kaa': "Tólem qabıl etildi!",
+    'kaa': "Tólem qabıl qılındı!",
     'ru': "Платёж принят!",
     'de': "Zahlung angenommen!",
   });
   String get paymentRejectedMsg => _t({
     'uz': "To'lov bekor qilindi",
-    'kaa': "Tólem bekor etildi",
+    'kaa': "Tólem biykar qılındı",
     'ru': "Платёж отклонён",
     'de': "Zahlung abgelehnt",
   });
@@ -2261,7 +2396,7 @@ class AppLocalizations {
   String paymentRejectedBody(String reason) {
     final template = _t({
       'uz': "Sizning to'lovingiz bekor qilindi. {reason}",
-      'kaa': "Siziń tólemińiz bekor etildi. {reason}",
+      'kaa': "Siziń tólemińiz biykar qılındı. {reason}",
       'ru': "Ваш платёж отклонён. {reason}",
       'de': "Ihre Zahlung wurde abgelehnt. {reason}",
     });
@@ -2284,7 +2419,7 @@ class AppLocalizations {
   }
   String get pleaseSelectPeriod => _t({
     'uz': "Iltimos, period tanlang",
-    'kaa': "Iltimos, period tańlań",
+    'kaa': "Iltimas, period tańlań",
     'ru': "Пожалуйста, выберите период",
     'de': "Bitte Zeitraum wählen",
   });
@@ -2331,7 +2466,7 @@ class AppLocalizations {
   });
   String get deleteLessonConfirm => _t({
     'uz': "Rostdan ham ushbu darsni o'chirmoqchimisiz?",
-    'kaa': "Shıńǵanda bul sabaqtı óshirmekshi sizbe?",
+    'kaa': "Shıńında da bul sabaqtı óshirmekshi sizbe?",
     'ru': "Действительно удалить этот урок?",
     'de': "Diese Lektion wirklich löschen?",
   });
@@ -2343,13 +2478,13 @@ class AppLocalizations {
   });
   String get cancelUpper => _t({
     'uz': "BEKOR QILISH",
-    'kaa': "BEKOR ETİW",
+    'kaa': "BIYKAR QÍLÍW",
     'ru': "ОТМЕНА",
     'de': "ABBRECHEN",
   });
   String get editLesson => _t({
     'uz': "DARSNI TAHRIRLASH",
-    'kaa': "SABAQTI TAHRIRLEW",
+    'kaa': "SABAQTI ÓZGERTIW",
     'ru': "РЕДАКТИРОВАТЬ УРОК",
     'de': "LEKTION BEARBEITEN",
   });
@@ -2373,7 +2508,7 @@ class AppLocalizations {
   });
   String get attendanceSaved => _t({
     'uz': "Davomat saqlandi ✅",
-    'kaa': "Davomat saqlandı ✅",
+    'kaa': "Qatnas saqlandı ✅",
     'ru': "Посещаемость сохранена ✅",
     'de': "Anwesenheit gespeichert ✅",
   });
@@ -2532,7 +2667,7 @@ class AppLocalizations {
   String activeGroupsCount(int n) {
     final template = _t({
       'uz': 'Hozirda {n} ta faol guruh mavjud',
-      'kaa': 'Házir {n} faol topar bar',
+      'kaa': 'Házir {n} aktiv topar bar',
       'ru': 'Сейчас {n} активных групп',
       'de': 'Derzeit {n} aktive Gruppen',
     });
@@ -2614,7 +2749,7 @@ class AppLocalizations {
   });
   String get levelUpperIntermediate => _t({
     'uz': "O'rta-Ilg'or",
-    'kaa': "Orta-Júkari",
+    'kaa': "Orta-Joqarı",
     'ru': "Выше среднего",
     'de': "Obere Mittelstufe",
   });
@@ -2676,7 +2811,7 @@ class AppLocalizations {
   // ── Games ──────────────────────────────────────────────────────────────────
   String get easy => _t({
     'uz': "Oson",
-    'kaa': "Oson",
+    'kaa': "Ańsat",
     'ru': "Лёгкий",
     'de': "Leicht",
   });
@@ -2706,7 +2841,7 @@ class AppLocalizations {
   });
   String get rules => _t({
     'uz': "Qoidalar",
-    'kaa': "Qaidalar",
+    'kaa': "Qaǵıydalar",
     'ru': "Правила",
     'de': "Regeln",
   });
@@ -2753,8 +2888,8 @@ class AppLocalizations {
     return template.replaceAll('{n}', n.toString());
   }
   String get checkStory => _t({
-    'uz': "Hikoyani Tekshirish",
-    'kaa': "Hikayeni Tekseriw",
+    'uz': "Hikoyani tekshirish",
+    'kaa': "Gúrrińdi tekseriw",
     'ru': "Проверить историю",
     'de': "Geschichte prüfen",
   });
@@ -2766,7 +2901,7 @@ class AppLocalizations {
   });
   String get storyRejected => _t({
     'uz': "Hikoya qabul qilinmadi",
-    'kaa': "Hikaye qabıl etilmadi",
+    'kaa': "Gúrriń qabıl etilmadi",
     'ru': "История не принята",
     'de': "Geschichte nicht angenommen",
   });
@@ -2778,7 +2913,7 @@ class AppLocalizations {
   });
   String get selectLevel => _t({
     'uz': "Darajani tanlang",
-    'kaa': "Dárejani tańlań",
+    'kaa': "Dárejeni tańlań",
     'ru': "Выберите уровень",
     'de': "Niveau wählen",
   });
@@ -2801,20 +2936,20 @@ class AppLocalizations {
   });
   String get notSubmittedStatus => _t({
     'uz': "Topshirilmagan",
-    'kaa': "Topshirilmagan",
+    'kaa': "Tapsırılmaǵan",
     'ru': "Не сдано",
     'de': "Nicht abgegeben",
   });
   String get homeworkSubmittedNotifTitle => _t({
     'uz': "Uy vazifa topshirildi",
-    'kaa': "Úy tapsırması topshirildi",
+    'kaa': "Úyge tapsırma tapsırıldı",
     'ru': "Домашнее задание сдано",
     'de': "Hausaufgabe abgegeben",
   });
   String homeworkSubmittedBody(String student, String group, String date) {
     final template = _t({
       'uz': '{student} {group} guruhida {date} sanasidagi vazifani topshirdi',
-      'kaa': '{student} {group} toparında {date} sánesindegi tapsırmanı topshirdi',
+      'kaa': '{student} {group} toparında {date} sánesindegi tapsırmanı tapsırdı',
       'ru': '{student} сдал задание в группе {group} за {date}',
       'de': '{student} hat in Gruppe {group} die Aufgabe vom {date} abgegeben',
     });
@@ -2864,7 +2999,7 @@ class AppLocalizations {
   }
   String get pleaseReLoginShort => _t({
     'uz': "Iltimos, qayta kiring",
-    'kaa': "Iltimos, qayta kiriń",
+    'kaa': "Iltimas, qayta kiriń",
     'ru': "Пожалуйста, войдите снова",
     'de': "Bitte erneut anmelden",
   });
@@ -2924,7 +3059,7 @@ class AppLocalizations {
   });
   String get searchHint => _t({
     'uz': "Qidirish...",
-    'kaa': "Izdew...",
+    'kaa': "Izlew...",
     'ru': "Поиск...",
     'de': "Suchen...",
   });
@@ -2946,7 +3081,7 @@ class AppLocalizations {
   String get checkedShortMark => _t({'uz': "✓ Tekshirilgan", 'kaa': "✓ Tekserilgen", 'ru': "✓ Проверено", 'de': "✓ Geprüft"});
   String get noCoursesFound => _t({'uz': "Kurslar yo'q", 'kaa': "Kurslar joq", 'ru': "Курсов нет", 'de': "Keine Kurse"});
   String get homeworkDefault => _t({'uz': "Uy vazifa", 'kaa': "Úy tapsırması", 'ru': "Домашнее задание", 'de': "Hausaufgabe"});
-  String get pleaseReLoginShort2 => _t({'uz': "Iltimos, qayta kiring", 'kaa': "Iltimos, qayta kiriń", 'ru': "Пожалуйста, войдите снова", 'de': "Bitte erneut anmelden"});
+  String get pleaseReLoginShort2 => _t({'uz': "Iltimos, qayta kiring", 'kaa': "Iltimas, qayta kiriń", 'ru': "Пожалуйста, войдите снова", 'de': "Bitte erneut anmelden"});
   String get noHomeworkSubmittedYet => _t({'uz': "Hali uy vazifa topshirilmagan", 'kaa': "Ele úy tapsırması topsırılmagan", 'ru': "Домашнее задание ещё не сдано", 'de': "Hausaufgabe noch nicht abgegeben"});
   String get changeTeacher => _t({'uz': "O'ZGARTIRISH", 'kaa': "ÓZGERTIRIW", 'ru': "ИЗМЕНИТЬ", 'de': "ÄNDERN"});
   String get notAssigned => _t({'uz': "Biriktirilmagan", 'kaa': "Biriktirilmegen", 'ru': "Не назначен", 'de': "Nicht zugewiesen"});
@@ -3056,12 +3191,12 @@ class AppLocalizations {
   String get correctLabel => _t({'uz': "To'g'ri", 'kaa': "Durıs", 'ru': "Верно", 'de': "Richtig"});
   String get wrongLabelShort => _t({'uz': "Xato", 'kaa': "Qáte", 'ru': "Ошибок", 'de': "Falsch"});
   String get accuracyShort => _t({'uz': "Aniqlik", 'kaa': "Anıqlıq", 'ru': "Точность", 'de': "Genauigkeit"});
-  String get storyRuleItem1 => _t({'uz': "1. Berilgan so'zlardan foydalanib hikoya yozing", 'kaa': "1. Berilgen sózlerden paydalanıp hikaye jazıń", 'ru': "1. Напишите историю, используя данные слова", 'de': "1. Schreiben Sie eine Geschichte mit den gegebenen Wörtern"});
-  String get storyRuleItem2 => _t({'uz': "2. Otlarning artiklini o'zgartirishingiz mumkin (masalan: das Buch → ein Buch)", 'kaa': "2. Zatdaqlardıń artiklın ózgertiwińiz múmkin (mysal: das Buch → ein Buch)", 'ru': "2. Можно изменять артикль существительных (например: das Buch → ein Buch)", 'de': "2. Sie können den Artikel der Nomen ändern (z.B.: das Buch → ein Buch)"});
-  String get storyRuleItem3 => _t({'uz': "3. Fe'llarni turli shakllarda ishlatishingiz mumkin (masalan: lesen → ich lese)", 'kaa': "3. Etistiklerdi túrli formalarda isletiwińiz múmkin (mysal: lesen → ich lese)", 'ru': "3. Глаголы можно использовать в разных формах (например: lesen → ich lese)", 'de': "3. Verben können in verschiedenen Formen verwendet werden (z.B.: lesen → ich lese)"});
-  String get storyRuleItem4 => _t({'uz': "4. Hikoya uzunligi berilgan oraliqda bo'lishi kerak", 'kaa': "4. Hikaye uzınlıǵı berilgen aralıqta bolıwı kerek", 'ru': "4. Длина истории должна быть в указанном диапазоне", 'de': "4. Die Länge der Geschichte muss im angegebenen Bereich liegen"});
+  String get storyRuleItem1 => _t({'uz': "1. Berilgan so'zlardan foydalanib hikoya yozing", 'kaa': "1. Berilgen sózlerden paydalanıp gúrriń jazıń", 'ru': "1. Напишите историю, используя данные слова", 'de': "1. Schreiben Sie eine Geschichte mit den gegebenen Wörtern"});
+  String get storyRuleItem2 => _t({'uz': "2. Otlarning artiklini o'zgartirishingiz mumkin (masalan: das Buch → ein Buch)", 'kaa': "2. Atlıqlardıń artiklın ózgertiwińiz múmkin (mysal: das Buch → ein Buch)", 'ru': "2. Можно изменять артикль существительных (например: das Buch → ein Buch)", 'de': "2. Sie können den Artikel der Nomen ändern (z.B.: das Buch → ein Buch)"});
+  String get storyRuleItem3 => _t({'uz': "3. Fe'llarni turli shakllarda ishlatishingiz mumkin (masalan: lesen → ich lese)", 'kaa': "3. Feyillerdi túrli formalarda isletiwińiz múmkin (mysal: lesen → ich lese)", 'ru': "3. Глаголы можно использовать в разных формах (например: lesen → ich lese)", 'de': "3. Verben können in verschiedenen Formen verwendet werden (z.B.: lesen → ich lese)"});
+  String get storyRuleItem4 => _t({'uz': "4. Hikoya uzunligi berilgan oraliqda bo'lishi kerak", 'kaa': "4. Gúrriń uzınlıǵı berilgen aralıqta bolıwı kerek", 'ru': "4. Длина истории должна быть в указанном диапазоне", 'de': "4. Die Länge der Geschichte muss im angegebenen Bereich liegen"});
   String get storyRuleItem5 => _t({'uz': "5. Grammatik jihatdan to'g'ri bo'lishi kerak", 'kaa': "5. Grammatikalıq jaqtan durıs bolıwı kerek", 'ru': "5. Должна быть грамматически правильной", 'de': "5. Muss grammatisch korrekt sein"});
-  String get storyRuleItem6 => _t({'uz': "6. Mantiqan bog'liq hikoya yozing", 'kaa': "6. Mantıqıy baylanıslı hikaye jazıń", 'ru': "6. Напишите логически связную историю", 'de': "6. Schreiben Sie eine logisch zusammenhängende Geschichte"});
+  String get storyRuleItem6 => _t({'uz': "6. Mantiqan bog'liq hikoya yozing", 'kaa': "6. Logikalıq baylanıslı gúrriń jazıń", 'ru': "6. Напишите логически связную историю", 'de': "6. Schreiben Sie eine logisch zusammenhängende Geschichte"});
 
   // ── Additional keys for remaining hardcoded strings ────────────────────────
   String get editLessonTitle => _t({'uz': "DARSNI TAHRIRLASH", 'kaa': "SABAQTI ÓZGERTIRIW", 'ru': "РЕДАКТИРОВАТЬ УРОК", 'de': "LEKTION BEARBEITEN"});
@@ -3073,7 +3208,7 @@ class AppLocalizations {
   }
   String get categoriesCountLabel => _t({'uz': "kategoriya", 'kaa': "kategoriya", 'ru': "категория", 'de': "Kategorie"});
   String get monthsLabel => _t({'uz': "oy", 'kaa': "ay", 'ru': "мес.", 'de': "Mon."});
-  String get addPaymentTitle => _t({'uz': "TO'LOV QO'SHISH", 'kaa': "TÓLEW QOSIŞ", 'ru': "ДОБАВИТЬ ПЛАТЕЖ", 'de': "ZAHLUNG HINZUFÜGEN"});
+  String get addPaymentTitle => _t({'uz': "TO'LOV QO'SHISH", 'kaa': "TÓLEM QOSIW", 'ru': "ДОБАВИТЬ ПЛАТЕЖ", 'de': "ZAHLUNG HINZUFÜGEN"});
   String get selectPeriod => _t({'uz': "PERIOD TANLANG", 'kaa': "PERIOD TAŇLAŃ", 'ru': "ВЫБЕРИТЕ ПЕРИОД", 'de': "PERIODE AUSWÄHLEN"});
   String get paymentNoteHint => _t({'uz': "Masalan: Aprel oyi to'lovi...", 'kaa': "Mysal: Aprel aýı tólewi...", 'ru': "Например: оплата за апрель...", 'de': "Zum Beispiel: Zahlung für April..."});
   String get attachReceipt => _t({'uz': "CHEK BIRIKTIRISH", 'kaa': "CHEK BIRIKTIRIW", 'ru': "ПРИКРЕПИТЬ ЧЕК", 'de': "BELEG ANHÄNGEN"});
@@ -3082,16 +3217,16 @@ class AppLocalizations {
   String get selectFromGalleryCamera => _t({'uz': "Galereya yoki kameradan tanlang", 'kaa': "Galereya yamasa kameradan tańlań", 'ru': "Выберите из галереи или камеры", 'de': "Aus Galerie oder Kamera auswählen"});
   String get submitBtn => _t({'uz': "YUBORISH", 'kaa': "JIBERIW", 'ru': "ОТПРАВИТЬ", 'de': "SENDEN"});
   String get adminLabel => _t({'uz': "Admin", 'kaa': "Admin", 'ru': "Админ", 'de': "Admin"});
-  String get adminNoteLabel => _t({'uz': "ADMIN IZOHI", 'kaa': "ADMIN IZOHı", 'ru': "ЗАМЕТКА АДМИНА", 'de': "ADMIN-NOTIZ"});
+  String get adminNoteLabel => _t({'uz': "ADMIN IZOHI", 'kaa': "ADMIN TÚSINDIRMESI", 'ru': "ЗАМЕТКА АДМИНА", 'de': "ADMIN-NOTIZ"});
   String get cardWithParentheses => _t({'uz': "PLASTIK (KARTA)", 'kaa': "PLASTIK (KARTA)", 'ru': "ПЛАСТИК (КАРТА)", 'de': "PLASTIK (KARTE)"});
   String homeworkTitleLabel(int n) {
-    final template = _t({'uz': 'Uy vazifa {n}', 'kaa': 'Úy tapsırması {n}', 'ru': 'Домашнее задание {n}', 'de': 'Hausaufgabe {n}'});
+    final template = _t({'uz': 'Uy vazifa {n}', 'kaa': 'Úyge tapsırma {n}', 'ru': 'Домашнее задание {n}', 'de': 'Hausaufgabe {n}'});
     return template.replaceAll('{n}', n.toString());
   }
   String get cashLabel => _t({'uz': "NAQD", 'kaa': "NAQ", 'ru': "НАЛИЧНЫЕ", 'de': "BAR"});
   String get cardLabel => _t({'uz': "PLASTIK", 'kaa': "PLASTIK", 'ru': "КАРТА", 'de': "KARTE"});
   String studentsCountShort(int n) {
-    final template = _t({'uz': '{n} ta', 'kaa': '{n} ta', 'ru': '{n} уч.', 'de': '{n} Sch.'});
+    final template = _t({'uz': '{n} ta', 'kaa': '{n} dana', 'ru': '{n} уч.', 'de': '{n} Sch.'});
     return template.replaceAll('{n}', n.toString());
   }
   String studentAddedToGroupMsg(String name) {
@@ -3103,7 +3238,7 @@ class AppLocalizations {
     return template.replaceAll('{name}', name);
   }
   String activeGroupsCountText(int n) {
-    final template = _t({'uz': '{n} ta faol guruh', 'kaa': '{n} faol topar', 'ru': '{n} активных групп', 'de': '{n} aktive Gruppen'});
+    final template = _t({'uz': '{n} ta faol guruh', 'kaa': '{n} aktiv topar', 'ru': '{n} активных групп', 'de': '{n} aktive Gruppen'});
     return template.replaceAll('{n}', n.toString());
   }
 }

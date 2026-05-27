@@ -79,6 +79,12 @@ class STTService {
     _lastWords = '';
 
     try {
+      // Stop any existing recording first
+      if (_speech.isListening) {
+        await _speech.stop();
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+
       await _speech.listen(
         onResult: (result) {
           debugPrint('STT Result: ${result.recognizedWords}');
@@ -92,6 +98,9 @@ class STTService {
           autoPunctuation: true,
         ),
       );
+      
+      // Give it a moment to start
+      await Future.delayed(const Duration(milliseconds: 200));
       
       debugPrint('STT: Listening started, isListening=${_speech.isListening}');
       return _speech.isListening;
@@ -113,11 +122,18 @@ class STTService {
     return _lastWords.trim();
   }
 
-  /// Fake amplitude for mic ring animation (speech_to_text has no levels).
+  /// Amplitude stream for mic ring animation.
+  /// speech_to_text doesn't provide real amplitude, so we simulate it with variation.
   Stream<Amplitude> onAmplitudeChanged(Duration interval) async* {
     while (_speech.isListening) {
       await Future.delayed(interval);
-      final db = -20 - _random.nextDouble() * 25;
+      
+      // Simulate more realistic amplitude variation
+      // Range: -45 dB (quiet) to -5 dB (loud)
+      const baseLevel = -25.0; // Average speaking level
+      final variation = (_random.nextDouble() - 0.5) * 30; // ±15 dB variation
+      final db = (baseLevel + variation).clamp(-45.0, -5.0);
+      
       yield Amplitude(current: db, max: db);
     }
   }

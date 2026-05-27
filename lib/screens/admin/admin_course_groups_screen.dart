@@ -296,13 +296,16 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
         elevation: 0,
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'add_group_fab',
-        onPressed: () => _showAddGroupDialog(isDark),
-        backgroundColor: AppColors.duoGreen,
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Text('➕', style: TextStyle(fontSize: 24)),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 100.0),
+        child: FloatingActionButton(
+          heroTag: 'add_group_fab',
+          onPressed: () => _showAddGroupDialog(isDark),
+          backgroundColor: AppColors.duoGreen,
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: const Icon(Icons.add, color: Colors.white, size: 28),
+        ),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: FirebaseService().getGroupsStream(widget.courseId),

@@ -2,11 +2,9 @@ import '../l10n/locale_manager.dart';
 import 'game_words_i18n.dart';
 
 class GameWords {
-  
   // Der, Die, Das o'yini uchun 500+ so'z
   // A1 va A2 daraja, kategoriyalar bo'yicha
   static const List<Map<String, String>> derDieDasWords = [
-    
     // ===== OILA VA INSONLAR (50 ta) =====
     {'word': 'der Mann', 'article': 'der', 'translation': 'Erkak'},
     {'word': 'die Frau', 'article': 'die', 'translation': 'Ayol'},
@@ -35,15 +33,35 @@ class GameWords {
     {'word': 'der Arzt', 'article': 'der', 'translation': 'Shifokor'},
     {'word': 'die Ärztin', 'article': 'die', 'translation': 'Ayol shifokor'},
     {'word': 'der Lehrer', 'article': 'der', 'translation': 'O\'qituvchi'},
-    {'word': 'die Lehrerin', 'article': 'die', 'translation': 'Ayol o\'qituvchi'},
+    {
+      'word': 'die Lehrerin',
+      'article': 'die',
+      'translation': 'Ayol o\'qituvchi'
+    },
     {'word': 'der Student', 'article': 'der', 'translation': 'Talaba'},
     {'word': 'die Studentin', 'article': 'die', 'translation': 'Ayol talaba'},
-    {'word': 'der Polizist', 'article': 'der', 'translation': 'Politsiya xodimi'},
-    {'word': 'die Polizistin', 'article': 'die', 'translation': 'Ayol politsiya'},
+    {
+      'word': 'der Polizist',
+      'article': 'der',
+      'translation': 'Politsiya xodimi'
+    },
+    {
+      'word': 'die Polizistin',
+      'article': 'die',
+      'translation': 'Ayol politsiya'
+    },
     {'word': 'der Verkäufer', 'article': 'der', 'translation': 'Sotuvchi'},
-    {'word': 'die Verkäuferin', 'article': 'die', 'translation': 'Ayol sotuvchi'},
+    {
+      'word': 'die Verkäuferin',
+      'article': 'die',
+      'translation': 'Ayol sotuvchi'
+    },
     {'word': 'der Kellner', 'article': 'der', 'translation': 'Ofitsiant'},
-    {'word': 'die Kellnerin', 'article': 'die', 'translation': 'Ayol ofitsiant'},
+    {
+      'word': 'die Kellnerin',
+      'article': 'die',
+      'translation': 'Ayol ofitsiant'
+    },
     {'word': 'der Bäcker', 'article': 'der', 'translation': 'Novvoy'},
     {'word': 'der Kunde', 'article': 'der', 'translation': 'Xaridor'},
     {'word': 'die Kundin', 'article': 'die', 'translation': 'Ayol xaridor'},
@@ -51,12 +69,20 @@ class GameWords {
     {'word': 'die Gästin', 'article': 'die', 'translation': 'Ayol mehmon'},
     {'word': 'das Paar', 'article': 'das', 'translation': 'Juftlik'},
     {'word': 'der Cousin', 'article': 'der', 'translation': 'Amakivachcha'},
-    {'word': 'die Cousine', 'article': 'die', 'translation': 'Amakivachcha qiz'},
+    {
+      'word': 'die Cousine',
+      'article': 'die',
+      'translation': 'Amakivachcha qiz'
+    },
     {'word': 'der Neffe', 'article': 'der', 'translation': 'Jiyan'},
     {'word': 'die Nichte', 'article': 'die', 'translation': 'Jiyan qiz'},
     {'word': 'der Enkel', 'article': 'der', 'translation': 'Nabira'},
     {'word': 'die Enkelin', 'article': 'die', 'translation': 'Nabira qiz'},
-    {'word': 'das Geschwister', 'article': 'das', 'translation': 'Aka-uka/opa-singil'},
+    {
+      'word': 'das Geschwister',
+      'article': 'das',
+      'translation': 'Aka-uka/opa-singil'
+    },
     {'word': 'die Eltern', 'article': 'die', 'translation': 'Ota-ona'},
     {'word': 'die Großeltern', 'article': 'die', 'translation': 'Bobo-buvi'},
 
@@ -85,8 +111,16 @@ class GameWords {
     {'word': 'der Kühlschrank', 'article': 'der', 'translation': 'Muzlatgich'},
     {'word': 'der Herd', 'article': 'der', 'translation': 'Plita'},
     {'word': 'der Ofen', 'article': 'der', 'translation': 'Pechka'},
-    {'word': 'die Waschmaschine', 'article': 'die', 'translation': 'Kir yuvish mashinasi'},
-    {'word': 'der Staubsauger', 'article': 'der', 'translation': 'Changyutgich'},
+    {
+      'word': 'die Waschmaschine',
+      'article': 'die',
+      'translation': 'Kir yuvish mashinasi'
+    },
+    {
+      'word': 'der Staubsauger',
+      'article': 'der',
+      'translation': 'Changyutgich'
+    },
     {'word': 'das Geschirr', 'article': 'das', 'translation': 'Idish-tovoq'},
     {'word': 'der Teller', 'article': 'der', 'translation': 'Tarelka'},
     {'word': 'die Tasse', 'article': 'die', 'translation': 'Piyola'},
@@ -120,7 +154,11 @@ class GameWords {
     {'word': 'das Ei', 'article': 'das', 'translation': 'Tuxum'},
     {'word': 'der Joghurt', 'article': 'der', 'translation': 'Yogurt'},
     {'word': 'die Wurst', 'article': 'die', 'translation': 'Kolbasa'},
-    {'word': 'der Schinken', 'article': 'der', 'translation': 'Go\'sht (sovuq)'},
+    {
+      'word': 'der Schinken',
+      'article': 'der',
+      'translation': 'Go\'sht (sovuq)'
+    },
     {'word': 'das Fleisch', 'article': 'das', 'translation': 'Go\'sht'},
     {'word': 'der Fisch', 'article': 'der', 'translation': 'Baliq'},
     {'word': 'das Hähnchen', 'article': 'das', 'translation': 'Tovuq go\'shti'},
@@ -169,7 +207,11 @@ class GameWords {
     {'word': 'das Hemd', 'article': 'das', 'translation': 'Ko\'ylak'},
     {'word': 'die Bluse', 'article': 'die', 'translation': 'Bluzka'},
     {'word': 'der Rock', 'article': 'der', 'translation': 'Yubka'},
-    {'word': 'das Kleid', 'article': 'das', 'translation': 'Ko\'ylak (ayollar)'},
+    {
+      'word': 'das Kleid',
+      'article': 'das',
+      'translation': 'Ko\'ylak (ayollar)'
+    },
     {'word': 'der Anzug', 'article': 'der', 'translation': 'Kostyum'},
     {'word': 'die Jacke', 'article': 'die', 'translation': 'Kurtka'},
     {'word': 'der Mantel', 'article': 'der', 'translation': 'Palto'},
@@ -195,9 +237,17 @@ class GameWords {
     {'word': 'die Kette', 'article': 'die', 'translation': 'Zanjir'},
     {'word': 'der Ohrring', 'article': 'der', 'translation': 'Sirg\'a'},
     {'word': 'die Sandale', 'article': 'die', 'translation': 'Sandal'},
-    {'word': 'der Badeanzug', 'article': 'der', 'translation': 'Cho\'milish kiyimi'},
+    {
+      'word': 'der Badeanzug',
+      'article': 'der',
+      'translation': 'Cho\'milish kiyimi'
+    },
     {'word': 'die Jeans', 'article': 'die', 'translation': 'Jinsi shim'},
-    {'word': 'der Trainingsanzug', 'article': 'der', 'translation': 'Sport kostyumi'},
+    {
+      'word': 'der Trainingsanzug',
+      'article': 'der',
+      'translation': 'Sport kostyumi'
+    },
     {'word': 'das Sweatshirt', 'article': 'das', 'translation': 'Svitshot'},
     {'word': 'die Shorts', 'article': 'die', 'translation': 'Kalta shim'},
 
@@ -246,7 +296,11 @@ class GameWords {
     // ===== MAKTAB VA OFIS (35 ta) =====
     {'word': 'die Schule', 'article': 'die', 'translation': 'Maktab'},
     {'word': 'die Universität', 'article': 'die', 'translation': 'Universitet'},
-    {'word': 'das Klassenzimmer', 'article': 'das', 'translation': 'Sinf xonasi'},
+    {
+      'word': 'das Klassenzimmer',
+      'article': 'das',
+      'translation': 'Sinf xonasi'
+    },
     {'word': 'der Lehrer', 'article': 'der', 'translation': 'O\'qituvchi'},
     {'word': 'der Schüler', 'article': 'der', 'translation': 'O\'quvchi'},
     {'word': 'das Buch', 'article': 'das', 'translation': 'Kitob'},
@@ -258,7 +312,11 @@ class GameWords {
     {'word': 'die Schere', 'article': 'die', 'translation': 'Qaychi'},
     {'word': 'der Kleber', 'article': 'der', 'translation': 'Yelim'},
     {'word': 'die Tafel', 'article': 'die', 'translation': 'Doska'},
-    {'word': 'der Taschenrechner', 'article': 'der', 'translation': 'Kalkulyator'},
+    {
+      'word': 'der Taschenrechner',
+      'article': 'der',
+      'translation': 'Kalkulyator'
+    },
     {'word': 'das Wörterbuch', 'article': 'das', 'translation': 'Lug\'at'},
     {'word': 'der Ordner', 'article': 'der', 'translation': 'Papka'},
     {'word': 'der Computer', 'article': 'der', 'translation': 'Kompyuter'},
@@ -319,7 +377,11 @@ class GameWords {
     {'word': 'die Brücke', 'article': 'die', 'translation': 'Ko\'prik'},
     {'word': 'der Weg', 'article': 'der', 'translation': 'Yo\'l'},
     {'word': 'die Natur', 'article': 'die', 'translation': 'Tabiat'},
-    {'word': 'der Sonnenschein', 'article': 'der', 'translation': 'Quyosh nuri'},
+    {
+      'word': 'der Sonnenschein',
+      'article': 'der',
+      'translation': 'Quyosh nuri'
+    },
     {'word': 'der Schatten', 'article': 'der', 'translation': 'Soya'},
 
     // ===== TRANSPORT (30 ta) =====
@@ -339,7 +401,11 @@ class GameWords {
     {'word': 'die Fahrkarte', 'article': 'die', 'translation': 'Bilet'},
     {'word': 'der Fahrplan', 'article': 'der', 'translation': 'Jadval'},
     {'word': 'die Ampel', 'article': 'die', 'translation': 'Svetofor'},
-    {'word': 'der Führerschein', 'article': 'der', 'translation': 'Haydovchilik guvohnomasi'},
+    {
+      'word': 'der Führerschein',
+      'article': 'der',
+      'translation': 'Haydovchilik guvohnomasi'
+    },
     {'word': 'der Stau', 'article': 'der', 'translation': 'Tirbandlik'},
     {'word': 'die Straße', 'article': 'die', 'translation': 'Ko\'cha'},
     {'word': 'der Gehweg', 'article': 'der', 'translation': 'Yo\'lak'},
@@ -363,7 +429,11 @@ class GameWords {
     {'word': 'die Apotheke', 'article': 'die', 'translation': 'Dorixona'},
     {'word': 'das Krankenhaus', 'article': 'das', 'translation': 'Kasalxona'},
     {'word': 'die Polizei', 'article': 'die', 'translation': 'Politsiya'},
-    {'word': 'die Feuerwehr', 'article': 'die', 'translation': 'O\'t o\'chirish'},
+    {
+      'word': 'die Feuerwehr',
+      'article': 'die',
+      'translation': 'O\'t o\'chirish'
+    },
     {'word': 'das Rathaus', 'article': 'das', 'translation': 'Munitsipalitet'},
     {'word': 'die Post', 'article': 'die', 'translation': 'Pochta'},
     {'word': 'die Bank', 'article': 'die', 'translation': 'Bank'},
@@ -375,7 +445,11 @@ class GameWords {
     {'word': 'das Theater', 'article': 'das', 'translation': 'Teatr'},
     {'word': 'die Bibliothek', 'article': 'die', 'translation': 'Kutubxona'},
     {'word': 'der Park', 'article': 'der', 'translation': 'Park'},
-    {'word': 'der Spielplatz', 'article': 'der', 'translation': 'O\'yin maydonchasi'},
+    {
+      'word': 'der Spielplatz',
+      'article': 'der',
+      'translation': 'O\'yin maydonchasi'
+    },
     {'word': 'die Kirche', 'article': 'die', 'translation': 'Cherkov'},
     {'word': 'die Moschee', 'article': 'die', 'translation': 'Masjid'},
     {'word': 'der Markt', 'article': 'der', 'translation': 'Bozor'},
@@ -385,11 +459,19 @@ class GameWords {
     {'word': 'die Garage', 'article': 'die', 'translation': 'Garaj'},
     {'word': 'der Parkplatz', 'article': 'der', 'translation': 'Avtoturargoh'},
     {'word': 'die Ampel', 'article': 'die', 'translation': 'Svetofor'},
-    {'word': 'der Zebrastreifen', 'article': 'der', 'translation': 'Piyodalar o\'tish joyi'},
+    {
+      'word': 'der Zebrastreifen',
+      'article': 'der',
+      'translation': 'Piyodalar o\'tish joyi'
+    },
     {'word': 'das Kino', 'article': 'das', 'translation': 'Kinoteatr'},
     {'word': 'die Disco', 'article': 'die', 'translation': 'Diskoteka'},
     {'word': 'der Friseur', 'article': 'der', 'translation': 'Sartarosh'},
-    {'word': 'die Reinigung', 'article': 'die', 'translation': 'Kimyoviy tozalash'},
+    {
+      'word': 'die Reinigung',
+      'article': 'die',
+      'translation': 'Kimyoviy tozalash'
+    },
 
     // ===== SPORT VA SOG'LIQ (30 ta) =====
     {'word': 'der Sport', 'article': 'der', 'translation': 'Sport'},
@@ -457,7 +539,11 @@ class GameWords {
     {'word': 'der Oktober', 'article': 'der', 'translation': 'Oktabr'},
     {'word': 'der November', 'article': 'der', 'translation': 'Noyabr'},
     {'word': 'der Dezember', 'article': 'der', 'translation': 'Dekabr'},
-    {'word': 'das Wochenende', 'article': 'das', 'translation': 'Dam olish kuni'},
+    {
+      'word': 'das Wochenende',
+      'article': 'das',
+      'translation': 'Dam olish kuni'
+    },
     {'word': 'der Feiertag', 'article': 'der', 'translation': 'Bayram'},
 
     // ===== BOSHQA MUHIM SO'ZLAR (40 ta) =====
@@ -511,6 +597,304 @@ class GameWords {
     {'word': 'die Hoffnung', 'article': 'die', 'translation': 'Umid'},
     {'word': 'die Liebe', 'article': 'die', 'translation': 'Sevgi'},
     {'word': 'der Hass', 'article': 'der', 'translation': 'Nafrat'},
+
+    // ===== KASBLAR VA ISH (30 ta) =====
+    {'word': 'der Ingenieur', 'article': 'der', 'translation': 'Muhandis'},
+    {
+      'word': 'die Ingenieurin',
+      'article': 'die',
+      'translation': 'Ayol muhandis'
+    },
+    {'word': 'der Architekt', 'article': 'der', 'translation': 'Arxitektor'},
+    {
+      'word': 'die Architektin',
+      'article': 'die',
+      'translation': 'Ayol arxitektor'
+    },
+    {'word': 'der Schauspieler', 'article': 'der', 'translation': 'Aktyor'},
+    {'word': 'die Schauspielerin', 'article': 'die', 'translation': 'Aktrisa'},
+    {
+      'word': 'der Sänger',
+      'article': 'der',
+      'translation': 'Qo\'shiqchi (erkak)'
+    },
+    {
+      'word': 'die Sängerin',
+      'article': 'die',
+      'translation': 'Qo\'shiqchi (ayol)'
+    },
+    {'word': 'der Autor', 'article': 'der', 'translation': 'Yozuvchi'},
+    {'word': 'die Autorin', 'article': 'die', 'translation': 'Ayol yozuvchi'},
+    {'word': 'der Journalist', 'article': 'der', 'translation': 'Jurnalist'},
+    {
+      'word': 'die Journalistin',
+      'article': 'die',
+      'translation': 'Ayol jurnalist'
+    },
+    {'word': 'der Fotograf', 'article': 'der', 'translation': 'Fotograf'},
+    {
+      'word': 'die Fotografin',
+      'article': 'die',
+      'translation': 'Ayol fotograf'
+    },
+    {'word': 'der Mechaniker', 'article': 'der', 'translation': 'Mexanik'},
+    {'word': 'der Elektriker', 'article': 'der', 'translation': 'Elektrik'},
+    {'word': 'der Bauer', 'article': 'der', 'translation': 'Fermer'},
+    {'word': 'die Bäuerin', 'article': 'die', 'translation': 'Ayol fermer'},
+    {'word': 'der Friseur', 'article': 'der', 'translation': 'Sartarosh'},
+    {
+      'word': 'die Friseurin',
+      'article': 'die',
+      'translation': 'Ayol sartarosh'
+    },
+    {'word': 'der Pilot', 'article': 'der', 'translation': 'Uchuvchi'},
+    {'word': 'die Pilotin', 'article': 'die', 'translation': 'Ayol uchuvchi'},
+    {'word': 'der Anwalt', 'article': 'der', 'translation': 'Advokat'},
+    {'word': 'die Anwältin', 'article': 'die', 'translation': 'Ayol advokat'},
+    {'word': 'der Richter', 'article': 'der', 'translation': 'Sudya'},
+    {'word': 'die Richterin', 'article': 'die', 'translation': 'Ayol sudya'},
+    {'word': 'der Zahnarzt', 'article': 'der', 'translation': 'Tish shifokori'},
+    {
+      'word': 'die Zahnärztin',
+      'article': 'die',
+      'translation': 'Ayol tish shifokori'
+    },
+    {'word': 'der Politiker', 'article': 'der', 'translation': 'Siyosatchi'},
+    {
+      'word': 'die Politikerin',
+      'article': 'die',
+      'translation': 'Ayol siyosatchi'
+    },
+
+    // ===== TANA VA SOG'LIQ (QO'SHIMCHA) (20 ta) =====
+    {'word': 'der Hals', 'article': 'der', 'translation': 'Bo\'yin'},
+    {'word': 'die Schulter', 'article': 'die', 'translation': 'Yelka'},
+    {'word': 'der Arm', 'article': 'der', 'translation': 'Qo\'l (bilak)'},
+    {'word': 'das Knie', 'article': 'das', 'translation': 'Tizza'},
+    {'word': 'der Zeh', 'article': 'der', 'translation': 'Oyoq barmog\'i'},
+    {'word': 'die Haut', 'article': 'die', 'translation': 'Teri'},
+    {'word': 'das Blut', 'article': 'das', 'translation': 'Qon'},
+    {'word': 'das Gehirn', 'article': 'das', 'translation': 'Miya'},
+    {'word': 'der Muskel', 'article': 'der', 'translation': 'Mushak'},
+    {'word': 'der Knochen', 'article': 'der', 'translation': 'Suyak'},
+    {
+      'word': 'die Zunge',
+      'article': 'die',
+      'translation': 'Til (tana a\'zosi)'
+    },
+    {'word': 'die Lippe', 'article': 'die', 'translation': 'Lab'},
+    {'word': 'das Haar', 'article': 'das', 'translation': 'Soch'},
+    {'word': 'das Gesicht', 'article': 'das', 'translation': 'Yuz'},
+    {'word': 'der Magen', 'article': 'der', 'translation': 'Oshqozon'},
+    {'word': 'die Lunge', 'article': 'die', 'translation': 'O\'pka'},
+    {'word': 'die Krankheit', 'article': 'die', 'translation': 'Kasallik'},
+    {'word': 'das Fieber', 'article': 'das', 'translation': 'Isitma'},
+    {'word': 'der Husten', 'article': 'der', 'translation': 'Yo\'tal'},
+    {'word': 'die Apotheke', 'article': 'die', 'translation': 'Dorixona'},
+
+    // ===== ASBOB VA USKUNALAR (30 ta) =====
+    {'word': 'der Hammer', 'article': 'der', 'translation': 'Bolg\'a'},
+    {'word': 'der Nagel', 'article': 'der', 'translation': 'Mix'},
+    {'word': 'die Schraube', 'article': 'die', 'translation': 'Buruq (Vint)'},
+    {
+      'word': 'der Schraubenzieher',
+      'article': 'der',
+      'translation': 'Otvyortka'
+    },
+    {'word': 'die Zange', 'article': 'die', 'translation': 'Ombir'},
+    {'word': 'die Säge', 'article': 'die', 'translation': 'Arra'},
+    {'word': 'der Bohrer', 'article': 'der', 'translation': 'Drel'},
+    {'word': 'das Werkzeug', 'article': 'das', 'translation': 'Asbob'},
+    {'word': 'der Pinsel', 'article': 'der', 'translation': 'Mo\'yqalam'},
+    {'word': 'die Schaufel', 'article': 'die', 'translation': 'Kurak'},
+    {'word': 'der Eimer', 'article': 'der', 'translation': 'Paqir'},
+    {'word': 'der Besen', 'article': 'der', 'translation': 'Supurgi'},
+    {'word': 'der Schwamm', 'article': 'der', 'translation': 'Gubka'},
+    {'word': 'die Leiter', 'article': 'die', 'translation': 'Narvon'},
+    {'word': 'das Seil', 'article': 'das', 'translation': 'Arqon'},
+    {'word': 'der Faden', 'article': 'der', 'translation': 'Ip'},
+    {'word': 'die Nadel', 'article': 'die', 'translation': 'Igna'},
+    {'word': 'das Bügeleisen', 'article': 'das', 'translation': 'Dazmol'},
+    {
+      'word': 'die Nähmaschine',
+      'article': 'die',
+      'translation': 'Tikuv mashinasi'
+    },
+    {'word': 'der Koffer', 'article': 'der', 'translation': 'Jomadon'},
+    {'word': 'die Kiste', 'article': 'die', 'translation': 'Yashik'},
+    {'word': 'der Karton', 'article': 'der', 'translation': 'Karton quti'},
+    {'word': 'die Batterie', 'article': 'die', 'translation': 'Batareya'},
+    {'word': 'das Kabel', 'article': 'das', 'translation': 'Kabel'},
+    {'word': 'der Stecker', 'article': 'der', 'translation': 'Shtepsel'},
+    {'word': 'die Steckdose', 'article': 'die', 'translation': 'Rozetka'},
+    {'word': 'der Schalter', 'article': 'der', 'translation': 'Vyklyuchatel'},
+    {'word': 'der Bildschirm', 'article': 'der', 'translation': 'Ekran'},
+    {'word': 'die Fernbedienung', 'article': 'die', 'translation': 'Pult'},
+    {'word': 'der Kopfhörer', 'article': 'der', 'translation': 'Quloqchin'},
+
+    // ===== TABIAT VA HAYVONLAR (QO'SHIMCHA) (30 ta) =====
+    {'word': 'der Ozean', 'article': 'der', 'translation': 'Okean'},
+    {'word': 'der Dschungel', 'article': 'der', 'translation': 'Jangalzor'},
+    {'word': 'die Wüste', 'article': 'die', 'translation': 'Cho\'l'},
+    {'word': 'der Vulkan', 'article': 'der', 'translation': 'Vulqon'},
+    {'word': 'die Höhle', 'article': 'die', 'translation': 'G\'or'},
+    {'word': 'der Wasserfall', 'article': 'der', 'translation': 'Sharshara'},
+    {'word': 'der Gletscher', 'article': 'der', 'translation': 'Muzlik'},
+    {'word': 'der Planet', 'article': 'der', 'translation': 'Sayyora'},
+    {'word': 'das Universum', 'article': 'das', 'translation': 'Koinot'},
+    {'word': 'der Komet', 'article': 'der', 'translation': 'Kometa'},
+    {'word': 'das Insekt', 'article': 'das', 'translation': 'Hasharot'},
+    {'word': 'die Spinne', 'article': 'die', 'translation': 'O\'rgimchak'},
+    {'word': 'die Mücke', 'article': 'die', 'translation': 'Chivin'},
+    {'word': 'die Fliege', 'article': 'die', 'translation': 'Pashsha'},
+    {'word': 'die Ameise', 'article': 'die', 'translation': 'Chumoli'},
+    {'word': 'der Käfer', 'article': 'der', 'translation': 'Qo\'ng\'iz'},
+    {'word': 'der Wurm', 'article': 'der', 'translation': 'Chuvalchang'},
+    {'word': 'die Schnecke', 'article': 'die', 'translation': 'Shilliqqurt'},
+    {'word': 'der Schwan', 'article': 'der', 'translation': 'Oqqush'},
+    {'word': 'der Pfau', 'article': 'der', 'translation': 'Tovus'},
+    {'word': 'die Taube', 'article': 'die', 'translation': 'Kaptar'},
+    {'word': 'der Rabe', 'article': 'der', 'translation': 'Qarg\'a'},
+    {'word': 'der Papagei', 'article': 'der', 'translation': 'To\'tiqush'},
+    {'word': 'das Nashorn', 'article': 'das', 'translation': 'Karkidon'},
+    {'word': 'das Flusspferd', 'article': 'das', 'translation': 'Begemot'},
+    {'word': 'das Kamel', 'article': 'das', 'translation': 'Tuya'},
+    {'word': 'der Hirsch', 'article': 'der', 'translation': 'Bug\'u'},
+    {'word': 'das Reh', 'article': 'das', 'translation': 'Ohun'},
+    {'word': 'der Biber', 'article': 'der', 'translation': 'Qunduz'},
+    {'word': 'der Dachs', 'article': 'der', 'translation': 'Bo\'rsiq'},
+
+    // ===== MEVALAR VA SABZAVOTLAR (QO'SHIMCHA) (30 ta) =====
+    {'word': 'die Ananas', 'article': 'die', 'translation': 'Ananas'},
+    {'word': 'die Wassermelone', 'article': 'die', 'translation': 'Tarbuz'},
+    {'word': 'die Melone', 'article': 'die', 'translation': 'Qovun'},
+    {'word': 'der Pfirsich', 'article': 'der', 'translation': 'Shaftoli'},
+    {'word': 'die Aprikose', 'article': 'die', 'translation': 'O\'rik'},
+    {'word': 'die Pflaume', 'article': 'die', 'translation': 'Olxo\'ri'},
+    {'word': 'die Birne', 'article': 'die', 'translation': 'Nok'},
+    {'word': 'die Weintraube', 'article': 'die', 'translation': 'Uzum'},
+    {'word': 'die Himbeere', 'article': 'die', 'translation': 'Malina'},
+    {'word': 'die Brombeere', 'article': 'die', 'translation': 'Maymunjon'},
+    {'word': 'die Blaubeere', 'article': 'die', 'translation': 'Chernika'},
+    {'word': 'die Kirsche', 'article': 'die', 'translation': 'Gilos'},
+    {'word': 'der Granatapfel', 'article': 'der', 'translation': 'Anor'},
+    {'word': 'die Feige', 'article': 'die', 'translation': 'Anjir'},
+    {'word': 'die Nuss', 'article': 'die', 'translation': 'Yong\'oq'},
+    {'word': 'die Mandel', 'article': 'die', 'translation': 'Bodom'},
+    {'word': 'der Pilz', 'article': 'der', 'translation': 'Qo\'ziqorin'},
+    {'word': 'der Kürbis', 'article': 'der', 'translation': 'Qovoq'},
+    {'word': 'die Aubergine', 'article': 'die', 'translation': 'Baqlajon'},
+    {
+      'word': 'die Paprika',
+      'article': 'die',
+      'translation': 'Bulg\'or qalampiri'
+    },
+    {'word': 'der Kohl', 'article': 'der', 'translation': 'Karam'},
+    {'word': 'der Brokkoli', 'article': 'der', 'translation': 'Brokkoli'},
+    {'word': 'der Blumenkohl', 'article': 'der', 'translation': 'Gulkaram'},
+    {'word': 'der Spinat', 'article': 'der', 'translation': 'Ismaloq'},
+    {'word': 'die Petersilie', 'article': 'die', 'translation': 'Petrushka'},
+    {'word': 'der Dill', 'article': 'der', 'translation': 'Ukrop'},
+    {'word': 'die Minze', 'article': 'die', 'translation': 'Yalpiz'},
+    {'word': 'der Knoblauch', 'article': 'der', 'translation': 'Sarimsoqpiyoz'},
+    {'word': 'der Mais', 'article': 'der', 'translation': 'Makkajo\'xori'},
+    {'word': 'die Bohne', 'article': 'die', 'translation': 'Loviya'},
+
+    // ===== OSHXONA BUYUMLARI VA BOSHQA (30 ta) =====
+    {'word': 'der Mixer', 'article': 'der', 'translation': 'Mikser'},
+    {'word': 'der Toaster', 'article': 'der', 'translation': 'Toster'},
+    {
+      'word': 'die Mikrowelle',
+      'article': 'die',
+      'translation': 'Mikroto\'lqinli pech'
+    },
+    {
+      'word': 'der Wasserkocher',
+      'article': 'der',
+      'translation': 'Choynak (elektr)'
+    },
+    {
+      'word': 'die Teekanne',
+      'article': 'die',
+      'translation': 'Choynak (damlash uchun)'
+    },
+    {'word': 'das Brett', 'article': 'das', 'translation': 'Taxtakach'},
+    {'word': 'der Deckel', 'article': 'der', 'translation': 'Qopqoq'},
+    {'word': 'das Tablett', 'article': 'das', 'translation': 'Patnis'},
+    {'word': 'der Krug', 'article': 'der', 'translation': 'Ko\'za'},
+    {'word': 'die Schüssel', 'article': 'die', 'translation': 'Kosa'},
+    {'word': 'die Serviette', 'article': 'die', 'translation': 'Salfetka'},
+    {'word': 'der Strohhalm', 'article': 'der', 'translation': 'Trubochka'},
+    {'word': 'der Müll', 'article': 'der', 'translation': 'Axlat'},
+    {'word': 'die Asche', 'article': 'die', 'translation': 'Kul'},
+    {'word': 'der Staub', 'article': 'der', 'translation': 'Chang'},
+    {'word': 'der Fleck', 'article': 'der', 'translation': 'Dog\''},
+    {'word': 'der Schwamm', 'article': 'der', 'translation': 'Gubka'},
+    {
+      'word': 'das Spülmittel',
+      'article': 'das',
+      'translation': 'Idish yuvish vositasi'
+    },
+    {
+      'word': 'das Waschmittel',
+      'article': 'das',
+      'translation': 'Kir yuvish kukuni'
+    },
+    {'word': 'das Shampoo', 'article': 'das', 'translation': 'Shampun'},
+    {
+      'word': 'die Zahnbürste',
+      'article': 'die',
+      'translation': 'Tish cho\'tkasi'
+    },
+    {'word': 'die Zahnpasta', 'article': 'die', 'translation': 'Tish pastasi'},
+    {'word': 'der Kamm', 'article': 'der', 'translation': 'Taroq'},
+    {'word': 'die Bürste', 'article': 'die', 'translation': 'Cho\'tka'},
+    {'word': 'der Rasierer', 'article': 'der', 'translation': 'Ustra'},
+    {'word': 'die Creme', 'article': 'die', 'translation': 'Krem'},
+    {'word': 'das Parfüm', 'article': 'das', 'translation': 'Atir'},
+    {'word': 'das Deo', 'article': 'das', 'translation': 'Dezodorant'},
+    {'word': 'das Make-up', 'article': 'das', 'translation': 'Makiyaj'},
+    {
+      'word': 'der Lippenstift',
+      'article': 'der',
+      'translation': 'Lab bo\'yog\'i'
+    },
+
+    // ===== TRANSPORT VA SAYOHAT (QO'SHIMCHA) (10 ta) =====
+    {'word': 'das Ticket', 'article': 'das', 'translation': 'Chipta'},
+    {
+      'word': 'der Passagier',
+      'article': 'der',
+      'translation': 'Yo\'lovchi (erkak)'
+    },
+    {
+      'word': 'die Passagierin',
+      'article': 'die',
+      'translation': 'Yo\'lovchi (ayol)'
+    },
+    {'word': 'das Gepäck', 'article': 'das', 'translation': 'Yuk'},
+    {'word': 'das Zelt', 'article': 'das', 'translation': 'Chodir'},
+    {'word': 'der Schlafsack', 'article': 'der', 'translation': 'Uxlash qopi'},
+    {'word': 'der Kompass', 'article': 'der', 'translation': 'Kompas'},
+    {'word': 'die Karte', 'article': 'die', 'translation': 'Xarita'},
+    {'word': 'der Zoll', 'article': 'der', 'translation': 'Bojxona'},
+    {'word': 'das Souvenir', 'article': 'das', 'translation': 'Suvenir'},
+
+    // ===== UMUMIY (10 ta) =====
+    {'word': 'die Wahrheit', 'article': 'die', 'translation': 'Haqiqat'},
+    {'word': 'die Lüge', 'article': 'die', 'translation': 'Yolg\'on'},
+    {'word': 'das Geheimnis', 'article': 'das', 'translation': 'Sir'},
+    {'word': 'der Beweis', 'article': 'der', 'translation': 'Dalil'},
+    {'word': 'die Gefahr', 'article': 'die', 'translation': 'Xavf'},
+    {'word': 'die Sicherheit', 'article': 'die', 'translation': 'Xavfsizlik'},
+    {'word': 'die Freiheit', 'article': 'die', 'translation': 'Erkinlik'},
+    {'word': 'die Wahl', 'article': 'die', 'translation': 'Tanlov'},
+    {'word': 'der Erfolg', 'article': 'der', 'translation': 'Muvaffaqiyat'},
+    {
+      'word': 'der Misserfolg',
+      'article': 'der',
+      'translation': 'Muvaffaqiyatsizlik'
+    },
   ];
 
   static int get totalWords => derDieDasWords.length;

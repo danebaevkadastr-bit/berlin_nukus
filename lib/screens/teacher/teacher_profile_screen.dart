@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
@@ -107,16 +108,19 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                     ],
                   ),
                   child: userProvider.avatarUrl.isEmpty
-                      ? const Center(child: Text('👨‍🏫', style: TextStyle(fontSize: 48)))
+                      ? const Center(child: Icon(Icons.school_rounded, size: 48, color: Colors.white))
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(26),
-                          child: Image.network(
-                            userProvider.avatarUrl,
+                          child: CachedNetworkImage(
+                            imageUrl: userProvider.avatarUrl,
                             fit: BoxFit.cover,
                             width: 88,
                             height: 88,
-                            errorBuilder: (_, __, ___) => const Center(
-                              child: Text('👨‍🏫', style: TextStyle(fontSize: 48)),
+                            placeholder: (context, url) => const Center(
+                              child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                            ),
+                            errorWidget: (context, url, error) => const Center(
+                              child: Icon(Icons.school_rounded, size: 48, color: Colors.white),
                             ),
                           ),
                         ),
@@ -208,7 +212,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
               borderRadius: BorderRadius.circular(16),
               color: AppColors.duoBlue.withValues(alpha: 0.15),
             ),
-            child: const Center(child: Text('⚙️', style: TextStyle(fontSize: 24))),
+            child: const Center(child: Icon(Icons.settings_rounded, color: AppColors.duoBlue, size: 28)),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -256,7 +260,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('🚪', style: TextStyle(fontSize: 20)),
+          const Icon(Icons.logout_rounded, color: Colors.white, size: 24),
           const SizedBox(width: 12),
           Text(
             l.logoutLabel.toUpperCase(),

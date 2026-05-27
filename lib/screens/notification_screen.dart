@@ -72,6 +72,35 @@ class _NotificationScreenState extends State<NotificationScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('⚠️', style: TextStyle(fontSize: 64)),
+                  const SizedBox(height: 16),
+                  Text(
+                    l.errorOccurred,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    snapshot.error.toString(),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white38 : AppColors.duoTextLight,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+
           final notifications = snapshot.data ?? [];
 
           if (notifications.isEmpty) {
@@ -89,7 +118,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             itemCount: notifications.length,
             itemBuilder: (context, index) {
               final notification = notifications[index];
-              return _buildNotificationCard(notification, isDark, l);
+              return _buildNotificationCard(notification, isDark, l, userProvider);
             },
           );
         },
@@ -247,29 +276,34 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  Widget _buildNotificationCard(dynamic notification, bool isDark, AppLocalizations l) {
+  Widget _buildNotificationCard(
+    dynamic notification,
+    bool isDark,
+    AppLocalizations l,
+    UserProvider userProvider,
+  ) {
     final isRead = notification.isRead ?? false;
     final type = notification.type ?? 'system';
     final notificationId = notification.id;
 
-    String icon;
+    IconData iconData;
     Color color;
 
     switch (type) {
       case 'homework':
-        icon = '📝';
+        iconData = Icons.assignment_rounded;
         color = AppColors.duoOrange;
         break;
       case 'lesson':
-        icon = '📚';
+        iconData = Icons.school_rounded;
         color = AppColors.duoBlue;
         break;
       case 'payment':
-        icon = '💰';
+        iconData = Icons.payments_rounded;
         color = AppColors.duoGreen;
         break;
       default:
-        icon = '🔔';
+        iconData = Icons.notifications_rounded;
         color = AppColors.duoPurple;
     }
 
@@ -278,12 +312,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
       child: GamifiedCard(
         padding: const EdgeInsets.all(16),
         color: isRead
-            ? (isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.7))
-            : (isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white),
+            ? (isDark 
+                ? Color.alphaBlend(AppColors.duoCardGray.withValues(alpha: 0.05), const Color(0xFF131F24)) 
+                : const Color(0xFFF0F0F0)) // A solid very light gray instead of transparent white for read notifications
+            : (isDark 
+                ? Color.alphaBlend(AppColors.duoCardGray.withValues(alpha: 0.1), const Color(0xFF131F24)) 
+                : Colors.white),
         shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
         shadowDepth: isRead ? 2 : 4,
         onTap: () async {
-          if (!isRead) {
+          if (!isRead && notificationId != null) {
             await _notificationService.markAsRead(notificationId);
           }
         },
@@ -297,7 +335,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 color: color.withValues(alpha: 0.15),
               ),
               child: Center(
-                child: Text(icon, style: const TextStyle(fontSize: 24)),
+                child: Icon(iconData, size: 24, color: color),
               ),
             ),
             const SizedBox(width: 14),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../utils/app_colors.dart';
 
@@ -33,12 +34,24 @@ class UserAvatar extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: url.isNotEmpty
-          ? Image.network(
-              url,
+          ? CachedNetworkImage(
+              imageUrl: url,
               fit: BoxFit.cover,
               width: size,
               height: size,
-              errorBuilder: (_, __, ___) => _fallback(),
+              placeholder: (context, url) => Center(
+                child: SizedBox(
+                  width: size * 0.4,
+                  height: size * 0.4,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).primaryColor.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              ),
+              errorWidget: (context, url, error) => _fallback(),
             )
           : _fallback(),
     );

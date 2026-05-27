@@ -9,6 +9,7 @@ import '../../services/darslar_service.dart';
 import '../../services/notification_service.dart';
 import 'teacher_course_detail_screen.dart';
 import '../notification_screen.dart';
+import '../../widgets/user_avatar.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -130,22 +131,32 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                               ),
                             ],
                           ),
-                          child: const Center(
-                            child: Text('👨‍🏫', style: TextStyle(fontSize: 28)),
+                          child: UserAvatar(
+                            imageUrl: userProvider.avatarUrl,
+                            size: 48,
+                            borderRadius: 16,
+                            fallbackEmoji: '👨‍🏫',
+                            backgroundColor: Colors.transparent,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '${l.hello}, ${userProvider.name}! 👋',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color:
-                                    isDark ? Colors.white : AppColors.duoTextDark,
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  '${l.hello}, ${userProvider.name}!',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color:
+                                        isDark ? Colors.white : AppColors.duoTextDark,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(Icons.waving_hand_rounded, color: Colors.amber, size: 20),
+                              ],
                             ),
                             Text(
                               'Berlin Nukus',
@@ -224,19 +235,19 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: _buildStatCard('$totalGroups', '👥', l.navGroup,
+                            child: _buildStatCard('$totalGroups', Icons.groups_rounded, l.navGroup,
                                 AppColors.duoBlue, AppColors.duoBlueShadow),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: _buildStatCard("$totalStudents", '🧑‍🎓', l.studentsShort,
+                            child: _buildStatCard("$totalStudents", Icons.school_rounded, l.studentsShort,
                                 AppColors.duoGreen, AppColors.duoGreenShadow),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildStatCard(
                                 '${todayLessons.length}',
-                                '📚',
+                                Icons.menu_book_rounded,
                                 l.lessonsShort,
                                 AppColors.duoOrange,
                                 AppColors.duoOrangeShadow),
@@ -268,7 +279,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
   // ── Stat card (colored 3D) ──
   Widget _buildStatCard(
-      String value, String emoji, String label, Color color, Color shadow) {
+      String value, IconData iconData, String label, Color color, Color shadow) {
     return GamifiedCard(
       padding: const EdgeInsets.symmetric(vertical: 18),
       color: color,
@@ -277,7 +288,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       borderRadius: 16,
       child: Column(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
+          Icon(iconData, size: 28, color: Colors.white),
           const SizedBox(height: 6),
           Text(
             value,
@@ -309,7 +320,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       children: [
         Row(
           children: [
-            const Text('📅', style: TextStyle(fontSize: 20)),
+            const Icon(Icons.calendar_month_rounded, size: 24, color: AppColors.duoBlue),
             const SizedBox(width: 8),
             Text(
               l.todayLessons.toUpperCase(),
@@ -352,27 +363,27 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
   Widget _buildTodayLessonCard(_TodayLesson lesson, bool isDark) {
     Color lessonColor;
-    String lessonEmoji;
+    IconData lessonIcon;
     switch (lesson.lessonType) {
       case 'Lesen':
         lessonColor = AppColors.duoBlue;
-        lessonEmoji = '📖';
+        lessonIcon = Icons.menu_book_rounded;
         break;
       case 'Hören':
         lessonColor = AppColors.duoGreen;
-        lessonEmoji = '🎧';
+        lessonIcon = Icons.headphones_rounded;
         break;
       case 'Sprechen':
         lessonColor = AppColors.duoOrange;
-        lessonEmoji = '🗣️';
+        lessonIcon = Icons.record_voice_over_rounded;
         break;
       case 'Schreiben':
         lessonColor = AppColors.duoPurple;
-        lessonEmoji = '✏️';
+        lessonIcon = Icons.edit_rounded;
         break;
       default:
         lessonColor = AppColors.duoBlue;
-        lessonEmoji = '📚';
+        lessonIcon = Icons.class_rounded;
     }
 
     return GamifiedCard(
@@ -410,8 +421,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               ],
             ),
             child: Center(
-                child: Text(lessonEmoji,
-                    style: const TextStyle(fontSize: 26))),
+                child: Icon(lessonIcon, color: Colors.white, size: 26)),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -429,31 +439,49 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Text('⏰ ${lesson.time}',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: isDark
-                                ? Colors.white70
-                                : AppColors.duoTextLight)),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time_rounded, size: 14, color: isDark ? Colors.white70 : AppColors.duoTextLight),
+                        const SizedBox(width: 4),
+                        Text(lesson.time,
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? Colors.white70
+                                    : AppColors.duoTextLight)),
+                      ],
+                    ),
                     if (lesson.room != null && lesson.room!.isNotEmpty) ...[
                       const SizedBox(width: 12),
-                      Text('🏫 ${lesson.room}',
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: isDark
-                                  ? Colors.white70
-                                  : AppColors.duoTextLight)),
+                      Row(
+                        children: [
+                          Icon(Icons.room_rounded, size: 14, color: isDark ? Colors.white70 : AppColors.duoTextLight),
+                          const SizedBox(width: 4),
+                          Text(lesson.room!,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : AppColors.duoTextLight)),
+                        ],
+                      ),
                     ],
                     const SizedBox(width: 12),
-                    Text('👥 ${lesson.studentsCount}',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: isDark
-                                ? Colors.white70
-                                : AppColors.duoTextLight)),
+                    Row(
+                      children: [
+                        Icon(Icons.people_rounded, size: 14, color: isDark ? Colors.white70 : AppColors.duoTextLight),
+                        const SizedBox(width: 4),
+                        Text('${lesson.studentsCount}',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? Colors.white70
+                                    : AppColors.duoTextLight)),
+                      ],
+                    ),
                   ],
                 ),
               ],
@@ -485,7 +513,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       children: [
         Row(
           children: [
-            const Text('📋', style: TextStyle(fontSize: 20)),
+            const Icon(Icons.assignment_rounded, size: 24, color: AppColors.duoOrange),
             const SizedBox(width: 8),
             Text(
               l.pendingWork.toUpperCase(),
@@ -561,7 +589,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   color: AppColors.duoOrange.withValues(alpha: 0.2),
                 ),
                 child: const Center(
-                    child: Text('📝', style: TextStyle(fontSize: 24))),
+                    child: Icon(Icons.edit_document, color: AppColors.duoOrange, size: 24)),
               ),
               const SizedBox(width: 12),
               Expanded(

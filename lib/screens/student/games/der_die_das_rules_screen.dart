@@ -5,10 +5,18 @@ import '../../../utils/der_die_das_rules.dart';
 import '../../../utils/game_words.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/gamified_card.dart';
+import '../der_die_das_learning_screen.dart';
 import 'der_die_das_game_screen.dart';
 
+enum DerDieDasRulesMode { game, learning }
+
 class DerDieDasRulesScreen extends StatelessWidget {
-  const DerDieDasRulesScreen({super.key});
+  final DerDieDasRulesMode mode;
+
+  const DerDieDasRulesScreen({
+    super.key,
+    this.mode = DerDieDasRulesMode.game,
+  });
 
   Color _articleColor(String article) {
     switch (article) {
@@ -191,14 +199,27 @@ class DerDieDasRulesScreen extends StatelessWidget {
                 color: AppColors.duoGreen,
                 shadowColor: AppColors.duoGreenShadow,
                 shadowDepth: 5,
-                onTap: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const DerDieDasGameScreen()),
-                ),
-                child: const Center(
+                onTap: () {
+                  if (mode == DerDieDasRulesMode.learning) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DerDieDasLearningScreen()),
+                    );
+                  } else {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DerDieDasGameScreen()),
+                    );
+                  }
+                },
+                child: Center(
                   child: Text(
-                    'O\'YINNI BOSHLASH',
-                    style: TextStyle(
+                    mode == DerDieDasRulesMode.learning
+                        ? 'O\'RGANISHNI BOSHLASH'
+                        : 'O\'YINNI BOSHLASH',
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,

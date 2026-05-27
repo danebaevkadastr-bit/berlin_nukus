@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart';
+import '../../utils/responsive_layout.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/skeleton_loader.dart';
@@ -21,6 +22,8 @@ import '../../l10n/app_localizations.dart';
 import '../../services/firebase_service.dart';
 import '../../services/streak_service.dart';
 import '../../services/notification_service.dart';
+import '../../widgets/user_avatar.dart';
+import '../../utils/group_check_helper.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -67,33 +70,34 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
         return Scaffold(
           backgroundColor: ThemeManager.isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
           body: SafeArea(
-            child: Stack(
-              children: [
-                IndexedStack(
-                  index: _currentIndex,
-                  children: [
-                    const StudentHomeContent(),
-                    const StudentGroupScreen(),
-                    const StudentLearningScreen(),
-                    StudentGamesScreen(isActive: _currentIndex == 3),
-                    const StudentProfileScreen(),
-                  ],
-                ),
-                // Pastki navigatsiya
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: BottomNavBar(
-                    currentIndex: _currentIndex,
-                    onTap: (index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
+            child: ResponsiveLayout(
+              mobile: Stack(
+                children: [
+                  IndexedStack(
+                    index: _currentIndex,
+                    children: [
+                      const StudentHomeContent(),
+                      const StudentGroupScreen(),
+                      const StudentLearningScreen(),
+                      StudentGamesScreen(isActive: _currentIndex == 3),
+                      const StudentProfileScreen(),
+                    ],
                   ),
-                ),
-                // Streak animatsiyasi
+                  // Pastki navigatsiya
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: BottomNavBar(
+                      currentIndex: _currentIndex,
+                      onTap: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                    ),
+                  ),
+                  // Streak animatsiyasi
                 if (_showStreakAnimation)
                   Builder(
                     builder: (context) {
@@ -105,7 +109,11 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text('🔥', style: TextStyle(fontSize: 100)),
+                                const Icon(
+                                  Icons.local_fire_department_rounded,
+                                  size: 100,
+                                  color: AppColors.duoOrange,
+                                ),
                                 const SizedBox(height: 20),
                                 Text(
                                   streakL.streakSavedTitle,
@@ -133,9 +141,143 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   ),
               ],
             ),
+            desktop: Stack(
+              children: [
+                Row(
+                  children: [
+                    _buildSideNav(context, ThemeManager.isDark),
+                    Expanded(
+                      child: IndexedStack(
+                        index: _currentIndex,
+                        children: [
+                          const StudentHomeContent(),
+                          const StudentGroupScreen(),
+                          const StudentLearningScreen(),
+                          StudentGamesScreen(isActive: _currentIndex == 3),
+                          const StudentProfileScreen(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                // Streak animatsiyasi
+                if (_showStreakAnimation)
+                  Builder(
+                    builder: (context) {
+                      final streakL = AppLocalizations.of(context);
+                      return Positioned.fill(
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.local_fire_department_rounded,
+                                  size: 100,
+                                  color: AppColors.duoOrange,
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  streakL.streakSavedTitle,
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  streakL.keepLearningDaily,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+              ],
+            ),
+            ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSideNav(BuildContext context, bool isDark) {
+    final l = AppLocalizations.of(context);
+    return Container(
+      width: 250,
+      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+      child: Column(
+        children: [
+          const SizedBox(height: 40),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
+            child: Row(
+              children: [
+                Icon(Icons.school, color: AppColors.duoGreen, size: 32),
+                SizedBox(width: 12),
+                Text('Student', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.duoGreen)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 40),
+          _buildSideNavItem(context, Icons.home_rounded, l.navHome, 0),
+          _buildSideNavItem(context, Icons.group_rounded, l.navGroup, 1),
+          _buildSideNavItem(context, Icons.menu_book_rounded, l.navLearning, 2),
+          _buildSideNavItem(context, Icons.sports_esports_rounded, l.navGames, 3),
+          _buildSideNavItem(context, Icons.person_rounded, l.navProfile, 4),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSideNavItem(BuildContext context, IconData icon, String label, int index) {
+    final isActive = _currentIndex == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    const activeColor = AppColors.duoGreen;
+    final inactiveColor = isDark ? Colors.white54 : AppColors.duoTextLight;
+
+    return InkWell(
+      onTap: () => setState(() => _currentIndex = index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+        decoration: BoxDecoration(
+          color: isActive ? activeColor.withValues(alpha: 0.1) : Colors.transparent,
+          border: Border(
+            right: BorderSide(
+              color: isActive ? activeColor : Colors.transparent,
+              width: 4,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isActive ? activeColor : inactiveColor,
+              size: 24,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                color: isActive ? activeColor : inactiveColor,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -149,9 +291,61 @@ class StudentHomeContent extends StatefulWidget {
 
 class _StudentHomeContentState extends State<StudentHomeContent> {
   int _currentWeekIndex = 0;
+  
+  // Cache for weekly data to avoid full rebuild
+  Map<String, dynamic>? _cachedWeeklyData;
+  bool _isLoadingWeeklyData = false;
 
   String _formatDateKey(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWeeklyData();
+  }
+
+  Future<void> _loadWeeklyData() async {
+    if (_isLoadingWeeklyData) return;
+    
+    setState(() {
+      _isLoadingWeeklyData = true;
+    });
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    
+    try {
+      final values = await Future.wait([
+        StreakService.getCurrentStreak(userProvider.uid),
+        StreakService.getWeeklyUsageForWeek(userProvider.uid, weekOffset: _currentWeekIndex),
+        StreakService.getWeeklyDatesForWeek(weekOffset: _currentWeekIndex),
+      ]);
+
+      if (mounted) {
+        setState(() {
+          _cachedWeeklyData = {
+            'streak': values[0] as int,
+            'weeklyUsage': values[1] as List<double>,
+            'weeklyDates': values[2] as List<String>,
+          };
+          _isLoadingWeeklyData = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingWeeklyData = false;
+        });
+      }
+    }
+  }
+
+  void _changeWeek(int delta) {
+    setState(() {
+      _currentWeekIndex += delta;
+    });
+    _loadWeeklyData();
   }
 
   @override
@@ -240,6 +434,45 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
           return _buildEmptyState(isDark);
         }
 
+        // ── Real statistika hisoblash ──
+        final uid = userProvider.uid;
+        int totalLessons = 0;
+        int attendedLessons = 0;
+        double totalHomeworkScore = 0.0;
+        int scoredHomeworks = 0;
+
+        for (final data in snapshot.data!) {
+          final lessonsMap = data['lessons'] as Map<String, dynamic>? ?? {};
+          for (final lessonEntry in lessonsMap.entries) {
+            final lesson = lessonEntry.value as Map<String, dynamic>;
+            // Davomat
+            final attendance = lesson['attendance'] as Map<String, dynamic>? ?? {};
+            if (attendance.containsKey(uid)) {
+              totalLessons++;
+              if (attendance[uid] == true) attendedLessons++;
+            }
+            // O'rtacha ball
+            final subs = lesson['homeworkSubmissions'] as Map<String, dynamic>? ?? {};
+            final mySub = subs[uid] as Map<String, dynamic>?;
+            if (mySub != null && mySub['submitted'] == true) {
+              final testGrades = mySub['testGrades'] as Map<String, dynamic>? ?? {};
+              final correctCount = testGrades['correctCount'] as int? ?? 0;
+              final totalCount = testGrades['totalCount'] as int? ?? 0;
+              if (totalCount > 0) {
+                totalHomeworkScore += (correctCount / totalCount) * 100;
+                scoredHomeworks++;
+              }
+            }
+          }
+        }
+
+        final attendancePercent = totalLessons > 0
+            ? '${(attendedLessons / totalLessons * 100).round()}%'
+            : '--';
+        final averageScore = scoredHomeworks > 0
+            ? (totalHomeworkScore / scoredHomeworks).toStringAsFixed(1)
+            : '--';
+
         // We removed the full screen empty state for no lessons so that the header, stats, and leaderboard still render.
         // The UI handles no lessons by showing a '😴' card.
 
@@ -268,8 +501,12 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                             ),
                           ],
                         ),
-                        child: const Center(
-                          child: Text('🧑', style: TextStyle(fontSize: 28)),
+                        child: UserAvatar(
+                          imageUrl: userProvider.avatarUrl,
+                          size: 48,
+                          borderRadius: 16,
+                          fallbackEmoji: '🧑‍🎓',
+                          backgroundColor: Colors.transparent,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -277,7 +514,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${l.hello}, ${userProvider.name}! 👋',
+                            '${l.hello}, ${userProvider.name}!',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -418,9 +655,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildDarsInfo('⏰', todayLesson['time'] ?? l.unknown),
-                                _buildDarsInfo('🏫', todayLesson['room'] ?? l.unknown),
-                                _buildDarsInfo('👨‍🏫', todayTeacher ?? l.teacherBadge),
+                                _buildDarsInfo(Icons.access_time_rounded, todayLesson['time'] ?? l.unknown),
+                                _buildDarsInfo(Icons.school_rounded, todayLesson['room'] ?? l.unknown),
+                                _buildDarsInfo(Icons.person_rounded, todayTeacher ?? l.teacherBadge),
                               ],
                             ),
                           ],
@@ -434,7 +671,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                         child: Center(
                           child: Column(
                             children: [
-                              const Text('😴', style: TextStyle(fontSize: 40)),
+                              Icon(Icons.bedtime_rounded, size: 40, color: isDark ? Colors.white70 : AppColors.duoTextLight),
                               const SizedBox(height: 12),
                               Text(
                                 l.noLessonToday,
@@ -470,7 +707,11 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                     color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(16),
                                   ),
-                                  child: const Text('📝', style: TextStyle(fontSize: 28)),
+                                  child: const Icon(
+                                    Icons.assignment_rounded,
+                                    size: 28,
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
@@ -626,7 +867,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                           children: [
                             Row(
                               children: [
-                                const Text('📅', style: TextStyle(fontSize: 24)),
+                                Icon(Icons.calendar_today_rounded, size: 24, color: isDark ? Colors.white : AppColors.duoTextDark),
                                 const SizedBox(width: 8),
                                 Text(
                                   l.upcomingLessons,
@@ -705,7 +946,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                       children: [
                         Expanded(
                           child: _buildFeatureCard(
-                            icon: '💬',
+                            icon: Icons.chat_bubble_rounded,
                             title: l.chat,
                             subtitle: l.groupChat,
                             color: AppColors.duoBlue,
@@ -713,28 +954,32 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                             onTap: () async {
                               final navigator = Navigator.of(context);
                               final groups = await FirebaseService().getStudentGroupsStream(userProvider.uid).first;
-                              if (groups.isNotEmpty) {
-                                navigator.push(
-                                  MaterialPageRoute(
-                                    builder: (_) => StudentChatScreen(
-                                      groupId: groups.first['id'],
-                                      groupName: groups.first['name'],
+                                if (groups.isEmpty) {
+                                  if (context.mounted) GroupCheckHelper.checkAndWarn(context);
+                                } else {
+                                  navigator.push(
+                                    MaterialPageRoute(
+                                      builder: (_) => StudentChatScreen(
+                                        groupId: groups.first['id'],
+                                        groupName: groups.first['name'],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
+                                  );
+                                }
                             },
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildFeatureCard(
-                            icon: '🌐',
+                            icon: Icons.translate_rounded,
                             title: l.translator,
                             subtitle: l.translateAction,
                             color: AppColors.duoPurple,
                             isDark: isDark,
-                            onTap: () {
+                            onTap: () async {
+                              final allowed = await GroupCheckHelper.checkAndWarn(context);
+                              if (!allowed || !context.mounted) return;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -747,12 +992,14 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildFeatureCard(
-                            icon: '🤖',
+                            icon: Icons.smart_toy_rounded,
                             title: l.aiBot,
                             subtitle: l.qaSubtitle,
                             color: AppColors.duoGreen,
                             isDark: isDark,
-                            onTap: () {
+                            onTap: () async {
+                              final allowed = await GroupCheckHelper.checkAndWarn(context);
+                              if (!allowed || !context.mounted) return;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -771,92 +1018,186 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                     const SizedBox(height: 20),
 
                     // ── Daily Activity & Chart ──
-                    FutureBuilder<Map<String, dynamic>>(
-                      future: Future.wait([
-                        StreakService.getCurrentStreak(userProvider.uid),
-                        StreakService.getWeeklyUsageForWeek(userProvider.uid, weekOffset: _currentWeekIndex),
-                        StreakService.getWeeklyDatesForWeek(weekOffset: _currentWeekIndex),
-                      ]).then((values) => {
-                        'streak': values[0] as int,
-                        'weeklyUsage': values[1] as List<double>,
-                        'weeklyDates': values[2] as List<String>,
-                      }),
-                      builder: (context, streakSnapshot) {
-                        final streak = streakSnapshot.data?['streak'] ?? 0;
-                        final weeklyUsage = streakSnapshot.data?['weeklyUsage'] ?? [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
-                        final weeklyDates = streakSnapshot.data?['weeklyDates'] ?? ['1.1', '2.1', '3.1', '4.1', '5.1', '6.1', '7.1'];
-
-                        return GamifiedCard(
-                          color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
-                          shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Text('🔥', style: TextStyle(fontSize: 24)),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      l.activityStreakDays(streak),
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w900,
-                                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                    GamifiedCard(
+                      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
+                      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                      padding: const EdgeInsets.all(20),
+                      child: _cachedWeeklyData == null
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.local_fire_department_rounded,
+                                      size: 24,
+                                      color: AppColors.duoOrange,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            l.activityStreakDays(_cachedWeeklyData!['streak'] ?? 0),
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w900,
+                                              color: isDark ? Colors.white : AppColors.duoTextDark,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            _currentWeekIndex == 0 
+                                                ? l.thisWeek 
+                                                : l.weeksAgo(_currentWeekIndex),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    onPressed: _currentWeekIndex > 0
-                                        ? () {
-                                            setState(() {
-                                              _currentWeekIndex--;
-                                            });
-                                          }
-                                        : null,
-                                    icon: Icon(Icons.chevron_left,
-                                        color: _currentWeekIndex > 0
-                                            ? (isDark ? Colors.white : AppColors.duoTextDark)
-                                            : Colors.grey),
-                                  ),
-                                  Expanded(
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        for (int i = 0; i < 7; i++)
-                                          _buildVerticalBarChartItem(
-                                            context: context,
-                                            day: weeklyDates[i],
-                                            value: weeklyUsage[i],
-                                            isToday: _currentWeekIndex == 0 && i == 6,
-                                            isDark: isDark,
-                                          )
-                                      ],
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Left arrow button - go to past
+                                    SizedBox(
+                                      width: 32,
+                                      height: 32,
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        onPressed: _isLoadingWeeklyData ? null : () => _changeWeek(1),
+                                        icon: Icon(
+                                          Icons.chevron_left,
+                                          size: 20,
+                                          color: _isLoadingWeeklyData 
+                                              ? Colors.grey 
+                                              : (isDark ? Colors.white : AppColors.duoTextDark),
+                                        ),
+                                      ),
+                                    ),
+                                    // Chart area - expanded
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        child: _isLoadingWeeklyData
+                                            ? const Center(
+                                                child: SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                                ),
+                                              )
+                                            : Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                children: [
+                                                  for (int i = 0; i < 7; i++)
+                                                    _buildVerticalBarChartItem(
+                                                      context: context,
+                                                      day: (_cachedWeeklyData!['weeklyDates'] as List<String>)[i],
+                                                      value: (_cachedWeeklyData!['weeklyUsage'] as List<double>)[i],
+                                                      isToday: _currentWeekIndex == 0 && i == 6,
+                                                      isDark: isDark,
+                                                    )
+                                                ],
+                                              ),
+                                      ),
+                                    ),
+                                    // Right arrow button - go to future (disabled if current week)
+                                    SizedBox(
+                                      width: 32,
+                                      height: 32,
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        onPressed: (_currentWeekIndex > 0 && !_isLoadingWeeklyData)
+                                            ? () => _changeWeek(-1)
+                                            : null,
+                                        icon: Icon(
+                                          Icons.chevron_right,
+                                          size: 20,
+                                          color: (_currentWeekIndex > 0 && !_isLoadingWeeklyData)
+                                              ? (isDark ? Colors.white : AppColors.duoTextDark)
+                                              : Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                // Weekly summary
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.duoBlue.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: AppColors.duoBlue.withValues(alpha: 0.3),
                                     ),
                                   ),
-                                  IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _currentWeekIndex++;
-                                      });
-                                    },
-                                    icon: Icon(Icons.chevron_right,
-                                        color: isDark ? Colors.white : AppColors.duoTextDark),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      _buildWeeklyStat(
+                                        icon: Icons.bar_chart_rounded,
+                                        iconColor: AppColors.duoBlue,
+                                        label: l.totalTime,
+                                        value: l.minutesShort(
+                                          (_cachedWeeklyData!['weeklyUsage'] as List<double>)
+                                              .fold<double>(0, (sum, val) => sum + val)
+                                              .toInt(),
+                                        ),
+                                        isDark: isDark,
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: 30,
+                                        color: isDark ? Colors.white12 : Colors.black12,
+                                      ),
+                                      _buildWeeklyStat(
+                                        icon: Icons.calendar_today_rounded,
+                                        iconColor: AppColors.duoGreen,
+                                        label: l.activeDays,
+                                        value: (_cachedWeeklyData!['weeklyUsage'] as List<double>)
+                                            .where((val) => val > 0)
+                                            .length
+                                            .toString(),
+                                        isDark: isDark,
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: 30,
+                                        color: isDark ? Colors.white12 : Colors.black12,
+                                      ),
+                                      _buildWeeklyStat(
+                                        icon: Icons.timer_rounded,
+                                        iconColor: AppColors.duoPurple,
+                                        label: l.average,
+                                        value: l.minutesShort(
+                                          ((_cachedWeeklyData!['weeklyUsage'] as List<double>)
+                                                  .fold<double>(0, (sum, val) => sum + val) /
+                                              7)
+                                              .round(),
+                                        ),
+                                        isDark: isDark,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                ),
+                              ],
+                            ),
                     ),
 
                     const SizedBox(height: 20),
@@ -883,7 +1224,11 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text('📊', style: TextStyle(fontSize: 24)),
+                                    const Icon(
+                                      Icons.bar_chart_rounded,
+                                      size: 24,
+                                      color: AppColors.duoBlue,
+                                    ),
                                     const SizedBox(width: 8),
                                     Text(
                                       l.statisticsAndResults,
@@ -908,9 +1253,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                               children: [
                                 Expanded(
                                   child: _buildStatItem(
-                                    icon: '🎯',
+                                    icon: Icons.my_location_rounded,
                                     title: l.attendance,
-                                    value: '95%',
+                                    value: attendancePercent,
                                     color: AppColors.duoGreen,
                                     isDark: isDark,
                                   ),
@@ -918,9 +1263,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: _buildStatItem(
-                                    icon: '⭐',
+                                    icon: Icons.star_rounded,
                                     title: l.averageScore,
-                                    value: '8.4',
+                                    value: averageScore,
                                     color: AppColors.duoPurple,
                                     isDark: isDark,
                                   ),
@@ -954,7 +1299,11 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Text('🏆', style: TextStyle(fontSize: 24)),
+                                      const Icon(
+                                        Icons.emoji_events_rounded,
+                                        size: 24,
+                                        color: AppColors.duoOrange,
+                                      ),
                                       const SizedBox(width: 8),
                                       Text(
                                         l.leaderboard.toUpperCase(),
@@ -1003,7 +1352,8 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                 ...leaderboard.take(3).toList().asMap().entries.map((entry) {
                                   final index = entry.key;
                                   final user = entry.value;
-                                  final rankEmoji = index == 0 ? '🥇' : index == 1 ? '🥈' : '🥉';
+                                  final rankIcon = index == 0 ? Icons.emoji_events_rounded : index == 1 ? Icons.military_tech_rounded : Icons.emoji_events_rounded;
+                                  final rankColor = index == 0 ? AppColors.duoOrange : index == 1 ? Colors.grey : AppColors.duoOrange.withValues(alpha: 0.7);
                                   final name = user['fullName'] ?? user['name'] ?? l.unknown;
                                   final stars = user['totalStars'] ?? 0;
                                   final isMe = user['id'] == userProvider.uid;
@@ -1012,9 +1362,10 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                     children: [
                                       _buildLeaderItem(
                                         context,
-                                        rank: rankEmoji,
+                                        rank: rankIcon,
+                                        rankColor: rankColor,
                                         name: name,
-                                        xp: '$stars ⭐',
+                                        xp: '$stars',
                                         isMe: isMe,
                                       ),
                                       if (index < 2 && index < leaderboard.length - 1) const SizedBox(height: 8),
@@ -1039,10 +1390,10 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
     );
   }
 
-  Widget _buildDarsInfo(String icon, String text) {
+  Widget _buildDarsInfo(IconData icon, String text) {
     return Column(
       children: [
-        Text(icon, style: const TextStyle(fontSize: 20)),
+        Icon(icon, size: 20, color: Colors.white),
         const SizedBox(height: 4),
         Text(
           text,
@@ -1056,6 +1407,38 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
     );
   }
 
+  Widget _buildWeeklyStat({
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    required String value,
+    required bool isDark,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: iconColor),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            color: isDark ? Colors.white : AppColors.duoTextDark,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white54 : AppColors.duoTextLight,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildVerticalBarChartItem({
     required BuildContext context,
     required String day,
@@ -1063,72 +1446,126 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
     required bool isToday,
     required bool isDark,
   }) {
-    const height = 60.0;
-    // Daqiqalarni daqiqaga aylantirish (max 120 daqiqa deb olamiz)
+    const height = 100.0; // Increased from 60 to 100
+    // Convert minutes to bar height (max 120 minutes)
     final minutes = value.toInt();
     final barHeight = (minutes / 120).clamp(0.0, 1.0) * height;
 
-    return GestureDetector(
-      onTap: () {
-        final snackL = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(snackL.dayMinutes(day, minutes)),
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          ),
-        );
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Daqiqalarni ko'rsatish
-          if (minutes > 0)
-            Text(
-              '${minutes}d',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: isToday ? AppColors.duoOrange : (isDark ? Colors.white70 : AppColors.duoTextLight),
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (minutes > 0) {
+            final snackL = AppLocalizations.of(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(
+                      Icons.bar_chart_rounded,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        snackL.dayMinutes(day, minutes),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: AppColors.duoBlue,
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                margin: const EdgeInsets.all(16),
               ),
+            );
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Show minutes above the bar
+            SizedBox(
+              height: 18,
+              child: minutes > 0
+                  ? Text(
+                      '${minutes}d',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: isToday ? AppColors.duoOrange : (isDark ? Colors.white70 : AppColors.duoTextLight),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
-          const SizedBox(height: 4),
-          Container(
-            height: height,
-            width: 12,
-            decoration: BoxDecoration(
-              color: isDark ? Colors.white12 : AppColors.duoCardGray,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: barHeight,
-              width: 12,
+            const SizedBox(height: 4),
+            // Bar container
+            Container(
+              height: height,
+              width: 18, // Increased from 12 to 18
               decoration: BoxDecoration(
-                color: isToday ? AppColors.duoOrange : AppColors.duoBlue,
-                borderRadius: BorderRadius.circular(6),
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.duoCardGray.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              alignment: Alignment.bottomCenter,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeOutCubic,
+                height: barHeight,
+                width: 18,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: isToday
+                        ? [
+                            AppColors.duoOrange,
+                            AppColors.duoOrange.withValues(alpha: 0.7),
+                          ]
+                        : [
+                            AppColors.duoBlue,
+                            AppColors.duoBlue.withValues(alpha: 0.7),
+                          ],
+                  ),
+                  borderRadius: BorderRadius.circular(9),
+                  boxShadow: minutes > 0
+                      ? [
+                          BoxShadow(
+                            color: (isToday ? AppColors.duoOrange : AppColors.duoBlue)
+                                .withValues(alpha: 0.4),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            day,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: isToday ? FontWeight.w900 : FontWeight.w700,
-              color: isToday
-                  ? AppColors.duoOrange
-                  : (isDark ? Colors.white54 : AppColors.duoTextLight),
+            const SizedBox(height: 8),
+            // Day label
+            Text(
+              day,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isToday ? FontWeight.w900 : FontWeight.w700,
+                color: isToday
+                    ? AppColors.duoOrange
+                    : (isDark ? Colors.white54 : AppColors.duoTextLight),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildStatItem({
-    required String icon,
+    required IconData icon,
     required String title,
     required String value,
     required Color color,
@@ -1146,7 +1583,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
         children: [
           Row(
             children: [
-              Text(icon, style: const TextStyle(fontSize: 18)),
+              Icon(icon, size: 18, color: color),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -1177,7 +1614,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
   }
 
   Widget _buildFeatureCard({
-    required String icon,
+    required IconData icon,
     required String title,
     required String subtitle,
     required Color color,
@@ -1192,9 +1629,10 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(
+            Icon(
               icon,
-              style: const TextStyle(fontSize: 32),
+              size: 32,
+              color: color,
             ),
             const SizedBox(height: 8),
             Text(
@@ -1222,7 +1660,8 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
 
   Widget _buildLeaderItem(
     BuildContext context, {
-    required String rank,
+    required IconData rank,
+    required Color rankColor,
     required String name,
     required String xp,
     required bool isMe,
@@ -1238,7 +1677,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
       ),
       child: Row(
         children: [
-          Text(rank, style: const TextStyle(fontSize: 22)),
+          Icon(rank, size: 22, color: rankColor),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1250,13 +1689,19 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
               ),
             ),
           ),
-          Text(
-            xp,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: isMe ? AppColors.duoBlue : (isDark ? Colors.white70 : AppColors.duoTextLight),
-            ),
+          Row(
+            children: [
+              const Icon(Icons.star_rounded, size: 16, color: AppColors.duoOrange),
+              const SizedBox(width: 4),
+              Text(
+                xp,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: isMe ? AppColors.duoBlue : (isDark ? Colors.white70 : AppColors.duoTextLight),
+                ),
+              ),
+            ],
           ),
         ],
       ),

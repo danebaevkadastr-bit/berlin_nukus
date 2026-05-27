@@ -3,7 +3,6 @@ import '../../services/firebase_service.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/user_avatar.dart';
 import '../../utils/user_profile_utils.dart';
-import '../../widgets/gamified_button.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
@@ -111,7 +110,7 @@ class _AdminTeachersScreenState extends State<AdminTeachersScreen> {
           ),
         ],
       ),
-      floatingActionButton: Padding(
+      /* floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 80.0), // Keep above custom bottom bar
         child: FloatingActionButton(
           onPressed: () => _showAddTeacherSheet(context, l, isDark),
@@ -120,7 +119,7 @@ class _AdminTeachersScreenState extends State<AdminTeachersScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: const Icon(Icons.add, color: Colors.white, size: 28),
         ),
-      ),
+      ), */
     );
   }
 
@@ -217,209 +216,6 @@ class _AdminTeachersScreenState extends State<AdminTeachersScreen> {
     }
   }
 
-  void _showAddTeacherSheet(BuildContext context, AppLocalizations l, bool isDark) {
-    final nameController = TextEditingController();
-    final emailController = TextEditingController();
-    final phoneController = TextEditingController();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1F2E35) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-            boxShadow: [
-              BoxShadow(
-                color: isDark ? Colors.black54 : Colors.black12,
-                blurRadius: 10,
-                spreadRadius: 2,
-              )
-            ],
-          ),
-          padding: EdgeInsets.only(
-            top: 24,
-            left: 24,
-            right: 24,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 48,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white24 : Colors.black12,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  l.addTeacher.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.duoTextDark,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildInputField(
-                  controller: nameController,
-                  label: l.fullNameLabel,
-                  hint: 'Rustam Ubaydullayev',
-                  icon: Icons.person_outline_rounded,
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 16),
-                _buildInputField(
-                  controller: emailController,
-                  label: l.email,
-                  hint: 'rustam@gmail.com',
-                  icon: Icons.email_outlined,
-                  isDark: isDark,
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-                _buildInputField(
-                  controller: phoneController,
-                  label: l.phoneLabel,
-                  hint: '+998901112233',
-                  icon: Icons.phone_android_outlined,
-                  isDark: isDark,
-                  keyboardType: TextInputType.phone,
-                ),
-                const SizedBox(height: 28),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(
-                          l.cancel.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white60 : AppColors.duoTextLight,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: GamifiedButton(
-                        text: l.add,
-                        color: AppColors.duoGreen,
-                        shadowColor: AppColors.duoGreenShadow,
-                        height: 50,
-                        onPressed: () async {
-                          final name = nameController.text.trim();
-                          final email = emailController.text.trim();
-                          final phone = phoneController.text.trim();
-
-                          if (name.isEmpty || email.isEmpty || phone.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  l.fillAllFields,
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                backgroundColor: AppColors.duoRed,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              ),
-                            );
-                            return;
-                          }
-
-                          await FirebaseService().addTeacher(
-                            fullName: name,
-                            email: email,
-                            phone: phone,
-                          );
-
-                          if (!context.mounted) return;
-                          Navigator.pop(context);
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                'O\'qituvchi muvaffaqiyatli qo\'shildi!',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              backgroundColor: AppColors.duoGreen,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    required bool isDark,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label.toUpperCase(),
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: isDark ? Colors.white60 : AppColors.duoTextLight,
-            letterSpacing: 0.8,
-          ),
-        ),
-        const SizedBox(height: 8),
-        GamifiedCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          color: isDark ? const Color(0xFF131F24) : Colors.white,
-          shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-          borderRadius: 16,
-          child: TextField(
-            controller: controller,
-            keyboardType: keyboardType,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : AppColors.duoTextDark,
-            ),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white30 : Colors.black26,
-              ),
-              border: InputBorder.none,
-              icon: Icon(icon, color: isDark ? Colors.white54 : AppColors.duoTextLight, size: 20),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 

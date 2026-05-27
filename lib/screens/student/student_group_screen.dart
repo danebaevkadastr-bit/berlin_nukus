@@ -145,7 +145,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                     color: AppColors.duoBlue,
                     shadowColor: AppColors.duoBlueShadow,
                     padding: EdgeInsets.all(24),
-                    child: Text('📚', style: TextStyle(fontSize: 48)),
+                    child: Icon(Icons.menu_book_rounded, size: 48, color: Colors.white),
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -426,14 +426,14 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
             Row(
               children: [
                 if (day.time != null && day.time!.isNotEmpty) ...[
-                  const Text('⏰', style: TextStyle(fontSize: 13)),
+                  Icon(Icons.access_time_rounded, size: 13, color: isDark ? Colors.white70 : AppColors.duoTextLight),
                   const SizedBox(width: 4),
                   Text(day.time!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800,
                       color: isDark ? Colors.white70 : AppColors.duoTextLight)),
                   const SizedBox(width: 12),
                 ],
                 if (day.room != null && day.room!.isNotEmpty) ...[
-                  const Text('🏫', style: TextStyle(fontSize: 13)),
+                  Icon(Icons.school_rounded, size: 13, color: isDark ? Colors.white70 : AppColors.duoTextLight),
                   const SizedBox(width: 4),
                   Text(day.room!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800,
                       color: isDark ? Colors.white70 : AppColors.duoTextLight)),
@@ -481,7 +481,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('📎', style: TextStyle(fontSize: 16)),
                               const SizedBox(width: 6),
                               Flexible(
                                 child: Text(
@@ -512,7 +511,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(submitted ? '✅' : '⏳', style: const TextStyle(fontSize: 16)),
                             const SizedBox(width: 6),
                             Flexible(
                               child: Text(
@@ -557,7 +555,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(submitted ? '✅' : '📚', style: const TextStyle(fontSize: 18)),
                           const SizedBox(width: 8),
                           Text(
                             submitted ? l.homeworkSubmitted : l.viewHomework,
@@ -619,7 +616,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
               const SizedBox(height: 24),
               Row(
                 children: [
-                  const Text('📎', style: TextStyle(fontSize: 22)),
                   const SizedBox(width: 10),
                   Text(day.lessonType.toUpperCase(),
                       style: TextStyle(
@@ -671,8 +667,11 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                               color: currentGroupColor().withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12)),
                           child: Center(
-                            child: Text(type == 'link' ? '🔗' : '📝',
-                                style: const TextStyle(fontSize: 22)),
+                            child: Icon(
+                              type == 'link' ? Icons.link_rounded : Icons.description_rounded,
+                              size: 22,
+                              color: currentGroupColor(),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -807,7 +806,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
 
                 Row(
                   children: [
-                    const Text('📚', style: TextStyle(fontSize: 22)),
                     const SizedBox(width: 10),
                     Text(l.homeworkHeader,
                         style: TextStyle(
@@ -822,7 +820,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                         decoration: BoxDecoration(
                             color: AppColors.duoGreen.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12)),
-                        child: const Text('✅ TOPSHIRILDI',
+                        child: const Text('TOPSHIRILDI',
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w900,
@@ -909,7 +907,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                                   children: [
                                     const Row(
                                       children: [
-                                        Text('✏️', style: TextStyle(fontSize: 15)),
                                         SizedBox(width: 6),
                                         Text('TEST',
                                             style: TextStyle(
@@ -1071,7 +1068,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                           borderRadius: BorderRadius.circular(14),
                           color: isDark ? Colors.black12 : AppColors.duoBackground),
                       child: Text(
-                        '💬 ${mySubmission['note']}',
+                        '${mySubmission['note']}',
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: subColor,
@@ -1151,7 +1148,7 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
         );
       } else {
         resultWidget = const Text(
-          'Javob yuborildi ✅',
+          'Javob yuborildi',
           style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,

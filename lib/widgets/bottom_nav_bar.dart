@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 import '../l10n/app_localizations.dart';
+import '../services/haptic_service.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -116,6 +117,9 @@ class _AnimatedNavItemState extends State<_AnimatedNavItem>
   }
 
   void _handleTapDown(TapDownDetails details) {
+    if (!widget.isActive) {
+      HapticService.lightImpact();
+    }
     _controller.forward();
   }
 

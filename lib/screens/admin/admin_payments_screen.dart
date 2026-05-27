@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/user_avatar.dart';
@@ -442,7 +443,11 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                                     context: context,
                                     builder: (ctx) => Dialog(
                                       child: InteractiveViewer(
-                                        child: Image.network(receiptUrl),
+                                        child: CachedNetworkImage(
+                                          imageUrl: receiptUrl,
+                                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -492,11 +497,13 @@ class _StudentPaymentHistoryScreenState extends State<_StudentPaymentHistoryScre
                                   const SizedBox(height: 10),
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
-                                    child: Image.network(
-                                      receiptUrl,
+                                    child: CachedNetworkImage(
+                                      imageUrl: receiptUrl,
                                       height: 80,
                                       width: double.infinity,
                                       fit: BoxFit.cover,
+                                      placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: AppColors.duoGreen)),
+                                      errorWidget: (context, url, error) => const Icon(Icons.error),
                                     ),
                                   ),
                                   const SizedBox(height: 4),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
@@ -81,16 +82,19 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             ],
                           ),
                           child: userProvider.avatarUrl.isEmpty
-                              ? const Center(child: Text('👑', style: TextStyle(fontSize: 48)))
+                              ? const Center(child: Icon(Icons.shield_rounded, size: 48, color: Colors.white))
                               : ClipRRect(
                                   borderRadius: BorderRadius.circular(26),
-                                  child: Image.network(
-                                    userProvider.avatarUrl,
+                                  child: CachedNetworkImage(
+                                    imageUrl: userProvider.avatarUrl,
                                     fit: BoxFit.cover,
                                     width: 88,
                                     height: 88,
-                                    errorBuilder: (_, __, ___) => const Center(
-                                      child: Text('👑', style: TextStyle(fontSize: 48)),
+                                    placeholder: (context, url) => const Center(
+                                      child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                                    ),
+                                    errorWidget: (context, url, error) => const Center(
+                                      child: Icon(Icons.shield_rounded, size: 48, color: Colors.white),
                                     ),
                                   ),
                                 ),
@@ -161,7 +165,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             const SizedBox(height: 24),
 
             // ── Settings ──
-            _buildSettingsButton(isDark, 'Sozlamalar', 'Tizim sozlamalari', '⚙️', () {
+            _buildSettingsButton(isDark, 'Sozlamalar', 'Tizim sozlamalari', Icons.settings_rounded, () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -170,7 +174,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               );
             }),
             const SizedBox(height: 12),
-            _buildSettingsButton(isDark, 'Statistika', 'Markaz statistikasi', '📊', () {}),
+            _buildSettingsButton(isDark, 'Statistika', 'Markaz statistikasi', Icons.bar_chart_rounded, () {}),
 
             const SizedBox(height: 24),
 
@@ -188,7 +192,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('🚪', style: TextStyle(fontSize: 20)),
+                  Icon(Icons.logout_rounded, color: Colors.white, size: 24),
                   SizedBox(width: 12),
                   Text(
                     'CHIQISH',
@@ -209,7 +213,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     );
   }
 
-  Widget _buildSettingsButton(bool isDark, String title, String subtitle, String emoji, VoidCallback onTap) {
+  Widget _buildSettingsButton(bool isDark, String title, String subtitle, IconData iconData, VoidCallback onTap) {
     return GamifiedCard(
       padding: const EdgeInsets.all(16),
       color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
@@ -224,7 +228,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               borderRadius: BorderRadius.circular(16),
               color: AppColors.duoBlue.withValues(alpha: 0.15),
             ),
-            child: Center(child: Text(emoji, style: const TextStyle(fontSize: 24))),
+            child: Center(child: Icon(iconData, color: AppColors.duoBlue, size: 28)),
           ),
           const SizedBox(width: 16),
           Expanded(

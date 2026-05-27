@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart';
 import '../../widgets/gamified_card.dart';
@@ -110,17 +111,20 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                   ),
                   child: userProvider.avatarUrl.isEmpty
                       ? const Center(
-                          child: Text('🧑', style: TextStyle(fontSize: 48)),
+                          child: Icon(Icons.person_rounded, size: 48, color: Colors.white),
                         )
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(26),
-                          child: Image.network(
-                            userProvider.avatarUrl,
+                          child: CachedNetworkImage(
+                            imageUrl: userProvider.avatarUrl,
                             fit: BoxFit.cover,
                             width: 88,
                             height: 88,
-                            errorBuilder: (_, __, ___) => const Center(
-                              child: Text('🧑', style: TextStyle(fontSize: 48)),
+                            placeholder: (context, url) => const Center(
+                              child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                            ),
+                            errorWidget: (context, url, error) => const Center(
+                              child: Icon(Icons.person_rounded, size: 48, color: Colors.white),
                             ),
                           ),
                         ),

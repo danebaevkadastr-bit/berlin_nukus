@@ -9,6 +9,7 @@ import '../../widgets/user_avatar.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
+import 'student_attendance_detail_screen.dart';
 
 class StudentStatisticsScreen extends StatefulWidget {
   const StudentStatisticsScreen({super.key});
@@ -197,12 +198,21 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _buildStatCard(
-                    icon: '📊',
-                    title: l.attendance,
-                    value: '$attendancePercentage%',
-                    color: AppColors.duoGreen,
-                    isDark: isDark,
+                  child: GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const StudentAttendanceDetailScreen(),
+                      ),
+                    ),
+                    child: _buildStatCard(
+                      icon: '📊',
+                      title: l.attendance,
+                      value: '$attendancePercentage%',
+                      color: AppColors.duoGreen,
+                      isDark: isDark,
+                      tappable: true,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -292,6 +302,7 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
     required String value,
     required Color color,
     required bool isDark,
+    bool tappable = false,
   }) {
     return GamifiedCard(
       padding: const EdgeInsets.all(16),
@@ -300,7 +311,19 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(icon, style: const TextStyle(fontSize: 32)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(icon, style: const TextStyle(fontSize: 32)),
+              if (tappable)
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: isDark ? Colors.white38 : AppColors.duoTextLight,
+                  size: 16,
+                ),
+            ],
+          ),
           const SizedBox(height: 8),
           Text(
             title,

@@ -5,6 +5,7 @@ import '../../widgets/skeleton_loader.dart';
 import '../../widgets/page_transitions.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
+import '../../utils/group_check_helper.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/game_stars_service.dart';
 import '../../services/haptic_service.dart';
@@ -31,13 +32,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
   void initState() {
     super.initState();
     _loadStars();
-    // Initial loading animation
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          _initialLoading = false;
-        });
-      }
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) setState(() => _initialLoading = false);
     });
   }
 
@@ -73,57 +69,37 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
   Future<void> _openDerDieDasGame() async {
     await HapticService.mediumImpact();
     if (!mounted) return;
-    await Navigator.push(
-      context,
-      SlideTransitionPage(
-        child: const DerDieDasRulesScreen(),
-      ),
-    );
-    if (mounted) {
-      await _loadStars();
-    }
+    final allowed = await GroupCheckHelper.checkAndWarn(context);
+    if (!allowed || !mounted) return;
+    await Navigator.push(context, SlideTransitionPage(child: const DerDieDasRulesScreen()));
+    if (mounted) await _loadStars();
   }
 
   Future<void> _openStrangeSentencesGame() async {
     await HapticService.mediumImpact();
     if (!mounted) return;
-    await Navigator.push(
-      context,
-      SlideTransitionPage(
-        child: const StrangeSentencesRulesScreen(),
-      ),
-    );
-    if (mounted) {
-      await _loadStars();
-    }
+    final allowed = await GroupCheckHelper.checkAndWarn(context);
+    if (!allowed || !mounted) return;
+    await Navigator.push(context, SlideTransitionPage(child: const StrangeSentencesRulesScreen()));
+    if (mounted) await _loadStars();
   }
 
   Future<void> _openStoryGame() async {
     await HapticService.mediumImpact();
     if (!mounted) return;
-    await Navigator.push(
-      context,
-      SlideTransitionPage(
-        child: const StoryGameScreen(),
-      ),
-    );
-    if (mounted) {
-      await _loadStars();
-    }
+    final allowed = await GroupCheckHelper.checkAndWarn(context);
+    if (!allowed || !mounted) return;
+    await Navigator.push(context, SlideTransitionPage(child: const StoryGameScreen()));
+    if (mounted) await _loadStars();
   }
 
   Future<void> _openGrammarGame() async {
     await HapticService.mediumImpact();
     if (!mounted) return;
-    await Navigator.push(
-      context,
-      SlideTransitionPage(
-        child: const GrammarGameScreen(),
-      ),
-    );
-    if (mounted) {
-      await _loadStars();
-    }
+    final allowed = await GroupCheckHelper.checkAndWarn(context);
+    if (!allowed || !mounted) return;
+    await Navigator.push(context, SlideTransitionPage(child: const GrammarGameScreen()));
+    if (mounted) await _loadStars();
   }
 
   void _showComingSoonDialog() {
@@ -243,127 +219,107 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
         ],
       ),
       body: _initialLoading
-          ? _buildLoadingState(isDark)
+          ? _buildLoadingState()
           : RefreshIndicator(
-              onRefresh: () async {
-                await _loadStars();
-              },
+              onRefresh: _loadStars,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 110),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 110),
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  _buildGameCard(
-                    context,
-                    icon: '🔄',
-                    title: l.gameSynonymBattleTitle,
-                    subtitle: l.synonymBattle,
-                    onTap: _showComingSoonDialog,
-                  ),
-                  const SizedBox(height: 14),
+                    Text(
+                      l.categories.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
-                  _buildGameCard(
-                    context,
-                    icon: '📝',
-                    title: l.gameGrammarTitle,
-                    subtitle: l.grammarQuiz,
-                    onTap: _openGrammarGame,
-                  ),
-                  const SizedBox(height: 14),
+                    _buildGameCard(
+                      icon: '📝',
+                      title: l.gameGrammarTitle,
+                      subtitle: l.grammarQuiz,
+                      onTap: _openGrammarGame,
+                    ),
+                    const SizedBox(height: 14),
 
-                  _buildGameCard(
-                    context,
-                    icon: '📘',
-                    title: l.gameDerDieDasTitle,
-                    subtitle: l.articleSpeedGame,
-                    onTap: _openDerDieDasGame,
-                  ),
-                  const SizedBox(height: 14),
+                    _buildGameCard(
+                      icon: '📘',
+                      title: l.gameDerDieDasTitle,
+                      subtitle: l.articleSpeedGame,
+                      onTap: _openDerDieDasGame,
+                    ),
+                    const SizedBox(height: 14),
 
-                  _buildGameCard(
-                    context,
-                    icon: '🎤',
-                    title: l.gameVoiceTitle,
-                    subtitle: l.pronunciationAndListening,
-                    onTap: _showComingSoonDialog,
-                  ),
-                  const SizedBox(height: 14),
+                    _buildGameCard(
+                      icon: '🎭',
+                      title: l.strangeSentencesGame,
+                      subtitle: l.strangeSentencesDesc,
+                      onTap: _openStrangeSentencesGame,
+                    ),
+                    const SizedBox(height: 14),
 
-                  _buildGameCard(
-                    context,
-                    icon: '⚔️',
-                    title: l.gameTranslationBattleTitle,
-                    subtitle: l.translationBattle,
-                    onTap: _showComingSoonDialog,
-                  ),
-                  const SizedBox(height: 14),
+                    _buildGameCard(
+                      icon: '📖',
+                      title: l.germanStoryGame,
+                      subtitle: l.germanStoryDesc,
+                      onTap: _openStoryGame,
+                    ),
+                    const SizedBox(height: 14),
 
-                  _buildGameCard(
-                    context,
-                    icon: '🎭',
-                    title: l.strangeSentencesGame,
-                    subtitle: l.strangeSentencesDesc,
-                    onTap: _openStrangeSentencesGame,
-                  ),
-                  const SizedBox(height: 14),
+                    _buildGameCard(
+                      icon: '🔄',
+                      title: l.gameSynonymBattleTitle,
+                      subtitle: l.synonymBattle,
+                      onTap: _showComingSoonDialog,
+                      isComingSoon: true,
+                    ),
+                    const SizedBox(height: 14),
 
-                  _buildGameCard(
-                    context,
-                    icon: '📖',
-                    title: l.germanStoryGame,
-                    subtitle: l.germanStoryDesc,
-                    onTap: _openStoryGame,
-                  ),
-                  const SizedBox(height: 14),
+                    _buildGameCard(
+                      icon: '🎤',
+                      title: l.gameVoiceTitle,
+                      subtitle: l.pronunciationAndListening,
+                      onTap: _showComingSoonDialog,
+                      isComingSoon: true,
+                    ),
+                    const SizedBox(height: 14),
 
-                  _buildGameCard(
-                    context,
-                    icon: '🖼️',
-                    title: l.describePictureGame,
-                    subtitle: l.describePictureDesc,
-                    onTap: _showComingSoonDialog,
-                  ),
+                    _buildGameCard(
+                      icon: '⚔️',
+                      title: l.gameTranslationBattleTitle,
+                      subtitle: l.translationBattle,
+                      onTap: _showComingSoonDialog,
+                      isComingSoon: true,
+                    ),
+                    const SizedBox(height: 14),
 
-                  const SizedBox(height: 30),
-                ],
+                    _buildGameCard(
+                      icon: '🖼️',
+                      title: l.describePictureGame,
+                      subtitle: l.describePictureDesc,
+                      onTap: _showComingSoonDialog,
+                      isComingSoon: true,
+                    ),
+
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
-          ),
     );
   }
 
-  Widget _buildLoadingState(bool isDark) {
-    return const SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(24, 8, 24, 110),
-      child: Column(
-        children: [
-          SkeletonGameCard(),
-          SizedBox(height: 14),
-          SkeletonGameCard(),
-          SizedBox(height: 14),
-          SkeletonGameCard(),
-          SizedBox(height: 14),
-          SkeletonGameCard(),
-          SizedBox(height: 14),
-          SkeletonGameCard(),
-          SizedBox(height: 14),
-          SkeletonGameCard(),
-          SizedBox(height: 14),
-          SkeletonGameCard(),
-          SizedBox(height: 14),
-          SkeletonGameCard(),
-          SizedBox(height: 30),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGameCard(
-    BuildContext context, {
+  Widget _buildGameCard({
     required String icon,
     required String title,
     required String subtitle,
-    VoidCallback? onTap,
+    required VoidCallback onTap,
+    bool isComingSoon = false,
   }) {
     final isDark = ThemeManager.isDark;
 
@@ -380,15 +336,33 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.3,
-                    height: 1.15,
-                    color: isDark ? Colors.white : AppColors.duoTextDark,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      title.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.3,
+                        height: 1.15,
+                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                      ),
+                    ),
+                    if (isComingSoon) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.duoOrange.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          '🚧',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -406,6 +380,25 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
           const SizedBox(width: 12),
           Text(icon, style: const TextStyle(fontSize: 40)),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 110),
+      child: Column(
+        children: List.generate(
+          6,
+          (i) => Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: SkeletonLoader(
+              width: double.infinity,
+              height: 82,
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+        ),
       ),
     );
   }

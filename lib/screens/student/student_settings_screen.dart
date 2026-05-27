@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/locale_manager.dart';
@@ -9,6 +8,7 @@ import '../../widgets/safe_bottom_sheet.dart';
 import '../../utils/app_colors.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart' as user_provider;
+import '../../services/haptic_service.dart';
 
 class StudentSettingsScreen extends StatefulWidget {
   const StudentSettingsScreen({super.key});
@@ -48,9 +48,15 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
               Center(child: Container(width: 50, height: 6,
                 decoration: BoxDecoration(color: AppColors.duoCardGrayShadow, borderRadius: BorderRadius.circular(20)))),
               const SizedBox(height: 20),
-              Text('${l.editProfileCaps} ✏️', style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.w900,
-                color: isDark ? Colors.white : AppColors.duoTextDark)),
+              Row(
+                children: [
+                  Text(l.editProfileCaps, style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : AppColors.duoTextDark)),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.edit_rounded, color: AppColors.duoBlue, size: 20),
+                ],
+              ),
               const SizedBox(height: 20),
               _editField(nameCtrl, 'Ism Familiya', isDark),
               const SizedBox(height: 12),
@@ -68,7 +74,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                   Text(userProvider.email,
                       style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.duoTextLight)),
                   const Spacer(),
-                  const Text('🔒', style: TextStyle(fontSize: 16)),
+                  const Icon(Icons.lock_rounded, size: 18, color: AppColors.duoTextLight),
                 ]),
               ),
               const SizedBox(height: 24),
@@ -119,6 +125,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
   void initState() {
     super.initState();
     _isDarkMode = ThemeManager.isDark;
+    _isVibrationOn = HapticService.isEnabled;
   }
 
   @override
@@ -213,7 +220,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: const Color(0xFF2D3142).withValues(alpha: 0.3)),
+            Icon(Icons.chevron_right_rounded, color: isDark ? Colors.white54 : const Color(0xFF2D3142).withValues(alpha: 0.3)),
           ],
         ),
     );
@@ -296,7 +303,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                     duration: const Duration(milliseconds: 300),
                     child: Icon(
                       Icons.expand_more_rounded,
-                      color: const Color(0xFF2D3142).withValues(alpha: 0.3),
+                      color: isDark ? Colors.white54 : const Color(0xFF2D3142).withValues(alpha: 0.3),
                     ),
                   ),
                 ],
@@ -424,14 +431,14 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                 ],
               ),
             ),
-            child: const Icon(Icons.dark_mode_outlined, color: Color(0xFF7B1FA2), size: 24),
+            child: Icon(isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined, color: const Color(0xFF7B1FA2), size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l.darkMode, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ThemeManager.textColor(context))),
+                Text(isDark ? l.darkMode : l.lightMode, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ThemeManager.textColor(context))),
                 Text(l.changeTheme, style: TextStyle(fontSize: 13, color: ThemeManager.subTextColor(context))),
               ],
             ),
@@ -500,7 +507,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
             value: _isVibrationOn,
             onChanged: (value) {
               setState(() => _isVibrationOn = value);
-              if (value) HapticFeedback.lightImpact();
+              HapticService.setEnabled(value);
             },
           ),
         ],
@@ -542,7 +549,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: const Color(0xFF2D3142).withValues(alpha: 0.3)),
+            Icon(Icons.chevron_right_rounded, color: isDark ? Colors.white54 : const Color(0xFF2D3142).withValues(alpha: 0.3)),
           ],
         ),
     );
@@ -592,7 +599,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                         ),
                       ],
                     ),
-                    child: const Center(child: Text('🐻', style: TextStyle(fontSize: 24))),
+                    child: const Center(child: Icon(Icons.cruelty_free_rounded, color: Colors.white, size: 24)),
                   ),
                   const SizedBox(width: 12),
                   Text('Berlin-Nukus', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: ThemeManager.textColor(context))),

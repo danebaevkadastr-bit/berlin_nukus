@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/notification.dart';
 
@@ -52,6 +56,48 @@ class NotificationService {
         .collection('notifications')
         .doc(notification.id)
         .set(notification.toMap());
+        
+    // OneSignal orqali telefon yuqorisidan tushadigan xabarni yuborish
+    await _sendOneSignalPush(notification);
+  }
+
+  Future<void> _sendOneSignalPush(AppNotification notification) async {
+    final appId = dotenv.env['ONESIGNAL_APP_ID'] ?? '';
+    final apiKey = dotenv.env['ONESIGNAL_REST_API_KEY'] ?? '';
+    
+    if (appId.isEmpty || apiKey.isEmpty || appId == 'YOUR_APP_ID_HERE') {
+      debugPrint('OneSignal API keys not set. Skipping push notification.');
+      return;
+    }
+
+    try {
+      final url = Uri.parse('https://api.onesignal.com/notifications?c=push');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization': 'Basic $apiKey',
+          'accept': 'application/json',
+        },
+        body: jsonEncode({
+          'app_id': appId,
+          'target_channel': 'push',
+          'include_aliases': {
+            'external_id': [notification.userId]
+          },
+          'headings': {'en': notification.title, 'uz': notification.title},
+          'contents': {'en': notification.body, 'uz': notification.body},
+          'data': notification.data,
+        }),
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        debugPrint('OneSignal push sent successfully');
+      } else {
+        debugPrint('Failed to send OneSignal push: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Error sending OneSignal push: $e');
+    }
   }
 
   // Delete notification

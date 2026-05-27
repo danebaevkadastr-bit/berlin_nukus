@@ -8,6 +8,7 @@ import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/notification_service.dart';
 import '../notification_screen.dart';
+import '../../widgets/user_avatar.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -83,22 +84,32 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                           ),
                                         ],
                                       ),
-                                      child: const Center(
-                                        child: Text('👑', style: TextStyle(fontSize: 28)),
+                                      child: UserAvatar(
+                                        imageUrl: userProvider.avatarUrl,
+                                        size: 48,
+                                        borderRadius: 16,
+                                        fallbackEmoji: '👑',
+                                        backgroundColor: Colors.transparent,
                                       ),
                                     ),
                                     const SizedBox(width: 12),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          'Salom, ${userProvider.name.split(' ').first}! 👋',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w800,
-                                            color:
-                                                isDark ? Colors.white : AppColors.duoTextDark,
-                                          ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Salom, ${userProvider.name.split(' ').first}!',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w800,
+                                                color:
+                                                    isDark ? Colors.white : AppColors.duoTextDark,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            const Icon(Icons.waving_hand_rounded, color: Colors.amber, size: 20),
+                                          ],
                                         ),
                                         Text(
                                           l.adminDashboard,
@@ -179,7 +190,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                     children: [
                                       Expanded(
                                         child: _buildStatCard(
-                                          icon: '🧑‍🎓',
+                                          iconData: Icons.school_rounded,
                                           title: l.totalStudents,
                                           value: '$studentsCount',
                                           color: AppColors.duoBlue,
@@ -189,7 +200,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: _buildStatCard(
-                                          icon: '👨‍🏫',
+                                          iconData: Icons.person_search_rounded,
                                           title: l.totalTeachers,
                                           value: '$teachersCount',
                                           color: AppColors.duoGreen,
@@ -203,7 +214,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                     children: [
                                       Expanded(
                                         child: _buildStatCard(
-                                          icon: '📚',
+                                          iconData: Icons.menu_book_rounded,
                                           title: l.courses,
                                           value: '$coursesCount',
                                           color: AppColors.duoOrange,
@@ -213,7 +224,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: _buildStatCard(
-                                          icon: '👥',
+                                          iconData: Icons.groups_rounded,
                                           title: l.totalGroups,
                                           value: '$groupsCount',
                                           color: AppColors.duoPurple,
@@ -240,7 +251,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                     children: [
                                       Expanded(
                                         child: _buildQuickAction(
-                                          icon: '➕',
+                                          iconData: Icons.person_add_rounded,
                                           title: l.addStudent,
                                           color: AppColors.duoBlue,
                                           shadow: AppColors.duoBlueShadow,
@@ -249,7 +260,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: _buildQuickAction(
-                                          icon: '👨‍🏫',
+                                          iconData: Icons.supervisor_account_rounded,
                                           title: l.addTeacher,
                                           color: AppColors.duoGreen,
                                           shadow: AppColors.duoGreenShadow,
@@ -262,7 +273,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                     children: [
                                       Expanded(
                                         child: _buildQuickAction(
-                                          icon: '📚',
+                                          iconData: Icons.auto_stories_rounded,
                                           title: l.courses,
                                           color: AppColors.duoOrange,
                                           shadow: AppColors.duoOrangeShadow,
@@ -271,7 +282,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: _buildQuickAction(
-                                          icon: '⚙️',
+                                          iconData: Icons.settings_rounded,
                                           title: l.groups,
                                           color: AppColors.duoPurple,
                                           shadow: AppColors.duoPurpleShadow,
@@ -294,7 +305,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   _buildActivityCard(
-                                    icon: '📈',
+                                    iconData: Icons.trending_up_rounded,
                                     title: AppLocalizations.of(context).activeGroupsLabel,
                                     subtitle: AppLocalizations.of(context).activeGroupsCountText(groupsCount),
                                     color: AppColors.duoBlue,
@@ -302,7 +313,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   ),
                                   const SizedBox(height: 10),
                                   _buildActivityCard(
-                                    icon: '📝',
+                                    iconData: Icons.assignment_rounded,
                                     title: AppLocalizations.of(context).newTestsLabel,
                                     subtitle: AppLocalizations.of(context).noNewTestsLabel,
                                     color: AppColors.duoGreen,
@@ -310,7 +321,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   ),
                                   const SizedBox(height: 10),
                                   _buildActivityCard(
-                                    icon: '💰',
+                                    iconData: Icons.account_balance_wallet_rounded,
                                     title: AppLocalizations.of(context).paymentControlLabel,
                                     subtitle: pendingPaymentsCount > 0
                                         ? AppLocalizations.of(context).pendingPaymentsCount(pendingPaymentsCount)
@@ -338,7 +349,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildStatCard({
-    required String icon,
+    required IconData iconData,
     required String title,
     required String value,
     required Color color,
@@ -352,7 +363,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       borderRadius: 16,
       child: Column(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 24)),
+          Icon(iconData, size: 28, color: Colors.white),
           const SizedBox(height: 6),
           Text(
             value,
@@ -378,7 +389,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildQuickAction({
-    required String icon,
+    required IconData iconData,
     required String title,
     required Color color,
     required Color shadow,
@@ -391,7 +402,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 28)),
+          Icon(iconData, size: 32, color: Colors.white),
           const SizedBox(height: 8),
           Text(
             title.toUpperCase(),
@@ -407,7 +418,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildActivityCard({
-    required String icon,
+    required IconData iconData,
     required String title,
     required String subtitle,
     required Color color,
@@ -427,7 +438,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               color: color.withValues(alpha: 0.15),
             ),
             child: Center(
-              child: Text(icon, style: const TextStyle(fontSize: 22)),
+              child: Icon(iconData, size: 24, color: color),
             ),
           ),
           const SizedBox(width: 14),
