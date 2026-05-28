@@ -2,6 +2,8 @@
 
 const _base =
     'https://res.cloudinary.com/dmk6ir51m/video/upload/v1779954896';
+const _base2 =
+    'https://res.cloudinary.com/dmk6ir51m/video/upload/v1779962870';
 
 const _t1q1  = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q1_iyvyew.mp3';
 const _t1q2  = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q2_ncpyhi.mp3';
@@ -13,6 +15,27 @@ const _t1q7  = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q7_
 const _t1q8  = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q8_yneizj.mp3';
 const _t1q9  = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q9_qinhqv.mp3';
 const _t1q10 = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q10_y8p8h2.mp3';
+
+const _t2q1  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q1_hcyzuv.mp3';
+const _t2q2  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q2_hbo261.mp3';
+const _t2q3  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q3_l9c1fo.mp3';
+const _t2q4  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q4_iag768.mp3';
+const _t2q5  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q5_kv6asj.mp3';
+const _t2q6  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q6_smruiw.mp3';
+const _t2q7  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q7_u25tcp.mp3';
+const _t2q8  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q8_vtnxco.mp3';
+const _t2q9  = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q9_koqmsi.mp3';
+const _t2q10 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q10_dn9oes.mp3';
+const _t2q11 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q11_ufuvvz.mp3';
+const _t2q12 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q12_aszxvv.mp3';
+const _t2q13 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q13_cla3j6.mp3';
+const _t2q14 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q14_p7mtk3.mp3';
+const _t2q15 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q15_yvoebs.mp3';
+const _t2q16 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q16_r0ldsv.mp3';
+const _t2q17 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q17_yjfeww.mp3';
+const _t2q18 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q18_jzrbnr.mp3';
+const _t2q19 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q19_jku5ch.mp3';
+const _t2q20 = '$_base2/assets_audio_a1_goethelistening_goethea1listeningteil2q20_j9jlru.mp3';
 
 class HorenQuestion {
   final String audioTitle;
@@ -133,44 +156,149 @@ const horenA1 = HorenLevel(
       ],
     ),
 
-    // ── Teil 2 – placeholder ──────────────────────────────────────────────────
+    // ── Teil 2 – Richtig / Falsch (20 savollar) ──────────────────────────────
     HorenTeil(
       teilNumber: 2,
       questions: [
         HorenQuestion(
-          audioTitle: 'Telefongespräch 1',
-          audioUrl: '',
-          question: 'Wann ist der Termin?',
-          options: ['Am Montag um 9 Uhr', 'Am Dienstag um 10 Uhr', 'Am Mittwoch um 11 Uhr'],
-          correctAnswer: 'Am Montag um 9 Uhr',
+          audioTitle: 'Aufgabe 1',
+          audioUrl: _t2q1,
+          question: 'Der Zug nach München fährt von Gleis 5.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
         ),
         HorenQuestion(
-          audioTitle: 'Telefongespräch 2',
-          audioUrl: '',
-          question: 'Wo wohnt die Person?',
-          options: ['In der Hauptstraße 5', 'In der Bahnhofstraße 12', 'In der Schulstraße 3'],
-          correctAnswer: 'In der Bahnhofstraße 12',
+          audioTitle: 'Aufgabe 2',
+          audioUrl: _t2q2,
+          question: 'Die Fahrgäste sollen beim Busfahrer ein Ticket kaufen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
         ),
         HorenQuestion(
-          audioTitle: 'Telefongespräch 3',
-          audioUrl: '',
-          question: 'Was bestellt die Person?',
-          options: ['Eine Pizza', 'Einen Salat', 'Eine Suppe'],
-          correctAnswer: 'Eine Pizza',
+          audioTitle: 'Aufgabe 3',
+          audioUrl: _t2q3,
+          question: 'Herr Weber soll zum Ausgang kommen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
         ),
         HorenQuestion(
-          audioTitle: 'Telefongespräch 4',
-          audioUrl: '',
-          question: 'Wann ist das Geschäft geöffnet?',
-          options: ['Von 8 bis 18 Uhr', 'Von 9 bis 20 Uhr', 'Von 10 bis 19 Uhr'],
-          correctAnswer: 'Von 9 bis 20 Uhr',
+          audioTitle: 'Aufgabe 4',
+          audioUrl: _t2q4,
+          question: 'Das Geschäft schließt um 19 Uhr.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
         ),
         HorenQuestion(
-          audioTitle: 'Telefongespräch 5',
-          audioUrl: '',
-          question: 'Wie viel kostet das Ticket?',
-          options: ['5 Euro', '8 Euro', '12 Euro'],
-          correctAnswer: '8 Euro',
+          audioTitle: 'Aufgabe 5',
+          audioUrl: _t2q5,
+          question: 'Die Fahrgäste sollen nicht aussteigen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 6',
+          audioUrl: _t2q6,
+          question: 'Die Kinder können im 2. Stock spielen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 7',
+          audioUrl: _t2q7,
+          question: 'Der Flug nach Berlin hat Verspätung.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 8',
+          audioUrl: _t2q8,
+          question: 'Die Fahrgäste sollen um 11 Uhr am Bus sein.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 9',
+          audioUrl: _t2q9,
+          question: 'Frau Klein soll zur Information im Erdgeschoss kommen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 10',
+          audioUrl: _t2q10,
+          question: 'Der Zug fährt in 10 Minuten weiter.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 11',
+          audioUrl: _t2q11,
+          question: 'Die Kunden sollen zur Kasse 3 gehen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 12',
+          audioUrl: _t2q12,
+          question: 'Man kann heute bis 22 Uhr schwimmen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 13',
+          audioUrl: _t2q13,
+          question: 'Der kleine Jonas sucht seine Mutter.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 14',
+          audioUrl: _t2q14,
+          question: 'Die Fahrgäste sollen rechts aussteigen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 15',
+          audioUrl: _t2q15,
+          question: 'Der Flug nach Madrid ist zum Einsteigen bereit.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 16',
+          audioUrl: _t2q16,
+          question: 'Die Fahrgäste können ihr Gepäck mitnehmen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 17',
+          audioUrl: _t2q17,
+          question: 'Obst und Gemüse sind heute besonders günstig.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 18',
+          audioUrl: _t2q18,
+          question: 'Der Bus fährt zum Krankenhaus.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 19',
+          audioUrl: _t2q19,
+          question: 'Herr Berger soll zum Schalter 12 kommen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Falsch',
+        ),
+        HorenQuestion(
+          audioTitle: 'Aufgabe 20',
+          audioUrl: _t2q20,
+          question: 'Die Besucher sollen zum Ausgang gehen.',
+          options: ['Richtig', 'Falsch'],
+          correctAnswer: 'Richtig',
         ),
       ],
     ),

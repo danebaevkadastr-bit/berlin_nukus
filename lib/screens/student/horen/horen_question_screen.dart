@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
@@ -46,12 +47,49 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
 
   bool get _isPlaying => _playerState == PlayerState.playing;
 
+  // ── SharedPreferences key ─────────────────────────────────────────────────
+  String _prefKey(int index) =>
+      'horen_${widget.level}_teil${widget.teil.teilNumber}_q$index';
+  String _prefAnswerKey(int index) =>
+      'horen_${widget.level}_teil${widget.teil.teilNumber}_q${index}_answer';
+
+  Future<void> _loadResults() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (int i = 0; i < _questions.length; i++) {
+      final val = prefs.getString(_prefKey(i));
+      if (val == 'true') {
+        _results[i] = true;
+      } else if (val == 'false') {
+        _results[i] = false;
+      }
+    }
+    // Joriy savol uchun tanlangan javobni ham yuklash
+    if (_results[_currentIndex] != null) {
+      final saved = prefs.getString(_prefAnswerKey(_currentIndex));
+      if (mounted) {
+        setState(() {
+          _answered = true;
+          _selectedAnswer = saved;
+        });
+      }
+    } else if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _saveResult(int index, bool isCorrect, String answer) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_prefKey(index), isCorrect.toString());
+    await prefs.setString(_prefAnswerKey(index), answer);
+  }
+
   @override
   void initState() {
     super.initState();
     _results.addAll(List.filled(_questions.length, null));
     _setupAudioListeners();
     _loadAudio();
+    _loadResults();
   }
 
   void _setupAudioListeners() {
@@ -121,12 +159,19 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     }
     setState(() {
       _currentIndex = index;
-      _selectedAnswer = null;
       _answered = _results[index] != null;
+      _selectedAnswer = null;
       _isLoading = false;
       _position = Duration.zero;
       _duration = Duration.zero;
     });
+    // Saqlangan javobni yuklash
+    if (_results[index] != null) {
+      SharedPreferences.getInstance().then((prefs) {
+        final saved = prefs.getString(_prefAnswerKey(index));
+        if (mounted) setState(() => _selectedAnswer = saved);
+      });
+    }
     _scrollQuestionPickerTo(index);
     _loadAudio();
   }
@@ -155,6 +200,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
       _answered = true;
       _results[_currentIndex] = isCorrect;
     });
+    _saveResult(_currentIndex, isCorrect, answer);
   }
 
   void _next() {
@@ -341,7 +387,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
       color: isDark
           ? AppColors.duoCardGray.withValues(alpha: 0.1)
           : Colors.white,
-      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+      shadowColor: isDark ? Colors.black26 : _accentShadow,
       shadowDepth: 5,
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -509,50 +555,11 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
     final textSecondary = isDark ? Colors.white70 : AppColors.duoTextLight;
 
-    Widget? feedbackBanner;
-    if (_answered) {
-      final isCorrect = _results[_currentIndex] == true;
-      feedbackBanner = Container(
-        width: double.infinity,
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: (isCorrect ? AppColors.duoGreen : AppColors.duoRed)
-              .withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isCorrect ? AppColors.duoGreen : AppColors.duoRed,
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isCorrect
-                  ? Icons.check_circle_rounded
-                  : Icons.cancel_rounded,
-              color: isCorrect ? AppColors.duoGreen : AppColors.duoRed,
-              size: 20,
-            ),
-            const SizedBox(width: 10),
-            Text(
-              isCorrect ? l.horenCorrect : l.horenWrong,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                color: isCorrect ? AppColors.duoGreen : AppColors.duoRed,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return GamifiedCard(
       color: isDark
           ? AppColors.duoCardGray.withValues(alpha: 0.1)
           : Colors.white,
-      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+      shadowColor: isDark ? Colors.black26 : _accentShadow,
       shadowDepth: 5,
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -618,10 +625,11 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
               optionText = textPrimary;
             } else {
               cardColor = isDark
-                  ? Colors.white.withValues(alpha: 0.04)
-                  : AppColors.duoBackground;
-              borderColor =
-                  isDark ? Colors.white12 : AppColors.duoCardGrayShadow;
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.white;
+              borderColor = isDark
+                  ? Colors.white12
+                  : _accentColor.withValues(alpha: 0.25);
               labelBg = _accentColor.withValues(alpha: 0.15);
               labelText = _accentColor;
               optionText = textPrimary;
@@ -684,10 +692,6 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
             );
           }),
 
-          if (feedbackBanner != null) ...[
-            const SizedBox(height: 4),
-            feedbackBanner,
-          ],
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
@@ -97,8 +98,40 @@ class BerlinNukusApp extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               theme: theme,
               builder: (context, child) {
-                return ThemeSwitchingArea(
-                  child: child!,
+                final content = ThemeSwitchingArea(child: child!);
+                if (!kIsWeb) return content;
+
+                // Web: telefon o'lchamida markazda ko'rsat
+                return Scaffold(
+                  backgroundColor: const Color(0xFF1a1a2e),
+                  body: Center(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Keng ekranda telefon frame, tor ekranda to'liq
+                        if (constraints.maxWidth > 500) {
+                          return Container(
+                            width: 390,
+                            height: constraints.maxHeight.clamp(700, 844),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(40),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                  blurRadius: 60,
+                                  spreadRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(40),
+                              child: content,
+                            ),
+                          );
+                        }
+                        return content;
+                      },
+                    ),
+                  ),
                 );
               },
               home: const SplashScreen(),

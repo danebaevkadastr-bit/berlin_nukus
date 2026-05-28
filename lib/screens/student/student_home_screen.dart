@@ -21,6 +21,7 @@ import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/firebase_service.dart';
 import '../../services/streak_service.dart';
+import '../../services/score_service.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/user_avatar.dart';
 import '../../utils/group_check_helper.dart';
@@ -35,11 +36,28 @@ class StudentHomeScreen extends StatefulWidget {
 class _StudentHomeScreenState extends State<StudentHomeScreen> {
   int _currentIndex = 0;
   bool _showStreakAnimation = false;
+  DateTime? _sessionStart;
 
   @override
   void initState() {
     super.initState();
+    _sessionStart = DateTime.now();
     _checkStreakAnimation();
+  }
+
+  @override
+  void dispose() {
+    _saveSessionMinutes();
+    super.dispose();
+  }
+
+  Future<void> _saveSessionMinutes() async {
+    if (_sessionStart == null) return;
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final minutes = DateTime.now().difference(_sessionStart!).inMinutes;
+    if (minutes > 0) {
+      await StreakService.recordActivity(userProvider.uid, minutes: minutes);
+    }
   }
 
   Future<void> _checkStreakAnimation() async {
@@ -50,7 +68,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
         _showStreakAnimation = true;
       });
       await StreakService.markFirstLoginToday(userProvider.uid);
-      await StreakService.recordActivity(userProvider.uid);
+      // minutes ni dispose da saqlaymiz, bu yerda faqat streak yangilanadi
+      await StreakService.recordActivity(userProvider.uid, minutes: 0);
       // 3 soniyadan keyin animatsiyani yopish
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) {
@@ -438,8 +457,6 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
         final uid = userProvider.uid;
         int totalLessons = 0;
         int attendedLessons = 0;
-        double totalHomeworkScore = 0.0;
-        int scoredHomeworks = 0;
 
         for (final data in snapshot.data!) {
           final lessonsMap = data['lessons'] as Map<String, dynamic>? ?? {};
@@ -451,27 +468,14 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
               totalLessons++;
               if (attendance[uid] == true) attendedLessons++;
             }
-            // O'rtacha ball
-            final subs = lesson['homeworkSubmissions'] as Map<String, dynamic>? ?? {};
-            final mySub = subs[uid] as Map<String, dynamic>?;
-            if (mySub != null && mySub['submitted'] == true) {
-              final testGrades = mySub['testGrades'] as Map<String, dynamic>? ?? {};
-              final correctCount = testGrades['correctCount'] as int? ?? 0;
-              final totalCount = testGrades['totalCount'] as int? ?? 0;
-              if (totalCount > 0) {
-                totalHomeworkScore += (correctCount / totalCount) * 100;
-                scoredHomeworks++;
-              }
-            }
           }
         }
 
         final attendancePercent = totalLessons > 0
             ? '${(attendedLessons / totalLessons * 100).round()}%'
             : '--';
-        final averageScore = scoredHomeworks > 0
-            ? (totalHomeworkScore / scoredHomeworks).toStringAsFixed(1)
-            : '--';
+
+        // O'rtacha ball — ScoreService orqali hisoblanadi va FutureBuilder da ko'rsatiladi
 
         // We removed the full screen empty state for no lessons so that the header, stats, and leaderboard still render.
         // The UI handles no lessons by showing a '😴' card.
@@ -1262,12 +1266,28 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
-                                  child: _buildStatItem(
-                                    icon: Icons.star_rounded,
-                                    title: l.averageScore,
-                                    value: averageScore,
-                                    color: AppColors.duoPurple,
-                                    isDark: isDark,
+                                  child: FutureBuilder<double?>(
+                                    future: ScoreService.computeScore(userProvider.uid, snapshot.data!),
+                                    builder: (context, scoreSnap) {
+                                      final val = scoreSnap.data;
+                                      final display = val != null
+                                          ? val.toStringAsFixed(1)
+                                          : '--';
+                                      // Sync to Firestore in background
+                                      if (val != null) {
+                                        ScoreService.syncScoreToFirestore(
+                                          userProvider.uid,
+                                          snapshot.data!,
+                                        );
+                                      }
+                                      return _buildStatItem(
+                                        icon: Icons.star_rounded,
+                                        title: l.averageScore,
+                                        value: display,
+                                        color: AppColors.duoPurple,
+                                        isDark: isDark,
+                                      );
+                                    },
                                   ),
                                 ),
                               ],
@@ -1446,7 +1466,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
     required bool isToday,
     required bool isDark,
   }) {
-    const height = 100.0; // Increased from 60 to 100
+    const height = 120.0;
     // Convert minutes to bar height (max 120 minutes)
     final minutes = value.toInt();
     final barHeight = (minutes / 120).clamp(0.0, 1.0) * height;
@@ -1507,17 +1527,17 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
             // Bar container
             Container(
               height: height,
-              width: 18, // Increased from 12 to 18
+              width: 26,
               decoration: BoxDecoration(
                 color: isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.duoCardGray.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(9),
+                borderRadius: BorderRadius.circular(13),
               ),
               alignment: Alignment.bottomCenter,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeOutCubic,
                 height: barHeight,
-                width: 18,
+                width: 26,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
@@ -1532,7 +1552,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                             AppColors.duoBlue.withValues(alpha: 0.7),
                           ],
                   ),
-                  borderRadius: BorderRadius.circular(9),
+                  borderRadius: BorderRadius.circular(13),
                   boxShadow: minutes > 0
                       ? [
                           BoxShadow(
@@ -1672,8 +1692,8 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: isMe ? AppColors.duoBlue.withValues(alpha: 0.1) : Colors.transparent,
-        border: isMe ? Border.all(color: AppColors.duoBlue, width: 2) : null,
+        color: isMe ? AppColors.duoOrange.withValues(alpha: 0.1) : Colors.transparent,
+        border: isMe ? Border.all(color: AppColors.duoOrange, width: 2) : null,
       ),
       child: Row(
         children: [
@@ -1698,7 +1718,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: isMe ? AppColors.duoBlue : (isDark ? Colors.white70 : AppColors.duoTextLight),
+                  color: isMe ? AppColors.duoOrange : (isDark ? Colors.white70 : AppColors.duoTextLight),
                 ),
               ),
             ],

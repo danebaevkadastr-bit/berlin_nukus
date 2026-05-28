@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
@@ -16,7 +17,43 @@ class HorenScreen extends StatefulWidget {
 class _HorenScreenState extends State<HorenScreen> {
   String _selectedLevel = 'A1';
 
+  // teilNumber → {correct, wrong}
+  final Map<int, int> _correctMap = {};
+  final Map<int, int> _wrongMap = {};
+
   final List<String> _levels = ['A1', 'A2', 'B1', 'B2'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final Map<int, int> correct = {};
+    final Map<int, int> wrong = {};
+
+    for (final teil in horenA1.teile) {
+      int c = 0, w = 0;
+      for (int i = 0; i < teil.questions.length; i++) {
+        final val = prefs.getString(
+            'horen_A1_teil${teil.teilNumber}_q$i');
+        if (val == 'true') c++;
+        if (val == 'false') w++;
+      }
+      correct[teil.teilNumber] = c;
+      wrong[teil.teilNumber] = w;
+    }
+
+    if (mounted) {
+      setState(() {
+        _correctMap.addAll(correct);
+        _wrongMap.addAll(wrong);
+      });
+    }
+  }
+
 
   Color _levelColor(String level) {
     switch (level) {
@@ -209,7 +246,7 @@ class _HorenScreenState extends State<HorenScreen> {
           level: _selectedLevel,
         ),
       ),
-    );
+    ).then((_) => _loadStats());
   }
 
   void _showComingSoon(AppLocalizations l, bool isDark) {
@@ -418,13 +455,13 @@ class _HorenScreenState extends State<HorenScreen> {
               title: l.horenTeil1Title,
               description: l.horenTeil1Desc,
               note: l.horenTeil1Note,
-              headerIcon: Icons.image_rounded,
+              headerIcon: Icons.record_voice_over_rounded,
               color: AppColors.duoBlue,
               shadow: AppColors.duoBlueShadow,
               totalQuestions:
                   isA1 ? horenA1.teile[0].questions.length : 5,
-              correct: 0,
-              wrong: 0,
+              correct: _correctMap[1] ?? 0,
+              wrong: _wrongMap[1] ?? 0,
               isAvailable: isA1,
               onTap: isA1
                   ? () => _openTeil(horenA1.teile[0])
@@ -441,13 +478,13 @@ class _HorenScreenState extends State<HorenScreen> {
               title: l.horenTeil2Title,
               description: l.horenTeil2Desc,
               note: l.horenTeil2Note,
-              headerIcon: Icons.phone_rounded,
+              headerIcon: Icons.campaign_rounded,
               color: AppColors.duoOrange,
               shadow: AppColors.duoOrangeShadow,
               totalQuestions:
                   isA1 ? horenA1.teile[1].questions.length : 5,
-              correct: 0,
-              wrong: 0,
+              correct: _correctMap[2] ?? 0,
+              wrong: _wrongMap[2] ?? 0,
               isAvailable: isA1,
               onTap: isA1
                   ? () => _openTeil(horenA1.teile[1])
@@ -464,13 +501,13 @@ class _HorenScreenState extends State<HorenScreen> {
               title: l.horenTeil3Title,
               description: l.horenTeil3Desc,
               note: l.horenTeil3Note,
-              headerIcon: Icons.campaign_rounded,
+              headerIcon: Icons.short_text_rounded,
               color: AppColors.duoGreen,
               shadow: AppColors.duoGreenShadow,
               totalQuestions:
                   isA1 ? horenA1.teile[2].questions.length : 5,
-              correct: 0,
-              wrong: 0,
+              correct: _correctMap[3] ?? 0,
+              wrong: _wrongMap[3] ?? 0,
               isAvailable: isA1,
               onTap: isA1
                   ? () => _openTeil(horenA1.teile[2])
@@ -560,7 +597,7 @@ class _HorenScreenState extends State<HorenScreen> {
     return GamifiedCard(
       color:
           isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
-      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+      shadowColor: isDark ? Colors.black26 : (isAvailable ? shadow : AppColors.duoCardGrayShadow),
       shadowDepth: 5,
       padding: const EdgeInsets.all(0),
       onTap: onTap,
@@ -662,7 +699,7 @@ class _HorenScreenState extends State<HorenScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                // ── Stats row (icons instead of emojis) ──
+                // ── Stats row ──
                 Row(
                   children: [
                     _statChip(
@@ -670,10 +707,11 @@ class _HorenScreenState extends State<HorenScreen> {
                       Icons.quiz_rounded,
                       '$totalQuestions',
                       l.horenTotalQuestions,
-                      isDark
-                          ? Colors.white.withValues(alpha: 0.08)
-                          : AppColors.duoCardGrayShadow,
-                      isDark ? Colors.white70 : AppColors.duoTextDark,
+                      (isAvailable ? color : AppColors.duoCardGray)
+                          .withValues(alpha: isDark ? 0.15 : 0.12),
+                      isAvailable
+                          ? color
+                          : (isDark ? Colors.white54 : AppColors.duoTextLight),
                     ),
                     const SizedBox(width: 8),
                     _statChip(

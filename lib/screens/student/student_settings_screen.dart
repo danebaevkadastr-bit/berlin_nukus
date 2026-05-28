@@ -273,11 +273,24 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                         const SizedBox(height: 2),
                         Row(
                           children: [
-                            Text(
-                              currentLocale.flag,
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            const SizedBox(width: 6),
+                            if (currentLocale.imagePath != null) ...[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(3),
+                                child: Image.asset(
+                                  currentLocale.imagePath!,
+                                  width: 20,
+                                  height: 14,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            ] else if (currentLocale.flagEmoji != null) ...[
+                              Text(
+                                currentLocale.flagEmoji!,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
                             Text(
                               currentLocale.nativeName,
                               style: TextStyle(fontSize: 13, color: ThemeManager.subTextColor(context)),
@@ -330,13 +343,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                             LocaleManager.setLocale(locale);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Row(
-                                  children: [
-                                    Text(locale.flag, style: const TextStyle(fontSize: 16)),
-                                    const SizedBox(width: 8),
-                                    Text(AppLocalizations(locale.code).languageChanged),
-                                  ],
-                                ),
+                                content: Text(AppLocalizations(locale.code).languageChanged),
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 duration: const Duration(seconds: 2),
@@ -362,8 +369,24 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                             ),
                             child: Row(
                               children: [
-                                // Flag
-                                Text(locale.flag, style: const TextStyle(fontSize: 20)),
+                                // Flag image or emoji
+                                if (locale.imagePath != null)
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: Image.asset(
+                                      locale.imagePath!,
+                                      width: 28,
+                                      height: 20,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                else if (locale.flagEmoji != null)
+                                  Text(
+                                    locale.flagEmoji!,
+                                    style: const TextStyle(fontSize: 20),
+                                  )
+                                else
+                                  const SizedBox(width: 28),
                                 const SizedBox(width: 12),
                                 // Language code badge
                                 Container(
@@ -1315,12 +1338,6 @@ class _AccentPickerSheetState extends State<_AccentPickerSheet>
                                 blurRadius: 0,
                               ),
                             ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              preset.emoji,
-                              style: const TextStyle(fontSize: 22),
-                            ),
                           ),
                         ),
                         const SizedBox(width: 16),

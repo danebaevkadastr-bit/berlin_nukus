@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
-/// Cloudinary ga upload preset orqali rasm yuklash (unsigned yoki signed).
+/// Cloudinary ga upload preset orqali rasm/fayl yuklash (unsigned yoki signed).
 class CloudinaryService {
   static String get cloudName =>
       dotenv.env['CLOUDINARY_CLOUD_NAME']?.trim() ?? '';
@@ -23,8 +23,14 @@ class CloudinaryService {
   static bool get _canSignUpload =>
       apiKey.isNotEmpty && apiSecret.isNotEmpty;
 
-  static Uri get _uploadUri => Uri.parse(
+  /// Rasm uchun endpoint
+  static Uri get _imageUploadUri => Uri.parse(
         'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
+      );
+
+  /// Har qanday fayl uchun endpoint (raw)
+  static Uri get _rawUploadUri => Uri.parse(
+        'https://api.cloudinary.com/v1_1/$cloudName/raw/upload',
       );
 
   /// Web, mobil va desktop — [XFile.readAsBytes] orqali (dart:io shart emas).
@@ -37,6 +43,7 @@ class CloudinaryService {
     return uploadBytes(bytes: bytes, filename: name, folder: folder);
   }
 
+  /// Bytes orqali rasm yuklash
   static Future<String> uploadBytes({
     required List<int> bytes,
     required String filename,
@@ -47,20 +54,41 @@ class CloudinaryService {
         'CLOUDINARY_CLOUD_NAME yoki CLOUDINARY_UPLOAD_PRESET .env da topilmadi',
       );
     }
-
-    // Signed preset yoki noto'g'ri unsigned sozlama — 401 beradi; API secret bo'lsa signed yuboramiz.
     if (_canSignUpload) {
-      return _uploadSigned(bytes: bytes, filename: filename, folder: folder);
+      return _uploadSigned(
+          bytes: bytes, filename: filename, folder: folder, isRaw: false);
     }
-    return _uploadUnsigned(bytes: bytes, filename: filename, folder: folder);
+    return _uploadUnsigned(
+        bytes: bytes, filename: filename, folder: folder, isRaw: false);
+  }
+
+  /// Har qanday fayl (PDF, DOCX, va h.k.) yuklash
+  static Future<String> uploadRawFile({
+    required List<int> bytes,
+    required String filename,
+    String? folder,
+  }) async {
+    if (!isConfigured) {
+      throw Exception(
+        'CLOUDINARY_CLOUD_NAME yoki CLOUDINARY_UPLOAD_PRESET .env da topilmadi',
+      );
+    }
+    if (_canSignUpload) {
+      return _uploadSigned(
+          bytes: bytes, filename: filename, folder: folder, isRaw: true);
+    }
+    return _uploadUnsigned(
+        bytes: bytes, filename: filename, folder: folder, isRaw: true);
   }
 
   static Future<String> _uploadUnsigned({
     required List<int> bytes,
     required String filename,
     String? folder,
+    bool isRaw = false,
   }) async {
-    final request = http.MultipartRequest('POST', _uploadUri)
+    final uri = isRaw ? _rawUploadUri : _imageUploadUri;
+    final request = http.MultipartRequest('POST', uri)
       ..fields['upload_preset'] = uploadPreset;
     if (folder != null && folder.isNotEmpty) {
       request.fields['folder'] = folder;
@@ -75,6 +103,7 @@ class CloudinaryService {
     required List<int> bytes,
     required String filename,
     String? folder,
+    bool isRaw = false,
   }) async {
     final timestamp =
         (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
@@ -87,7 +116,8 @@ class CloudinaryService {
       paramsToSign['folder'] = folder;
     }
 
-    final request = http.MultipartRequest('POST', _uploadUri)
+    final uri = isRaw ? _rawUploadUri : _imageUploadUri;
+    final request = http.MultipartRequest('POST', uri)
       ..fields['api_key'] = apiKey
       ..fields['timestamp'] = timestamp
       ..fields['signature'] = _signParams(paramsToSign)
@@ -104,13 +134,13 @@ class CloudinaryService {
     try {
       return await _send(request);
     } on Exception catch (e) {
-      // Ba'zi presetlar faqat unsigned — signed muvaffaqiyatsiz bo'lsa unsigned sinab ko'ramiz.
       if (e.toString().contains('401') && uploadPreset.isNotEmpty) {
         debugPrint('Cloudinary signed upload failed, trying unsigned: $e');
         return _uploadUnsigned(
           bytes: bytes,
           filename: filename,
           folder: folder,
+          isRaw: isRaw,
         );
       }
       rethrow;

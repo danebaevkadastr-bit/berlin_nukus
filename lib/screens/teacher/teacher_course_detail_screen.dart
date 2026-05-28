@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../services/cloudinary_service.dart';
 import '../../services/darslar_service.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/gamified_card.dart';
@@ -399,7 +402,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
             Row(
               children: [
                 if (day.time != null && day.time!.isNotEmpty) ...[
-                  const Text('⏰', style: TextStyle(fontSize: 14)),
+                  Icon(Icons.access_time_rounded, size: 14, color: isDark ? Colors.white54 : AppColors.duoTextLight),
                   const SizedBox(width: 4),
                   Text(
                     day.time!,
@@ -412,7 +415,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                   const SizedBox(width: 12),
                 ],
                 if (day.room != null && day.room!.isNotEmpty) ...[
-                  const Text('🏫', style: TextStyle(fontSize: 14)),
+                  Icon(Icons.meeting_room_rounded, size: 14, color: isDark ? Colors.white54 : AppColors.duoTextLight),
                   const SizedBox(width: 4),
                   Text(
                     day.room!,
@@ -465,7 +468,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         onTap: () => _showMaterialsSheet(context, day),
                         child: _actionChip(
                           isDark: isDark,
-                          icon: '📎',
+                          icon: Icons.attach_file_rounded,
                           label: '${day.materials.length} ${l.materialLabel}',
                           color: null,
                         ),
@@ -477,7 +480,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         onTap: () => _showHomeworkSubmissionsSheet(context, day, groupData),
                         child: _actionChip(
                           isDark: isDark,
-                          icon: '📚',
+                          icon: Icons.assignment_turned_in_rounded,
                           label: '$submittedCount ${l.submitted}',
                           color: day.homeworks.isNotEmpty ? AppColors.duoGreen : null,
                         ),
@@ -502,7 +505,10 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('✏️', style: TextStyle(fontSize: 16)),
+                        Icon(Icons.edit_note_rounded, size: 20,
+                          color: day.homeworks.isNotEmpty
+                              ? AppColors.duoGreen
+                              : (isDark ? Colors.white60 : AppColors.duoTextLight)),
                         const SizedBox(width: 8),
                         Text(
                           day.homeworks.isEmpty
@@ -538,7 +544,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('🙋‍♂️', style: TextStyle(fontSize: 18)),
+                        const Icon(Icons.how_to_reg_rounded, size: 20, color: Colors.white),
                         const SizedBox(width: 8),
                         Text(
                           l.markAttendance,
@@ -562,7 +568,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
   Widget _actionChip({
     required bool isDark,
-    required String icon,
+    required IconData icon,
     required String label,
     Color? color,
   }) {
@@ -577,7 +583,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(icon, style: const TextStyle(fontSize: 16)),
+          Icon(icon, size: 18, color: color ?? (isDark ? Colors.white70 : AppColors.duoTextLight)),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
@@ -602,6 +608,10 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
     final linkController = TextEditingController();
     final textController = TextEditingController();
     String selectedTab = 'link';
+    bool isUploading = false;
+    String? uploadError;
+
+    final dateKey = _formatDateKey(day.date);
 
     showModalBottomSheet(
       context: context,
@@ -613,10 +623,84 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
 
         return StatefulBuilder(
           builder: (ctx, setModalState) {
+
+            // ── Upload helpers ──────────────────────────────────────────────
+            Future<void> uploadAndSave({
+              required List<int> bytes,
+              required String filename,
+              required bool isRaw,
+              required String type,
+            }) async {
+              setModalState(() {
+                isUploading = true;
+                uploadError = null;
+              });
+              try {
+                final url = isRaw
+                    ? await CloudinaryService.uploadRawFile(
+                        bytes: bytes,
+                        filename: filename,
+                        folder: 'materials/${widget.groupId}',
+                      )
+                    : await CloudinaryService.uploadBytes(
+                        bytes: bytes,
+                        filename: filename,
+                        folder: 'materials/${widget.groupId}',
+                      );
+                final newMat = {
+                  'type': type,
+                  'content': url,
+                  'filename': filename,
+                };
+                await DarslarService().addMaterial(widget.groupId, dateKey, newMat);
+                if (ctx.mounted) Navigator.pop(ctx);
+              } catch (e) {
+                setModalState(() {
+                  isUploading = false;
+                  uploadError = e.toString();
+                });
+              }
+            }
+
+            Future<void> pickImage(ImageSource source) async {
+              final picker = ImagePicker();
+              final xfile = await picker.pickImage(
+                source: source,
+                imageQuality: 85,
+              );
+              if (xfile == null) return;
+              final bytes = await xfile.readAsBytes();
+              await uploadAndSave(
+                bytes: bytes,
+                filename: xfile.name.isNotEmpty ? xfile.name : 'image.jpg',
+                isRaw: false,
+                type: 'image',
+              );
+            }
+
+            Future<void> pickFile() async {
+              final result = await FilePicker.platform.pickFiles(
+                withData: true,
+                allowMultiple: false,
+              );
+              if (result == null || result.files.isEmpty) return;
+              final file = result.files.first;
+              final bytes = file.bytes;
+              if (bytes == null) return;
+              final ext = file.extension?.toLowerCase() ?? '';
+              final isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(ext);
+              await uploadAndSave(
+                bytes: bytes,
+                filename: file.name,
+                isRaw: !isImage,
+                type: isImage ? 'image' : 'file',
+              );
+            }
+
             return Padding(
               padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
               child: Container(
-                constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.85),
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.90),
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
                 decoration: BoxDecoration(
                   color: cardBg,
@@ -629,6 +713,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Handle
                       Center(
                         child: Container(
                           width: 50, height: 6,
@@ -639,7 +724,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                       ),
                       const SizedBox(height: 20),
                       Row(children: [
-                        const Text('📎', style: TextStyle(fontSize: 22)),
+                        Icon(Icons.attach_file_rounded, size: 22, color: isDark ? Colors.white : AppColors.duoTextDark),
                         const SizedBox(width: 10),
                         Text(l.materialsHeader,
                             style: TextStyle(
@@ -649,6 +734,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                       ]),
                       const SizedBox(height: 16),
 
+                      // ── Mavjud materiallar ──────────────────────────────
                       if (day.materials.isNotEmpty) ...[
                         Text(l.addedMaterials,
                             style: TextStyle(
@@ -661,6 +747,15 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                           final mat = entry.value as Map<String, dynamic>? ?? {};
                           final type = mat['type'] ?? 'link';
                           final content = mat['content'] ?? '';
+                          final filename = mat['filename'] as String?;
+                          final matIcon = type == 'image'
+                              ? Icons.image_rounded
+                              : type == 'file'
+                                  ? Icons.insert_drive_file_rounded
+                                  : type == 'link'
+                                      ? Icons.link_rounded
+                                      : Icons.notes_rounded;
+                          final display = filename ?? content;
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Container(
@@ -671,11 +766,10 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  Text(type == 'link' ? '🔗' : '📝',
-                                      style: const TextStyle(fontSize: 18)),
+                                  Icon(matIcon, size: 20, color: isDark ? Colors.white54 : AppColors.duoTextLight),
                                   const SizedBox(width: 10),
                                   Expanded(
-                                    child: Text(content,
+                                    child: Text(display,
                                         style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
@@ -687,13 +781,12 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                     onTap: () async {
                                       final newMats = List<dynamic>.from(day.materials);
                                       newMats.removeAt(idx);
-                                      final dateKey = _formatDateKey(day.date);
                                       await DarslarService()
                                           .setMaterials(widget.groupId, dateKey, newMats);
                                       if (ctx.mounted) Navigator.pop(ctx);
                                     },
-                                    child:
-                                        const Icon(Icons.close_rounded, size: 20, color: AppColors.duoRed),
+                                    child: const Icon(Icons.close_rounded,
+                                        size: 20, color: AppColors.duoRed),
                                   ),
                                 ],
                               ),
@@ -705,17 +798,55 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         const SizedBox(height: 12),
                       ],
 
-                      Row(
-                        children: [
-                          _tabButton(ctx, isDark, l.link, 'link', selectedTab,
-                              (v) => setModalState(() => selectedTab = v)),
-                          const SizedBox(width: 10),
-                          _tabButton(ctx, isDark, l.text, 'text', selectedTab,
-                              (v) => setModalState(() => selectedTab = v)),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
+                      // ── Upload xato ─────────────────────────────────────
+                      if (uploadError != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.duoRed.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.duoRed.withValues(alpha: 0.4)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline_rounded,
+                                  color: AppColors.duoRed, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(uploadError!,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.duoRed)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
 
+                      // ── Tabs ────────────────────────────────────────────
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _tabButton(ctx, isDark, l.link, 'link', selectedTab,
+                                (v) => setModalState(() => selectedTab = v)),
+                            const SizedBox(width: 8),
+                            _tabButton(ctx, isDark, l.text, 'text', selectedTab,
+                                (v) => setModalState(() => selectedTab = v)),
+                            const SizedBox(width: 8),
+                            _tabButton(ctx, isDark, 'Rasm', 'image', selectedTab,
+                                (v) => setModalState(() => selectedTab = v)),
+                            const SizedBox(width: 8),
+                            _tabButton(ctx, isDark, 'Fayl', 'file', selectedTab,
+                                (v) => setModalState(() => selectedTab = v)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // ── Tab content ─────────────────────────────────────
                       if (selectedTab == 'link')
                         TextField(
                           controller: linkController,
@@ -735,7 +866,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                 borderSide: BorderSide.none),
                           ),
                         )
-                      else
+                      else if (selectedTab == 'text')
                         TextField(
                           controller: textController,
                           maxLines: 4,
@@ -755,36 +886,170 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide.none),
                           ),
+                        )
+                      else if (selectedTab == 'image') ...[
+                        // Rasm — gallery yoki kamera
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GamifiedCard(
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                color: isDark
+                                    ? AppColors.duoCardGray.withValues(alpha: 0.1)
+                                    : Colors.white,
+                                shadowColor: isDark
+                                    ? Colors.black26
+                                    : AppColors.duoCardGrayShadow,
+                                shadowDepth: 4,
+                                onTap: isUploading
+                                    ? null
+                                    : () => pickImage(ImageSource.gallery),
+                                child: Column(
+                                  children: [
+                                    Icon(Icons.photo_library_rounded,
+                                        size: 36,
+                                        color: widget.color),
+                                    const SizedBox(height: 8),
+                                    Text('Galereya',
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w800,
+                                            color: isDark
+                                                ? Colors.white
+                                                : AppColors.duoTextDark)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: GamifiedCard(
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                color: isDark
+                                    ? AppColors.duoCardGray.withValues(alpha: 0.1)
+                                    : Colors.white,
+                                shadowColor: isDark
+                                    ? Colors.black26
+                                    : AppColors.duoCardGrayShadow,
+                                shadowDepth: 4,
+                                onTap: isUploading
+                                    ? null
+                                    : () => pickImage(ImageSource.camera),
+                                child: Column(
+                                  children: [
+                                    Icon(Icons.camera_alt_rounded,
+                                        size: 36,
+                                        color: widget.color),
+                                    const SizedBox(height: 8),
+                                    Text('Kamera',
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w800,
+                                            color: isDark
+                                                ? Colors.white
+                                                : AppColors.duoTextDark)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: GamifiedCard(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          color: widget.color,
-                          shadowColor: widget.shadowColor,
-                          onTap: () async {
-                            final content = selectedTab == 'link'
-                                ? linkController.text.trim()
-                                : textController.text.trim();
-                            if (content.isEmpty) return;
-                            final newMat = {'type': selectedTab, 'content': content};
-                            final dateKey = _formatDateKey(day.date);
-                            await DarslarService()
-                                .addMaterial(widget.groupId, dateKey, newMat);
-                            if (ctx.mounted) Navigator.pop(ctx);
-                          },
-                          child: Center(
-                            child: Text(l.saveBtn,
-                                style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                    letterSpacing: 1.0)),
+                      ] else if (selectedTab == 'file') ...[
+                        // Fayl tanlash
+                        GamifiedCard(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          color: isDark
+                              ? AppColors.duoCardGray.withValues(alpha: 0.1)
+                              : Colors.white,
+                          shadowColor:
+                              isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                          shadowDepth: 4,
+                          onTap: isUploading ? null : pickFile,
+                          child: Column(
+                            children: [
+                              Icon(Icons.upload_file_rounded,
+                                  size: 40, color: widget.color),
+                              const SizedBox(height: 10),
+                              Text('Fayl tanlash',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark
+                                          ? Colors.white
+                                          : AppColors.duoTextDark)),
+                              const SizedBox(height: 4),
+                              Text('PDF, DOCX, PPTX, va boshqalar',
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark
+                                          ? Colors.white54
+                                          : AppColors.duoTextLight)),
+                            ],
                           ),
                         ),
-                      ),
+                      ],
+
+                      // ── Upload progress ─────────────────────────────────
+                      if (isUploading) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: widget.color.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: widget.color,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text('Cloudinary ga yuklanmoqda...',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: widget.color)),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      // ── Saqlash tugmasi (link va text uchun) ────────────
+                      if (selectedTab == 'link' || selectedTab == 'text') ...[
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: GamifiedCard(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            color: widget.color,
+                            shadowColor: widget.shadowColor,
+                            onTap: () async {
+                              final content = selectedTab == 'link'
+                                  ? linkController.text.trim()
+                                  : textController.text.trim();
+                              if (content.isEmpty) return;
+                              final newMat = {'type': selectedTab, 'content': content};
+                              await DarslarService()
+                                  .addMaterial(widget.groupId, dateKey, newMat);
+                              if (ctx.mounted) Navigator.pop(ctx);
+                            },
+                            child: Center(
+                              child: Text(l.saveBtn,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: 1.0)),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -874,7 +1139,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(children: [
-                          const Text('📚', style: TextStyle(fontSize: 22)),
+                          Icon(Icons.assignment_rounded, size: 22, color: isDark ? Colors.white : AppColors.duoTextDark),
                           const SizedBox(width: 10),
                           Text(l.homeworkHeader,
                               style: TextStyle(
@@ -1034,7 +1299,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
               children: [
                 Row(
                   children: [
-                    const Text('✏️', style: TextStyle(fontSize: 15)),
+                    Icon(Icons.edit_rounded, size: 15, color: const Color(0xFF7C3AED).withValues(alpha: 0.8)),
                     const SizedBox(width: 6),
                     Text(
                       l.testAnswersOptional,
@@ -1147,7 +1412,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                 shadowColor: AppColors.duoGreenShadow,
                 child: Row(
                   children: [
-                    const Text('📚', style: TextStyle(fontSize: 28)),
+                    const Icon(Icons.assignment_turned_in_rounded, size: 28, color: Colors.white),
                     const SizedBox(width: 14),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

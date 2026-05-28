@@ -138,10 +138,10 @@ class StudentLeaderboardScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   color: isMe
                       ? (isDark 
-                          ? Color.alphaBlend(AppColors.duoBlue.withValues(alpha: 0.15), const Color(0xFF131F24))
-                          : Color.alphaBlend(AppColors.duoBlue.withValues(alpha: 0.1), Colors.white))
+                          ? Color.alphaBlend(AppColors.duoOrange.withValues(alpha: 0.12), const Color(0xFF131F24))
+                          : Color.alphaBlend(AppColors.duoOrange.withValues(alpha: 0.08), Colors.white))
                       : (isDark ? Color.alphaBlend(AppColors.duoCardGray.withValues(alpha: 0.05), const Color(0xFF131F24)) : Colors.white),
-                  shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                  shadowColor: isDark ? Colors.black26 : (isMe ? AppColors.duoOrangeShadow : AppColors.duoCardGrayShadow),
                   shadowDepth: isMe ? 4 : 2,
                   child: Row(
                     children: [
@@ -203,7 +203,7 @@ class StudentLeaderboardScreen extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
-                                    color: isMe ? AppColors.duoBlue : (isDark ? Colors.white70 : AppColors.duoTextLight),
+                                    color: isMe ? AppColors.duoOrange : (isDark ? Colors.white70 : AppColors.duoTextLight),
                                   ),
                                 ),
                               ],

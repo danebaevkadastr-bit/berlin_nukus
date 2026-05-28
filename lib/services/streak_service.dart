@@ -19,10 +19,13 @@ class StreakService {
       'activityLog': FieldValue.arrayUnion([today]),
     }, SetOptions(merge: true));
 
-    // Kunlik daqiqalarni yangilash
+    // Kunlik daqiqalarni yangilash — mavjud qiymatga qo'shamiz
     if (minutes > 0) {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      final existing = doc.data()?['dailyMinutesMap'] as Map<String, dynamic>? ?? {};
+      final prev = (existing[today] as int?) ?? 0;
       await _firestore.collection('users').doc(uid).set({
-        'dailyMinutes': FieldValue.arrayUnion([{'date': today, 'minutes': minutes}]),
+        'dailyMinutesMap': {today: prev + minutes},
       }, SetOptions(merge: true));
     }
 
@@ -90,19 +93,17 @@ class StreakService {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
-        final dailyMinutes = doc.data()?['dailyMinutes'] as List<dynamic>? ?? [];
+        // Yangi format: dailyMinutesMap: {'2024-01-15': 30, ...}
+        final dailyMinutesMap = doc.data()?['dailyMinutesMap'] as Map<String, dynamic>? ?? {};
         final usage = <double>[];
 
-        // Haftaning boshlanish sanasini hisoblash (weekOffset * 7 kun oldin)
         final weekStart = DateTime.now().subtract(Duration(days: weekOffset * 7 + 6));
 
         for (int i = 0; i < 7; i++) {
           final date = weekStart.add(Duration(days: i));
           final dateKey = _getDateKey(date);
-          final dayMinutes = dailyMinutes
-              .where((item) => item is Map && item['date'] == dateKey)
-              .fold<int>(0, (total, item) => total + (item['minutes'] as int? ?? 0));
-          usage.add(dayMinutes.toDouble());
+          final mins = (dailyMinutesMap[dateKey] as int?) ?? 0;
+          usage.add(mins.toDouble());
         }
 
         return usage;
@@ -111,7 +112,6 @@ class StreakService {
       // Xatolarni ignore qilish
     }
 
-    // Default: hozircha random data
     return List.filled(7, 0.0);
   }
 

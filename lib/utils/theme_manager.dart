@@ -10,23 +10,21 @@ class AccentPreset {
   final String nameUz;
   final Color color;
   final Color shadow;
-  final String emoji;
 
   const AccentPreset({
     required this.id,
     required this.nameUz,
     required this.color,
     required this.shadow,
-    required this.emoji,
   });
 }
 
 const List<AccentPreset> accentPresets = [
-  AccentPreset(id: 'green',  nameUz: 'Yashil',    color: AppColors.duoGreen,  shadow: AppColors.duoGreenShadow,  emoji: '🌿'),
-  AccentPreset(id: 'blue',   nameUz: 'Ko\'k',      color: AppColors.duoBlue,   shadow: AppColors.duoBlueShadow,   emoji: '🌊'),
-  AccentPreset(id: 'orange', nameUz: 'To\'q sariq', color: AppColors.duoOrange, shadow: AppColors.duoOrangeShadow, emoji: '🔥'),
-  AccentPreset(id: 'purple', nameUz: 'Binafsha',   color: AppColors.duoPurple, shadow: AppColors.duoPurpleShadow, emoji: '💜'),
-  AccentPreset(id: 'red',    nameUz: 'Qizil',      color: AppColors.duoRed,    shadow: AppColors.duoRedShadow,    emoji: '🌹'),
+  AccentPreset(id: 'green',  nameUz: 'Yashil',     color: AppColors.duoGreen,  shadow: AppColors.duoGreenShadow),
+  AccentPreset(id: 'blue',   nameUz: 'Ko\'k',       color: AppColors.duoBlue,   shadow: AppColors.duoBlueShadow),
+  AccentPreset(id: 'orange', nameUz: 'To\'q sariq', color: AppColors.duoOrange, shadow: AppColors.duoOrangeShadow),
+  AccentPreset(id: 'purple', nameUz: 'Binafsha',    color: AppColors.duoPurple, shadow: AppColors.duoPurpleShadow),
+  AccentPreset(id: 'red',    nameUz: 'Qizil',       color: AppColors.duoRed,    shadow: AppColors.duoRedShadow),
 ];
 
 // ── ThemeManager ──────────────────────────────────────────────────────────────

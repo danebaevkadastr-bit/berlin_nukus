@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 
 /// Supported locales
 enum AppLocale {
-  uz('uz', 'UZB', "O'zbek", '🇺🇿'),
-  kaa('kaa', 'KKR', 'Qaraqalpaq', '🌍'),
-  ru('ru', 'RUS', 'Русский', '🇷🇺'),
-  de('de', 'DE', 'Deutsch', '🇩🇪');
+  uz('uz', 'UZB', "O'zbek", null, '🇺🇿'),
+  kaa('kaa', 'KKR', 'Qaraqalpaq', 'assets/images/image.png', null),
+  ru('ru', 'RUS', 'Русский', null, '🇷🇺'),
+  de('de', 'DE', 'Deutsch', null, '🇩🇪');
 
   final String code;
   final String label;
   final String nativeName;
-  final String flag;
+  final String? imagePath;
+  final String? flagEmoji;
 
-  const AppLocale(this.code, this.label, this.nativeName, this.flag);
+  const AppLocale(this.code, this.label, this.nativeName, this.imagePath, this.flagEmoji);
 
   static AppLocale fromCode(String code) {
     return AppLocale.values.firstWhere(
