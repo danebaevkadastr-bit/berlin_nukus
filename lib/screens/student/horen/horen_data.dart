@@ -1,9 +1,8 @@
-// Data models and mock questions for Hören (A1)
+// Data models and questions for Hören A1 (Goethe Institut)
 
 const _base =
     'https://res.cloudinary.com/dmk6ir51m/video/upload/v1779954896';
 
-// Cloudinary public IDs (fayl nomi + random suffix)
 const _t1q1  = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q1_iyvyew.mp3';
 const _t1q2  = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q2_ncpyhi.mp3';
 const _t1q3  = '$_base/assets_audio_a1_goethelistening_goethea1listeningteil1q3_fc46of.mp3';
@@ -53,84 +52,88 @@ class HorenLevel {
 const horenA1 = HorenLevel(
   level: 'A1',
   teile: [
-    // Teil 1 – Audio-Picture Matching (10 savol)
+    // ── Teil 1 – 10 savollar ─────────────────────────────────────────────────
     HorenTeil(
       teilNumber: 1,
       questions: [
         HorenQuestion(
           audioTitle: 'Aufgabe 1',
           audioUrl: _t1q1,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Richtig',
+          question: 'Wo wollen die Freunde essen?',
+          options: ['Im Park', 'Zu Hause', 'Im Restaurant'],
+          correctAnswer: 'Im Restaurant',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 2',
           audioUrl: _t1q2,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Falsch',
+          question: 'Wann kommt der Zug?',
+          options: ['Um 14:15 Uhr', 'Um 15:15 Uhr', 'Um 14:45 Uhr'],
+          correctAnswer: 'Um 14:15 Uhr',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 3',
           audioUrl: _t1q3,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Richtig',
+          question: 'Was trinkt die Frau?',
+          options: ['Tee', 'Kaffee', 'Wasser'],
+          correctAnswer: 'Kaffee',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 4',
           audioUrl: _t1q4,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Richtig',
+          question: 'Wie viele Kinder hat Frau Meier?',
+          options: ['Zwei', 'Eins', 'Drei'],
+          correctAnswer: 'Zwei',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 5',
           audioUrl: _t1q5,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Falsch',
+          question: 'Wo ist die Post?',
+          options: [
+            'Links um die Ecke',
+            'Neben dem Supermarkt',
+            'Geradeaus und rechts',
+          ],
+          correctAnswer: 'Geradeaus und rechts',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 6',
           audioUrl: _t1q6,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Richtig',
+          question: 'Wann hat der Arzt wieder auf?',
+          options: ['Am Donnerstag', 'Am Montag', 'Am Freitag'],
+          correctAnswer: 'Am Donnerstag',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 7',
           audioUrl: _t1q7,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Falsch',
+          question: 'Was kostet das T-Shirt?',
+          options: ['Zwölf Euro', 'Zweiundzwanzig Euro', 'Zwanzig Euro'],
+          correctAnswer: 'Zwölf Euro',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 8',
           audioUrl: _t1q8,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Richtig',
+          question: 'Wann beginnt der Film?',
+          options: ['Um acht Uhr', 'Um neun Uhr', 'Um halb neun'],
+          correctAnswer: 'Um halb neun',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 9',
           audioUrl: _t1q9,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Falsch',
+          question: 'Was bestellt der Mann?',
+          options: ['Schnitzel', 'Pizza', 'Suppe'],
+          correctAnswer: 'Schnitzel',
         ),
         HorenQuestion(
           audioTitle: 'Aufgabe 10',
           audioUrl: _t1q10,
-          question: 'Was hört man?',
-          options: ['Richtig', 'Falsch'],
-          correctAnswer: 'Richtig',
+          question: 'Woher kommt Ana?',
+          options: ['Aus Spanien', 'Aus Portugal', 'Aus Italien'],
+          correctAnswer: 'Aus Spanien',
         ),
       ],
     ),
 
-    // Teil 2 – Phone Conversations (placeholder)
+    // ── Teil 2 – placeholder ──────────────────────────────────────────────────
     HorenTeil(
       teilNumber: 2,
       questions: [
@@ -172,7 +175,7 @@ const horenA1 = HorenLevel(
       ],
     ),
 
-    // Teil 3 – Short Announcements (placeholder)
+    // ── Teil 3 – placeholder ──────────────────────────────────────────────────
     HorenTeil(
       teilNumber: 3,
       questions: [
