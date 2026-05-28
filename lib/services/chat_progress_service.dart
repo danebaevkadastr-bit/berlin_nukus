@@ -5,21 +5,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Mavzu bo'yicha chat holati va xabarlar (SharedPreferences).
 class ChatProgressService {
   static const int maxUserMessagesPerTopic = 25;
-  static const int minChatWordLimit = 5;
-  static const int maxChatWordLimit = 25;
-  static const String _wordLimitKey = 'chat_word_limit';
+  static const int minChatMessageLimit = 10;
+  static const int maxChatMessageLimit = 25;
+  static const String _messageLimitKey = 'chat_message_limit';
 
-  static Future<int> getChatWordLimit() async {
+  static Future<int> getChatMessageLimit() async {
     final prefs = await SharedPreferences.getInstance();
-    final v = prefs.getInt(_wordLimitKey) ?? maxChatWordLimit;
-    return v.clamp(minChatWordLimit, maxChatWordLimit);
+    final v = prefs.getInt(_messageLimitKey) ?? maxChatMessageLimit;
+    return v.clamp(minChatMessageLimit, maxChatMessageLimit);
   }
 
-  static Future<void> setChatWordLimit(int words) async {
+  static Future<void> setChatMessageLimit(int count) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
-      _wordLimitKey,
-      words.clamp(minChatWordLimit, maxChatWordLimit),
+      _messageLimitKey,
+      count.clamp(minChatMessageLimit, maxChatMessageLimit),
     );
   }
 
@@ -29,27 +29,14 @@ class ChatProgressService {
     return t.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).length;
   }
 
-  /// AI ga yuboriladigan tarixni so'zlar soni bo'yicha qisqartiradi.
-  static List<Map<String, dynamic>> trimHistoryByWordLimit(
+  /// AI ga yuboriladigan tarixni xabarlar soni bo'yicha qisqartiradi.
+  static List<Map<String, dynamic>> trimHistoryByMessageLimit(
     List<Map<String, dynamic>> history,
-    int maxWords,
+    int maxMessages,
   ) {
-    if (maxWords <= 0 || history.isEmpty) return history;
-
-    var total = 0;
-    final kept = <Map<String, dynamic>>[];
-
-    for (var i = history.length - 1; i >= 0; i--) {
-      final item = history[i];
-      final w = countWords((item['text'] ?? '').toString());
-      if (total + w > maxWords && kept.isNotEmpty) break;
-      total += w;
-      kept.insert(0, item);
-    }
-
-    return kept.isEmpty && history.isNotEmpty
-        ? [history.last]
-        : kept;
+    if (maxMessages <= 0 || history.isEmpty) return history;
+    if (history.length <= maxMessages) return history;
+    return history.sublist(history.length - maxMessages);
   }
 
   static String _slug(String sourceType, String title) {

@@ -101,35 +101,54 @@ class BerlinNukusApp extends StatelessWidget {
                 final content = ThemeSwitchingArea(child: child!);
                 if (!kIsWeb) return content;
 
-                // Web: telefon o'lchamida markazda ko'rsat
+                // Web: haqiqiy ekran o'lchamini ol
+                final screenSize = MediaQuery.of(context).size;
+                final isWide = screenSize.width > 500;
+
+                if (!isWide) return content;
+
+                // Keng ekranda: telefon o'lchamiga cheklab, MediaQuery ni ham override qil
+                const phoneWidth = 390.0;
+                const phoneHeight = 844.0;
+
                 return Scaffold(
-                  backgroundColor: const Color(0xFF1a1a2e),
+                  backgroundColor: const Color(0xFF0f0f1a),
                   body: Center(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        // Keng ekranda telefon frame, tor ekranda to'liq
-                        if (constraints.maxWidth > 500) {
-                          return Container(
-                            width: 390,
-                            height: constraints.maxHeight.clamp(700, 844),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(40),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.5),
-                                  blurRadius: 60,
-                                  spreadRadius: 10,
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(40),
-                              child: content,
-                            ),
-                          );
-                        }
-                        return content;
-                      },
+                    child: Container(
+                      width: phoneWidth,
+                      height: phoneHeight,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(44),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            blurRadius: 80,
+                            spreadRadius: 20,
+                          ),
+                          BoxShadow(
+                            color: const Color(0xFF5C6BC0).withValues(alpha: 0.15),
+                            blurRadius: 40,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(43),
+                        child: MediaQuery(
+                          // Ichki app ni telefon o'lchamida ko'rsin
+                          data: MediaQuery.of(context).copyWith(
+                            size: const Size(phoneWidth, phoneHeight),
+                            padding: const EdgeInsets.only(top: 44, bottom: 34),
+                            viewPadding: const EdgeInsets.only(top: 44, bottom: 34),
+                            viewInsets: EdgeInsets.zero,
+                          ),
+                          child: content,
+                        ),
+                      ),
                     ),
                   ),
                 );

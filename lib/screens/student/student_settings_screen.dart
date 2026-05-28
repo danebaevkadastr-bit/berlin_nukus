@@ -341,14 +341,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                           onTap: () {
                             setState(() => _isLanguageExpanded = false);
                             LocaleManager.setLocale(locale);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppLocalizations(locale.code).languageChanged),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
                           },
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
@@ -566,12 +558,6 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                   ThemeSwitcher.of(context).changeTheme(
                     theme: value ? ThemeManager.darkTheme : ThemeManager.lightTheme,
                     isReversed: !value,
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(value ? l.darkModeOn : l.lightModeOn),
-                      behavior: SnackBarBehavior.floating,
-                    ),
                   );
                 },
               );

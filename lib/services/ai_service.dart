@@ -156,16 +156,23 @@ class AIService {
 
   static Future<Map<String, dynamic>> checkMistakes({
     required String text,
+    String targetLang = 'uz',
   }) async {
+    final langInstruction = targetLang == 'ru'
+        ? 'Объясни ошибки на русском языке. Поле "explanationUz" и "reasonUz" заполни на русском.'
+        : 'Xatolarni o\'zbek tilida tushuntir. "explanationUz" va "reasonUz" maydonlarini o\'zbek tilida to\'ldir.';
+
     final raw = await _chat(
       temperature: 0.2,
       messages: [
         {
           'role': 'system',
           'content':
-              'Sen nemis tili o\'qituvchisisan. Foydalanuvchi gapidagi xatolarni tekshir. '
+              'Sen nemis tili o\'qituvchisisan. Foydalanuvchi nemis tilidagi gapidagi xatolarni tekshir. $langInstruction '
+              'MUHIM: "correctedText" maydoni NEMIS TILIDA bo\'lsin — foydalanuvchining to\'g\'rilangan nemischa gapi. '
+              '"wrong" va "correct" maydonlari ham NEMIS TILIDA bo\'lsin. '
               'Faqat JSON qaytaring, boshqa matn yo\'q. Format: '
-              '{"hasMistake":true/false,"correctedText":"...","explanationUz":"...","mistakes":[{"wrong":"...","correct":"...","reasonUz":"..."}]}',
+              '{"hasMistake":true/false,"correctedText":"nemischa to\'g\'rilangan gap","explanationUz":"tushuntirish (maqsadli tilda)","mistakes":[{"wrong":"xato nemischa","correct":"to\'g\'ri nemischa","reasonUz":"sabab (maqsadli tilda)"}]}',
         },
         {'role': 'user', 'content': text},
       ],
@@ -174,14 +181,20 @@ class AIService {
     return _parseJsonObject(raw);
   }
 
-  static Future<String> translateGermanText({required String text}) async {
+  static Future<String> translateGermanText({
+    required String text,
+    String targetLang = 'uz',
+  }) async {
+    final langInstruction = targetLang == 'ru'
+        ? 'Переведи следующий немецкий текст на русский язык. Напиши только перевод.'
+        : 'Quyidagi nemis matnini o\'zbek tiliga tarjima qiling. Faqat tarjima matnini yozing.';
+
     return _chat(
       temperature: 0.3,
       messages: [
         {
           'role': 'system',
-          'content':
-              'Quyidagi nemis matnini o\'zbek tiliga tarjima qiling. Faqat tarjima matnini yozing.',
+          'content': langInstruction,
         },
         {'role': 'user', 'content': text},
       ],
@@ -288,28 +301,29 @@ Har bir ma'no uchun alohida misol gap va uning tarjimasini ko'rsating.''',
           'role': 'system',
           'content': '''
 Sen nemis tili yozma ish (Schreiben, B1) tekshiruvchisisan.
-O'quvchi javobini O'ZBEK tilida, quyidagi formatda bahola. Boshqa format ishlatma.
+O'quvchi javobini O'ZBEK tilida bahola. Haqiqiy o'qituvchidek yoz — oddiy, aniq, quruq.
+Hech qanday emoji, yulduzcha (*), qo'shtirnoq belgisi ('), markdown formatlashtirish ishlatma.
+Faqat oddiy matn va raqamlar.
 
-📊 **1. QISQA XULOSA**
-- So'zlar soni: [son] / $minWords talab
-- Majburiy punktlar: [bajarilgan/bajarilmagan — qisqa]
-- Stil: [to'g'ri ($style talab) / noto'g'ri]
-- Umumiy izoh: 1-2 gap
+Quyidagi tuzilmada yoz:
 
-🔍 **2. XATOLAR VA TO'G'RILASH**
-(Xatolar bo'lsa har birini yoz; bo'lmasa faqat: "Ahamiyatli xato topilmadi")
+1. QISQA XULOSA
+So'zlar soni: [son] / $minWords talab
+Majburiy punktlar: [har birini bajarilgan yoki bajarilmagan deb yoz]
+Stil: [to'g'ri ($style talab) yoki noto'g'ri]
+Umumiy izoh: 1-2 gap
 
-Har bir xato uchun:
-• xato → to'g'risi
-  *Izoh:* qisqa tushuntirish
+2. XATOLAR VA TO'G'RILASH
+Xatolar bo'lsa har birini yoz. Bo'lmasa: "Ahamiyatli xato topilmadi."
+Har xato uchun: xato so'z yoki gap, keyin to'g'risi, keyin qisqa izoh.
 
-⭐ **3. BAHOLASH**
-- Inhalt (mazmun): X/6
-- Stil (uslub): X/4
-- Grammatik/Wortschatz: X/6
-- Aufbau (tuzilish): X/2
-- Wortzahl (so'zlar soni): X/2
-- JAMI: X/20
+3. BAHOLASH
+Inhalt (mazmun): X/6
+Stil (uslub): X/4
+Grammatik va Wortschatz: X/6
+Aufbau (tuzilish): X/2
+Wortzahl (so'zlar soni): X/2
+Jami: X/20
 
 Qat'iy, adolatli va qisqa bo'l.''',
         },

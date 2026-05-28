@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import '../../l10n/locale_manager.dart';
 import '../../services/ai_service.dart';
 import '../../services/chat_progress_service.dart';
 import '../../services/stt_service.dart';
@@ -53,7 +54,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _autoReadAiReply = true;
   bool _openTranslationByDefault = false;
   bool _showCorrections = true;
-  int _chatWordLimit = ChatProgressService.maxChatWordLimit;
+  int _chatMessageLimit = ChatProgressService.maxChatMessageLimit;
 
   String _mentorName = 'Frau Schneider';
   String _mentorRole = 'AI Mentor • Online';
@@ -88,30 +89,32 @@ class _ChatScreenState extends State<ChatScreen> {
   ];
 
   static const String _chatRules = '''
-UMUMIY QOIDALAR (qat'iy):
-- HECH QANDAY emoji, smaylik, sticker yuborma (:) ;) :D ham emas).
-- Faqat aniq va konkret yoz: so'zlar, misollar, bitta savol, qisqa qoida.
-- Umumiy motivatsiya, bo'sh gaplar, "super/toll/wunderbar" kabi izohlarsiz yoz.
-- Javob qisqa bo'lsin: maksimum 3-5 gap (lesson) yoki 4-6 gap (conversation).
-- Boshqa mavzuga o'tma, faqat berilgan mavzu bo'yicha.
-- Javoblar asosan nemis tilida; kerak bo'lsa 1 qator o'zbekcha yordam.
+QOIDALAR (qat'iy):
+- Hech qanday emoji, smaylik ishlatma.
+- Har javobda faqat BITTA savol ber — bir nechta savol bir vaqtda berma.
+- Javob qisqa bo'lsin: 2-4 gap.
+- Faqat berilgan mavzu bo'yicha gapir.
+- Avvalgi savollarga qaytma, takrorlanma.
+- Asosan nemis tilida yoz; kerak bo'lsa 1 qator o'zbekcha yordam.
 ''';
 
   String get _contextPrompt {
+    final totalLimit = ChatProgressService.maxUserMessagesPerTopic;
+    final remaining = totalLimit - _userMessageCount;
+
     if (widget.sourceType == 'lesson') {
       return '''
-Sen nemis tili o'qituvchisisan. Foydalanuvchi tanlagan mavzu: "${widget.title}".
+Sen nemis tili o'qituvchisisan. Mavzu: "${widget.title}".
 
 $_chatRules
 
 DARS USLUBI:
 - Faqat "${widget.title}" bo'yicha o'rgat: aniq lug'at, 1 grammatika nuqtasi, 1 misol gap.
-- Har javobda: qisqa tushuntirish + 1 amaliy savol (yoki kichik mashq).
-- Mavzuni qayta e'lon qilma ("Heute lernen wir..." yozma).
-- Takroriy salomlashma va uzun matn yozma.
+- Har javobda: qisqa tushuntirish + 1 amaliy savol yoki mashq.
+- Mavzuni qayta e'lon qilma.
 
-Darsni faqat yetarli o'rganilgandan keyin (5-6 almashinuv) tugat.
-Tugatish iborasi: "Lektion beendet" yoki "Du hast die Lektion abgeschlossen"
+LIMIT: Foydalanuvchida $remaining ta xabar qoldi (jami $totalLimit).
+Agar 1-2 xabar qolsa, darsni yakunla: o'quvchini maqta, qisqacha xulosa chiqar va "Lektion beendet" deb yoz.
 ''';
     }
 
@@ -122,8 +125,11 @@ $_chatRules
 
 SUHBAT USLUBI:
 - Faqat "${widget.title}" haqida aniq savol-javob.
-- Har javobda 1 konkret savol ber (masalan: nima, qachon, qayerda, nega).
+- Har javobda 1 ta konkret savol ber.
 - Uzun dars bermay, suhbat qil.
+
+LIMIT: Foydalanuvchida $remaining ta xabar qoldi (jami $totalLimit).
+Agar 1-2 xabar qolsa, suhbatni yakunla: o'quvchini maqta, qisqacha xulosa chiqar va "Lektion beendet" deb yoz.
 ''';
   }
 
@@ -149,7 +155,7 @@ SUHBAT USLUBI:
   }
 
   Future<void> _bootstrapSession() async {
-    _chatWordLimit = await ChatProgressService.getChatWordLimit();
+    _chatMessageLimit = await ChatProgressService.getChatMessageLimit();
 
     final completed = await ChatProgressService.isCompleted(
       widget.sourceType,
@@ -198,9 +204,8 @@ SUHBAT USLUBI:
 
   void _checkMessageLimitCompletion() {
     if (_isFreeChat || _lessonFinished) return;
-    if (_userMessageCount >= ChatProgressService.maxUserMessagesPerTopic) {
-      _markSessionFinished();
-    }
+    // Limit yetganda AI javobidan keyin yakunlanadi (_checkLessonCompletion orqali)
+    // Bu yerda faqat input bloklanadi
   }
 
   @override
@@ -215,23 +220,27 @@ SUHBAT USLUBI:
     super.dispose();
   }
 
-  /// Dars tugashini tekshirish (faqat AI tomonidan tugatilganda)
+  /// Dars tugashini tekshirish
   void _checkLessonCompletion(String aiResponse) {
-    if (widget.sourceType != 'lesson') return;
+    if (widget.sourceType != 'lesson' && widget.sourceType != 'conversation') return;
     if (_lessonFinished) return;
 
-    // Faqat aniq tugatish iboralari
+    // AI tugatish iboralari
     final completionKeywords = [
       'Lektion beendet',
       'Du hast die Lektion abgeschlossen',
       'Lektion abgeschlossen',
     ];
 
-    final shouldFinish = completionKeywords.any(
+    final aiSaysFinished = completionKeywords.any(
       (keyword) => aiResponse.contains(keyword),
     );
 
-    if (shouldFinish) {
+    // Limit yetdi yoki AI yakunladi
+    final limitReached =
+        _userMessageCount >= ChatProgressService.maxUserMessagesPerTopic;
+
+    if (aiSaysFinished || limitReached) {
       _markSessionFinished();
     }
   }
@@ -257,14 +266,7 @@ SUHBAT USLUBI:
   void _addInitialMessage() {
     _messages.clear();
 
-    final intro = widget.sourceType == 'lesson'
-        ? 'Hallo! Ich bin $_mentorName.\n'
-              'Thema: "${widget.title}".\n'
-              'Ich erkläre kurz 3 wichtige Wörter und stelle dir eine Frage.\n'
-              'Bist du bereit?'
-        : 'Hallo! Ich bin $_mentorName.\n'
-              'Thema: "${widget.title}".\n'
-              'Was möchtest du zuerst wissen?';
+    final intro = 'Hallo! Heute sprechen wir über "${widget.title}".\nBist du bereit?';
 
     _messages.add(
       ChatMessageModel(
@@ -298,7 +300,7 @@ SUHBAT USLUBI:
         .where((m) => !m.isTyping)
         .map((m) => {'role': m.isUser ? 'user' : 'assistant', 'text': m.text})
         .toList();
-    return ChatProgressService.trimHistoryByWordLimit(all, _chatWordLimit);
+    return ChatProgressService.trimHistoryByMessageLimit(all, _chatMessageLimit);
   }
 
   bool get _isNearBottom {
@@ -422,6 +424,12 @@ SUHBAT USLUBI:
     }
   }
 
+  String get _targetLang {
+    final code = LocaleManager.currentLocale.value.code;
+    if (code == 'ru') return 'ru';
+    return 'uz'; // uz, kaa, de hammasi uchun o'zbek
+  }
+
   Future<void> _runCorrection(String messageId) async {
     final index = _messages.indexWhere((m) => m.id == messageId);
     if (index == -1) return;
@@ -429,7 +437,10 @@ SUHBAT USLUBI:
     final text = _messages[index].text;
 
     try {
-      final result = await AIService.checkMistakes(text: text);
+      final result = await AIService.checkMistakes(
+        text: text,
+        targetLang: _targetLang,
+      );
 
       final hasMistake = result['hasMistake'] == true;
       if (!hasMistake || !mounted) return;
@@ -477,7 +488,10 @@ SUHBAT USLUBI:
     });
 
     try {
-      final translated = await AIService.translateGermanText(text: msg.text);
+      final translated = await AIService.translateGermanText(
+        text: msg.text,
+        targetLang: _targetLang,
+      );
       if (!mounted) return;
       setState(() {
         _messages[index] = msg.copyWith(
@@ -679,7 +693,7 @@ SUHBAT USLUBI:
         bool tempAutoRead = _autoReadAiReply;
         bool tempOpenTranslation = _openTranslationByDefault;
         bool tempShowCorrections = _showCorrections;
-        double tempChatWordLimit = _chatWordLimit.toDouble();
+        double tempChatWordLimit = _chatMessageLimit.toDouble();
 
         return StatefulBuilder(
           builder: (context, setModal) {
@@ -763,13 +777,13 @@ SUHBAT USLUBI:
                       _SettingsSlider(
                         title: AppLocalizations.of(sheetContext).chatLength,
                         value: tempChatWordLimit,
-                        min: ChatProgressService.minChatWordLimit.toDouble(),
-                        max: ChatProgressService.maxChatWordLimit.toDouble(),
-                        divisions: ChatProgressService.maxChatWordLimit -
-                            ChatProgressService.minChatWordLimit,
-                        valueText: AppLocalizations.of(sheetContext).chatWordLimit(
+                        min: ChatProgressService.minChatMessageLimit.toDouble(),
+                        max: ChatProgressService.maxChatMessageLimit.toDouble(),
+                        divisions: ChatProgressService.maxChatMessageLimit -
+                            ChatProgressService.minChatMessageLimit,
+                        valueText: AppLocalizations.of(sheetContext).chatMessageLimit(
                           tempChatWordLimit.round(),
-                          ChatProgressService.maxChatWordLimit,
+                          ChatProgressService.maxChatMessageLimit,
                         ),
                         onChanged: (v) =>
                             setModal(() => tempChatWordLimit = v),
@@ -780,14 +794,14 @@ SUHBAT USLUBI:
                         child: ElevatedButton(
                           onPressed: () async {
                             final limit = tempChatWordLimit.round();
-                            await ChatProgressService.setChatWordLimit(limit);
+                            await ChatProgressService.setChatMessageLimit(limit);
                             setState(() {
                               _textSize = tempTextSize;
                               _ttsSpeed = tempTtsSpeed;
                               _autoReadAiReply = tempAutoRead;
                               _openTranslationByDefault = tempOpenTranslation;
                               _showCorrections = tempShowCorrections;
-                              _chatWordLimit = limit;
+                              _chatMessageLimit = limit;
                             });
                             if (sheetContext.mounted) {
                               Navigator.pop(sheetContext);

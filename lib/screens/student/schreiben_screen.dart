@@ -654,7 +654,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
         children: [
           Row(
             children: [
-              const Text('📊', style: TextStyle(fontSize: 20)),
+              const Icon(Icons.analytics_outlined, color: AppColors.duoGreen, size: 22),
               const SizedBox(width: 8),
               Text(
                 l.evaluation,

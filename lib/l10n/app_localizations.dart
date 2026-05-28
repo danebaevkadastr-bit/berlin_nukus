@@ -875,7 +875,7 @@ class AppLocalizations {
   });
   String get recentActivity => _t({
     'uz': "So'nggi faollik",
-    'kaa': "Aqırǵı faollıq",
+    'kaa': "Aqırǵı iskerlik",
     'ru': "Последние активности",
     'de': "Letzte Aktivitäten",
   });
@@ -1162,7 +1162,7 @@ class AppLocalizations {
   });
   String get showSampleAnswer => _t({
     'uz': "Namuna javobni ko‘rsatish",
-    'kaa': "Úlgi juwaplardı kórsetiw",
+    'kaa': "Úlgi juwaptı kórsetiw",
     'ru': "Показать пример ответа",
     'de': "Show sample answer",
   });
@@ -1210,7 +1210,7 @@ class AppLocalizations {
   });
   String get writeAnswerHint => _t({
     'uz': "Javobingizni yozing, AI baholaydi.",
-    'kaa': "Jabıwıńızdı jazıń, AI baholaydı.",
+    'kaa': "Jabıwıńızdı jazıń, AI baxalaydı.",
     'ru': "Напишите ваш ответ, AI оценит.",
     'de': "Schreiben Sie Ihre Antwort, AI bewertet.",
   });
@@ -1947,7 +1947,7 @@ class AppLocalizations {
   String activityStreakDays(int days) {
     final template = _t({
       'uz': 'FAOLIYAT: {n} KUN',
-      'kaa': 'FAOLLIQ: {n} KÚN',
+      'kaa': 'ISKERLIK: {n} KÚN',
       'ru': 'АКТИВНОСТЬ: {n} ДН.',
       'de': 'AKTIVITÄT: {n} TAGE',
     });
@@ -2002,7 +2002,7 @@ class AppLocalizations {
 
   String get activeDays => _t({
     'uz': "Faol kunlar",
-    'kaa': "Faol kúnler",
+    'kaa': "Aktiv kúnler",
     'ru': "Акт. дни",
     'de': "Akt. Tage",
   });
@@ -2164,6 +2164,16 @@ class AppLocalizations {
       'kaa': '{n} sóz (maks. {max})',
       'ru': '{n} слов (макс. {max})',
       'de': '{n} Wörter (max. {max})',
+    });
+    return template.replaceAll('{n}', '$limit').replaceAll('{max}', '$max');
+  }
+
+  String chatMessageLimit(int limit, int max) {
+    final template = _t({
+      'uz': '{n} ta xabar (maks. {max})',
+      'kaa': '{n} xabar (maks. {max})',
+      'ru': '{n} сообщений (макс. {max})',
+      'de': '{n} Nachrichten (max. {max})',
     });
     return template.replaceAll('{n}', '$limit').replaceAll('{max}', '$max');
   }
@@ -2660,7 +2670,7 @@ class AppLocalizations {
   });
   String get activeGroups => _t({
     'uz': "Faol guruhlar",
-    'kaa': "Faol toparlar",
+    'kaa': "Aktiv toparlar",
     'ru': "Активные группы",
     'de': "Aktive Gruppen",
   });
@@ -3105,7 +3115,7 @@ class AppLocalizations {
   String get unknownGroup => _t({'uz': "Noma'lum", 'kaa': "Belgisiz", 'ru': "Неизвестно", 'de': "Unbekannt"});
   String get addedToGroup => _t({'uz': "guruhga qo'shildi", 'kaa': "toparǵa qosıldı", 'ru': "добавлен в группу", 'de': "zur Gruppe hinzugefügt"});
   String get removedFromGroup => _t({'uz': "guruhdan chiqarildi", 'kaa': "topardan shıǵarıldı", 'ru': "удалён из группы", 'de': "aus der Gruppe entfernt"});
-  String get activeGroupsLabel => _t({'uz': "Faol guruhlar", 'kaa': "Faol toparlar", 'ru': "Активные группы", 'de': "Aktive Gruppen"});
+  String get activeGroupsLabel => _t({'uz': "Faol guruhlar", 'kaa': "Aktiv toparlar", 'ru': "Активные группы", 'de': "Aktive Gruppen"});
   String get newTestsLabel => _t({'uz': "Yangi testlar", 'kaa': "Jańa testler", 'ru': "Новые тесты", 'de': "Neue Tests"});
   String get noNewTestsLabel => _t({'uz': "Hali yangi testlar qo'shilmadi", 'kaa': "Ele jańa testler qosılmadı", 'ru': "Новые тесты ещё не добавлены", 'de': "Noch keine neuen Tests"});
   String get paymentControlLabel => _t({'uz': "To'lov nazorati", 'kaa': "Tólem basqarıwı", 'ru': "Контроль платежей", 'de': "Zahlungskontrolle"});
