@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../utils/app_colors.dart';
@@ -19,17 +20,21 @@ class HorenQuestionScreen extends StatefulWidget {
   State<HorenQuestionScreen> createState() => _HorenQuestionScreenState();
 }
 
-class _HorenQuestionScreenState extends State<HorenQuestionScreen>
-    with SingleTickerProviderStateMixin {
+class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
   int _currentIndex = 0;
-  bool _isPlaying = false;
-  // Fake elapsed seconds for UI demo
-  int _elapsedSeconds = 0;
-  static const int _totalSeconds = 23; // mock audio duration
+
+  // Audio
+  final AudioPlayer _player = AudioPlayer();
+  PlayerState _playerState = PlayerState.stopped;
+  Duration _position = Duration.zero;
+  Duration _duration = Duration.zero;
+  bool _isLoading = false;
+
+  // Quiz
   String? _selectedAnswer;
   bool _answered = false;
-  // null = unanswered, true = correct, false = wrong
   final List<bool?> _results = [];
+
   final _scrollController = ScrollController();
   final _questionScrollController = ScrollController();
 
@@ -39,14 +44,72 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
   Color get _accentColor => ThemeManager.accent;
   Color get _accentShadow => ThemeManager.accentShadow;
 
+  bool get _isPlaying => _playerState == PlayerState.playing;
+
   @override
   void initState() {
     super.initState();
     _results.addAll(List.filled(_questions.length, null));
+    _setupAudioListeners();
+    _loadAudio();
+  }
+
+  void _setupAudioListeners() {
+    _player.onPlayerStateChanged.listen((state) {
+      if (mounted) setState(() => _playerState = state);
+    });
+    _player.onPositionChanged.listen((pos) {
+      if (mounted) setState(() => _position = pos);
+    });
+    _player.onDurationChanged.listen((dur) {
+      if (mounted) setState(() => _duration = dur);
+    });
+    _player.onPlayerComplete.listen((_) {
+      if (mounted) setState(() => _position = _duration);
+    });
+  }
+
+  Future<void> _loadAudio() async {
+    final url = _current.audioUrl;
+    if (url.isEmpty) return;
+    setState(() {
+      _isLoading = true;
+      _position = Duration.zero;
+      _duration = Duration.zero;
+    });
+    try {
+      await _player.stop();
+      await _player.setSourceUrl(url);
+      // Get duration after setting source
+      final dur = await _player.getDuration();
+      if (mounted && dur != null) setState(() => _duration = dur);
+    } catch (_) {}
+    if (mounted) setState(() => _isLoading = false);
+  }
+
+  Future<void> _togglePlay() async {
+    if (_current.audioUrl.isEmpty) return;
+    if (_isPlaying) {
+      await _player.pause();
+    } else {
+      if (_position >= _duration && _duration > Duration.zero) {
+        await _player.seek(Duration.zero);
+      }
+      await _player.resume();
+    }
+  }
+
+  Future<void> _seekTo(double ratio) async {
+    if (_duration == Duration.zero) return;
+    final target = Duration(
+      milliseconds: (ratio * _duration.inMilliseconds).round(),
+    );
+    await _player.seek(target);
   }
 
   @override
   void dispose() {
+    _player.dispose();
     _scrollController.dispose();
     _questionScrollController.dispose();
     super.dispose();
@@ -58,14 +121,14 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
     }
     setState(() {
       _currentIndex = index;
-      _selectedAnswer = _results[index] != null
-          ? (_results[index]! ? _questions[index].correctAnswer : '__wrong__')
-          : null;
+      _selectedAnswer = null;
       _answered = _results[index] != null;
-      _isPlaying = false;
-      _elapsedSeconds = 0;
+      _isLoading = false;
+      _position = Duration.zero;
+      _duration = Duration.zero;
     });
     _scrollQuestionPickerTo(index);
+    _loadAudio();
   }
 
   void _scrollQuestionPickerTo(int index) {
@@ -84,34 +147,6 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
     });
   }
 
-  void _togglePlay() {
-    setState(() {
-      _isPlaying = !_isPlaying;
-    });
-    if (_isPlaying) {
-      _runFakeProgress();
-    }
-  }
-
-  void _runFakeProgress() async {
-    while (_isPlaying && _elapsedSeconds < _totalSeconds && mounted) {
-      await Future.delayed(const Duration(seconds: 1));
-      if (!mounted || !_isPlaying) break;
-      setState(() {
-        _elapsedSeconds++;
-        if (_elapsedSeconds >= _totalSeconds) {
-          _isPlaying = false;
-        }
-      });
-    }
-  }
-
-  String _formatTime(int seconds) {
-    final m = seconds ~/ 60;
-    final s = seconds % 60;
-    return '${m.toString().padLeft(1, '0')}:${s.toString().padLeft(2, '0')}';
-  }
-
   void _selectAnswer(String answer) {
     if (_answered) return;
     final isCorrect = answer == _current.correctAnswer;
@@ -128,6 +163,12 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
     } else {
       Navigator.pop(context);
     }
+  }
+
+  String _formatDuration(Duration d) {
+    final m = d.inMinutes.remainder(60).toString().padLeft(1, '0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$m:$s';
   }
 
   @override
@@ -189,7 +230,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
     );
   }
 
-  // ── Question picker ────────────────────────────────────────────────────────
+  // ── Question picker ──────────────────────────────────────────────────────
   Widget _buildQuestionPicker(bool isDark) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -289,21 +330,24 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
     );
   }
 
-  // ── Audio player ───────────────────────────────────────────────────────────
+  // ── Audio player ─────────────────────────────────────────────────────────
   Widget _buildAudioCard(bool isDark) {
-    final progress =
-        _totalSeconds > 0 ? _elapsedSeconds / _totalSeconds : 0.0;
+    final hasAudio = _current.audioUrl.isNotEmpty;
+    final progress = _duration.inMilliseconds > 0
+        ? _position.inMilliseconds / _duration.inMilliseconds
+        : 0.0;
 
     return GamifiedCard(
-      color:
-          isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+      color: isDark
+          ? AppColors.duoCardGray.withValues(alpha: 0.1)
+          : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       shadowDepth: 5,
       padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Teil badge + audio title
+          // Teil badge + title
           Row(
             children: [
               Container(
@@ -339,38 +383,52 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
           ),
           const SizedBox(height: 14),
 
-          // ── Player row: [play/pause]  0:00 ─────────── 0:23 ──
+          // ── Player row ──
           Row(
             children: [
               // Play / Pause button
               GestureDetector(
-                onTap: _togglePlay,
+                onTap: hasAudio ? _togglePlay : null,
                 child: Container(
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: _accentColor,
+                    color: hasAudio
+                        ? _accentColor
+                        : (isDark ? Colors.white12 : AppColors.duoCardGrayShadow),
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: _accentShadow,
-                        offset: const Offset(0, 3),
-                        blurRadius: 0,
-                      ),
-                    ],
+                    boxShadow: hasAudio
+                        ? [
+                            BoxShadow(
+                              color: _accentShadow,
+                              offset: const Offset(0, 3),
+                              blurRadius: 0,
+                            ),
+                          ]
+                        : null,
                   ),
-                  child: Icon(
-                    _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                    color: Colors.white,
-                    size: 26,
-                  ),
+                  child: _isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Icon(
+                          _isPlaying
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                          color: Colors.white,
+                          size: 26,
+                        ),
                 ),
               ),
               const SizedBox(width: 12),
 
               // Elapsed time
               Text(
-                _formatTime(_elapsedSeconds),
+                _formatDuration(_position),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -379,25 +437,40 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
               ),
               const SizedBox(width: 8),
 
-              // Progress bar
+              // Seekable progress bar
               Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 6,
-                    backgroundColor: isDark
-                        ? Colors.white12
-                        : AppColors.duoCardGrayShadow,
-                    color: _accentColor,
+                child: GestureDetector(
+                  onTapDown: (details) {
+                    final box = context.findRenderObject() as RenderBox?;
+                    if (box == null) return;
+                    // approximate width of the bar area
+                    final barWidth = box.size.width - 44 - 12 - 40 - 16;
+                    final ratio =
+                        (details.localPosition.dx / barWidth).clamp(0.0, 1.0);
+                    _seekTo(ratio);
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      value: progress.clamp(0.0, 1.0),
+                      minHeight: 6,
+                      backgroundColor: isDark
+                          ? Colors.white12
+                          : AppColors.duoCardGrayShadow,
+                      color: hasAudio
+                          ? _accentColor
+                          : (isDark
+                              ? Colors.white24
+                              : AppColors.duoCardGrayShadow),
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 8),
 
-              // Total time
+              // Total duration
               Text(
-                _formatTime(_totalSeconds),
+                _formatDuration(_duration),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -406,23 +479,43 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
               ),
             ],
           ),
+
+          // No audio warning
+          if (!hasAudio) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.info_outline_rounded,
+                    size: 14, color: AppColors.duoOrange),
+                const SizedBox(width: 6),
+                Text(
+                  'Audio tez kunda qo\'shiladi',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  // ── Question + answers ─────────────────────────────────────────────────────
+  // ── Question + answers ───────────────────────────────────────────────────
   Widget _buildQuestionCard(bool isDark, AppLocalizations l) {
     final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
     final textSecondary = isDark ? Colors.white70 : AppColors.duoTextLight;
 
-    // Per-question feedback banner
     Widget? feedbackBanner;
     if (_answered) {
       final isCorrect = _results[_currentIndex] == true;
       feedbackBanner = Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: (isCorrect ? AppColors.duoGreen : AppColors.duoRed)
               .withValues(alpha: 0.12),
@@ -456,15 +549,15 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
     }
 
     return GamifiedCard(
-      color:
-          isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+      color: isDark
+          ? AppColors.duoCardGray.withValues(alpha: 0.1)
+          : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       shadowDepth: 5,
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Question label
           Text(
             '${l.horenQuestion} ${_currentIndex + 1}',
             style: TextStyle(
@@ -475,7 +568,6 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
             ),
           ),
           const SizedBox(height: 10),
-          // Question text
           Text(
             _current.question,
             style: TextStyle(
@@ -490,14 +582,13 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
           // Answer options
           ...List.generate(_current.options.length, (i) {
             final option = _current.options[i];
-            final label = String.fromCharCode(65 + i); // A, B, C
-            final isSelected = _selectedAnswer == option;
+            final label = String.fromCharCode(65 + i);
             final isCorrectOption = option == _current.correctAnswer;
+            final isSelected = _selectedAnswer == option;
             final isCorrectResult = _answered && isCorrectOption;
             final isWrongResult =
                 _answered && isSelected && !isCorrectOption;
 
-            // Colors
             Color cardColor;
             Color borderColor;
             Color labelBg;
@@ -505,8 +596,8 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
             Color optionText;
 
             if (isCorrectResult) {
-              cardColor =
-                  AppColors.duoGreen.withValues(alpha: isDark ? 0.15 : 0.08);
+              cardColor = AppColors.duoGreen
+                  .withValues(alpha: isDark ? 0.15 : 0.08);
               borderColor = AppColors.duoGreen;
               labelBg = AppColors.duoGreen;
               labelText = Colors.white;
@@ -526,13 +617,11 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
               labelText = Colors.white;
               optionText = textPrimary;
             } else {
-              // Default unselected
               cardColor = isDark
                   ? Colors.white.withValues(alpha: 0.04)
                   : AppColors.duoBackground;
               borderColor =
                   isDark ? Colors.white12 : AppColors.duoCardGrayShadow;
-              // Label badge: always visible with accent-tinted bg
               labelBg = _accentColor.withValues(alpha: 0.15);
               labelText = _accentColor;
               optionText = textPrimary;
@@ -553,7 +642,6 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
                   ),
                   child: Row(
                     children: [
-                      // A / B / C badge
                       Container(
                         width: 32,
                         height: 32,
@@ -596,7 +684,6 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
             );
           }),
 
-          // Per-question feedback banner
           if (feedbackBanner != null) ...[
             const SizedBox(height: 4),
             feedbackBanner,
@@ -606,7 +693,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen>
     );
   }
 
-  // ── Bottom bar ─────────────────────────────────────────────────────────────
+  // ── Bottom bar ───────────────────────────────────────────────────────────
   Widget _buildBottomBar(bool isDark, AppLocalizations l, bool isLast) {
     final canGoBack = _currentIndex > 0;
     final canGoNext = _answered;
