@@ -1,0 +1,750 @@
+import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../utils/app_colors.dart';
+import '../../../utils/theme_manager.dart';
+import '../../../widgets/gamified_card.dart';
+import 'horen_data.dart';
+import 'horen_question_screen.dart';
+
+class HorenScreen extends StatefulWidget {
+  const HorenScreen({super.key});
+
+  @override
+  State<HorenScreen> createState() => _HorenScreenState();
+}
+
+class _HorenScreenState extends State<HorenScreen> {
+  String _selectedLevel = 'A1';
+
+  final List<String> _levels = ['A1', 'A2', 'B1', 'B2'];
+
+  Color _levelColor(String level) {
+    switch (level) {
+      case 'A1':
+        return AppColors.duoGreen;
+      case 'A2':
+        return AppColors.duoBlue;
+      case 'B1':
+        return AppColors.duoOrange;
+      case 'B2':
+        return AppColors.duoRed;
+      default:
+        return AppColors.duoBlue;
+    }
+  }
+
+  Color _levelShadow(String level) {
+    switch (level) {
+      case 'A1':
+        return AppColors.duoGreenShadow;
+      case 'A2':
+        return AppColors.duoBlueShadow;
+      case 'B1':
+        return AppColors.duoOrangeShadow;
+      case 'B2':
+        return AppColors.duoRedShadow;
+      default:
+        return AppColors.duoBlueShadow;
+    }
+  }
+
+  String _levelName(AppLocalizations l, String level) {
+    switch (level) {
+      case 'A1':
+        return l.horenA1LevelName;
+      case 'A2':
+        return l.horenA2LevelName;
+      case 'B1':
+        return l.horenB1LevelName;
+      case 'B2':
+        return l.horenB2LevelName;
+      default:
+        return level;
+    }
+  }
+
+  void _showLevelPicker(AppLocalizations l, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) {
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 46,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : AppColors.duoCardGrayShadow,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+                Text(
+                  l.horenSelectLevel,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ..._levels.map((level) {
+                  final isSelected = _selectedLevel == level;
+                  final color = _levelColor(level);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(18),
+                      onTap: () {
+                        setState(() => _selectedLevel = level);
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? color.withValues(alpha: 0.1)
+                              : (isDark
+                                  ? Colors.white.withValues(alpha: 0.04)
+                                  : AppColors.duoBackground),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: isSelected
+                                ? color.withValues(alpha: 0.5)
+                                : (isDark
+                                    ? Colors.white12
+                                    : AppColors.duoCardGrayShadow),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: color,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                    color: _levelShadow(level), width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _levelShadow(level),
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                level,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    level,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
+                                      color: isDark
+                                          ? Colors.white
+                                          : AppColors.duoTextDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    _levelName(l, level),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark
+                                          ? Colors.white54
+                                          : AppColors.duoTextLight,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(Icons.check_circle_rounded,
+                                  color: color, size: 22),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _openTeil(HorenTeil teil) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HorenQuestionScreen(
+          teil: teil,
+          level: _selectedLevel,
+        ),
+      ),
+    );
+  }
+
+  void _showComingSoon(AppLocalizations l, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(28),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            color: isDark ? const Color(0xFF1E2A32) : Colors.white,
+            border: Border.all(
+              color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('🚧', style: TextStyle(fontSize: 52)),
+              const SizedBox(height: 16),
+              Text(
+                l.horenComingSoon,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : AppColors.duoTextDark,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                l.horenComingSoonDesc,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  height: 1.45,
+                  color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                ),
+              ),
+              const SizedBox(height: 24),
+              GamifiedCard(
+                color: AppColors.duoBlue,
+                shadowColor: AppColors.duoBlueShadow,
+                shadowDepth: 4,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                onTap: () => Navigator.pop(ctx),
+                child: const Center(
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final isDark = ThemeManager.isDark;
+    final levelColor = _levelColor(_selectedLevel);
+    final levelShadow = _levelShadow(_selectedLevel);
+    final isA1 = _selectedLevel == 'A1';
+
+    return Scaffold(
+      backgroundColor:
+          isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: isDark ? Colors.white : AppColors.duoTextDark,
+            size: 20,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: GestureDetector(
+          onTap: () => _showLevelPicker(l, isDark),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${l.horenScreenTitle} – $_selectedLevel',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : AppColors.duoTextDark,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 22,
+                color: isDark ? Colors.white70 : AppColors.duoTextLight,
+              ),
+            ],
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hero banner
+            GamifiedCard(
+              color: levelColor,
+              shadowColor: levelShadow,
+              shadowDepth: 6,
+              padding: const EdgeInsets.all(22),
+              child: Row(
+                children: [
+                  const Icon(Icons.hearing_rounded,
+                      color: Colors.white, size: 44),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${l.horenScreenTitle} – $_selectedLevel',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          _levelName(l, _selectedLevel),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _showLevelPicker(l, isDark),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _selectedLevel,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.swap_vert_rounded,
+                              color: Colors.white, size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 28),
+
+            Text(
+              'TEILE',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : AppColors.duoTextDark,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Teil 1
+            _buildTeilCard(
+              context,
+              isDark: isDark,
+              l: l,
+              teilNumber: 1,
+              title: l.horenTeil1Title,
+              description: l.horenTeil1Desc,
+              note: l.horenTeil1Note,
+              headerIcon: Icons.image_rounded,
+              color: AppColors.duoBlue,
+              shadow: AppColors.duoBlueShadow,
+              totalQuestions:
+                  isA1 ? horenA1.teile[0].questions.length : 5,
+              correct: 0,
+              wrong: 0,
+              isAvailable: isA1,
+              onTap: isA1
+                  ? () => _openTeil(horenA1.teile[0])
+                  : () => _showComingSoon(l, isDark),
+            ),
+            const SizedBox(height: 14),
+
+            // Teil 2
+            _buildTeilCard(
+              context,
+              isDark: isDark,
+              l: l,
+              teilNumber: 2,
+              title: l.horenTeil2Title,
+              description: l.horenTeil2Desc,
+              note: l.horenTeil2Note,
+              headerIcon: Icons.phone_rounded,
+              color: AppColors.duoOrange,
+              shadow: AppColors.duoOrangeShadow,
+              totalQuestions:
+                  isA1 ? horenA1.teile[1].questions.length : 5,
+              correct: 0,
+              wrong: 0,
+              isAvailable: isA1,
+              onTap: isA1
+                  ? () => _openTeil(horenA1.teile[1])
+                  : () => _showComingSoon(l, isDark),
+            ),
+            const SizedBox(height: 14),
+
+            // Teil 3
+            _buildTeilCard(
+              context,
+              isDark: isDark,
+              l: l,
+              teilNumber: 3,
+              title: l.horenTeil3Title,
+              description: l.horenTeil3Desc,
+              note: l.horenTeil3Note,
+              headerIcon: Icons.campaign_rounded,
+              color: AppColors.duoGreen,
+              shadow: AppColors.duoGreenShadow,
+              totalQuestions:
+                  isA1 ? horenA1.teile[2].questions.length : 5,
+              correct: 0,
+              wrong: 0,
+              isAvailable: isA1,
+              onTap: isA1
+                  ? () => _openTeil(horenA1.teile[2])
+                  : () => _showComingSoon(l, isDark),
+            ),
+
+            if (!isA1) ...[
+              const SizedBox(height: 28),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: isDark
+                      ? AppColors.duoOrange.withValues(alpha: 0.1)
+                      : AppColors.duoOrange.withValues(alpha: 0.08),
+                  border: Border.all(
+                    color: AppColors.duoOrange.withValues(alpha: 0.4),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Text('🚧', style: TextStyle(fontSize: 28)),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Tez kunda',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.duoOrange,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            l.horenComingSoonDesc,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              height: 1.4,
+                              color: isDark
+                                  ? Colors.white70
+                                  : AppColors.duoTextLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeilCard(
+    BuildContext context, {
+    required bool isDark,
+    required AppLocalizations l,
+    required int teilNumber,
+    required String title,
+    required String description,
+    required String note,
+    required IconData headerIcon,
+    required Color color,
+    required Color shadow,
+    required int totalQuestions,
+    required int correct,
+    required int wrong,
+    required bool isAvailable,
+    required VoidCallback onTap,
+  }) {
+    final disabledColor =
+        isDark ? Colors.white12 : AppColors.duoCardGrayShadow;
+    final headerColor = isAvailable ? color : disabledColor;
+    final headerTextColor = isAvailable
+        ? Colors.white
+        : (isDark ? Colors.white54 : AppColors.duoTextLight);
+
+    return GamifiedCard(
+      color:
+          isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+      shadowDepth: 5,
+      padding: const EdgeInsets.all(0),
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Header strip ──
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: BoxDecoration(
+              color: headerColor,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(18)),
+              border: Border(
+                bottom: BorderSide(
+                  color: isAvailable ? shadow : Colors.transparent,
+                  width: 3,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(headerIcon, color: headerTextColor, size: 22),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900,
+                      color: headerTextColor,
+                    ),
+                  ),
+                ),
+                if (!isAvailable)
+                  Icon(
+                    Icons.lock_rounded,
+                    color: isDark ? Colors.white30 : AppColors.duoTextLight,
+                    size: 18,
+                  ),
+              ],
+            ),
+          ),
+
+          // ── Body ──
+          Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Note chip
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: (isAvailable ? color : AppColors.duoCardGray)
+                        .withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: 13,
+                        color: isAvailable
+                            ? color
+                            : (isDark
+                                ? Colors.white38
+                                : AppColors.duoTextLight),
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          note,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: isAvailable
+                                ? color
+                                : (isDark
+                                    ? Colors.white38
+                                    : AppColors.duoTextLight),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                // ── Stats row (icons instead of emojis) ──
+                Row(
+                  children: [
+                    _statChip(
+                      isDark,
+                      Icons.quiz_rounded,
+                      '$totalQuestions',
+                      l.horenTotalQuestions,
+                      isDark
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : AppColors.duoCardGrayShadow,
+                      isDark ? Colors.white70 : AppColors.duoTextDark,
+                    ),
+                    const SizedBox(width: 8),
+                    _statChip(
+                      isDark,
+                      Icons.check_circle_rounded,
+                      '$correct',
+                      l.horenCorrect,
+                      AppColors.duoGreen.withValues(alpha: 0.15),
+                      AppColors.duoGreen,
+                    ),
+                    const SizedBox(width: 8),
+                    _statChip(
+                      isDark,
+                      Icons.cancel_rounded,
+                      '$wrong',
+                      l.horenWrong,
+                      AppColors.duoRed.withValues(alpha: 0.15),
+                      AppColors.duoRed,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statChip(
+    bool isDark,
+    IconData icon,
+    String value,
+    String label,
+    Color bg,
+    Color textColor,
+  ) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: textColor),
+          const SizedBox(width: 5),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: textColor,
+                ),
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  color: textColor.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

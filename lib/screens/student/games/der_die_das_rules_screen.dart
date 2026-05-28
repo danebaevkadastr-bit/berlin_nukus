@@ -194,36 +194,39 @@ class DerDieDasRulesScreen extends StatelessWidget {
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
-              child: GamifiedCard(
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                color: AppColors.duoGreen,
-                shadowColor: AppColors.duoGreenShadow,
-                shadowDepth: 5,
-                onTap: () {
-                  if (mode == DerDieDasRulesMode.learning) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const DerDieDasLearningScreen()),
-                    );
-                  } else {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const DerDieDasGameScreen()),
-                    );
-                  }
-                },
-                child: Center(
-                  child: Text(
-                    mode == DerDieDasRulesMode.learning
-                        ? 'O\'RGANISHNI BOSHLASH'
-                        : 'O\'YINNI BOSHLASH',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: 1.0,
+              child: ValueListenableBuilder<AccentPreset>(
+                valueListenable: ThemeManager.accentNotifier,
+                builder: (context, accent, _) => GamifiedCard(
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  color: accent.color,
+                  shadowColor: accent.shadow,
+                  shadowDepth: 5,
+                  onTap: () {
+                    if (mode == DerDieDasRulesMode.learning) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const DerDieDasLearningScreen()),
+                      );
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const DerDieDasGameScreen()),
+                      );
+                    }
+                  },
+                  child: Center(
+                    child: Text(
+                      mode == DerDieDasRulesMode.learning
+                          ? 'O\'RGANISHNI BOSHLASH'
+                          : 'O\'YINNI BOSHLASH',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 1.0,
+                      ),
                     ),
                   ),
                 ),

@@ -1,12 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app_colors.dart';
+
+// ── Accent color presets ──────────────────────────────────────────────────────
+
+class AccentPreset {
+  final String id;
+  final String nameUz;
+  final Color color;
+  final Color shadow;
+  final String emoji;
+
+  const AccentPreset({
+    required this.id,
+    required this.nameUz,
+    required this.color,
+    required this.shadow,
+    required this.emoji,
+  });
+}
+
+const List<AccentPreset> accentPresets = [
+  AccentPreset(id: 'green',  nameUz: 'Yashil',    color: AppColors.duoGreen,  shadow: AppColors.duoGreenShadow,  emoji: '🌿'),
+  AccentPreset(id: 'blue',   nameUz: 'Ko\'k',      color: AppColors.duoBlue,   shadow: AppColors.duoBlueShadow,   emoji: '🌊'),
+  AccentPreset(id: 'orange', nameUz: 'To\'q sariq', color: AppColors.duoOrange, shadow: AppColors.duoOrangeShadow, emoji: '🔥'),
+  AccentPreset(id: 'purple', nameUz: 'Binafsha',   color: AppColors.duoPurple, shadow: AppColors.duoPurpleShadow, emoji: '💜'),
+  AccentPreset(id: 'red',    nameUz: 'Qizil',      color: AppColors.duoRed,    shadow: AppColors.duoRedShadow,    emoji: '🌹'),
+];
+
+// ── ThemeManager ──────────────────────────────────────────────────────────────
 
 /// Global theme state — ValueNotifier that all widgets can subscribe to.
 class ThemeManager {
-  static final ValueNotifier<ThemeMode> themeMode = ValueNotifier(ThemeMode.light);
+  static final ValueNotifier<ThemeMode> themeMode =
+      ValueNotifier(ThemeMode.light);
+
+  // Accent color notifier — default green
+  static final ValueNotifier<AccentPreset> accentNotifier =
+      ValueNotifier(accentPresets.first);
 
   static bool get isDark => themeMode.value == ThemeMode.dark;
+
+  /// Current accent color (shorthand)
+  static Color get accent => accentNotifier.value.color;
+
+  /// Current accent shadow (shorthand)
+  static Color get accentShadow => accentNotifier.value.shadow;
+
+  // ── Persistence ────────────────────────────────────────────────────────────
+
+  static const _accentKey = 'accent_preset_id';
+
+  static Future<void> loadAccent() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString(_accentKey) ?? 'green';
+    final preset = accentPresets.firstWhere(
+      (p) => p.id == id,
+      orElse: () => accentPresets.first,
+    );
+    accentNotifier.value = preset;
+  }
+
+  static Future<void> setAccent(AccentPreset preset) async {
+    accentNotifier.value = preset;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_accentKey, preset.id);
+  }
+
+  // ── Theme toggle ───────────────────────────────────────────────────────────
 
   static void toggleTheme(bool isDarkMode) {
     themeMode.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
@@ -35,8 +97,7 @@ class ThemeManager {
     scaffoldBackgroundColor: const Color(0xFF0F172A),
   );
 
-
-  // ── Adaptive colors ──────────────────────────────────────────────────────
+  // ── Adaptive colors ────────────────────────────────────────────────────────
 
   static Color scaffoldBg(BuildContext context) {
     final bright = Theme.of(context).brightness;
@@ -47,14 +108,14 @@ class ThemeManager {
 
   static Color cardColor(BuildContext context) {
     final bright = Theme.of(context).brightness;
-    return bright == Brightness.dark
-        ? const Color(0xFF1E293B)
-        : Colors.white;
+    return bright == Brightness.dark ? const Color(0xFF1E293B) : Colors.white;
   }
 
   static Color textColor(BuildContext context) {
     final bright = Theme.of(context).brightness;
-    return bright == Brightness.dark ? Colors.white : const Color(0xFF2D3142);
+    return bright == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF2D3142);
   }
 
   static Color subTextColor(BuildContext context) {
@@ -66,7 +127,9 @@ class ThemeManager {
 
   static Color iconBgColor(BuildContext context, Color lightColor) {
     final bright = Theme.of(context).brightness;
-    return bright == Brightness.dark ? const Color(0xFF334155) : lightColor;
+    return bright == Brightness.dark
+        ? const Color(0xFF334155)
+        : lightColor;
   }
 
   static List<BoxShadow> cardShadow(BuildContext context,

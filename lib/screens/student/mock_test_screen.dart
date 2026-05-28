@@ -10,6 +10,23 @@ class MockTestScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
 
+    return ValueListenableBuilder<AccentPreset>(
+      valueListenable: ThemeManager.accentNotifier,
+      builder: (context, accent, _) {
+        return _MockTestBody(isDark: isDark, accent: accent);
+      },
+    );
+  }
+}
+
+class _MockTestBody extends StatelessWidget {
+  final bool isDark;
+  final AccentPreset accent;
+
+  const _MockTestBody({required this.isDark, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
@@ -34,10 +51,10 @@ class MockTestScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero banner
+            // Hero banner — accent rang
             GamifiedCard(
-              color: AppColors.duoBlue,
-              shadowColor: AppColors.duoBlueShadow,
+              color: accent.color,
+              shadowColor: accent.shadow,
               shadowDepth: 6,
               padding: const EdgeInsets.all(24),
               child: Row(
@@ -75,13 +92,11 @@ class MockTestScreen extends StatelessWidget {
 
             const SizedBox(height: 28),
 
-            _sectionTitle(isDark, 'DARAJA TANLANG'),
+            _sectionTitle('DARAJA TANLANG'),
             const SizedBox(height: 14),
 
-            // Level cards
             _buildLevelCard(
               context,
-              isDark: isDark,
               level: 'A1',
               title: 'Boshlang\'ich',
               description: 'Oddiy so\'zlar, asosiy grammatika',
@@ -95,7 +110,6 @@ class MockTestScreen extends StatelessWidget {
 
             _buildLevelCard(
               context,
-              isDark: isDark,
               level: 'A2',
               title: 'Elementar',
               description: 'Kundalik suhbat, kengaytirilgan grammatika',
@@ -109,7 +123,6 @@ class MockTestScreen extends StatelessWidget {
 
             _buildLevelCard(
               context,
-              isDark: isDark,
               level: 'B1',
               title: 'O\'rta',
               description: 'Murakkab jumlalar, keng lug\'at',
@@ -123,7 +136,6 @@ class MockTestScreen extends StatelessWidget {
 
             _buildLevelCard(
               context,
-              isDark: isDark,
               level: 'B2',
               title: 'O\'rta-yuqori',
               description: 'Ilg\'or grammatika, akademik til',
@@ -136,16 +148,16 @@ class MockTestScreen extends StatelessWidget {
 
             const SizedBox(height: 32),
 
-            _sectionTitle(isDark, 'QANDAY ISHLAYDI'),
+            _sectionTitle('QANDAY ISHLAYDI'),
             const SizedBox(height: 14),
 
-            _buildInfoCard(isDark, '1️⃣', 'Daraja tanlang',
+            _buildInfoCard('1️⃣', 'Daraja tanlang',
                 'O\'zingizga mos A1–B2 darajasini tanlang'),
             const SizedBox(height: 10),
-            _buildInfoCard(isDark, '2️⃣', 'Savollarni javoblang',
+            _buildInfoCard('2️⃣', 'Savollarni javoblang',
                 'Har bir savol uchun to\'g\'ri javobni belgilang'),
             const SizedBox(height: 10),
-            _buildInfoCard(isDark, '3️⃣', 'Natijani ko\'ring',
+            _buildInfoCard('3️⃣', 'Natijani ko\'ring',
                 'Test yakunida batafsil tahlil va ball ko\'rsatiladi'),
 
             const SizedBox(height: 32),
@@ -204,7 +216,7 @@ class MockTestScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionTitle(bool isDark, String text) {
+  Widget _sectionTitle(String text) {
     return Text(
       text,
       style: TextStyle(
@@ -218,7 +230,6 @@ class MockTestScreen extends StatelessWidget {
 
   Widget _buildLevelCard(
     BuildContext context, {
-    required bool isDark,
     required String level,
     required String title,
     required String description,
@@ -229,14 +240,15 @@ class MockTestScreen extends StatelessWidget {
     required String duration,
   }) {
     return GamifiedCard(
-      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+      color: isDark
+          ? AppColors.duoCardGray.withValues(alpha: 0.1)
+          : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       shadowDepth: 5,
       padding: const EdgeInsets.all(18),
-      onTap: () => _showComingSoon(context, isDark),
+      onTap: () => _showComingSoon(context),
       child: Row(
         children: [
-          // Level badge
           Container(
             width: 56,
             height: 56,
@@ -296,14 +308,12 @@ class MockTestScreen extends StatelessWidget {
                 Row(
                   children: [
                     _buildChip(
-                      isDark,
                       '❓ $questionCount savol',
                       color.withValues(alpha: 0.15),
                       color,
                     ),
                     const SizedBox(width: 8),
                     _buildChip(
-                      isDark,
                       '⏱ $duration',
                       color.withValues(alpha: 0.15),
                       color,
@@ -324,7 +334,7 @@ class MockTestScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChip(bool isDark, String label, Color bg, Color textColor) {
+  Widget _buildChip(String label, Color bg, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -342,10 +352,11 @@ class MockTestScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(
-      bool isDark, String emoji, String title, String subtitle) {
+  Widget _buildInfoCard(String emoji, String title, String subtitle) {
     return GamifiedCard(
-      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+      color: isDark
+          ? AppColors.duoCardGray.withValues(alpha: 0.1)
+          : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
@@ -381,7 +392,7 @@ class MockTestScreen extends StatelessWidget {
     );
   }
 
-  void _showComingSoon(BuildContext context, bool isDark) {
+  void _showComingSoon(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -425,8 +436,8 @@ class MockTestScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: GamifiedCard(
-                  color: AppColors.duoBlue,
-                  shadowColor: AppColors.duoBlueShadow,
+                  color: accent.color,
+                  shadowColor: accent.shadow,
                   shadowDepth: 4,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   onTap: () => Navigator.pop(ctx),

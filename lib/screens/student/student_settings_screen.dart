@@ -10,6 +10,9 @@ import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart' as user_provider;
 import '../../services/haptic_service.dart';
 
+// Re-export for convenience
+export '../../utils/theme_manager.dart' show AccentPreset, accentPresets;
+
 class StudentSettingsScreen extends StatefulWidget {
   const StudentSettingsScreen({super.key});
 
@@ -164,6 +167,8 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
           _buildProfileTile(),
           const SizedBox(height: 14),
           _buildLanguageTile(),
+          const SizedBox(height: 14),
+          _buildAccentColorTile(),
           const SizedBox(height: 14),
           _buildDarkModeTile(),
           const SizedBox(height: 14),
@@ -410,8 +415,92 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
     );
   }
 
-  Widget _buildDarkModeTile() {
-    final l = AppLocalizations.of(context);
+  Widget _buildAccentColorTile() {
+    final isDark = ThemeManager.isDark;
+    return ValueListenableBuilder<AccentPreset>(
+      valueListenable: ThemeManager.accentNotifier,
+      builder: (context, current, _) {
+        return GamifiedCard(
+          padding: const EdgeInsets.all(16),
+          color: isDark
+              ? AppColors.duoCardGray.withValues(alpha: 0.1)
+              : Colors.white,
+          shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+          onTap: () => _showAccentPicker(context, isDark, current),
+          child: Row(
+            children: [
+              // Icon container with current accent color
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: current.color.withValues(alpha: 0.15),
+                ),
+                child: Icon(Icons.palette_rounded, color: current.color, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Asosiy rang',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: ThemeManager.textColor(context),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // Mini color dots preview
+                    Row(
+                      children: accentPresets.map((p) {
+                        final isSelected = p.id == current.id;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            width: isSelected ? 18 : 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: p.color,
+                              borderRadius: BorderRadius.circular(6),
+                              border: isSelected
+                                  ? Border.all(color: p.shadow, width: 2)
+                                  : null,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: isDark
+                    ? Colors.white54
+                    : const Color(0xFF2D3142).withValues(alpha: 0.3),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAccentPicker(
+      BuildContext context, bool isDark, AccentPreset current) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _AccentPickerSheet(isDark: isDark, current: current),
+    );
+  }
+
+  Widget _buildDarkModeTile() {    final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
     return GamifiedCard(
       padding: const EdgeInsets.all(16),
@@ -1076,6 +1165,248 @@ class _WaveLine extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(thickness / 2),
+      ),
+    );
+  }
+}
+
+// ── Accent Color Picker Sheet ─────────────────────────────────────────────────
+
+class _AccentPickerSheet extends StatefulWidget {
+  final bool isDark;
+  final AccentPreset current;
+
+  const _AccentPickerSheet({required this.isDark, required this.current});
+
+  @override
+  State<_AccentPickerSheet> createState() => _AccentPickerSheetState();
+}
+
+class _AccentPickerSheetState extends State<_AccentPickerSheet>
+    with SingleTickerProviderStateMixin {
+  late AccentPreset _selected;
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.current;
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = widget.isDark;
+    final bg = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
+    final textSecondary = isDark ? Colors.white54 : AppColors.duoTextLight;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Container(
+              width: 46,
+              height: 5,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : AppColors.duoCardGrayShadow,
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+
+            // Title
+            Row(
+              children: [
+                Icon(Icons.palette_rounded, color: _selected.color, size: 24),
+                const SizedBox(width: 10),
+                Text(
+                  'Asosiy rang tanlang',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Barcha ekranlardagi asosiy rang o\'zgaradi',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: textSecondary,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Color cards
+            ...accentPresets.map((preset) {
+              final isSelected = preset.id == _selected.id;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: GestureDetector(
+                  onTap: () async {
+                    setState(() => _selected = preset);
+                    await ThemeManager.setAccent(preset);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOut,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: isSelected
+                          ? preset.color.withValues(alpha: isDark ? 0.2 : 0.1)
+                          : (isDark
+                              ? Colors.white.withValues(alpha: 0.04)
+                              : AppColors.duoBackground),
+                      border: Border.all(
+                        color: isSelected
+                            ? preset.color
+                            : (isDark
+                                ? Colors.white12
+                                : AppColors.duoCardGrayShadow),
+                        width: isSelected ? 2.5 : 1.5,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: preset.shadow.withValues(alpha: 0.3),
+                                offset: const Offset(0, 4),
+                                blurRadius: 12,
+                              )
+                            ]
+                          : null,
+                    ),
+                    child: Row(
+                      children: [
+                        // Color circle with shadow
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: preset.color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: preset.shadow, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: preset.shadow.withValues(alpha: 0.5),
+                                offset: const Offset(0, 4),
+                                blurRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              preset.emoji,
+                              style: const TextStyle(fontSize: 22),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                preset.nameUz,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  color: isSelected
+                                      ? preset.color
+                                      : textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Mini gradient bar
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: Container(
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        preset.color,
+                                        preset.shadow,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          child: isSelected
+                              ? Container(
+                                  key: const ValueKey('check'),
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: preset.color,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: preset.shadow, width: 2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: preset.shadow
+                                            .withValues(alpha: 0.4),
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.check_rounded,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                )
+                              : Container(
+                                  key: const ValueKey('empty'),
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white24
+                                          : AppColors.duoCardGrayShadow,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }

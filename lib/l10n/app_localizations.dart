@@ -351,7 +351,7 @@ class AppLocalizations {
   });
   String get myResults => _t({
     'uz': "Natijalarim",
-    'kaa': "Natijelerim",
+    'kaa': "Natiyjelerim",
     'ru': "Мои результаты",
     'de': "Meine Ergebnisse",
   });
@@ -424,12 +424,12 @@ class AppLocalizations {
     'de': "Material wird bald geöffnet",
   });
   String get monLong => _t({'uz': "Dushanba", 'kaa': "Dúyshembi", 'ru': "Понедельник", 'de': "Montag"});
-  String get tueLong => _t({'uz': "Seshanba", 'kaa': "Sheshembi", 'ru': "Вторник", 'de': "Dienstag"});
+  String get tueLong => _t({'uz': "Seshanba", 'kaa': "Shiyshembi", 'ru': "Вторник", 'de': "Dienstag"});
   String get wedLong => _t({'uz': "Chorshanba", 'kaa': "Sárshembi", 'ru': "Среда", 'de': "Mittwoch"});
-  String get thuLong => _t({'uz': "Payshanba", 'kaa': "Kishi peyshembi", 'ru': "Четверг", 'de': "Donnerstag"});
+  String get thuLong => _t({'uz': "Payshanba", 'kaa': "Piyshembi", 'ru': "Четверг", 'de': "Donnerstag"});
   String get friLong => _t({'uz': "Juma", 'kaa': "Juma", 'ru': "Пятница", 'de': "Freitag"});
   String get satLong => _t({'uz': "Shanba", 'kaa': "Shembi", 'ru': "Суббота", 'de': "Samstag"});
-  String get sunLong => _t({'uz': "Yakshanba", 'kaa': "Ykshembi", 'ru': "Воскресенье", 'de': "Sonntag"});
+  String get sunLong => _t({'uz': "Yakshanba", 'kaa': "Ekshembi", 'ru': "Воскресенье", 'de': "Sonntag"});
 
   String get jan => _t({'uz': "yan", 'kaa': "yan", 'ru': "янв", 'de': "Jan"});
   String get feb => _t({'uz': "fev", 'kaa': "fev", 'ru': "фев", 'de': "Feb"});
@@ -624,13 +624,13 @@ class AppLocalizations {
   });
   String get strangeSentencesGame => _t({
     'uz': "G'alati gaplar",
-    'kaa': "Ajayıp gápler",
+    'kaa': "Ózgeshe gápler",
     'ru': "Странные предложения",
     'de': "Seltsame Sätze",
   });
   String get strangeSentencesDesc => _t({
     'uz': "So'zlardan grammatik to'g'ri, lekin mantiqsiz gap tuzing",
-    'kaa': "Sózlerden grammatikalıq durıs, biraq aqılsız gáp dúziń",
+    'kaa': "Sózlerden grammatikalıq durıs, biraq ózgeshe gáp dúziń",
     'ru': "Составьте грамматически верное, но абсурдное предложение",
     'de': "Bilde grammatisch korrekte, aber unsinnige Sätze",
   });
@@ -668,7 +668,7 @@ class AppLocalizations {
     'uz':
         "Bu o'yin hozircha ishlab chiqilmoqda. Yangiliklar va yangi o'yinlar uchun ilovani yangilab boring — tez orada ochamiz!",
     'kaa':
-        "Bul oyın házirge shekem islenip atır. Jańalıqlardı hám jańa oyınlardı biliw ushın qosımshanı jańalań — jaqında qosamız!",
+        "Bul oyın házirshe islenip atır. Jańalıqlardı hám jańa oyınlardı biliw ushın qosımshanı jańalań — jaqında qosamız!",
     'ru':
         "Эта игра пока в разработке. Обновляйте приложение — скоро откроем новые игры и функции!",
     'de':
@@ -800,7 +800,7 @@ class AppLocalizations {
   });
   String get remainingSubmissions => _t({
     'uz': "ta qoldi",
-    'kaa': "ta qaldı",
+    'kaa': "dana qaldı",
     'ru': "осталось",
     'de': "verbleibend",
   });
@@ -950,7 +950,7 @@ class AppLocalizations {
   });
   String get edit => _t({
     'uz': "Tahrirlash",
-    'kaa': "Tahrirlew",
+    'kaa': "Ózgertiw",
     'ru': "Редактировать",
     'de': "Bearbeiten",
   });
@@ -1100,7 +1100,7 @@ class AppLocalizations {
   });
   String get deleteTeacherConfirm => _t({
     'uz': "Bu o'qituvchini o'chirmoqchimisiz?",
-    'kaa': "Bul muǵallimdi óshirmekshimisizbq?",
+    'kaa': "Bul muǵallimdi óshirmekshimisizba?",
     'ru': "Вы действительно хотите удалить этого учителя?",
     'de': "Möchten Sie diesen Lehrer wirklich löschen?",
   });
@@ -1161,9 +1161,9 @@ class AppLocalizations {
     'de': "Stil:",
   });
   String get showSampleAnswer => _t({
-    'uz': "Show sample answer",
-    'kaa': "Show sample answer",
-    'ru': "Show sample answer",
+    'uz': "Namuna javobni ko‘rsatish",
+    'kaa': "Úlgi juwaplardı kórsetiw",
+    'ru': "Показать пример ответа",
     'de': "Show sample answer",
   });
   String get sampleAnswerComingSoon => _t({
@@ -1179,9 +1179,9 @@ class AppLocalizations {
     'de': "AI-Powered Evaluation",
   });
   String get yourAnswer => _t({
-    'uz': "Namuna javobni ko‘rsatish",
-    'kaa': "Úlgi juwaplardı kórsetiw",
-    'ru': "Показать пример ответа",
+    'uz': "Sizning javobingiz",
+    'kaa': "Sizdiń juwabıńız",
+    'ru': "Your Answer",
     'de': "Your Answer",
   });
   String get wordCountLabel => _t({
@@ -3241,4 +3241,40 @@ class AppLocalizations {
     final template = _t({'uz': '{n} ta faol guruh', 'kaa': '{n} aktiv topar', 'ru': '{n} активных групп', 'de': '{n} aktive Gruppen'});
     return template.replaceAll('{n}', n.toString());
   }
+
+  // ── Hören ──────────────────────────────────────────────────────────────────
+  String get horenScreenTitle => _t({'uz': "Hören", 'kaa': "Hören", 'ru': "Hören", 'de': "Hören"});
+  String get horenSelectLevel => _t({'uz': "Daraja tanlang", 'kaa': "Dárejeni tańlań", 'ru': "Выберите уровень", 'de': "Niveau wählen"});
+  String get horenComingSoon => _t({'uz': "Tez kunda", 'kaa': "Tez arада", 'ru': "Скоро", 'de': "Demnächst"});
+  String get horenComingSoonDesc => _t({'uz': "Bu daraja uchun materiallar tayyorlanmoqda", 'kaa': "Bul dareje ushın materiallar tayarlanıwda", 'ru': "Материалы для этого уровня готовятся", 'de': "Materialien für dieses Niveau werden vorbereitet"});
+  String get horenTeil1Title => _t({'uz': "Teil 1 – Rasm va Audio", 'kaa': "Teil 1 – Súwret hám Audio", 'ru': "Teil 1 – Картинка и Аудио", 'de': "Teil 1 – Bild und Audio"});
+  String get horenTeil1Desc => _t({'uz': "Audioni eshitib, mos rasmni toping", 'kaa': "Audionı tıńlap, mos súwretti tabıń", 'ru': "Прослушайте аудио и найдите подходящую картинку", 'de': "Hören Sie das Audio und finden Sie das passende Bild"});
+  String get horenTeil1Note => _t({'uz': "Haqiqiy imtihonda audio 2 marta o'ynatiladi", 'kaa': "Haqıyqıy imtihanda audio 2 ret oynatıladı", 'ru': "На реальном экзамене аудио воспроизводится 2 раза", 'de': "In der echten Prüfung wird das Audio 2 Mal abgespielt"});
+  String get horenTeil2Title => _t({'uz': "Teil 2 – Telefon Suhbati", 'kaa': "Teil 2 – Telefon Sóylesiw", 'ru': "Teil 2 – Телефонный разговор", 'de': "Teil 2 – Telefongespräch"});
+  String get horenTeil2Desc => _t({'uz': "Telefon suhbatini diqqat bilan tinglang", 'kaa': "Telefon sóylesiwdi dıqqat penen tıńlań", 'ru': "Внимательно прослушайте телефонный разговор", 'de': "Hören Sie das Telefongespräch aufmerksam zu"});
+  String get horenTeil2Note => _t({'uz': "Haqiqiy imtihonda audio faqat 1 marta o'ynatiladi", 'kaa': "Haqıyqıy imtihanda audio tek 1 ret oynatıladı", 'ru': "На реальном экзамене аудио воспроизводится только 1 раз", 'de': "In der echten Prüfung wird das Audio nur 1 Mal abgespielt"});
+  String get horenTeil3Title => _t({'uz': "Teil 3 – E'lonlar", 'kaa': "Teil 3 – Xabarlar", 'ru': "Teil 3 – Объявления", 'de': "Teil 3 – Durchsagen"});
+  String get horenTeil3Desc => _t({'uz': "E'lonlarni tinglang va savollarni javoblang", 'kaa': "Xabarlardı tıńlań hám sorawlardı jawaplań", 'ru': "Прослушайте объявления и ответьте на вопросы", 'de': "Hören Sie die Durchsagen und beantworten Sie die Fragen"});
+  String get horenTeil3Note => _t({'uz': "Haqiqiy imtihonda audio 2 marta o'ynatiladi", 'kaa': "Haqıyqıy imtihanda audio 2 ret oynatıladı", 'ru': "На реальном экзамене аудио воспроизводится 2 раза", 'de': "In der echten Prüfung wird das Audio 2 Mal abgespielt"});
+  String get horenTotalQuestions => _t({'uz': "Jami savollar", 'kaa': "Barlıq sorawlar", 'ru': "Всего вопросов", 'de': "Fragen gesamt"});
+  String get horenCorrect => _t({'uz': "To'g'ri", 'kaa': "Durıs", 'ru': "Верно", 'de': "Richtig"});
+  String get horenWrong => _t({'uz': "Xato", 'kaa': "Qáte", 'ru': "Неверно", 'de': "Falsch"});
+  String get horenStartTeil => _t({'uz': "Boshlash", 'kaa': "Baslaw", 'ru': "Начать", 'de': "Starten"});
+  String get horenQuestion => _t({'uz': "Savol", 'kaa': "Soraw", 'ru': "Вопрос", 'de': "Frage"});
+  String get horenPlayAudio => _t({'uz': "Audioni o'ynatish", 'kaa': "Audionı oynatıw", 'ru': "Воспроизвести аудио", 'de': "Audio abspielen"});
+  String get horenPauseAudio => _t({'uz': "To'xtatish", 'kaa': "Toqtatıw", 'ru': "Пауза", 'de': "Pause"});
+  String get horenAudioPlaying => _t({'uz': "Ijro etilmoqda...", 'kaa': "Oynatılıwda...", 'ru': "Воспроизводится...", 'de': "Wird abgespielt..."});
+  String get horenAudioReady => _t({'uz': "Tayyor", 'kaa': "Tayar", 'ru': "Готово", 'de': "Bereit"});
+  String get horenNextQuestion => _t({'uz': "Keyingi savol", 'kaa': "Keyingi soraw", 'ru': "Следующий вопрос", 'de': "Nächste Frage"});
+  String get horenFinish => _t({'uz': "Yakunlash", 'kaa': "Juwmaqlaw", 'ru': "Завершить", 'de': "Beenden"});
+  String get horenResult => _t({'uz': "Natija", 'kaa': "Nátiyje", 'ru': "Результат", 'de': "Ergebnis"});
+  String get horenTryAgain => _t({'uz': "Qayta urinish", 'kaa': "Qayta urınıw", 'ru': "Попробовать снова", 'de': "Nochmal versuchen"});
+  String horenProgress(int current, int total) {
+    final template = _t({'uz': '{c} / {t}', 'kaa': '{c} / {t}', 'ru': '{c} / {t}', 'de': '{c} / {t}'});
+    return template.replaceAll('{c}', current.toString()).replaceAll('{t}', total.toString());
+  }
+  String get horenA1LevelName => _t({'uz': "Boshlang'ich", 'kaa': "Baslanǵısh", 'ru': "Начальный", 'de': "Anfänger"});
+  String get horenA2LevelName => _t({'uz': "Elementar", 'kaa': "Elementar", 'ru': "Элементарный", 'de': "Elementar"});
+  String get horenB1LevelName => _t({'uz': "O'rta", 'kaa': "Orta", 'ru': "Средний", 'de': "Mittelstufe"});
+  String get horenB2LevelName => _t({'uz': "O'rta-yuqori", 'kaa': "Orta-joqarı", 'ru': "Выше среднего", 'de': "Obere Mittelstufe"});
 }

@@ -34,6 +34,8 @@ void main() async {
 
     // Initialize HapticService
     await HapticService.init();
+    // Load saved accent color
+    await ThemeManager.loadAccent();
   } catch (e) {
     debugPrint('FirebaseInitError: $e');
   }

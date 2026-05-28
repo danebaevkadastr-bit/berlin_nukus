@@ -10,6 +10,7 @@ import 'translation_screen.dart';
 import 'games/der_die_das_rules_screen.dart';
 import 'grammar_levels_screen.dart';
 import 'mock_test_screen.dart';
+import 'horen/horen_screen.dart';
 
 class StudentLearningScreen extends StatelessWidget {
   const StudentLearningScreen({super.key});
@@ -114,6 +115,10 @@ class StudentLearningScreen extends StatelessWidget {
               icon: '👂',
               title: 'Hören',
               subtitle: l.listeningExercises,
+              onTap: () => _openWithGroupCheck(
+                context,
+                () => const HorenScreen(),
+              ),
             ),
             const SizedBox(height: 14),
 
@@ -202,7 +207,7 @@ class StudentLearningScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppColors.duoGreen.withValues(alpha: 0.15),
+                          color: ThemeManager.accent.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

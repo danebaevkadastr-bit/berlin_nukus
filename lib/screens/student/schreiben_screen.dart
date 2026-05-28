@@ -16,8 +16,8 @@ class SchreibenScreen extends StatefulWidget {
 }
 
 class _SchreibenScreenState extends State<SchreibenScreen> {
-  static const _accent = AppColors.duoGreen;
-  static const _accentShadow = AppColors.duoGreenShadow;
+  static Color get _accent => ThemeManager.accent;
+  static Color get _accentShadow => ThemeManager.accentShadow;
 
   final _answerController = TextEditingController();
   final _taskScrollController = ScrollController();
@@ -118,55 +118,60 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
     final isDark = ThemeManager.isDark;
     final words = _wordCount(_answerController.text);
 
-    return Scaffold(
-      backgroundColor:
-          isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDark ? Colors.white : AppColors.duoTextDark,
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          l.schreibenTitle,
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            color: isDark ? Colors.white : AppColors.duoTextDark,
-            letterSpacing: 1.0,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          _buildTaskPicker(isDark),
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _mainScrollController,
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildTaskCard(context, isDark),
-                  const SizedBox(height: 16),
-                  _buildWritingCard(context, isDark, words),
-                  if (_evaluation != null) ...[
-                    const SizedBox(height: 16),
-                    _buildEvaluationCard(context, isDark),
-                  ],
-                ],
+    return ValueListenableBuilder<AccentPreset>(
+      valueListenable: ThemeManager.accentNotifier,
+      builder: (context, _, __) {
+        return Scaffold(
+          backgroundColor:
+              isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
+          appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: isDark ? Colors.white : AppColors.duoTextDark,
+                size: 20,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              l.schreibenTitle,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : AppColors.duoTextDark,
+                letterSpacing: 1.0,
+                fontSize: 18,
               ),
             ),
+            centerTitle: true,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
           ),
-          _buildBottomBar(context, isDark),
-        ],
-      ),
+          body: Column(
+            children: [
+              _buildTaskPicker(isDark),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: _mainScrollController,
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildTaskCard(context, isDark),
+                      const SizedBox(height: 16),
+                      _buildWritingCard(context, isDark, words),
+                      if (_evaluation != null) ...[
+                        const SizedBox(height: 16),
+                        _buildEvaluationCard(context, isDark),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              _buildBottomBar(context, isDark),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -223,10 +228,10 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                             width: 2,
                           ),
                           boxShadow: selected
-                              ? const [
+                              ? [
                                   BoxShadow(
                                     color: _accentShadow,
-                                    offset: Offset(0, 3),
+                                    offset: const Offset(0, 3),
                                   ),
                                 ]
                               : (isDark
@@ -309,7 +314,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.info_outline_rounded, size: 20, color: _accent),
+                const Icon(Icons.info_outline_rounded, size: 20, color: AppColors.duoGreen),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -569,7 +574,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(
+                      borderSide: BorderSide(
                         color: _accent,
                         width: 2,
                       ),
