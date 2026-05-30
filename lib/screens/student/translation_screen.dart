@@ -5,6 +5,7 @@ import '../../../utils/theme_manager.dart';
 import '../../../widgets/decorative_pattern_background.dart';
 import '../../../widgets/gamified_card.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../services/vocabulary_service.dart';
 
 class TranslationScreen extends StatefulWidget {
   const TranslationScreen({super.key});
@@ -48,6 +49,38 @@ class _TranslationScreenState extends State<TranslationScreen> {
         _errorMessage = e.toString();
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _saveWord() async {
+    if (_translationResult == null) return;
+    
+    final meaningsRaw = _translationResult!['meanings'] as List<dynamic>? ?? [];
+    final meanings = meaningsRaw.map((e) {
+      final map = e as Map<String, dynamic>;
+      return WordMeaning(
+        translation: map['translation']?.toString() ?? '',
+        exampleGerman: map['exampleGerman']?.toString() ?? '',
+        exampleUzbek: map['exampleUzbek']?.toString() ?? '',
+      );
+    }).toList();
+
+    final word = SavedWord(
+      germanWord: _translationResult!['original']?.toString() ?? '',
+      meanings: meanings,
+      savedAt: DateTime.now(),
+      learningStage: 0,
+    );
+
+    await VocabularyService.addWord(word);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).wordAdded),
+          backgroundColor: AppColors.duoGreen,
+        ),
+      );
     }
   }
 
@@ -213,26 +246,37 @@ class _TranslationScreenState extends State<TranslationScreen> {
                               color: AppColors.duoBlue,
                               shadowColor: AppColors.duoBlueShadow,
                               padding: const EdgeInsets.all(20),
-                              child: Column(
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    l.originalWord,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.white.withValues(alpha: 0.8),
-                                      letterSpacing: 1.0,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          l.originalWord,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white.withValues(alpha: 0.8),
+                                            letterSpacing: 1.0,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          _translationResult!['original'] ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    _translationResult!['original'] ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                    ),
+                                  IconButton(
+                                    icon: const Icon(Icons.bookmark_add_rounded, color: Colors.white, size: 32),
+                                    onPressed: _saveWord,
                                   ),
                                 ],
                               ),

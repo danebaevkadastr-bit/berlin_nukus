@@ -349,90 +349,93 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
                     final option = currentRound.options[index];
                     final isSelected = _selectedAnswer == option;
                     final isCorrectOption = option == currentRound.correctAnswer;
+                    final isCorrectResult = _showFeedback && isCorrectOption;
+                    final isWrongResult = _showFeedback && isSelected && !isCorrectOption;
 
                     Color cardColor;
                     Color borderColor;
-                Color textColor;
-                Color badgeColor;
+                    Color labelBg;
+                    Color labelText;
+                    Color optionText;
 
-                if (!_showFeedback) {
-                  cardColor = isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white;
-                  borderColor = isDark ? Colors.white12 : AppColors.duoCardGrayShadow;
-                  textColor = isDark ? Colors.white : AppColors.duoTextDark;
-                  badgeColor = AppColors.duoBlue;
-                } else if (isSelected) {
-                  if (_isCorrect) {
-                    cardColor = AppColors.duoGreen.withValues(alpha: 0.2);
-                    borderColor = AppColors.duoGreen;
-                    textColor = AppColors.duoGreen;
-                    badgeColor = AppColors.duoGreen;
-                  } else {
-                    cardColor = AppColors.duoRed.withValues(alpha: 0.2);
-                    borderColor = AppColors.duoRed;
-                    textColor = AppColors.duoRed;
-                    badgeColor = AppColors.duoRed;
-                  }
-                } else if (isCorrectOption && !_isCorrect) {
-                  cardColor = AppColors.duoGreen.withValues(alpha: 0.2);
-                  borderColor = AppColors.duoGreen;
-                  textColor = AppColors.duoGreen;
-                  badgeColor = AppColors.duoGreen;
-                } else {
-                  cardColor = isDark ? AppColors.duoCardGray.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.6);
-                  borderColor = isDark ? Colors.white24 : AppColors.duoCardGrayShadow;
-                  textColor = isDark ? Colors.white60 : AppColors.duoTextDark.withValues(alpha: 0.45);
-                  badgeColor = isDark ? Colors.white24 : Colors.black12;
-                }
+                    if (isCorrectResult) {
+                      cardColor = AppColors.duoGreen.withValues(alpha: isDark ? 0.15 : 0.08);
+                      borderColor = AppColors.duoGreen;
+                      labelBg = AppColors.duoGreen;
+                      labelText = Colors.white;
+                      optionText = AppColors.duoGreen;
+                    } else if (isWrongResult) {
+                      cardColor = AppColors.duoRed.withValues(alpha: isDark ? 0.15 : 0.08);
+                      borderColor = AppColors.duoRed;
+                      labelBg = AppColors.duoRed;
+                      labelText = Colors.white;
+                      optionText = AppColors.duoRed;
+                    } else if (isSelected) {
+                      cardColor = AppColors.duoBlue.withValues(alpha: isDark ? 0.15 : 0.08);
+                      borderColor = AppColors.duoBlue;
+                      labelBg = AppColors.duoBlue;
+                      labelText = Colors.white;
+                      optionText = isDark ? Colors.white : AppColors.duoTextDark;
+                    } else {
+                      cardColor = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+                      borderColor = isDark ? Colors.white12 : AppColors.duoBlue.withValues(alpha: 0.25);
+                      labelBg = AppColors.duoBlue.withValues(alpha: 0.15);
+                      labelText = AppColors.duoBlue;
+                      optionText = isDark ? Colors.white : AppColors.duoTextDark;
+                    }
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: GamifiedCard(
-                    padding: const EdgeInsets.all(20),
-                    color: cardColor,
-                    shadowColor: borderColor,
-                    shadowDepth: isSelected ? 2 : 0,
-                    onTap: _showFeedback ? null : () => _handleAnswer(option),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: GestureDetector(
+                        onTap: _showFeedback ? null : () => _handleAnswer(option),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                           decoration: BoxDecoration(
-                            color: badgeColor,
-                            borderRadius: BorderRadius.circular(8),
+                            color: cardColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: borderColor, width: 2),
                           ),
-                          child: Center(
-                            child: Text(
-                              String.fromCharCode(65 + index),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: labelBg,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  String.fromCharCode(65 + index),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
+                                    color: labelText,
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  option,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: optionText,
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ),
+                              if (isCorrectResult)
+                                const Icon(Icons.check_circle_rounded, color: AppColors.duoGreen, size: 20)
+                              else if (isWrongResult)
+                                const Icon(Icons.cancel_rounded, color: AppColors.duoRed, size: 20),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Text(
-                            option,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: textColor,
-                            ),
-                          ),
-                        ),
-                        if (_showFeedback && isSelected)
-                          Icon(
-                            _isCorrect ? Icons.check_circle : Icons.cancel,
-                            color: _isCorrect ? AppColors.duoGreen : AppColors.duoRed,
-                            size: 28,
-                          ),
-                      ],
-                    ),
-                  ),
-                );
+                      ),
+                    );
                   },
                 ),
               ),

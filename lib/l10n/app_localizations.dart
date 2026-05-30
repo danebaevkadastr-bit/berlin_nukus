@@ -517,6 +517,54 @@ class AppLocalizations {
     'ru': "Словарь и перевод",
     'de': "Wortschatz & Übersetzung",
   });
+  String get savedVocabulary => _t({
+    'uz': "Saqlangan so'zlar",
+    'kaa': "Saqlanǵan sózler",
+    'ru': "Сохраненные слова",
+    'de': "Gespeicherte Wörter",
+  });
+  String get addWord => _t({
+    'uz': "So'z qo'shish",
+    'kaa': "Sóz qosıw",
+    'ru': "Добавить слово",
+    'de': "Wort hinzufügen",
+  });
+  String get noSavedWords => _t({
+    'uz': "Saqlangan so'zlar yo'q",
+    'kaa': "Saqlanǵan sózler joq",
+    'ru': "Нет сохраненных слов",
+    'de': "Keine gespeicherten Wörter",
+  });
+  String get tapPlusToAdd => _t({
+    'uz': "+ tugmasini bosib so'z qo'shing",
+    'kaa': "+ túymesin basıp sóz qosıń",
+    'ru': "Нажмите +, чтобы добавить слово",
+    'de': "Tippen Sie auf +, um ein Wort hinzuzufügen",
+  });
+  String get wordAdded => _t({
+    'uz': "So'z qo'shildi",
+    'kaa': "Sóz qosıldı",
+    'ru': "Слово добавлено",
+    'de': "Wort hinzugefügt",
+  });
+  String get translationFailed => _t({
+    'uz': "Tarjima amalga oshmadi",
+    'kaa': "Awdarma ámelge asmadı",
+    'ru': "Перевод не удался",
+    'de': "Übersetzung fehlgeschlagen",
+  });
+  String get tapToSeeExamples => _t({
+    'uz': "Misollarni ko'rish uchun bosing",
+    'kaa': "Mısallar kóriw ushın basıń",
+    'ru': "Нажмите, чтобы увидеть примеры",
+    'de': "Tippen Sie, um Beispiele zu sehen",
+  });
+  String get error => _t({
+    'uz': "Xato",
+    'kaa': "Qáte",
+    'ru': "Ошибка",
+    'de': "Fehler",
+  });
 
   // ── Games ──────────────────────────────────────────────────────────────────
   String get wordGame => _t({
@@ -1210,13 +1258,13 @@ class AppLocalizations {
   });
   String get writeAnswerHint => _t({
     'uz': "Javobingizni yozing, AI baholaydi.",
-    'kaa': "Jabıwıńızdı jazıń, AI baxalaydı.",
+    'kaa': "Juwabıńızdı jazıń, AI bahalaydı.",
     'ru': "Напишите ваш ответ, AI оценит.",
     'de': "Schreiben Sie Ihre Antwort, AI bewertet.",
   });
   String get evaluation => _t({
     'uz': "BAHOLASH",
-    'kaa': "BAXALAW",
+    'kaa': "BAHALAW",
     'ru': "ОЦЕНКА",
     'de': "BEWERTUNG",
   });
@@ -2201,6 +2249,30 @@ class AppLocalizations {
     'ru': "Найдена ошибка",
     'de': "Fehler gefunden",
   });
+  String get wrongSentence => _t({
+    'uz': "Xato gap",
+    'kaa': "Qáte gap",
+    'ru': "Неправильное предложение",
+    'de': "Falscher Satz",
+  });
+  String get correctedSentence => _t({
+    'uz': "To'g'rilangani",
+    'kaa': "Tuwrılanǵanı",
+    'ru': "Исправленное",
+    'de': "Korrigiert",
+  });
+  String get explanation => _t({
+    'uz': "Izoh",
+    'kaa': "Túsindiriw",
+    'ru': "Объяснение",
+    'de': "Erklärung",
+  });
+  String get mistakesLabel => _t({
+    'uz': "Xatolar",
+    'kaa': "Qáteler",
+    'ru': "Ошибки",
+    'de': "Fehler",
+  });
 
   // ── Statistics ─────────────────────────────────────────────────────────────
   String get homeworkCompletion => _t({
@@ -2884,7 +2956,7 @@ class AppLocalizations {
   }
   String get writeStoryHere => _t({
     'uz': "Hikoyani shu yerga yozing...",
-    'kaa': "Hikayeni bul jerge jazıń...",
+    'kaa': "Gurrińdi bul jerge jazıń...",
     'ru': "Напишите историю здесь...",
     'de': "Schreiben Sie die Geschichte hier...",
   });
@@ -3287,4 +3359,14 @@ class AppLocalizations {
   String get horenA2LevelName => _t({'uz': "Elementar", 'kaa': "Elementar", 'ru': "Элементарный", 'de': "Elementar"});
   String get horenB1LevelName => _t({'uz': "O'rta", 'kaa': "Orta", 'ru': "Средний", 'de': "Mittelstufe"});
   String get horenB2LevelName => _t({'uz': "O'rta-yuqori", 'kaa': "Orta-joqarı", 'ru': "Выше среднего", 'de': "Obere Mittelstufe"});
+  
+  // ── Hören B1 (TELC) ────────────────────────────────────────────────────────
+  String get horenB1Teil1Title => _t({'uz': "Teil 1 – Telefon Xabarlari", 'kaa': "Teil 1 – Telefon Xabarlari", 'ru': "Teil 1 – Телефонные сообщения", 'de': "Teil 1 – Telefonansagen"});
+  String get horenB1Teil1Desc => _t({'uz': "Telefon xabarlarini tinglang va Richtig/Falsch deb belgilang. Har bir TEST 5 ta savoldan iborat.", 'kaa': "Telefon xabarlarin tıńlań hám Richtig/Falsch dep belgilań. Hár bir TEST 5 sorawdan ibarat.", 'ru': "Слушайте телефонные сообщения и отмечайте Richtig/Falsch. Каждый ТЕСТ состоит из 5 вопросов.", 'de': "Hören Sie Telefonansagen und markieren Sie Richtig/Falsch. Jeder TEST besteht aus 5 Fragen."});
+  String get horenB1Teil2Title => _t({'uz': "Teil 2 – Radio Intervyu", 'kaa': "Teil 2 – Radio Intervyu", 'ru': "Teil 2 – Радио интервью", 'de': "Teil 2 – Radiointerview"});
+  String get horenB1Teil2Desc => _t({'uz': "Radio intervyusini tinglang va Richtig/Falsch deb belgilang. Har bir TEST 10 ta savoldan iborat.", 'kaa': "Radio intervyusin tıńlań hám Richtig/Falsch dep belgilań. Hár bir TEST 10 sorawdan ibarat.", 'ru': "Слушайте радио интервью и отмечайте Richtig/Falsch. Каждый ТЕСТ состоит из 10 вопросов.", 'de': "Hören Sie das Radiointerview und markieren Sie Richtig/Falsch. Jeder TEST besteht aus 10 Fragen."});
+  String get horenB1Teil3Title => _t({'uz': "Teil 3 – Kundalik Suhbat", 'kaa': "Teil 3 – Kúndelik Sóylesiw", 'ru': "Teil 3 – Повседневный разговор", 'de': "Teil 3 – Alltagsgespräch"});
+  String get horenB1Teil3Desc => _t({'uz': "Kundalik suhbatni tinglang va Richtig/Falsch deb belgilang. Har bir TEST 5 ta savoldan iborat.", 'kaa': "Kúndelik sóylesiwdi tıńlań hám Richtig/Falsch dep belgilań. Hár bir TEST 5 sorawdan ibarat.", 'ru': "Слушайте повседневный разговор и отмечайте Richtig/Falsch. Каждый ТЕСТ состоит из 5 вопросов.", 'de': "Hören Sie das Alltagsgespräch und markieren Sie Richtig/Falsch. Jeder TEST besteht aus 5 Fragen."});
+  String get horenTestNumber => _t({'uz': "TEST", 'kaa': "TEST", 'ru': "ТЕСТ", 'de': "TEST"});
 }
+

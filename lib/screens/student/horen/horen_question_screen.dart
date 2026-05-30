@@ -157,14 +157,15 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     if (index < 0 || index >= _questions.length || index == _currentIndex) {
       return;
     }
+    
+    final previousUrl = _current.audioUrl;
+    
     setState(() {
       _currentIndex = index;
       _answered = _results[index] != null;
       _selectedAnswer = null;
-      _isLoading = false;
-      _position = Duration.zero;
-      _duration = Duration.zero;
     });
+    
     // Saqlangan javobni yuklash
     if (_results[index] != null) {
       SharedPreferences.getInstance().then((prefs) {
@@ -173,7 +174,17 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
       });
     }
     _scrollQuestionPickerTo(index);
-    _loadAudio();
+    
+    // Agar audio URL o'zgarmagan bo'lsa, qaytadan yuklamaslik
+    final newUrl = _questions[index].audioUrl;
+    if (newUrl != previousUrl) {
+      setState(() {
+        _isLoading = false;
+        _position = Duration.zero;
+        _duration = Duration.zero;
+      });
+      _loadAudio();
+    }
   }
 
   void _scrollQuestionPickerTo(int index) {
@@ -278,6 +289,13 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
 
   // ── Question picker ──────────────────────────────────────────────────────
   Widget _buildQuestionPicker(bool isDark) {
+    final isB1 = widget.level == 'B1';
+    int questionsPerTest = 5; // default
+    
+    if (isB1 && widget.teil.teilNumber == 2) {
+      questionsPerTest = 10; // Teil 2 da 10 ta savol
+    }
+    
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Row(
@@ -304,74 +322,121 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
               child: ListView.builder(
                 controller: _questionScrollController,
                 scrollDirection: Axis.horizontal,
-                itemCount: _questions.length,
-                itemBuilder: (context, i) {
-                  final selected = i == _currentIndex;
-                  final result = _results[i];
-
-                  Color bgColor;
-                  Color borderColor;
-                  Color textColor;
-
-                  if (selected) {
-                    bgColor = _accentColor;
-                    borderColor = _accentShadow;
-                    textColor = Colors.white;
-                  } else if (result == true) {
-                    bgColor = AppColors.duoGreen.withValues(alpha: 0.2);
-                    borderColor = AppColors.duoGreen;
-                    textColor = AppColors.duoGreen;
-                  } else if (result == false) {
-                    bgColor = AppColors.duoRed.withValues(alpha: 0.2);
-                    borderColor = AppColors.duoRed;
-                    textColor = AppColors.duoRed;
-                  } else {
-                    bgColor = isDark
-                        ? AppColors.duoCardGray.withValues(alpha: 0.2)
-                        : Colors.white;
-                    borderColor =
-                        isDark ? Colors.white24 : AppColors.duoCardGrayShadow;
-                    textColor =
-                        isDark ? Colors.white70 : AppColors.duoTextDark;
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () => _goToQuestion(i),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: bgColor,
-                          border: Border.all(color: borderColor, width: 2),
-                          boxShadow: selected
-                              ? [
-                                  BoxShadow(
-                                    color: _accentShadow,
-                                    offset: const Offset(0, 3),
-                                  )
-                                ]
-                              : null,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${i + 1}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                            color: textColor,
+                itemCount: _questions.length + (isB1 ? (_questions.length ~/ questionsPerTest) : 0),
+                itemBuilder: (context, index) {
+                  // B1 uchun test headerlarini qo'shish
+                  if (isB1) {
+                    // Har questionsPerTest ta savoldan keyin test header qo'shish
+                    final testHeaderCount = index ~/ (questionsPerTest + 1);
+                    final positionInGroup = index % (questionsPerTest + 1);
+                    
+                    if (positionInGroup == 0) {
+                      // Bu test header
+                      final testNum = testHeaderCount + 1;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _accentColor.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _accentColor.withValues(alpha: 0.5),
+                              width: 1.5,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'TEST $testNum',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              color: _accentColor,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
+                      );
+                    }
+                    
+                    // Bu savol tugmasi
+                    final questionIndex = testHeaderCount * questionsPerTest + (positionInGroup - 1);
+                    if (questionIndex >= _questions.length) return const SizedBox.shrink();
+                    
+                    return _buildQuestionButton(questionIndex, isDark);
+                  } else {
+                    // A1 uchun oddiy ko'rinish
+                    return _buildQuestionButton(index, isDark);
+                  }
                 },
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+  
+  Widget _buildQuestionButton(int i, bool isDark) {
+    final selected = i == _currentIndex;
+    final result = _results[i];
+
+    Color bgColor;
+    Color borderColor;
+    Color textColor;
+
+    if (selected) {
+      bgColor = _accentColor;
+      borderColor = _accentShadow;
+      textColor = Colors.white;
+    } else if (result == true) {
+      bgColor = AppColors.duoGreen.withValues(alpha: 0.2);
+      borderColor = AppColors.duoGreen;
+      textColor = AppColors.duoGreen;
+    } else if (result == false) {
+      bgColor = AppColors.duoRed.withValues(alpha: 0.2);
+      borderColor = AppColors.duoRed;
+      textColor = AppColors.duoRed;
+    } else {
+      bgColor = isDark
+          ? AppColors.duoCardGray.withValues(alpha: 0.2)
+          : Colors.white;
+      borderColor =
+          isDark ? Colors.white24 : AppColors.duoCardGrayShadow;
+      textColor =
+          isDark ? Colors.white70 : AppColors.duoTextDark;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: GestureDetector(
+        onTap: () => _goToQuestion(i),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: bgColor,
+            border: Border.all(color: borderColor, width: 2),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: _accentShadow,
+                      offset: const Offset(0, 3),
+                    )
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '${i + 1}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w900,
+              color: textColor,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -393,42 +458,6 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Teil badge + title
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _accentColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Teil ${widget.teil.teilNumber}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: _accentColor,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  _current.audioTitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white70 : AppColors.duoTextLight,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-
           // ── Player row ──
           Row(
             children: [

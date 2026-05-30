@@ -34,11 +34,14 @@ class _HorenScreenState extends State<HorenScreen> {
     final Map<int, int> correct = {};
     final Map<int, int> wrong = {};
 
-    for (final teil in horenA1.teile) {
+    // A1 yoki B1 ga qarab ma'lumotlarni yuklash
+    final currentLevel = _selectedLevel == 'A1' ? horenA1 : (_selectedLevel == 'B1' ? horenB1 : horenA1);
+    
+    for (final teil in currentLevel.teile) {
       int c = 0, w = 0;
       for (int i = 0; i < teil.questions.length; i++) {
         final val = prefs.getString(
-            'horen_A1_teil${teil.teilNumber}_q$i');
+            'horen_${_selectedLevel}_teil${teil.teilNumber}_q$i');
         if (val == 'true') c++;
         if (val == 'false') w++;
       }
@@ -321,6 +324,18 @@ class _HorenScreenState extends State<HorenScreen> {
     final levelColor = _levelColor(_selectedLevel);
     final levelShadow = _levelShadow(_selectedLevel);
     final isA1 = _selectedLevel == 'A1';
+    final isB1 = _selectedLevel == 'B1';
+    
+    // Hozirgi daraja uchun ma'lumotlarni olish
+    final currentLevelData = isA1 ? horenA1 : (isB1 ? horenB1 : horenA1);
+    
+    // B1 uchun maxsus title va description
+    final teil1Title = isB1 ? l.horenB1Teil1Title : l.horenTeil1Title;
+    final teil1Desc = isB1 ? l.horenB1Teil1Desc : l.horenTeil1Desc;
+    final teil2Title = isB1 ? l.horenB1Teil2Title : l.horenTeil2Title;
+    final teil2Desc = isB1 ? l.horenB1Teil2Desc : l.horenTeil2Desc;
+    final teil3Title = isB1 ? l.horenB1Teil3Title : l.horenTeil3Title;
+    final teil3Desc = isB1 ? l.horenB1Teil3Desc : l.horenTeil3Desc;
 
     return Scaffold(
       backgroundColor:
@@ -452,19 +467,18 @@ class _HorenScreenState extends State<HorenScreen> {
               isDark: isDark,
               l: l,
               teilNumber: 1,
-              title: l.horenTeil1Title,
-              description: l.horenTeil1Desc,
+              title: teil1Title,
+              description: teil1Desc,
               note: l.horenTeil1Note,
               headerIcon: Icons.record_voice_over_rounded,
               color: AppColors.duoBlue,
               shadow: AppColors.duoBlueShadow,
-              totalQuestions:
-                  isA1 ? horenA1.teile[0].questions.length : 5,
+              totalQuestions: currentLevelData.teile[0].questions.length,
               correct: _correctMap[1] ?? 0,
               wrong: _wrongMap[1] ?? 0,
-              isAvailable: isA1,
-              onTap: isA1
-                  ? () => _openTeil(horenA1.teile[0])
+              isAvailable: isA1 || isB1,
+              onTap: (isA1 || isB1)
+                  ? () => _openTeil(currentLevelData.teile[0])
                   : () => _showComingSoon(l, isDark),
             ),
             const SizedBox(height: 14),
@@ -475,19 +489,18 @@ class _HorenScreenState extends State<HorenScreen> {
               isDark: isDark,
               l: l,
               teilNumber: 2,
-              title: l.horenTeil2Title,
-              description: l.horenTeil2Desc,
+              title: teil2Title,
+              description: teil2Desc,
               note: l.horenTeil2Note,
               headerIcon: Icons.campaign_rounded,
               color: AppColors.duoOrange,
               shadow: AppColors.duoOrangeShadow,
-              totalQuestions:
-                  isA1 ? horenA1.teile[1].questions.length : 5,
+              totalQuestions: currentLevelData.teile[1].questions.length,
               correct: _correctMap[2] ?? 0,
               wrong: _wrongMap[2] ?? 0,
-              isAvailable: isA1,
-              onTap: isA1
-                  ? () => _openTeil(horenA1.teile[1])
+              isAvailable: isA1 || isB1,
+              onTap: (isA1 || isB1)
+                  ? () => _openTeil(currentLevelData.teile[1])
                   : () => _showComingSoon(l, isDark),
             ),
             const SizedBox(height: 14),
@@ -498,23 +511,22 @@ class _HorenScreenState extends State<HorenScreen> {
               isDark: isDark,
               l: l,
               teilNumber: 3,
-              title: l.horenTeil3Title,
-              description: l.horenTeil3Desc,
+              title: teil3Title,
+              description: teil3Desc,
               note: l.horenTeil3Note,
               headerIcon: Icons.short_text_rounded,
               color: AppColors.duoGreen,
               shadow: AppColors.duoGreenShadow,
-              totalQuestions:
-                  isA1 ? horenA1.teile[2].questions.length : 5,
+              totalQuestions: currentLevelData.teile[2].questions.length,
               correct: _correctMap[3] ?? 0,
               wrong: _wrongMap[3] ?? 0,
-              isAvailable: isA1,
-              onTap: isA1
-                  ? () => _openTeil(horenA1.teile[2])
+              isAvailable: isA1 || isB1,
+              onTap: (isA1 || isB1)
+                  ? () => _openTeil(currentLevelData.teile[2])
                   : () => _showComingSoon(l, isDark),
             ),
 
-            if (!isA1) ...[
+            if (!isA1 && !isB1) ...[
               const SizedBox(height: 28),
               Container(
                 width: double.infinity,

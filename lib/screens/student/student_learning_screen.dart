@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import 'conversations_screen.dart';
 import 'schreiben_screen.dart';
 import 'translation_screen.dart';
+import 'vocabulary_screen.dart';
 import 'games/der_die_das_rules_screen.dart';
 import 'grammar_levels_screen.dart';
 import 'mock_test_screen.dart';
@@ -130,6 +131,18 @@ class StudentLearningScreen extends StatelessWidget {
               onTap: () => _openWithGroupCheck(
                 context,
                 () => const TranslationScreen(),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            _buildLearningCard(
+              context,
+              icon: '📚',
+              title: l.vocabulary,
+              subtitle: l.savedVocabulary,
+              onTap: () => _openWithGroupCheck(
+                context,
+                () => const VocabularyScreen(),
               ),
             ),
             const SizedBox(height: 14),

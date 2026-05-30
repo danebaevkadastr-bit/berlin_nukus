@@ -3,6 +3,7 @@ import '../../services/ai_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/chat_theme.dart';
 import '../gamified_card.dart';
+import '../../services/vocabulary_service.dart';
 
 class SelectedWordSheet extends StatefulWidget {
   final String word;
@@ -42,6 +43,33 @@ class _SelectedWordSheetState extends State<SelectedWordSheet> {
     }
   }
 
+  Future<void> _saveWord() async {
+    if (_explanation == null) return;
+    final wordObj = SavedWord(
+      germanWord: widget.word,
+      meanings: [
+        WordMeaning(
+          translation: _explanation!,
+          exampleGerman: '',
+          exampleUzbek: '',
+        )
+      ],
+      savedAt: DateTime.now(),
+      learningStage: 0,
+    );
+
+    await VocabularyService.addWord(wordObj);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("So'z saqlandi!"),
+          backgroundColor: AppColors.duoGreen,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = ChatTheme.of(context);
@@ -71,13 +99,24 @@ class _SelectedWordSheetState extends State<SelectedWordSheet> {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              widget.word,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                color: theme.textPrimary,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.word,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: theme.textPrimary,
+                    ),
+                  ),
+                ),
+                if (!_loading)
+                  IconButton(
+                    icon: const Icon(Icons.bookmark_add_rounded, color: AppColors.duoGreen, size: 32),
+                    onPressed: _saveWord,
+                  ),
+              ],
             ),
             const SizedBox(height: 12),
             if (_loading)

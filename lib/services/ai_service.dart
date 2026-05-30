@@ -31,6 +31,12 @@ class AIService {
   static String get _mistralModel =>
       dotenv.env['MISTRAL_MODEL']?.trim() ?? 'mistral-small-latest';
 
+  static String get _geminiApiKey => dotenv.env['GEMINI_API_KEY']?.trim() ?? '';
+  static String get _geminiBaseUrl =>
+      'https://generativelanguage.googleapis.com/v1beta/openai';
+  static String get _geminiModel =>
+      dotenv.env['GEMINI_MODEL']?.trim() ?? 'gemini-2.0-flash';
+
   static Future<String> _chat({
     required List<Map<String, String>> messages,
     double temperature = 0.7,
@@ -68,21 +74,40 @@ class AIService {
         debugPrint('Cerebras failed: $e2');
         
         // Cerebras ham xatolik bo'lsa, Mistralga o'tish
-        if (_mistralApiKey.isEmpty || _mistralBaseUrl.isEmpty) {
-          throw Exception(
-            'Qwen va Cerebras ishlamadi, Mistral konfiguratsiyasi ham topilmadi',
+        try {
+          if (_mistralApiKey.isEmpty || _mistralBaseUrl.isEmpty) {
+            throw Exception('Mistral konfiguratsiyasi topilmadi');
+          }
+
+          debugPrint('Falling back to Mistral...');
+          return await _chatWithProvider(
+            apiKey: _mistralApiKey,
+            baseUrl: _mistralBaseUrl,
+            model: _mistralModel,
+            messages: messages,
+            temperature: temperature,
+            providerName: 'Mistral',
+          );
+        } catch (e3) {
+          debugPrint('Mistral failed: $e3');
+
+          // Hammasi ishlamasa — Gemini
+          if (_geminiApiKey.isEmpty) {
+            throw Exception(
+              'Barcha AI provayderlar ishlamadi (Qwen, Cerebras, Mistral, Gemini)',
+            );
+          }
+
+          debugPrint('Falling back to Gemini...');
+          return await _chatWithProvider(
+            apiKey: _geminiApiKey,
+            baseUrl: _geminiBaseUrl,
+            model: _geminiModel,
+            messages: messages,
+            temperature: temperature,
+            providerName: 'Gemini',
           );
         }
-        
-        debugPrint('Falling back to Mistral...');
-        return await _chatWithProvider(
-          apiKey: _mistralApiKey,
-          baseUrl: _mistralBaseUrl,
-          model: _mistralModel,
-          messages: messages,
-          temperature: temperature,
-          providerName: 'Mistral',
-        );
       }
     }
   }
@@ -102,18 +127,23 @@ class AIService {
     }
 
     final uri = Uri.parse('$baseUrl/chat/completions');
-    final response = await http.post(
-      uri,
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'model': model,
-        'temperature': temperature,
-        'messages': messages,
-      }),
-    );
+    final response = await http
+        .post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            'model': model,
+            'temperature': temperature,
+            'messages': messages,
+          }),
+        )
+        .timeout(
+          const Duration(seconds: 15),
+          onTimeout: () => throw Exception('$providerName so\'rov vaqti tugadi (15s)'),
+        );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       debugPrint('$providerName error ${response.statusCode}: ${response.body}');

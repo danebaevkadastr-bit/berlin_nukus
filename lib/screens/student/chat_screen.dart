@@ -93,43 +93,61 @@ QOIDALAR (qat'iy):
 - Hech qanday emoji, smaylik ishlatma.
 - Har javobda faqat BITTA savol ber — bir nechta savol bir vaqtda berma.
 - Javob qisqa bo'lsin: 2-4 gap.
-- Faqat berilgan mavzu bo'yicha gapir.
+- Faqat berilgan mavzu bo'yicha gapir. Mavzudan tashqari chiqma. Agar foydalanuvchi mavzudan tashqari savol bersa, uni mavzuga qaytaring.
 - Avvalgi savollarga qaytma, takrorlanma.
 - Asosan nemis tilida yoz; kerak bo'lsa 1 qator o'zbekcha yordam.
+- Har bir javobda faqat bitta konkret savol ber, keyin to'xta.
+- MUHIM: Hech qachon yordamchi javob variantlarini o'zingdan berma. Faqat savol ber.
 ''';
 
   String get _contextPrompt {
-    final totalLimit = ChatProgressService.maxUserMessagesPerTopic;
+    final totalLimit = _chatMessageLimit;
     final remaining = totalLimit - _userMessageCount;
+    final isLastMessage = remaining <= 1;
+
+    String rules = _chatRules;
+    if (isLastMessage) {
+      rules = '''
+QOIDALAR (qat'iy):
+- Hech qanday emoji, smaylik ishlatma.
+- JAVOBDA UMUMAN SAVOL BERMA. Savol berish qat'iyan man etiladi.
+- Javob qisqa bo'lsin: 2-4 gap.
+- Faqat berilgan mavzuni yakunlash va tugatish haqida yoz.
+- Asosan nemis tilida yoz; kerak bo'lsa 1 qator o'zbekcha yordam.
+- MUHIM: Mavzuni yakunla, o'quvchini maqta, qisqacha xulosa chiqar va "Lektion beendet" deb yoz.
+''';
+    }
 
     if (widget.sourceType == 'lesson') {
       return '''
 Sen nemis tili o'qituvchisisan. Mavzu: "${widget.title}".
 
-$_chatRules
+$rules
 
 DARS USLUBI:
 - Faqat "${widget.title}" bo'yicha o'rgat: aniq lug'at, 1 grammatika nuqtasi, 1 misol gap.
-- Har javobda: qisqa tushuntirish + 1 amaliy savol yoki mashq.
+${isLastMessage ? '- Darsni yakunla, hech qanday savol yoki yangi mashq berma.' : '- Har javobda: qisqa tushuntirish + 1 amaliy savol yoki mashq.'}
 - Mavzuni qayta e'lon qilma.
+- Agar foydalanuvchi mavzudan tashqari savol bersa, uni mavzuga qaytaring va mavzu bo'yicha davom eting.
 
 LIMIT: Foydalanuvchida $remaining ta xabar qoldi (jami $totalLimit).
-Agar 1-2 xabar qolsa, darsni yakunla: o'quvchini maqta, qisqacha xulosa chiqar va "Lektion beendet" deb yoz.
+${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Darsni butunlay yakunla, o\'quvchini bajargan ishlari uchun maqta va mutlaqo savol bermasdan "Lektion beendet" deb yozib tugat.' : 'Agar 1-2 xabar qolsa, darsni yakunla: o\'quvchini maqta, qisqacha xulosa chiqar va "Lektion beendet" deb yoz.'}
 ''';
     }
 
     return '''
 Sen nemis tili suhbat mentorisiz. Mavzu: "${widget.title}".
 
-$_chatRules
+$rules
 
 SUHBAT USLUBI:
 - Faqat "${widget.title}" haqida aniq savol-javob.
-- Har javobda 1 ta konkret savol ber.
+${isLastMessage ? '- Suhbatni yakunla, savol berishni to\'xtat.' : '- Har javobda 1 ta konkret savol ber.'}
 - Uzun dars bermay, suhbat qil.
+- Agar foydalanuvchi mavzudan tashqari savol bersa, uni mavzuga qaytaring va mavzu bo'yicha davom eting.
 
 LIMIT: Foydalanuvchida $remaining ta xabar qoldi (jami $totalLimit).
-Agar 1-2 xabar qolsa, suhbatni yakunla: o'quvchini maqta, qisqacha xulosa chiqar va "Lektion beendet" deb yoz.
+${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quvchini maqta va mutlaqo savol bermasdan "Lektion beendet" deb yozib tugat.' : 'Agar 1-2 xabar qolsa, suhbatni yakunla: o\'quvchini maqta, qisqacha xulosa chiqar va "Lektion beendet" deb yoz.'}
 ''';
   }
 
@@ -238,7 +256,7 @@ Agar 1-2 xabar qolsa, suhbatni yakunla: o'quvchini maqta, qisqacha xulosa chiqar
 
     // Limit yetdi yoki AI yakunladi
     final limitReached =
-        _userMessageCount >= ChatProgressService.maxUserMessagesPerTopic;
+        _userMessageCount >= _chatMessageLimit;
 
     if (aiSaysFinished || limitReached) {
       _markSessionFinished();
@@ -266,7 +284,7 @@ Agar 1-2 xabar qolsa, suhbatni yakunla: o'quvchini maqta, qisqacha xulosa chiqar
   void _addInitialMessage() {
     _messages.clear();
 
-    final intro = 'Hallo! Heute sprechen wir über "${widget.title}".\nBist du bereit?';
+    final intro = 'Hallo! Heute sprechen wir über "${widget.title}". Bist du bereit?';
 
     _messages.add(
       ChatMessageModel(
@@ -343,7 +361,7 @@ Agar 1-2 xabar qolsa, suhbatni yakunla: o'quvchini maqta, qisqacha xulosa chiqar
     if (trimmed.isEmpty || _isSending) return;
     if (!_isFreeChat && _lessonFinished) return;
     if (!_isFreeChat &&
-        _userMessageCount >= ChatProgressService.maxUserMessagesPerTopic) {
+        _userMessageCount >= _chatMessageLimit) {
       return;
     }
 
@@ -791,8 +809,12 @@ Agar 1-2 xabar qolsa, suhbatni yakunla: o'quvchini maqta, qisqacha xulosa chiqar
                       const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () async {
+                        child: GamifiedCard(
+                          color: AppColors.duoBlue,
+                          shadowColor: AppColors.duoBlueShadow,
+                          shadowDepth: 4,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          onTap: () async {
                             final limit = tempChatWordLimit.round();
                             await ChatProgressService.setChatMessageLimit(limit);
                             setState(() {
@@ -807,7 +829,16 @@ Agar 1-2 xabar qolsa, suhbatni yakunla: o'quvchini maqta, qisqacha xulosa chiqar
                               Navigator.pop(sheetContext);
                             }
                           },
-                          child: Text(AppLocalizations.of(sheetContext).save),
+                          child: Center(
+                            child: Text(
+                              AppLocalizations.of(sheetContext).save,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -1093,6 +1124,54 @@ Agar 1-2 xabar qolsa, suhbatni yakunla: o'quvchini maqta, qisqacha xulosa chiqar
                   ),
                 ),
               ),
+              if (!_isFreeChat && !_lessonFinished)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+                  child: GamifiedCard(
+                    color: isDark
+                        ? AppColors.duoCardGray.withValues(alpha: 0.08)
+                        : AppColors.duoBlue.withValues(alpha: 0.08),
+                    shadowColor: Colors.transparent,
+                    shadowDepth: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.chat_bubble_outline_rounded,
+                          size: 18,
+                          color: AppColors.duoBlue,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '$_userMessageCount/$_chatMessageLimit xabar',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              value: _userMessageCount / _chatMessageLimit,
+                              backgroundColor: isDark
+                                  ? AppColors.duoCardGray.withValues(alpha: 0.2)
+                                  : AppColors.duoCardGray.withValues(alpha: 0.15),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                _userMessageCount >= _chatMessageLimit * 0.8
+                                    ? AppColors.duoRed
+                                    : AppColors.duoBlue,
+                              ),
+                              minHeight: 6,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               Expanded(
               child: _messages.isEmpty
                   ? const NoMessagesEmptyState()
@@ -1815,7 +1894,7 @@ class _ChatBubble extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     _LabeledText(
-                      label: 'Xato gap',
+                      label: 'Xato',
                       value: message.correction!.originalText,
                       colors: colors,
                     ),
@@ -2040,13 +2119,11 @@ class _SettingsSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ChatTheme.of(context);
 
-    return Container(
+    return GamifiedCard(
+      color: ThemeManager.isDark ? AppColors.duoCardGray.withValues(alpha: 0.2) : Colors.white,
+      shadowColor: ThemeManager.isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+      shadowDepth: 2,
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
-      decoration: BoxDecoration(
-        color: colors.background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: colors.border),
-      ),
       child: Column(
         children: [
           Row(
@@ -2090,24 +2167,24 @@ class _SettingsSwitch extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ChatTheme.of(context);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-      decoration: BoxDecoration(
-        color: colors.background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: colors.border),
-      ),
-      child: SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        value: value,
-        onChanged: onChanged,
-        title: Text(
-          title,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GamifiedCard(
+        color: ThemeManager.isDark ? AppColors.duoCardGray.withValues(alpha: 0.2) : Colors.white,
+        shadowColor: ThemeManager.isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+        shadowDepth: 2,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        child: SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: value,
+          onChanged: onChanged,
+          title: Text(
+            title,
+            style: TextStyle(
+              color: colors.textPrimary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
           ),
         ),
       ),
