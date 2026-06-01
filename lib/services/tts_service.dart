@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -127,7 +125,7 @@ class TTSService {
 
     final scope = AWSCredentialScope(
       region: region,
-      service: AWSService('polly'),
+      service: const AWSService('polly'),
     );
 
     final signedUrl = await signer.presign(

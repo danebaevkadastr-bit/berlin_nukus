@@ -729,7 +729,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
   // ── Bottom bar ───────────────────────────────────────────────────────────
   Widget _buildBottomBar(bool isDark, AppLocalizations l, bool isLast) {
     final canGoBack = _currentIndex > 0;
-    final canGoNext = true; // Allow skipping without answering
+    const canGoNext = true; // Allow skipping without answering
     final textColor = isDark ? Colors.white : AppColors.duoTextDark;
     final disabledText = isDark ? Colors.white38 : AppColors.duoTextLight;
 
@@ -776,20 +776,18 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
           Expanded(
             child: GamifiedCard(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              color: canGoNext
-                  ? _accentColor
-                  : _accentColor.withValues(alpha: 0.35),
+              color: _accentColor,
               shadowColor: _accentShadow,
-              shadowDepth: canGoNext ? 5 : 2,
+              shadowDepth: 5,
               borderRadius: 16,
-              onTap: canGoNext ? _next : null,
+              onTap: _next,
               child: Center(
                 child: Text(
                   isLast ? l.horenFinish : l.horenNextQuestion,
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 15,
-                    color: canGoNext ? Colors.white : Colors.white70,
+                    color: Colors.white,
                   ),
                 ),
               ),
