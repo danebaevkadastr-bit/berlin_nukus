@@ -5,6 +5,7 @@ import '../utils/app_colors.dart';
 /// O'quv/o'yin ekranlari uchun yumshoq bezakli fon (der, die, das va h.k.).
 enum DecorativePatternVariant {
   derDieDas,
+  synonymBattle,
 }
 
 enum _GlyphKind { text, shapeX, shapeO }
@@ -136,6 +137,55 @@ class DecorativePatternBackground extends StatelessWidget {
           _PatternGlyph.shapeO(x: 0.54, y: 0.52, rotation: 0.0, scale: 0.85, color: AppColors.duoBlue),
           _PatternGlyph.shapeO(x: 0.16, y: 0.36, rotation: 0.15, scale: 0.7, color: AppColors.duoBlue),
           _PatternGlyph.shapeO(x: 0.86, y: 0.14, rotation: -0.3, scale: 0.6, color: AppColors.duoBlue),
+          _PatternGlyph.shapeO(x: 0.10, y: 0.78, rotation: 0.45, scale: 0.55, color: AppColors.duoGreen),
+          _PatternGlyph.shapeO(x: 0.66, y: 0.34, rotation: -0.15, scale: 0.5, color: AppColors.duoGreen),
+        ];
+      case DecorativePatternVariant.synonymBattle:
+        return const [
+          // Sinonim so'zlar va belgilar
+          _PatternGlyph.text(x: 0.06, y: 0.07, rotation: -0.35, scale: 1.0, text: '⚔️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.84, y: 0.05, rotation: 0.25, scale: 0.95, text: 'SYN', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.12, y: 0.20, rotation: 0.15, scale: 0.78, text: '≈', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.90, y: 0.17, rotation: -0.2, scale: 1.08, text: '⚔️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.03, y: 0.40, rotation: 0.42, scale: 0.88, text: '≈', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.94, y: 0.36, rotation: -0.48, scale: 0.82, text: 'SYN', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.20, y: 0.55, rotation: -0.12, scale: 0.72, text: '⚔️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.76, y: 0.50, rotation: 0.32, scale: 0.98, text: '≈', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.08, y: 0.70, rotation: 0.22, scale: 1.02, text: 'SYN', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.68, y: 0.66, rotation: -0.28, scale: 0.84, text: '⚔️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.38, y: 0.86, rotation: -0.38, scale: 0.92, text: '≈', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.56, y: 0.76, rotation: 0.18, scale: 0.76, text: 'SYN', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.50, y: 0.10, rotation: 0.55, scale: 0.62, text: '⚔️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.28, y: 0.32, rotation: -0.18, scale: 0.58, text: '≈', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.72, y: 0.24, rotation: 0.08, scale: 0.64, text: 'SYN', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.46, y: 0.48, rotation: -0.52, scale: 0.54, text: '⚔️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.62, y: 0.14, rotation: 0.12, scale: 0.56, text: '≈', color: AppColors.duoGreen),
+          // Belgilar va emoji
+          _PatternGlyph.text(x: 0.18, y: 0.12, rotation: 0.1, scale: 0.9, text: '?', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.48, y: 0.22, rotation: -0.3, scale: 0.85, text: '?', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.82, y: 0.72, rotation: 0.4, scale: 0.8, text: '?', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.32, y: 0.62, rotation: -0.15, scale: 0.75, text: '⭐', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.88, y: 0.48, rotation: 0.2, scale: 0.7, text: '⭐', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.14, y: 0.88, rotation: -0.25, scale: 0.65, text: '⭐', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.52, y: 0.62, rotation: 0.35, scale: 0.68, text: '📘', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.06, y: 0.52, rotation: -0.4, scale: 0.6, text: '📘', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.74, y: 0.88, rotation: 0.15, scale: 0.62, text: '📘', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.42, y: 0.38, rotation: 0.0, scale: 0.72, text: '✓', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.64, y: 0.42, rotation: 0.5, scale: 0.65, text: '✓', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.24, y: 0.44, rotation: -0.45, scale: 0.6, text: '✗', color: AppColors.duoRed),
+          _PatternGlyph.text(x: 0.58, y: 0.30, rotation: 0.25, scale: 0.58, text: '✗', color: AppColors.duoRed),
+          _PatternGlyph.text(x: 0.92, y: 0.62, rotation: -0.1, scale: 0.55, text: 'DE', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.04, y: 0.24, rotation: 0.3, scale: 0.5, text: 'DE', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.36, y: 0.08, rotation: -0.2, scale: 0.48, text: 'abc', color: AppColors.duoTextLight),
+          _PatternGlyph.text(x: 0.78, y: 0.08, rotation: 0.35, scale: 0.45, text: 'abc', color: AppColors.duoTextLight),
+          // X va O shakllari
+          _PatternGlyph.shapeX(x: 0.26, y: 0.18, rotation: 0.4, scale: 0.9, color: AppColors.duoRed),
+          _PatternGlyph.shapeX(x: 0.70, y: 0.58, rotation: -0.2, scale: 0.75, color: AppColors.duoRed),
+          _PatternGlyph.shapeX(x: 0.44, y: 0.92, rotation: 0.6, scale: 0.65, color: AppColors.duoRed),
+          _PatternGlyph.shapeX(x: 0.96, y: 0.28, rotation: -0.5, scale: 0.55, color: AppColors.duoRed),
+          _PatternGlyph.shapeO(x: 0.54, y: 0.52, rotation: 0.0, scale: 0.85, color: AppColors.duoPurple),
+          _PatternGlyph.shapeO(x: 0.16, y: 0.36, rotation: 0.15, scale: 0.7, color: AppColors.duoPurple),
+          _PatternGlyph.shapeO(x: 0.86, y: 0.14, rotation: -0.3, scale: 0.6, color: AppColors.duoPurple),
           _PatternGlyph.shapeO(x: 0.10, y: 0.78, rotation: 0.45, scale: 0.55, color: AppColors.duoGreen),
           _PatternGlyph.shapeO(x: 0.66, y: 0.34, rotation: -0.15, scale: 0.5, color: AppColors.duoGreen),
         ];

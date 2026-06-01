@@ -374,19 +374,40 @@ class FirebaseService {
   // ── LEADERBOARD ─────────────────────────────────────────────────────────────
 
   /// Stream of leaderboard (top students by total stars)
+  /// Sorts by totalStars (descending), then by fullName (alphabetically) for ties
   /// @deprecated Use getGroupLeaderboardStream instead for group-specific leaderboard
+  /// _Requirements: 2.1, 2.3_
   Stream<List<Map<String, dynamic>>> getLeaderboardStream() {
     return _firestore
         .collection('users')
         .where('role', isEqualTo: 'student')
-        .orderBy('totalStars', descending: true)
-        .limit(10)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) {
-              final data = doc.data();
-              data['id'] = doc.id;
-              return data;
-            }).toList());
+        .map((snapshot) {
+          final students = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            // Null qiymatlar uchun 0 default
+            data['totalStars'] = (data['totalStars'] as num?)?.toInt() ?? 0;
+            return data;
+          }).toList();
+
+          // Sort by totalStars (descending), then by fullName (alphabetically) for ties
+          students.sort((a, b) {
+            final aStars = a['totalStars'] as int;
+            final bStars = b['totalStars'] as int;
+
+            final starsCompare = bStars.compareTo(aStars);
+            if (starsCompare != 0) return starsCompare;
+
+            // Secondary sort by fullName (alphabetically) for equal stars
+            final aName = (a['fullName'] as String?) ?? '';
+            final bName = (b['fullName'] as String?) ?? '';
+            return aName.compareTo(bName);
+          });
+
+          // Limit to top 10
+          return students.take(10).toList();
+        });
   }
 
   /// Stream of leaderboard for a specific group (top students by total stars)
@@ -413,5 +434,118 @@ class FirebaseService {
         return data;
       }).toList();
     });
+  }
+
+  /// Stream of leaderboard sorted by attendance percentage (descending)
+  /// Calculates attendance from lessons data in 'darslar' collection
+  /// Returns 0% for students with no attendance data
+  Stream<List<Map<String, dynamic>>> getAttendanceLeaderboardStream() {
+    // Combine students stream with lessons stream to calculate attendance
+    return _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'student')
+        .snapshots()
+        .asyncMap((usersSnapshot) async {
+      if (usersSnapshot.docs.isEmpty) return [];
+
+      // Get all lessons to calculate attendance
+      final lessonsSnapshot =
+          await _firestore.collection(DarslarService.collection).get();
+
+      // Build attendance map: studentId -> {attended: int, total: int}
+      final attendanceStats = <String, Map<String, int>>{};
+
+      for (final lessonDoc in lessonsSnapshot.docs) {
+        final lessonData = lessonDoc.data();
+        final attendance = lessonData['attendance'] as Map<String, dynamic>?;
+        if (attendance == null || attendance.isEmpty) continue;
+
+        for (final entry in attendance.entries) {
+          final studentId = entry.key;
+          final wasPresent = entry.value == true;
+
+          attendanceStats.putIfAbsent(
+              studentId, () => {'attended': 0, 'total': 0});
+          attendanceStats[studentId]!['total'] =
+              (attendanceStats[studentId]!['total'] ?? 0) + 1;
+          if (wasPresent) {
+            attendanceStats[studentId]!['attended'] =
+                (attendanceStats[studentId]!['attended'] ?? 0) + 1;
+          }
+        }
+      }
+
+      // Map users with calculated attendance percentage
+      final students = usersSnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+
+        // Calculate attendance percentage
+        final stats = attendanceStats[doc.id];
+        if (stats != null && stats['total']! > 0) {
+          data['attendancePercentage'] =
+              (stats['attended']! / stats['total']!) * 100;
+        } else {
+          // Default to 0% if no attendance data
+          data['attendancePercentage'] = 0.0;
+        }
+
+        return data;
+      }).toList();
+
+      // Sort by attendance percentage (descending), then by fullName (alphabetically) for ties
+      students.sort((a, b) {
+        final aPercentage = (a['attendancePercentage'] as num?) ?? 0.0;
+        final bPercentage = (b['attendancePercentage'] as num?) ?? 0.0;
+
+        final percentageCompare = bPercentage.compareTo(aPercentage);
+        if (percentageCompare != 0) return percentageCompare;
+
+        // Secondary sort by fullName (alphabetically) for equal percentages
+        final aName = (a['fullName'] as String?) ?? '';
+        final bName = (b['fullName'] as String?) ?? '';
+        return aName.compareTo(bName);
+      });
+
+      return students;
+    });
+  }
+
+  /// Stream of leaderboard sorted by average score (descending)
+  /// O'quvchilarni averageScore bo'yicha kamayish tartibida tartiblaydi
+  /// Teng qiymatlar uchun fullName bo'yicha alifbo tartibida tartiblaydi
+  /// Null qiymatlar uchun 0 default qiymati ishlatiladi
+  /// _Requirements: 4.1, 4.3, 4.4, 4.5_
+  Stream<List<Map<String, dynamic>>> getAverageScoreLeaderboardStream() {
+    return _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'student')
+        .snapshots()
+        .map((snapshot) {
+          final students = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            // Null qiymatlar uchun 0 default (Requirement 4.5)
+            data['averageScore'] = (data['averageScore'] as num?)?.toInt() ?? 0;
+            return data;
+          }).toList();
+
+          // averageScore bo'yicha kamayish tartibida tartiblash (Requirement 4.1)
+          // Teng qiymatlar uchun fullName bo'yicha alifbo tartibida (Requirement 4.4)
+          students.sort((a, b) {
+            final scoreA = a['averageScore'] as int;
+            final scoreB = b['averageScore'] as int;
+
+            final scoreCompare = scoreB.compareTo(scoreA);
+            if (scoreCompare != 0) return scoreCompare;
+
+            // Secondary sort by fullName (alphabetically) for equal scores
+            final aName = (a['fullName'] as String?) ?? '';
+            final bName = (b['fullName'] as String?) ?? '';
+            return aName.compareTo(bName);
+          });
+
+          return students;
+        });
   }
 }

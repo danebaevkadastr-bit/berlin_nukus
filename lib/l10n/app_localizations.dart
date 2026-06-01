@@ -1856,7 +1856,7 @@ class AppLocalizations {
   });
   String get yesterday => _t({
     'uz': "Kecha",
-    'kaa': "Keше",
+    'kaa': "Keshе",
     'ru': "Вчера",
     'de': "Gestern",
   });
@@ -3368,5 +3368,77 @@ class AppLocalizations {
   String get horenB1Teil3Title => _t({'uz': "Teil 3 – Kundalik Suhbat", 'kaa': "Teil 3 – Kúndelik Sóylesiw", 'ru': "Teil 3 – Повседневный разговор", 'de': "Teil 3 – Alltagsgespräch"});
   String get horenB1Teil3Desc => _t({'uz': "Kundalik suhbatni tinglang va Richtig/Falsch deb belgilang. Har bir TEST 5 ta savoldan iborat.", 'kaa': "Kúndelik sóylesiwdi tıńlań hám Richtig/Falsch dep belgilań. Hár bir TEST 5 sorawdan ibarat.", 'ru': "Слушайте повседневный разговор и отмечайте Richtig/Falsch. Каждый ТЕСТ состоит из 5 вопросов.", 'de': "Hören Sie das Alltagsgespräch und markieren Sie Richtig/Falsch. Jeder TEST besteht aus 5 Fragen."});
   String get horenTestNumber => _t({'uz': "TEST", 'kaa': "TEST", 'ru': "ТЕСТ", 'de': "TEST"});
+
+  // ── Study Time Statistics ────────────────────────────────────────────────────
+  String get studyTime => _t({
+    'uz': "O'qish vaqti",
+    'kaa': "Oqıw waqtı",
+    'ru': "Время учёбы",
+    'de': "Lernzeit",
+  });
+
+  String get today => _t({
+    'uz': "Bugun",
+    'kaa': "Búgin",
+    'ru': "Сегодня",
+    'de': "Heute",
+  });
+
+  String get weeklyStatistics => _t({
+    'uz': "Haftalik statistika",
+    'kaa': "Aptasına statistika",
+    'ru': "Недельная статистика",
+    'de': "Wochenstatistik",
+  });
+
+  String get noStudyTimeRecorded => _t({
+    'uz': "Hali o'qish vaqti yozilmagan",
+    'kaa': "Ele oqıw waqtı jazılmaǵan",
+    'ru': "Время учёбы ещё не записано",
+    'de': "Noch keine Lernzeit erfasst",
+  });
+
+  String minutesFormat(int minutes) => _t({
+    'uz': "$minutes daqiqa",
+    'kaa': "$minutes minut",
+    'ru': "$minutes мин",
+    'de': "$minutes Min",
+  });
+
+  String hoursFormat(int hours) => _t({
+    'uz': "$hours soat",
+    'kaa': "$hours saat",
+    'ru': "$hours ч",
+    'de': "$hours Std",
+  });
+
+  String hoursMinutesFormat(int hours, int minutes) => _t({
+    'uz': "$hours soat $minutes daqiqa",
+    'kaa': "$hours saat $minutes minut",
+    'ru': "$hours ч $minutes мин",
+    'de': "$hours Std $minutes Min",
+  });
+
+  // ── Leaderboard ────────────────────────────────────────────────────────────
+  String get stars => _t({
+    'uz': "Yulduzlar",
+    'kaa': "Juldızlar",
+    'ru': "Звёзды",
+    'de': "Sterne",
+  });
+
+  String get checkInternet => _t({
+    'uz': "Internet ulanishini tekshiring",
+    'kaa': "Internet baylanısın tekseriń",
+    'ru': "Проверьте подключение к интернету",
+    'de': "Überprüfen Sie Ihre Internetverbindung",
+  });
+
+  String get retryButton => _t({
+    'uz': "Qayta urinish",
+    'kaa': "Qayta urınıw",
+    'ru': "Повторить",
+    'de': "Erneut versuchen",
+  });
 }
 

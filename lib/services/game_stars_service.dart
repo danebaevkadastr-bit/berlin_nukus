@@ -7,6 +7,8 @@ class GameStarsService {
   static String _strangeSentencesKey(String uid) =>
       'game_stars_strange_sentences_$uid';
   static String _grammarGameKey(String uid) => 'game_stars_grammar_game_$uid';
+  static String _synonymBattleKey(String uid) =>
+      'game_stars_synonym_battle_$uid';
 
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -65,12 +67,33 @@ class GameStarsService {
     return total;
   }
 
+  /// Sinonim o'yini yulduzlarini olish
+  static Future<int> getSynonymBattleStars(String uid) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_synonymBattleKey(uid)) ?? 0;
+  }
+
+  /// Sinonim o'yini yulduzlarini qo'shish
+  static Future<int> addSynonymBattleStars(String uid, int earned) async {
+    if (earned <= 0) return getSynonymBattleStars(uid);
+    final prefs = await SharedPreferences.getInstance();
+    final key = _synonymBattleKey(uid);
+    final total = (prefs.getInt(key) ?? 0) + earned;
+    await prefs.setInt(key, total);
+
+    // Firestore ga ham saqlash
+    await _syncStarsToFirestore(uid);
+
+    return total;
+  }
+
   /// Barcha o'yinlar yig'indisi.
   static Future<int> getTotalStars(String uid) async {
     final der = await getDerDieDasStars(uid);
     final strange = await getStrangeSentencesStars(uid);
     final grammar = await getGrammarGameStars(uid);
-    return der + strange + grammar;
+    final synonym = await getSynonymBattleStars(uid);
+    return der + strange + grammar + synonym;
   }
 
   /// Yulduzlarni Firestore users collection ga sinxronizatsiya qiladi

@@ -1,4 +1,7 @@
 import '../models/grammar_level.dart';
+import '../models/grammar_explanation.dart';
+import '../models/grammar_table.dart';
+import '../models/grammar_example.dart';
 
 class GrammarData {
   static List<GrammarLevel> get allLevels => [
@@ -45,6 +48,106 @@ class GrammarData {
                   'Er arbeitet heute.',
                   'Wir wohnen in Berlin.',
                 ],
+                detailedExplanation: const GrammarExplanation(
+                  theoryText: '''Nemis tilida hozirgi zamon (Präsens) fe'llarni tuslantirishda qo'llaniladi. Fe'l tuslanishi shaxs va songa qarab o'zgaradi.
+
+**Fe'l tuslanishi qoidalari:**
+
+1. **Infinitiv shakli** — fe'lning asosiy shakli bo'lib, -en yoki -n bilan tugaydi (lernen, arbeiten, sammeln).
+
+2. **Asos (Stamm)** — infinitivdan -en yoki -n ni olib tashlash orqali hosil qilinadi:
+   • lernen → lern-
+   • arbeiten → arbeit-
+   • spielen → spiel-
+
+3. **Shaxs qo'shimchalari** — asosga qo'shiladi:
+   • ich → -e
+   • du → -st
+   • er/sie/es → -t
+   • wir → -en
+   • ihr → -t
+   • sie/Sie → -en
+
+**Muhim qoidalar:**
+
+• Agar asos -t, -d, -chn, -ffn, -gn bilan tugasa, du, er/sie/es va ihr shakllarida -e- qo'shiladi:
+  arbeiten → du arbeitest, er arbeitet, ihr arbeitet
+
+• Agar asos -s, -ß, -x, -z bilan tugasa, du shaklida faqat -t qo'shiladi:
+  reisen → du reist (reisst emas)
+
+**sein va haben fe'llari** — eng ko'p ishlatiladigan yordamchi fe'llar bo'lib, ular nomuntazam tuslanadi va alohida yodlash kerak.''',
+                  tables: [
+                    GrammarTable(
+                      title: 'sein (bo\'lmoq) fe\'li tuslanishi',
+                      headers: ['Shaxs', 'Tuslanish', 'Misol'],
+                      rows: [
+                        ['ich', 'bin', 'Ich bin Student.'],
+                        ['du', 'bist', 'Du bist müde.'],
+                        ['er/sie/es', 'ist', 'Er ist groß.'],
+                        ['wir', 'sind', 'Wir sind hier.'],
+                        ['ihr', 'seid', 'Ihr seid nett.'],
+                        ['sie/Sie', 'sind', 'Sie sind Lehrer.'],
+                      ],
+                    ),
+                    GrammarTable(
+                      title: 'haben (ega bo\'lmoq) fe\'li tuslanishi',
+                      headers: ['Shaxs', 'Tuslanish', 'Misol'],
+                      rows: [
+                        ['ich', 'habe', 'Ich habe ein Buch.'],
+                        ['du', 'hast', 'Du hast Zeit.'],
+                        ['er/sie/es', 'hat', 'Er hat Hunger.'],
+                        ['wir', 'haben', 'Wir haben Geld.'],
+                        ['ihr', 'habt', 'Ihr habt Glück.'],
+                        ['sie/Sie', 'haben', 'Sie haben Kinder.'],
+                      ],
+                    ),
+                    GrammarTable(
+                      title: 'Muntazam fe\'llar tuslanishi (lernen, spielen, arbeiten)',
+                      headers: ['Shaxs', 'lernen', 'spielen', 'arbeiten'],
+                      rows: [
+                        ['ich', 'lerne', 'spiele', 'arbeite'],
+                        ['du', 'lernst', 'spielst', 'arbeitest'],
+                        ['er/sie/es', 'lernt', 'spielt', 'arbeitet'],
+                        ['wir', 'lernen', 'spielen', 'arbeiten'],
+                        ['ihr', 'lernt', 'spielt', 'arbeitet'],
+                        ['sie/Sie', 'lernen', 'spielen', 'arbeiten'],
+                      ],
+                    ),
+                  ],
+                  examples: [
+                    GrammarExample(
+                      german: 'Ich lerne jeden Tag Deutsch.',
+                      uzbek: 'Men har kuni nemis tilini o\'rganaman.',
+                      note: 'ich + lern + e = lerne',
+                    ),
+                    GrammarExample(
+                      german: 'Du spielst sehr gut Fußball.',
+                      uzbek: 'Sen futbolni juda yaxshi o\'ynaysan.',
+                      note: 'du + spiel + st = spielst',
+                    ),
+                    GrammarExample(
+                      german: 'Er arbeitet in einer Firma.',
+                      uzbek: 'U firmada ishlaydi.',
+                      note: 'arbeit + et (asos -t bilan tugagani uchun -e- qo\'shildi)',
+                    ),
+                    GrammarExample(
+                      german: 'Wir wohnen in Berlin.',
+                      uzbek: 'Biz Berlinda yashaymiz.',
+                      note: 'wir + wohn + en = wohnen',
+                    ),
+                    GrammarExample(
+                      german: 'Sie ist Lehrerin und er ist Arzt.',
+                      uzbek: 'U (ayol) o\'qituvchi va u (erkak) shifokor.',
+                      note: 'sein fe\'li: sie ist, er ist',
+                    ),
+                    GrammarExample(
+                      german: 'Habt ihr morgen Zeit?',
+                      uzbek: 'Sizlar ertaga vaqtingiz bormi?',
+                      note: 'haben fe\'li: ihr habt',
+                    ),
+                  ],
+                ),
               ),
               GrammarRule(
                 id: 'a1_prasens_2',
@@ -160,6 +263,59 @@ class GrammarData {
                   'das Kind, das Buch, das Haus',
                   'die Männer / die Frauen / die Kinder',
                 ],
+                detailedExplanation: const GrammarExplanation(
+                  theoryText: '''Nemis tilida har bir ot (Substantiv/Nomen) o'z grammatik jinsiga ega va bu jins artikl orqali ko'rsatiladi. Artikl — otning oldida keladigan va uning jinsini, sonini hamda holatini ko'rsatadigan so'z.
+
+**Uch xil grammatik jins mavjud:**
+• Erkak jins (Maskulinum) — der
+• Ayol jins (Femininum) — die
+• O'rta jins (Neutrum) — das
+
+**Muhim eslatma:** Grammatik jins biologik jins bilan har doim mos kelmaydi. Masalan, "das Mädchen" (qiz) — o'rta jinsda, chunki -chen qo'shimchasi har doim o'rta jins beradi.
+
+**Artikl turlarini yodlash kerak**, chunki qoidalar har doim ishlamaydi. Yangi so'z o'rganayotganda artikl bilan birga yodlang: "der Tisch" (stol), "die Lampe" (chiroq), "das Buch" (kitob).
+
+**Ko'plik shakli:** Barcha otlarning ko'plik shakli "die" artikli bilan keladi, jinsidan qat'i nazar.''',
+                  tables: [
+                    GrammarTable(
+                      title: 'Aniq artikllar jadvali (Bestimmte Artikel)',
+                      headers: ['Jins', 'Artikl', 'Misol', 'Tarjima'],
+                      rows: [
+                        ['Erkak (Maskulinum)', 'der', 'der Tisch', 'stol'],
+                        ['Ayol (Femininum)', 'die', 'die Lampe', 'chiroq'],
+                        ['O\'rta (Neutrum)', 'das', 'das Buch', 'kitob'],
+                        ['Ko\'plik (Plural)', 'die', 'die Bücher', 'kitoblar'],
+                      ],
+                    ),
+                  ],
+                  examples: [
+                    GrammarExample(
+                      german: 'Der Lehrer erklärt die Grammatik.',
+                      uzbek: 'O\'qituvchi grammatikani tushuntirmoqda.',
+                      note: 'der Lehrer — erkak jins artikli',
+                    ),
+                    GrammarExample(
+                      german: 'Die Frau kauft das Brot.',
+                      uzbek: 'Ayol non sotib olmoqda.',
+                      note: 'die Frau — ayol jins, das Brot — o\'rta jins',
+                    ),
+                    GrammarExample(
+                      german: 'Das Kind spielt im Garten.',
+                      uzbek: 'Bola bog\'da o\'ynayapti.',
+                      note: 'das Kind — o\'rta jins artikli',
+                    ),
+                    GrammarExample(
+                      german: 'Der Hund und die Katze sind Freunde.',
+                      uzbek: 'It va mushuk do\'stlar.',
+                      note: 'der Hund — erkak jins, die Katze — ayol jins',
+                    ),
+                    GrammarExample(
+                      german: 'Die Kinder lernen Deutsch in der Schule.',
+                      uzbek: 'Bolalar maktabda nemis tilini o\'rganmoqda.',
+                      note: 'die Kinder — ko\'plik shakli (har doim die)',
+                    ),
+                  ],
+                ),
               ),
               GrammarRule(
                 id: 'a1_articles_2',

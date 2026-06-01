@@ -73,6 +73,43 @@ class StreakService {
     return 1;
   }
 
+  /// Umumiy o'qish daqiqalarini olish
+  /// @param uid - Foydalanuvchi ID
+  /// @returns Umumiy daqiqalar soni
+  static Future<int> getTotalMinutes(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        final dailyMinutesMap = doc.data()?['dailyMinutesMap'] as Map<String, dynamic>? ?? {};
+        int total = 0;
+        for (final value in dailyMinutesMap.values) {
+          total += (value as int?) ?? 0;
+        }
+        return total;
+      }
+    } catch (e) {
+      // Xatolikni log qilish
+    }
+    return 0;
+  }
+
+  /// Bugungi o'qish daqiqalarini olish
+  /// @param uid - Foydalanuvchi ID
+  /// @returns Bugungi daqiqalar soni
+  static Future<int> getTodayMinutes(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        final dailyMinutesMap = doc.data()?['dailyMinutesMap'] as Map<String, dynamic>? ?? {};
+        final today = _getDateKey(DateTime.now());
+        return (dailyMinutesMap[today] as int?) ?? 0;
+      }
+    } catch (e) {
+      // Xatolikni log qilish
+    }
+    return 0;
+  }
+
   /// Current streak ni o'rnatish
   static Future<void> _setCurrentStreak(String uid, int streak) async {
     await _firestore.collection('users').doc(uid).set({

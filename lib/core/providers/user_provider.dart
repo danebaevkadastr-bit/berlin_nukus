@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../../services/cloudinary_service.dart';
 import '../../services/firebase_service.dart';
@@ -109,10 +111,14 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+      // OneSignal ga foydalanuvchini ro'yxatdan o'tkazish (background notification uchun)
+      if (credential.user != null) {
+        OneSignal.login(credential.user!.uid);
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -153,6 +159,56 @@ class UserProvider extends ChangeNotifier {
       _email = email;
       _role = role;
       _phone = phone;
+      
+      // OneSignal ga foydalanuvchini ro'yxatdan o'tkazish (background notification uchun)
+      OneSignal.login(uid);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Google orqali kirish
+  Future<void> signInWithGoogle() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        // Foydalanuvchi bekor qildi
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final user = userCredential.user!;
+      final uid = user.uid;
+
+      // Firestore da profil mavjudligini tekshirish
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!doc.exists) {
+        // Yangi foydalanuvchi — Firestore da profil yaratish
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'uid': uid,
+          'fullName': user.displayName ?? 'Foydalanuvchi',
+          'email': user.email ?? '',
+          'phone': '',
+          'role': 'student',
+          'avatarUrl': user.photoURL ?? '',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Lokal holatni yangilash
+      await loadUserDataByUid(uid);
+
+      // OneSignal ga foydalanuvchini ro'yxatdan o'tkazish
+      OneSignal.login(uid);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -166,6 +222,10 @@ class UserProvider extends ChangeNotifier {
 
   /// Sign out current active user session
   Future<void> logout() async {
+    // OneSignal dan chiqish (boshqa foydalanuvchiga notification ketmasligi uchun)
+    OneSignal.logout();
+    // Google Sign-In dan ham chiqish
+    await GoogleSignIn().signOut();
     await FirebaseAuth.instance.signOut();
   }
 

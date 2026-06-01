@@ -13,6 +13,7 @@ import 'games/der_die_das_rules_screen.dart';
 import 'games/strange_sentences_rules_screen.dart';
 import 'games/story_game_screen.dart';
 import 'games/grammar_game_screen.dart';
+import 'games/synonym_battle_rules_screen.dart';
 
 class StudentGamesScreen extends StatefulWidget {
   final bool isActive;
@@ -99,6 +100,15 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
     final allowed = await GroupCheckHelper.checkAndWarn(context);
     if (!allowed || !mounted) return;
     await Navigator.push(context, SlideTransitionPage(child: const GrammarGameScreen()));
+    if (mounted) await _loadStars();
+  }
+
+  Future<void> _openSynonymBattleGame() async {
+    await HapticService.mediumImpact();
+    if (!mounted) return;
+    final allowed = await GroupCheckHelper.checkAndWarn(context);
+    if (!allowed || !mounted) return;
+    await Navigator.push(context, SlideTransitionPage(child: const SynonymBattleRulesScreen()));
     if (mounted) await _loadStars();
   }
 
@@ -275,8 +285,7 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                       icon: '🔄',
                       title: l.gameSynonymBattleTitle,
                       subtitle: l.synonymBattle,
-                      onTap: _showComingSoonDialog,
-                      isComingSoon: true,
+                      onTap: _openSynonymBattleGame,
                     ),
                     const SizedBox(height: 14),
 

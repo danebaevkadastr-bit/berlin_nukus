@@ -1,3 +1,5 @@
+import 'grammar_explanation.dart';
+
 class GrammarLevel {
   final String id;
   final String level; // A1, A2, B1, B2
@@ -115,12 +117,16 @@ class GrammarRule {
   final List<String> examples;
   final List<String>? exceptions;
 
+  /// Batafsil tushuntirish (ixtiyoriy, orqaga muvofiqlik uchun)
+  final GrammarExplanation? detailedExplanation;
+
   GrammarRule({
     required this.id,
     required this.title,
     required this.explanation,
     required this.examples,
     this.exceptions,
+    this.detailedExplanation,
   });
 
   factory GrammarRule.fromJson(Map<String, dynamic> json) {
@@ -132,6 +138,9 @@ class GrammarRule {
       exceptions: json['exceptions'] != null
           ? (json['exceptions'] as List<dynamic>).map((e) => e as String).toList()
           : null,
+      detailedExplanation: json['detailedExplanation'] != null
+          ? GrammarExplanation.fromJson(json['detailedExplanation'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -142,6 +151,7 @@ class GrammarRule {
       'explanation': explanation,
       'examples': examples,
       if (exceptions != null) 'exceptions': exceptions,
+      if (detailedExplanation != null) 'detailedExplanation': detailedExplanation!.toJson(),
     };
   }
 }

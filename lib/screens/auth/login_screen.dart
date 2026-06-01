@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isGoogleLoading = false;
 
   void _handleLogin() async {
     final l = AppLocalizations.of(context);
@@ -82,6 +83,45 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(errorMsg, style: const TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: AppColors.duoRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      );
+    }
+  }
+
+  void _handleGoogleSignIn() async {
+    final l = AppLocalizations.of(context);
+    setState(() {
+      _isGoogleLoading = true;
+    });
+
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      await userProvider.signInWithGoogle();
+
+      if (!mounted) return;
+
+      if (userProvider.firebaseUser != null) {
+        AuthNavigation.replaceWith(
+          context,
+          AuthNavigation.homeScreenForRole(userProvider.role),
+        );
+      } else {
+        setState(() {
+          _isGoogleLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isGoogleLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l.genericError, style: const TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.duoRed,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -264,21 +304,29 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
                           shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
                           shadowDepth: 3,
-                          onTap: () {},
+                          onTap: _isGoogleLoading ? null : _handleGoogleSignIn,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.g_mobiledata, color: AppColors.duoRed, size: 36),
-                              const SizedBox(width: 8),
-                              Text(
-                                AppLocalizations.of(context).signInWithGoogle.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : AppColors.duoTextDark,
-                                  letterSpacing: 0.5,
+                              if (_isGoogleLoading)
+                                const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 3),
+                                )
+                              else ...[
+                                const Icon(Icons.g_mobiledata, color: AppColors.duoRed, size: 36),
+                                const SizedBox(width: 8),
+                                Text(
+                                  AppLocalizations.of(context).signInWithGoogle.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
+                                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                                    letterSpacing: 0.5,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                         ),

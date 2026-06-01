@@ -10,7 +10,7 @@ class GroupCheckHelper {
   /// Talabaning guruhga qo'shilganligini tekshiradi.
   /// Guruhga qo'shilgan bo'lsa true, qo'shilmagan bo'lsa dialog ko'rsatib false qaytaradi.
   static Future<bool> checkAndWarn(BuildContext context) async {
-    // TODO: Vaqtincha guruh tekshiruvini o'chirib qo'yamiz. Keyinchalik kerak bo'lsa `return true;` qatorini olib tashlash orqali yoqish mumkin.
+    // IZOH: Vaqtincha guruh tekshiruvini o'chirib qo'yamiz. Keyinchalik kerak bo'lsa `return true;` qatorini olib tashlash orqali yoqish mumkin.
     return true; 
     
     /*

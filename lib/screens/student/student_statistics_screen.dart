@@ -8,6 +8,7 @@ import '../../widgets/gamified_card.dart';
 import '../../widgets/user_avatar.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
+import '../../utils/time_formatter.dart';
 import '../../l10n/app_localizations.dart';
 import 'student_attendance_detail_screen.dart';
 
@@ -26,6 +27,12 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
   double _averageHomeworkScore = 0.0;
   int _currentStreak = 0;
   int _totalStars = 0;
+  
+  // Task 5.1: Time statistics state variables
+  int _totalMinutes = 0;
+  int _todayMinutes = 0;
+  List<double> _weeklyMinutes = List.filled(7, 0.0);
+  List<String> _weeklyDates = [];
 
   @override
   void initState() {
@@ -49,6 +56,9 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
     setState(() {
       _currentStreak = streak;
     });
+
+    // Task 5.2: Load minutes data
+    await _loadMinutesData();
 
     // Get groups and calculate statistics
     final groupsSnapshot = await FirebaseService().getStudentGroupsStream(uid).first;
@@ -106,6 +116,43 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
       _completedHomeworks = completedHomeworks;
       _averageHomeworkScore = scoredHomeworks > 0 ? totalHomeworkScore / scoredHomeworks : 0.0;
     });
+  }
+
+  // Task 5.2: Load minutes data from StreakService
+  Future<void> _loadMinutesData() async {
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final uid = userProvider.uid;
+
+      if (uid.isEmpty) {
+        return;
+      }
+
+      final totalMinutes = await StreakService.getTotalMinutes(uid);
+      final todayMinutes = await StreakService.getTodayMinutes(uid);
+      final weeklyMinutes = await StreakService.getWeeklyUsage(uid);
+      final weeklyDates = await StreakService.getWeeklyDates();
+
+      if (mounted) {
+        setState(() {
+          _totalMinutes = totalMinutes;
+          _todayMinutes = todayMinutes;
+          _weeklyMinutes = weeklyMinutes;
+          _weeklyDates = weeklyDates;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading minutes data: $e');
+
+      if (mounted) {
+        setState(() {
+          _totalMinutes = 0;
+          _todayMinutes = 0;
+          _weeklyMinutes = List.filled(7, 0.0);
+          _weeklyDates = [];
+        });
+      }
+    }
   }
 
   @override
@@ -254,6 +301,38 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
               ],
             ),
 
+            const SizedBox(height: 12),
+
+            // Task 6.1: Time statistics cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    icon: '⏱️',
+                    title: l.studyTime,
+                    value: formatMinutes(_totalMinutes, l),
+                    color: AppColors.duoPurple,
+                    isDark: isDark,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildStatCard(
+                    icon: '📅',
+                    title: l.today,
+                    value: formatMinutes(_todayMinutes, l),
+                    color: AppColors.duoBlue,
+                    isDark: isDark,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Task 6.2: Weekly chart
+            _buildWeeklyChart(isDark: isDark, l: l),
+
             const SizedBox(height: 24),
 
             // Detailed statistics
@@ -394,6 +473,103 @@ class _StudentStatisticsScreenState extends State<StudentStatisticsScreen> {
               )),
         ],
       ),
+    );
+  }
+
+  // Task 6.2: Weekly chart widget
+  Widget _buildWeeklyChart({
+    required bool isDark,
+    required AppLocalizations l,
+  }) {
+    final maxValue = _weeklyMinutes.isEmpty ? 0.0 : _weeklyMinutes.reduce((a, b) => a > b ? a : b);
+    final hasData = maxValue > 0;
+
+    return GamifiedCard(
+      padding: const EdgeInsets.all(20),
+      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
+      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.weeklyStatistics,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : AppColors.duoTextDark,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (!hasData)
+            Center(
+              child: Text(
+                l.noStudyTimeRecorded,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              height: 120,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(7, (index) {
+                  final value = _weeklyMinutes[index];
+                  final height = maxValue > 0 ? (value / maxValue) * 80 : 0.0;
+                  return _buildChartBar(
+                    date: _weeklyDates.length > index ? _weeklyDates[index] : '',
+                    value: value.toInt(),
+                    height: height,
+                    isDark: isDark,
+                  );
+                }),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Task 6.3: Chart bar helper widget
+  Widget _buildChartBar({
+    required String date,
+    required int value,
+    required double height,
+    required bool isDark,
+  }) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Text(
+          '$value',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white70 : AppColors.duoTextLight,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          width: 32,
+          height: height.clamp(4.0, 80.0),
+          decoration: BoxDecoration(
+            color: AppColors.duoGreen,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          date,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white54 : AppColors.duoTextLight,
+          ),
+        ),
+      ],
     );
   }
 }

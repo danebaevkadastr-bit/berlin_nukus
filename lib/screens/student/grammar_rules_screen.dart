@@ -3,6 +3,7 @@ import '../../models/grammar_level.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/gamified_card.dart';
+import 'grammar_explanation_screen.dart';
 
 class GrammarRulesScreen extends StatelessWidget {
   final GrammarLevel level;
@@ -93,6 +94,7 @@ class GrammarRulesScreen extends StatelessWidget {
               const SizedBox(height: 24),
               // Topics
               ...category.topics.map((topic) => _buildTopicCard(
+                    context,
                     topic,
                     level,
                     isDark,
@@ -104,7 +106,7 @@ class GrammarRulesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTopicCard(GrammarTopic topic, GrammarLevel level, bool isDark) {
+  Widget _buildTopicCard(BuildContext context, GrammarTopic topic, GrammarLevel level, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: GamifiedCard(
@@ -148,26 +150,38 @@ class GrammarRulesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             // Rules
-            ...topic.rules.map((rule) => _buildRuleCard(rule, level, isDark)),
+            ...topic.rules.map((rule) => _buildRuleCard(context, rule, level, isDark)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildRuleCard(GrammarRule rule, GrammarLevel level, bool isDark) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _getLevelColor(level.level).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _getLevelColor(level.level).withValues(alpha: 0.2),
-          width: 1,
+  Widget _buildRuleCard(BuildContext context, GrammarRule rule, GrammarLevel level, bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GrammarExplanationScreen(
+              rule: rule,
+              level: level,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: _getLevelColor(level.level).withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: _getLevelColor(level.level).withValues(alpha: 0.2),
+            width: 1,
+          ),
         ),
-      ),
-      child: Column(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -306,6 +320,7 @@ class GrammarRulesScreen extends StatelessWidget {
             ),
           ],
         ],
+      ),
       ),
     );
   }
