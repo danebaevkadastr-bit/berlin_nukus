@@ -729,7 +729,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
   // ── Bottom bar ───────────────────────────────────────────────────────────
   Widget _buildBottomBar(bool isDark, AppLocalizations l, bool isLast) {
     final canGoBack = _currentIndex > 0;
-    final canGoNext = _answered;
+    final canGoNext = true; // Allow skipping without answering
     final textColor = isDark ? Colors.white : AppColors.duoTextDark;
     final disabledText = isDark ? Colors.white38 : AppColors.duoTextLight;
 

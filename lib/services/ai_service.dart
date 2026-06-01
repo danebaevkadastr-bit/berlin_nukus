@@ -279,8 +279,19 @@ Har bir ma'no uchun alohida misol gap va uning tarjimasini ko'rsating.''',
 
     try {
       final decoded = jsonDecode(_extractJson(raw));
-      if (decoded is Map<String, dynamic>) return decoded;
-      if (decoded is Map) return Map<String, dynamic>.from(decoded);
+      if (decoded is Map<String, dynamic>) {
+        if (!decoded.containsKey('original') || decoded['original'] == null || decoded['original'].toString().isEmpty) {
+          decoded['original'] = text;
+        }
+        return decoded;
+      }
+      if (decoded is Map) {
+        final map = Map<String, dynamic>.from(decoded);
+        if (!map.containsKey('original') || map['original'] == null || map['original'].toString().isEmpty) {
+          map['original'] = text;
+        }
+        return map;
+      }
     } catch (_) {}
 
     // Fallback: oddiy tarjima
@@ -589,17 +600,18 @@ MUHIM:
   }
 
   static Future<String> explainWord({required String word}) async {
-    return _chat(
+    final res = await _chat(
       temperature: 0.4,
       messages: [
         {
           'role': 'system',
           'content':
-              'Nemis so\'zini o\'zbek tilida qisqa tushuntiring: ma\'nosi, artikl (der/die/das), 1 misol gap.',
+              'Nemis so\'zini o\'zbek tilida qisqa tushuntiring: ma\'nosi, artikl (der/die/das), 1 misol gap. MATNDA HECH QANDAY YULDUZCHA (*) YOKI BOLD (**) ISHLATMA. Oddiy matn formatida yoz.',
         },
         {'role': 'user', 'content': word},
       ],
     );
+    return res.replaceAll('*', '');
   }
 
   /// Nemischa hikoya o'yini uchun so'zlar generatsiyasi.
