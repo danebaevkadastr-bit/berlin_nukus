@@ -1,38 +1,56 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:aws_signature_v4/aws_signature_v4.dart';
+import 'package:aws_common/aws_common.dart';
 
 /// Text-to-speech for German AI replies.
+/// Avval Amazon Polly ishlatiladi. U ishlamasa flutter_tts zaxiraga o'tadi.
 class TTSService {
-  final FlutterTts _tts = FlutterTts();
-  bool _ready = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final FlutterTts _flutterTts = FlutterTts();
+  bool _flutterTtsReady = false;
+
   bool isPlaying = false;
   String currentText = '';
 
-  /// O'qish tugaganda yoki bekor qilinganda UI yangilanishi uchun.
   VoidCallback? onPlaybackStateChanged;
 
   void _notifyState() => onPlaybackStateChanged?.call();
 
-  Future<void> _ensureReady() async {
-    if (_ready) return;
-    await _tts.setLanguage('de-DE');
-    await _tts.setVolume(1.0);
-    _tts.setCompletionHandler(() {
+  TTSService() {
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (state == PlayerState.completed || state == PlayerState.stopped) {
+        isPlaying = false;
+        currentText = '';
+        _notifyState();
+      }
+    });
+  }
+
+  Future<void> _ensureFlutterTtsReady() async {
+    if (_flutterTtsReady) return;
+    await _flutterTts.setLanguage('de-DE');
+    await _flutterTts.setVolume(1.0);
+    _flutterTts.setCompletionHandler(() {
       isPlaying = false;
       currentText = '';
       _notifyState();
     });
-    _tts.setCancelHandler(() {
+    _flutterTts.setCancelHandler(() {
       isPlaying = false;
       currentText = '';
       _notifyState();
     });
-    _tts.setErrorHandler((_) {
+    _flutterTts.setErrorHandler((_) {
       isPlaying = false;
       currentText = '';
       _notifyState();
     });
-    _ready = true;
+    _flutterTtsReady = true;
   }
 
   Future<void> play({
@@ -40,66 +58,166 @@ class TTSService {
     required String voiceId,
     required double rateValue,
   }) async {
-    await _ensureReady();
     await stop();
     currentText = text;
     isPlaying = true;
     _notifyState();
 
-    // Har bir mentor uchun pitch va rate farqli
-    final profile = _voiceProfile(voiceId);
-    await _tts.setSpeechRate(profile.rate * rateValue);
-    await _tts.setPitch(profile.pitch);
-
-    // Qurilmada mavjud ovozlardan mos ovozni topishga urinish
+    // 1. Amazon Polly'ni sinab ko'r
     try {
-      final voices = await _tts.getVoices as List?;
+      await _playWithPolly(text: text, voiceId: voiceId, rateValue: rateValue);
+      return; // Polly ishlasa tugaymiz
+    } catch (e) {
+      debugPrint('[TTS] Amazon Polly failed: $e');
+      debugPrint('[TTS] Falling back to FlutterTTS...');
+    }
+
+    // 2. Polly ishlamasa flutter_tts ga o'tish
+    try {
+      await _playWithFlutterTts(
+          text: text, voiceId: voiceId, rateValue: rateValue);
+    } catch (e) {
+      debugPrint('[TTS] FlutterTTS also failed: $e');
+      isPlaying = false;
+      _notifyState();
+    }
+  }
+
+  Future<void> _playWithPolly({
+    required String text,
+    required String voiceId,
+    required double rateValue,
+  }) async {
+    final accessKey = dotenv.env['AWS_ACCESS_KEY_ID']?.trim() ?? '';
+    final secretKey = dotenv.env['AWS_SECRET_ACCESS_KEY']?.trim() ?? '';
+    final region = dotenv.env['AWS_REGION']?.trim() ?? 'eu-central-1';
+
+    if (accessKey.isEmpty || secretKey.isEmpty) {
+      throw Exception('AWS Credentials not found in .env');
+    }
+
+    final profile = _voiceProfile(voiceId);
+
+    final signer = AWSSigV4Signer(
+      credentialsProvider: AWSCredentialsProvider(
+        AWSCredentials(accessKey, secretKey),
+      ),
+    );
+
+    final url = Uri.parse('https://polly.$region.amazonaws.com/v1/speech');
+
+    // Tezlikni SSML orqali boshqarish
+    final ssmlRate = '${((profile.pollyRate * rateValue) * 100).round()}%';
+    final ssmlText =
+        '<speak><prosody rate="$ssmlRate">${_escapeSsml(text)}</prosody></speak>';
+
+    // Faqat Vicki va Daniel Neural engine'da ishlaydi, qolganlari standard
+    final isNeural =
+        profile.pollyVoiceId == 'Vicki' || profile.pollyVoiceId == 'Daniel';
+
+    final requestUrl = url.replace(queryParameters: {
+      'Text': ssmlText,
+      'TextType': 'ssml',
+      'OutputFormat': 'mp3',
+      'VoiceId': profile.pollyVoiceId,
+      'Engine': isNeural ? 'neural' : 'standard',
+    });
+
+    final request = AWSHttpRequest.get(requestUrl);
+
+    final scope = AWSCredentialScope(
+      region: region,
+      service: AWSService('polly'),
+    );
+
+    final signedUrl = await signer.presign(
+      request,
+      credentialScope: scope,
+      expiresIn: const Duration(minutes: 15),
+    );
+
+    await _audioPlayer.play(UrlSource(signedUrl.toString()));
+  }
+
+  Future<void> _playWithFlutterTts({
+    required String text,
+    required String voiceId,
+    required double rateValue,
+  }) async {
+    await _ensureFlutterTtsReady();
+    final profile = _voiceProfile(voiceId);
+    await _flutterTts.setSpeechRate(profile.flutterRate * rateValue);
+    await _flutterTts.setPitch(profile.pitch);
+
+    // Mos nemis ovozini qurilmadan qidirish
+    try {
+      final voices = await _flutterTts.getVoices as List?;
       if (voices != null && voices.isNotEmpty) {
-        // Jinsi va tilga mos ovoz qidirish
         final gender = profile.female ? 'female' : 'male';
         final match = voices.cast<Map>().firstWhere(
-          (v) =>
-              (v['locale']?.toString().startsWith('de') ?? false) &&
-              (v['gender']?.toString().toLowerCase() == gender ||
-               v['name']?.toString().toLowerCase().contains(gender) == true),
-          orElse: () => voices.cast<Map>().firstWhere(
-            (v) => v['locale']?.toString().startsWith('de') ?? false,
-            orElse: () => <String, dynamic>{},
-          ),
-        );
+              (v) =>
+                  (v['locale']?.toString().startsWith('de') ?? false) &&
+                  (v['gender']?.toString().toLowerCase() == gender ||
+                      v['name']
+                              ?.toString()
+                              .toLowerCase()
+                              .contains(gender) ==
+                          true),
+              orElse: () => voices.cast<Map>().firstWhere(
+                    (v) => v['locale']?.toString().startsWith('de') ?? false,
+                    orElse: () => <String, dynamic>{},
+                  ),
+            );
         if (match.isNotEmpty && match['name'] != null) {
-          await _tts.setVoice({
+          await _flutterTts.setVoice({
             'name': match['name'].toString(),
             'locale': match['locale']?.toString() ?? 'de-DE',
           });
         }
       }
-    } catch (_) {
-      // Ovoz topilmasa davom et
-    }
+    } catch (_) {}
 
-    await _tts.speak(text);
+    await _flutterTts.speak(text);
   }
 
-  /// Har bir mentor uchun ovoz profili
   _VoiceProfile _voiceProfile(String voiceId) {
+    // Amazon Polly German Neural voices: Vicki, Marlene, Daniel, Hans
     switch (voiceId) {
       case 'de-DE-ElkeNeural':
-        return const _VoiceProfile(pitch: 1.1, rate: 0.55, female: true);
+        // Frau Schneider — Vicki (Ayol)
+        return const _VoiceProfile(
+            pollyVoiceId: 'Vicki', pollyRate: 0.85, flutterRate: 0.55, pitch: 1.0, female: true);
       case 'de-DE-KatjaNeural':
-        return const _VoiceProfile(pitch: 1.05, rate: 0.6, female: true);
+        // Frau Fischer — Marlene (Ayol, standard)
+        return const _VoiceProfile(
+            pollyVoiceId: 'Marlene', pollyRate: 0.85, flutterRate: 0.55, pitch: 1.0, female: true);
       case 'de-DE-ConradNeural':
-        return const _VoiceProfile(pitch: 0.85, rate: 0.55, female: false);
+        // Herr Müller — Daniel (Erkak)
+        return const _VoiceProfile(
+            pollyVoiceId: 'Daniel', pollyRate: 0.85, flutterRate: 0.55, pitch: 1.0, female: false);
       case 'de-DE-KillianNeural':
-        return const _VoiceProfile(pitch: 0.9, rate: 0.58, female: false);
+        // Herr Becker — Hans (Erkak, standard)
+        return const _VoiceProfile(
+            pollyVoiceId: 'Hans', pollyRate: 0.85, flutterRate: 0.55, pitch: 1.0, female: false);
       default:
-        return const _VoiceProfile(pitch: 1.0, rate: 0.6, female: true);
+        return const _VoiceProfile(
+            pollyVoiceId: 'Vicki', pollyRate: 0.85, flutterRate: 0.55, pitch: 1.0, female: true);
     }
+  }
+
+  /// SSML uchun maxsus belgilarni tozalash
+  String _escapeSsml(String text) {
+    return text
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
   }
 
   Future<void> stop() async {
     if (isPlaying) {
-      await _tts.stop();
+      await _audioPlayer.stop();
+      await _flutterTts.stop();
     }
     isPlaying = false;
     currentText = '';
@@ -107,17 +225,23 @@ class TTSService {
   }
 
   void dispose() {
-    _tts.stop();
+    _audioPlayer.dispose();
+    _flutterTts.stop();
   }
 }
 
 class _VoiceProfile {
+  final String pollyVoiceId;
+  final double pollyRate;
+  final double flutterRate;
   final double pitch;
-  final double rate;
   final bool female;
+
   const _VoiceProfile({
+    required this.pollyVoiceId,
+    required this.pollyRate,
+    required this.flutterRate,
     required this.pitch,
-    required this.rate,
     required this.female,
   });
 }

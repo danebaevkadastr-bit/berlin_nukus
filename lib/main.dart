@@ -18,7 +18,7 @@ import 'l10n/locale_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await dotenv.load(fileName: '.env');
+    await dotenv.load(fileName: 'env.txt');
   } catch (e) {
     debugPrint('DotenvLoadError: $e');
   }

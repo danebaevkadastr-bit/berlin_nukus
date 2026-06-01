@@ -298,13 +298,7 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                     ),
                     const SizedBox(height: 14),
 
-                    _buildGameCard(
-                      icon: '🖼️',
-                      title: l.describePictureGame,
-                      subtitle: l.describePictureDesc,
-                      onTap: _showComingSoonDialog,
-                      isComingSoon: true,
-                    ),
+
 
                     const SizedBox(height: 30),
                   ],

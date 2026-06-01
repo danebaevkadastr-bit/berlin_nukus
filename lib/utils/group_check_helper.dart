@@ -1,3 +1,4 @@
+// ignore_for_file: unused_element, unused_import
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,10 @@ class GroupCheckHelper {
   /// Talabaning guruhga qo'shilganligini tekshiradi.
   /// Guruhga qo'shilgan bo'lsa true, qo'shilmagan bo'lsa dialog ko'rsatib false qaytaradi.
   static Future<bool> checkAndWarn(BuildContext context) async {
+    // TODO: Vaqtincha guruh tekshiruvini o'chirib qo'yamiz. Keyinchalik kerak bo'lsa `return true;` qatorini olib tashlash orqali yoqish mumkin.
+    return true; 
+    
+    /*
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return false;
 
@@ -32,6 +37,7 @@ class GroupCheckHelper {
       _showNoGroupDialog(context);
     }
     return false;
+    */
   }
 
   static void _showNoGroupDialog(BuildContext context) {

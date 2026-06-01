@@ -1,3 +1,4 @@
+// ignore_for_file: unused_element
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart';
@@ -448,10 +449,12 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
           }
         }
 
-        // Empty state - agar guruhlar bo'lmasa
+        // Empty state - agar guruhlar bo'lmasa (Vaqtincha o'chirib turildi)
+        /*
         if (snapshot.data == null || snapshot.data!.isEmpty) {
           return _buildEmptyState(isDark);
         }
+        */
 
         // ── Real statistika hisoblash ──
         final uid = userProvider.uid;
@@ -1267,14 +1270,14 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: FutureBuilder<double?>(
-                                    future: ScoreService.computeScore(userProvider.uid, snapshot.data!),
+                                    future: ScoreService.computeScore(userProvider.uid, snapshot.data ?? []),
                                     builder: (context, scoreSnap) {
                                       final val = scoreSnap.data;
                                       final display = val != null
                                           ? val.toStringAsFixed(1)
                                           : '--';
                                       // Sync to Firestore in background
-                                      if (val != null) {
+                                      if (val != null && snapshot.data != null) {
                                         ScoreService.syncScoreToFirestore(
                                           userProvider.uid,
                                           snapshot.data!,

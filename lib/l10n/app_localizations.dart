@@ -1724,7 +1724,7 @@ class AppLocalizations {
   });
   String get passwordMin6 => _t({
     'uz': "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
-    'kaa': "Parol keminde 6 belgiden turıwı kerek",
+    'kaa': "Parol keminde 6 belgiden ibarat bolıwı kerek",
     'ru': "Пароль должен содержать минимум 6 символов",
     'de': "Passwort muss mindestens 6 Zeichen haben",
   });
@@ -1754,7 +1754,7 @@ class AppLocalizations {
   });
   String get failedToLoadData => _t({
     'uz': "Ma'lumotlarni yuklab bo'lmadi.",
-    'kaa': "Maǵlıwmatlardı júklew múmkin bolmadı.",
+    'kaa': "Maǵlıwmatlardı júklep bolmadı.",
     'ru': "Не удалось загрузить данные.",
     'de': "Daten konnten nicht geladen werden.",
   });
@@ -1778,7 +1778,7 @@ class AppLocalizations {
   });
   String get noLessonsSubtitle => _t({
     'uz': "Tez orada yangi darslar qo'shiladi.\nKuting yoki qo'shimcha mashq qiling!",
-    'kaa': "Tez arada taza sabaqlar qosıladı.\nKútiń yamasa qosımsha maqtaq qılıń!",
+    'kaa': "Tez arada taza sabaqlar qosıladı.\nKútiń yamasa qosımsha shınıǵıw qılıń!",
     'ru': "Скоро появятся новые уроки.\nПодождите или сделайте доп. упражнения!",
     'de': "Neue Lektionen kommen bald.\nWarten oder extra üben!",
   });
@@ -1808,7 +1808,7 @@ class AppLocalizations {
   });
   String get noGamesSubtitle => _t({
     'uz': "Hozircha mavjud o'yinlar yo'q.\nTez orada yangilari qo'shiladi.",
-    'kaa': "Házirshe bar oyınlar joq.\nTez arada yangıları qosıladı.",
+    'kaa': "Házirshe bar bolǵan oyınlar joq.\nTez arada jańaları qosıladı.",
     'ru': "Игр пока нет.\nСкоро появятся новые.",
     'de': "Noch keine Spiele.\nBald kommen neue.",
   });
@@ -1898,7 +1898,7 @@ class AppLocalizations {
   });
   String get dataNotFoundMessage => _t({
     'uz': "So'ralgan ma'lumotlar topilmadi.",
-    'kaa': "Soraw etilgen maǵlıwmatlar tabılmadı.",
+    'kaa': "Soralǵan maǵlıwmatlar tabılmadı.",
     'ru': "Запрошенные данные не найдены.",
     'de': "Angeforderte Daten nicht gefunden.",
   });
@@ -2140,7 +2140,7 @@ class AppLocalizations {
   });
   String get enterWordToTranslate => _t({
     'uz': "Tarjima olish uchun nemis so'z kiriting",
-    'kaa': "Awdarma alıw ushın nemis sóz kiritiń",
+    'kaa': "Awdarma alıw ushın nemis tilindegi sóz kiritiń",
     'ru': "Введите немецкое слово для перевода",
     'de': "Geben Sie ein deutsches Wort zum Übersetzen ein",
   });
@@ -2227,7 +2227,7 @@ class AppLocalizations {
   }
   String get selectMentor => _t({
     'uz': "Mentor tanlang",
-    'kaa': "Mentor tańlań",
+    'kaa': "Mentor tanlań",
     'ru': "Выберите ментора",
     'de': "Mentor auswählen",
   });
@@ -2239,7 +2239,7 @@ class AppLocalizations {
   });
   String get microphoneError => _t({
     'uz': "Mikrofon ishlamadi. Ruxsat berilganligini tekshiring.",
-    'kaa': "Mikrofon jumıs istemeydı. Ruxsat berilgenligin tekserıń.",
+    'kaa': "Mikrofon jumıs islemeydı. Ruxsat berilgenligin tekserıń.",
     'ru': "Микрофон не работает. Проверьте разрешения.",
     'de': "Mikrofon funktioniert nicht. Überprüfen Sie die Berechtigungen.",
   });
@@ -2277,7 +2277,7 @@ class AppLocalizations {
   // ── Statistics ─────────────────────────────────────────────────────────────
   String get homeworkCompletion => _t({
     'uz': "Vazifa tugatilishi",
-    'kaa': "Tapsırma tamamlanwı",
+    'kaa': "Tapsırma tamamlanıwı",
     'ru': "Выполнение заданий",
     'de': "Aufgabenabschluss",
   });

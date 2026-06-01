@@ -16,8 +16,10 @@ class AIService {
   static String get _qwenApiKey => dotenv.env['QWEN_API_KEY']?.trim() ?? '';
   static String get _qwenBaseUrl =>
       (dotenv.env['QWEN_BASE_URL'] ?? '').trim().replaceAll(RegExp(r'/+$'), '');
-  static String get _qwenModel =>
-      dotenv.env['QWEN_MODEL']?.trim() ?? 'qwen-plus-latest';
+  static String get _qwenChatModel =>
+      dotenv.env['QWEN_CHAT_MODEL']?.trim() ?? 'qwen3.5-122b-a10b';
+  static String get _qwenGameModel =>
+      dotenv.env['QWEN_GAME_MODEL']?.trim() ?? 'qwen-plus-latest';
 
   static String get _cerebrasApiKey => dotenv.env['CEREBRAS_API_KEY']?.trim() ?? '';
   static String get _cerebrasBaseUrl =>
@@ -40,13 +42,14 @@ class AIService {
   static Future<String> _chat({
     required List<Map<String, String>> messages,
     double temperature = 0.7,
+    bool isGame = false,
   }) async {
     // Avval Qwenni sinash
     try {
       final result = await _chatWithProvider(
         apiKey: _qwenApiKey,
         baseUrl: _qwenBaseUrl,
-        model: _qwenModel,
+        model: isGame ? _qwenGameModel : _qwenChatModel,
         messages: messages,
         temperature: temperature,
         providerName: 'Qwen',
@@ -126,14 +129,26 @@ class AIService {
       );
     }
 
-    final uri = Uri.parse('$baseUrl/chat/completions');
+    final proxyUrl = dotenv.env['CF_WORKER_URL']?.trim() ?? '';
+    const isWeb = kIsWeb;
+
+    Uri uri;
+    Map<String, String> requestHeaders = {
+      'Authorization': 'Bearer $apiKey',
+      'Content-Type': 'application/json',
+    };
+
+    if (isWeb && proxyUrl.isNotEmpty) {
+      uri = Uri.parse(proxyUrl);
+      requestHeaders['X-Target-Url'] = '$baseUrl/chat/completions';
+    } else {
+      uri = Uri.parse('$baseUrl/chat/completions');
+    }
+
     final response = await http
         .post(
           uri,
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
+          headers: requestHeaders,
           body: jsonEncode({
             'model': model,
             'temperature': temperature,
@@ -141,8 +156,8 @@ class AIService {
           }),
         )
         .timeout(
-          const Duration(seconds: 15),
-          onTimeout: () => throw Exception('$providerName so\'rov vaqti tugadi (15s)'),
+          const Duration(seconds: 30),
+          onTimeout: () => throw Exception('$providerName so\'rov vaqti tugadi (30s)'),
         );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -386,40 +401,71 @@ $answer
       final difficultyStr = difficulty.toString().split('.').last;
       final raw = await _chat(
         temperature: 0.9,
+        isGame: true,
         messages: [
           {
             'role': 'system',
             'content': '''
-Sen nemis tili A1-A2 o'yin yaratuvchisisan.
+Sen nemis tili grammatik o'yin yaratuvchisisan. O'yin nomi: "G'alati Gaplar".
 Faqat JSON qaytaring: {"rounds":[...]} — boshqa matn yo'q.
 
+KONSEPT: Har bir gap GRAMMATIK TO'G'RI lekin MANTIQAN ABSURD/G'ALATI bo'lishi kerak.
+(Masalan: "Mein Hund schreibt jeden Morgen eine E-Mail." — grammatik to'g'ri, lekin safsata!)
+
 Har raund:
-- type: "pick" yoki "order" (aralash, taxminan yarim-yarim)
-- difficulty: "$difficultyStr" (har bir raundda difficulty qo'ying)
-- correctSentence: nemischa, grammatik TO'G'RI, lekin mantiqan absurdt/g'alati (1 gap, Present)
-- explanationUz: o'zbekcha, 1 qisqa gap nima uchun to'g'ri
+- type: "pick" yoki "order" (aralash, yarim-yarim)
+- difficulty: "$difficultyStr"
+- correctSentence: grammatik TO'G'RI, mantiqan G'ALATI nemischa gap
+- explanationUz: o'zbekcha — nima uchun grammatik to'g'ri ekanligini tushuntir (qoidani ayt)
 
 "type":"pick" uchun:
-- options: aynan 3 ta nemischa gap. FAQAT BITTASI correctSentence bilan bir xil.
-- Qolgan 2 tasi grammatik XATO (fe'l, artikl, tartib).
-- Variantlarni HAR DOIM ARALASHTIRING, to'g'ri javob har doim birinchi bo'lmasligi kerak.
+- options: aynan 3 ta gap. FAQAT BITTASI to'g'ri (correctSentence).
+- Qolgan 2 tasi: grammatik XATO (fe'l shaklida xato, artikl xato, so'z tartibi buzilgan)
+- Variantlar tartibini ARALASHTIRIB yuboring — to'g'ri javob doim 1-bo'lmasin
 
 "type":"order" uchun:
-- shuffledWords: correctSentence so'zlariga bo'lingan massiv, HAR DOIM ARALASHTIRILGAN.
-- So'zlar soni va tarkibi correctSentence bilan mos bo'lsin.
+- shuffledWords: correctSentence so'zlarga bo'linib, HAR DOIM ARALASHTIRILGAN massiv
+- So'zlar soni correctSentence bilan to'liq mos bo'lsin
 
-Difficulty bo'yicha:
-- easy: oddiy gaplar, qisqa (5-7 so'z), asosiy grammatika (der/die/das, oddiy fe'llar)
-- medium: o'rtacha gaplar (8-12 so'z), biroz murakkabroq grammatika (akkusativ, dativ)
-- hard: murakkab gaplar (13-18 so'z), qiyinroq grammatika (perfekt, präteritum, modal fe'llar)
+DARAJALAR:
 
-MUHIM:
-- Har bir raundni BOSHQACHA va UNIQUE qiling - gaplar qaytalanmasin
-- $count ta raund, barchasi "$difficultyStr" darajasida, lekin har biri BOSHQACHA mazmunda.''',
+difficulty "easy" — A1 darajasi:
+Mavzular: Präsens (oddiy fe'llar), der/die/das artikl, Nominativ/Akkusativ, Modal fe'llar (kann, muss, möchte)
+Gap uzunligi: 5-8 so'z
+Misol g'alati gaplar:
+• "Der Kühlschrank singt eine Oper." (Nominativ, Präsens, Akkusativ — muzlatgich opera kuylaydi)
+• "Meine Katze kann fließend Russisch sprechen." (Modal + Infinitiv — mushuk rus tilida gapiradigan)
+• "Das Buch trinkt jeden Abend Kaffee." (Das bilan, Präsens — kitob qahva ichadi)
+• "Ich muss heute die Wolken zählen." (Modal, Akkusativ — bulutlarni sanash)
+
+difficulty "medium" — A2 darajasi:
+Mavzular: Perfekt, Präteritum (sein/haben), Dativ, Wechselpräpositionen, Reflexive Verben, Komparativ, weil/dass/wenn gaplari
+Gap uzunligi: 9-14 so'z
+Misol g'alati gaplar:
+• "Mein Stuhl hat sich gestern mit mir gestritten, weil ich zu lange gesessen habe." (Perfekt, Reflexiv, weil)
+• "Der Mond ist schneller als mein Fahrrad, weil er jeden Abend vor mir da ist." (Komparativ, weil)
+• "Sie hat dem Regen gedankt, weil er ihr Auto gewaschen hat." (Dativ, Perfekt, weil)
+• "Das Sofa hat sich auf den Tisch gesetzt und Zeitung gelesen." (Wechselpräp, Perfekt, Reflexiv)
+
+difficulty "hard" — B1 darajasi:
+Mavzular: Passiv, Konjunktiv II, Plusquamperfekt, Relativsätze, um/ohne/damit Infinitiv, Modalpartikeln, Nebensatz (obwohl/nachdem/bevor/während)
+Gap uzunligi: 14-20 so'z
+Misol g'alati gaplar:
+• "Die Pizza, die von meinem Drucker gebacken wurde, schmeckt besser als alles, was ich je probiert habe." (Passiv, Relativsatz)
+• "Obwohl meine Tastatur täglich Sport treibt, wird sie immer langsamer." (obwohl, Passiv Komparativ)
+• "Der Tisch hatte bereits geschlafen, bevor die Stühle nach Hause gekommen waren." (Plusquamperfekt, bevor)
+• "Ich würde gerne wissen, ob mein Schatten ein eigenes Leben führt, während ich schlafe." (Konjunktiv II, ob, während)
+
+MUHIM QOIDALAR:
+1. G'alati gap GRAMMATIK JIHATDAN MUTLAQO TO'G'RI bo'lishi SHART
+2. Mantiqan esa bema'ni/qiziqarli/kulgili bo'lishi kerak — kundalik hayotda bo'lmaydigan narsa
+3. Xato variantlarda ANIQ grammatik xatolar bo'lsin (fe'l noto'g'ri tuslanishi, artikl, tartib)
+4. Har bir raund UNIQUE bo'lsin — mavzular va gaplar takrorlanmasin
+5. $count ta raund, hammasi "$difficultyStr" darajasida, lekin HAR BIRI BOSHQA GRAMMATIK MAVZUDAN''',
           },
           {
             'role': 'user',
-            'content': '$count ta yangi, BOSHQACHA raund yarating. Har bir gap unique bo\'lishi kerak.',
+            'content': '$count ta yangi raund yarating. Har bir gap: 1) GRAMMATIK TO\'G\'RI 2) MANTIQAN G\'ALATI/KULGILI bo\'lsin. Mavzular aralashtirilsin. Har biri UNIQUE bo\'lsin.',
           },
         ],
       );
@@ -456,40 +502,53 @@ MUHIM:
     try {
       final raw = await _chat(
         temperature: 0.9,
+        isGame: true,
         messages: [
           {
             'role': 'system',
             'content': '''
-Sen nemis tili A1-A2 grammatik o'yin yaratuvchisisan.
+Sen nemis tili A1-B2 grammatik o'yin yaratuvchisisan.
 Faqat JSON qaytaring: {"rounds":[...]} — boshqa matn yo'q.
 
 Har raund:
-- type: "article", "verb", "preposition", yoki "fillBlank" (aralash)
-- question: nemischa savol yoki gap
-- questionUz: o'zbekcha tarjima yoki izoh
+- type: "verb", "preposition", yoki "fillBlank"
+- question: nemischa gap (ichida bitta bo'sh joy ___ bo'lsin)
+- questionUz: o'zbekcha tarjima yoki gapning ma'nosi
 - options: aynan 4 ta variant. FAQAT BITTASI to'g'ri.
 - correctAnswer: to'g'ri variant (options ichidan)
-- explanationUz: o'zbekcha izoh nima uchun to'g'ri
+- explanationUz: o'zbekcha izoh (nima uchun bu javob to'g'riligini va qoidani tushuntiring)
 
-"type":"article" uchun:
-- Der/Die/Das tanlash
-- Masalan: "___ Buch" -> options: ["Der", "Die", "Das", "Den"]
+MAVZULAR (Shulardan erkin va aralashtirib foydalaning):
+1. Dativ / Akkusativ / Genitiv kelishiklari (dem, den, des, einem, einen...)
+2. Wechselpräpositionen (in, an, auf, unter... — qachon Dativ, qachon Akkusativ)
+3. Temporale Präpositionen (vor, nach, seit, während, bis, ab — vaqt predloglari)
+4. Kausale/Konzessive Konnektoren (deshalb, trotzdem, obwohl, deswegen, daher...)
+5. Fe'llarning barcha zamonda turlanishi (Präsens, Perfekt, Präteritum, Futur I)
+6. Modalverben (können, müssen, wollen, sollen, dürfen, mögen — to'g'ri shakli)
+7. Trennbare va untrennbare Verben (aufmachen/anrufen vs. verstehen/besuchen)
+8. Reflexive Verben (sich freuen, sich erinnern, sich waschen — to'g'ri shakli)
+9. Nebensatz: dass, weil, wenn, ob, als, während, bevor, nachdem...
+10. Relativsätze (Ich kenne den Mann, ___ hier wohnt)
+11. zu + Infinitiv (Es ist wichtig, gesund ___ essen. / Ich versuche, früh aufzu___)
+12. Adjektivdeklination (ein ___ Mann, dem ___ Kind, die ___ Frau)
+13. Komparativ und Superlativ (schnell → schneller → am schnellsten)
+14. Passiv (Das Buch ___ gelesen. / Die Tür wurde ___)
+15. Konjunktiv II (würde, hätte, wäre — iltimos va shartli gaplar)
+16. Indirekte Frage (Ich weiß nicht, ___ er kommt. / Weißt du, wo ___ ist?)
+17. Zweiteilige Konnektoren (entweder...oder, weder...noch, sowohl...als auch, zwar...aber)
+18. Lokale Präpositionen nozik farqlari (gegenüber, entlang, innerhalb, außerhalb...)
+19. Genitivpräpositionen (wegen, trotz, während, statt + Genitiv)
+20. Infinitivsatz bilan um...zu, ohne...zu, anstatt...zu
 
-"type":"verb" uchun:
-- Fe'l shaklini tanlash
-- Masalan: "Ich ___ Apfel" -> options: ["esse", "isst", "essen", "ißt"]
-
-"type":"preposition" uchun:
-- Präposition tanlash
-- Masalan: "Ich gehe ___ Schule" -> options: ["zur", "zu", "in", "auf"]
-
-"type":"fillBlank" uchun:
-- Gapni to'ldirish
-- Masalan: "Der Mann ___ im Park" -> options: ["läuft", "laufen", "lief", "gelaufen"]
+QAT'IY TAQIQLANADI:
+- Oddiy "Der, Die, Das" (Nominativ artikelini topish) o'yinini QO'SHMANG! Buning uchun alohida o'yin bor.
 
 MUHIM:
-- Har bir raundni BOSHQACHA va UNIQUE qiling - savollar qaytalanmasin
-- $count ta raund, har biri BOSHQACHA mazmunda.''',
+- Yuqoridagi mavzulardan HAR SAFAR boshqasini tanlang — bir xil mavzu ketma-ket kelmasin.
+- Savollar qiziqarli, hayotiy va HAR SAFAR yangi fe'l/otlardan iborat bo'lsin.
+- Variantlar orasida o'quvchini adashtiradigan mantiqiy xato javoblar bo'lsin.
+- Har bir raundni mutlaqo UNIQUE qiling, takrorlamang.
+- $count ta raund, har biri BOSHQA mavzudan.''',
           },
           {
             'role': 'user',
@@ -558,6 +617,7 @@ MUHIM:
 
       final raw = await _chat(
         temperature: 0.8,
+        isGame: true,
         messages: [
           {
             'role': 'system',

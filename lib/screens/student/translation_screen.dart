@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../services/ai_service.dart';
+import '../../../services/tts_service.dart';
+import '../../../services/stt_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/decorative_pattern_background.dart';
@@ -16,13 +18,61 @@ class TranslationScreen extends StatefulWidget {
 
 class _TranslationScreenState extends State<TranslationScreen> {
   final TextEditingController _textController = TextEditingController();
+  final TTSService _ttsService = TTSService();
+  final STTService _sttService = STTService();
+  final ValueNotifier<bool> _ttsPlaying = ValueNotifier(false);
   Map<String, dynamic>? _translationResult;
   bool _isLoading = false;
+  bool _isListening = false;
   String? _errorMessage;
+
+  Future<void> _speakText(String text) async {
+    if (_ttsService.isPlaying) {
+      await _ttsService.stop();
+      _ttsPlaying.value = false;
+      return;
+    }
+    _ttsPlaying.value = true;
+    _ttsService.onPlaybackStateChanged = () {
+      _ttsPlaying.value = _ttsService.isPlaying;
+    };
+    await _ttsService.play(
+      text: text,
+      voiceId: 'de-DE-ElkeNeural',
+      rateValue: 1.0,
+    );
+  }
+
+  Future<void> _toggleListening() async {
+    if (_isListening) {
+      final text = await _sttService.stopAndTranscribe();
+      if (!mounted) return;
+      setState(() {
+        _isListening = false;
+        if (text.trim().isNotEmpty) {
+          _textController.text = text;
+        }
+      });
+    } else {
+      setState(() {
+        _isListening = true;
+      });
+      final ok = await _sttService.startRecording();
+      if (!mounted) return;
+      if (!ok) {
+        setState(() {
+          _isListening = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
     _textController.dispose();
+    _ttsService.dispose();
+    _sttService.dispose();
+    _ttsPlaying.dispose();
     super.dispose();
   }
 
@@ -145,6 +195,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: isDark ? Colors.white38 : AppColors.duoTextLight,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isListening ? Icons.mic : Icons.mic_none,
+                            color: _isListening ? AppColors.duoRed : AppColors.duoBlue,
+                          ),
+                          onPressed: _toggleListening,
                         ),
                         filled: true,
                         fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : AppColors.duoCardGray.withValues(alpha: 0.3),
@@ -274,6 +331,23 @@ class _TranslationScreenState extends State<TranslationScreen> {
                                       ],
                                     ),
                                   ),
+                                  // TTS tugmasi — nemischa so'zni eshittirish
+                                  ValueListenableBuilder<bool>(
+                                    valueListenable: _ttsPlaying,
+                                    builder: (context, playing, _) {
+                                      return IconButton(
+                                        icon: Icon(
+                                          playing
+                                              ? Icons.stop_circle_rounded
+                                              : Icons.volume_up_rounded,
+                                          color: Colors.white,
+                                          size: 30,
+                                        ),
+                                        onPressed: () => _speakText(
+                                            _translationResult!['original']?.toString() ?? ''),
+                                      );
+                                    },
+                                  ),
                                   IconButton(
                                     icon: const Icon(Icons.bookmark_add_rounded, color: Colors.white, size: 32),
                                     onPressed: _saveWord,
@@ -391,6 +465,25 @@ class _TranslationScreenState extends State<TranslationScreen> {
                           color: AppColors.duoOrange,
                           letterSpacing: 0.5,
                         ),
+                      ),
+                      const Spacer(),
+                      // Misol gapni eshittirish tugmasi
+                      ValueListenableBuilder<bool>(
+                        valueListenable: _ttsPlaying,
+                        builder: (context, playing, _) {
+                          final isThisPlaying =
+                              playing && _ttsService.currentText == exampleGerman;
+                          return GestureDetector(
+                            onTap: () => _speakText(exampleGerman),
+                            child: Icon(
+                              isThisPlaying
+                                  ? Icons.stop_circle_rounded
+                                  : Icons.volume_up_rounded,
+                              color: AppColors.duoOrange,
+                              size: 22,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
