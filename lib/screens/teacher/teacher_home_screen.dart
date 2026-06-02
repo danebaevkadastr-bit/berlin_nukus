@@ -85,7 +85,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
                 if (pendingCount > 0) {
                   final homeworks = List<dynamic>.from(lData['homeworks'] ?? []);
-                  String hwTitle = 'Uy vazifasi ($date)';
+                  String hwTitle = '${l.homeworkDefault} ($date)';
                   if (homeworks.isNotEmpty && (homeworks.first as Map)['title'] != null) {
                     hwTitle = (homeworks.first as Map)['title'];
                   }

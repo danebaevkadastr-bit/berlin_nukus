@@ -152,7 +152,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            userProvider.name.isEmpty ? 'Ustoz' : userProvider.name,
+            userProvider.name.isEmpty ? l.helloTeacher : userProvider.name,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
@@ -161,7 +161,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            userProvider.email.isEmpty ? 'teacher@berlinnukus.uz' : userProvider.email,
+            userProvider.email.isEmpty ? '' : userProvider.email,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,

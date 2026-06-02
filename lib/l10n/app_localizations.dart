@@ -511,6 +511,12 @@ class AppLocalizations {
     'ru': "Упражнения на аудирование",
     'de': "Hörübungen",
   });
+  String get readingExercises => _t({
+    'uz': "O'qish mashqlari",
+    'kaa': "Oqıw tapsırmaları",
+    'ru': "Упражнения на чтение",
+    'de': "Leseübungen",
+  });
   String get vocabAndTranslation => _t({
     'uz': "Lug'at va tarjima",
     'kaa': "Lúǵat hám awdarma",
@@ -3369,6 +3375,43 @@ class AppLocalizations {
   String get horenB1Teil3Desc => _t({'uz': "Kundalik suhbatni tinglang va Richtig/Falsch deb belgilang. Har bir TEST 5 ta savoldan iborat.", 'kaa': "Kúndelik sóylesiwdi tıńlań hám Richtig/Falsch dep belgilań. Hár bir TEST 5 sorawdan ibarat.", 'ru': "Слушайте повседневный разговор и отмечайте Richtig/Falsch. Каждый ТЕСТ состоит из 5 вопросов.", 'de': "Hören Sie das Alltagsgespräch und markieren Sie Richtig/Falsch. Jeder TEST besteht aus 5 Fragen."});
   String get horenTestNumber => _t({'uz': "TEST", 'kaa': "TEST", 'ru': "ТЕСТ", 'de': "TEST"});
 
+  // ── Lesen (Leseverstehen) ────────────────────────────────────────────────────
+  String get lesenScreenTitle => _t({'uz': "Lesen", 'kaa': "Lesen", 'ru': "Lesen", 'de': "Lesen"});
+  String get lesenSelectLevel => _t({'uz': "Daraja tanlang", 'kaa': "Dárejeni tańlań", 'ru': "Выберите уровень", 'de': "Niveau wählen"});
+  String get lesenComingSoon => _t({'uz': "Tez kunda", 'kaa': "Tez arada", 'ru': "Скоро", 'de': "Demnächst"});
+  String get lesenComingSoonDesc => _t({'uz': "Bu daraja uchun materiallar tayyorlanmoqda", 'kaa': "Bul dareje ushın materiallar tayarlanıwda", 'ru': "Материалы для этого уровня готовятся", 'de': "Materialien für dieses Niveau werden vorbereitet"});
+  String get lesenA1LevelName => _t({'uz': "Boshlang'ich", 'kaa': "Baslanǵısh", 'ru': "Начальный", 'de': "Anfänger"});
+  String get lesenA2LevelName => _t({'uz': "Elementar", 'kaa': "Elementar", 'ru': "Элементарный", 'de': "Elementar"});
+  String get lesenB1LevelName => _t({'uz': "O'rta", 'kaa': "Orta", 'ru': "Средний", 'de': "Mittelstufe"});
+  String get lesenB2LevelName => _t({'uz': "O'rta-yuqori", 'kaa': "Orta-joqarı", 'ru': "Выше среднего", 'de': "Obere Mittelstufe"});
+  String get lesenTotalQuestions => _t({'uz': "Jami savollar", 'kaa': "Barlıq sorawlar", 'ru': "Всего вопросов", 'de': "Fragen gesamt"});
+  String get lesenCorrect => _t({'uz': "To'g'ri", 'kaa': "Durıs", 'ru': "Верно", 'de': "Richtig"});
+  String get lesenWrong => _t({'uz': "Xato", 'kaa': "Qáte", 'ru': "Неверно", 'de': "Falsch"});
+  String get lesenQuestion => _t({'uz': "Savol", 'kaa': "Soraw", 'ru': "Вопрос", 'de': "Frage"});
+  String get lesenText => _t({'uz': "Matn", 'kaa': "Tekst", 'ru': "Текст", 'de': "Text"});
+  String get lesenNextQuestion => _t({'uz': "Keyingi savol", 'kaa': "Keyingi soraw", 'ru': "Следующий вопрос", 'de': "Nächste Frage"});
+  String get lesenFinish => _t({'uz': "Yakunlash", 'kaa': "Juwmaqlaw", 'ru': "Завершить", 'de': "Beenden"});
+  String get lesenBack => _t({'uz': "Orqaga", 'kaa': "Artqa", 'ru': "Назад", 'de': "Zurück"});
+  // ── Lesen B1 (TELC) ────────────────────────────────────────────────────────
+  String get lesenB1Teil1Title => _t({'uz': "Teil 1 – Sarlavhalar", 'kaa': "Teil 1 – Atamalar", 'ru': "Teil 1 – Заголовки", 'de': "Teil 1 – Überschriften"});
+  String get lesenB1Teil1Desc => _t({'uz': "Qisqa matnni o'qing va unga mos sarlavhani tanlang (Globalverstehen).", 'kaa': "Qısqa tekstti oqıń hám oǵan say atamanı tańlań (Globalverstehen).", 'ru': "Прочитайте короткий текст и выберите подходящий заголовок (Globalverstehen).", 'de': "Lesen Sie den kurzen Text und wählen Sie die passende Überschrift (Globalverstehen)."});
+  String get lesenB1Teil1Note => _t({'uz': "5 ta matn, har biriga 1 ta sarlavha", 'kaa': "5 tekst, hár birine 1 atama", 'ru': "5 текстов, к каждому 1 заголовок", 'de': "5 Texte, je eine Überschrift"});
+  String get lesenB1Teil2Title => _t({'uz': "Teil 2 – Matnni tushunish", 'kaa': "Teil 2 – Tekstti túsiniw", 'ru': "Teil 2 – Понимание текста", 'de': "Teil 2 – Detailverstehen"});
+  String get lesenB1Teil2Desc => _t({'uz': "Uzun matnni o'qing va savollarga javob bering (Detailverstehen).", 'kaa': "Uzın tekstti oqıń hám sorawlarǵa jawap beriń (Detailverstehen).", 'ru': "Прочитайте длинный текст и ответьте на вопросы (Detailverstehen).", 'de': "Lesen Sie den langen Text und beantworten Sie die Fragen (Detailverstehen)."});
+  String get lesenB1Teil2Note => _t({'uz': "1 ta matn, 5 ta savol (a/b/c)", 'kaa': "1 tekst, 5 soraw (a/b/c)", 'ru': "1 текст, 5 вопросов (a/b/c)", 'de': "1 Text, 5 Fragen (a/b/c)"});
+  String get lesenB1Teil3Title => _t({'uz': "Teil 3 – E'lonlar", 'kaa': "Teil 3 – Xabarlar", 'ru': "Teil 3 – Объявления", 'de': "Teil 3 – Anzeigen"});
+  String get lesenB1Teil3Desc => _t({'uz': "Vaziyatni o'qing va unga mos e'lonni tanlang (Selektives Verstehen).", 'kaa': "Jaǵdaydı oqıń hám oǵan say xabarnı tańlań (Selektives Verstehen).", 'ru': "Прочитайте ситуацию и выберите подходящее объявление (Selektives Verstehen).", 'de': "Lesen Sie die Situation und wählen Sie die passende Anzeige (Selektives Verstehen)."});
+  String get lesenB1Teil3Note => _t({'uz': "10 ta vaziyat, har biriga 1 ta e'lon", 'kaa': "10 jaǵday, hár birine 1 xabar", 'ru': "10 ситуаций, к каждой 1 объявление", 'de': "10 Situationen, je eine Anzeige"});
+  // ── Sprachbausteine (Lesen blokining bir qismi) ─────────────────────────────
+  String get lesenSprachbausteine => _t({'uz': "Sprachbausteine", 'kaa': "Sprachbausteine", 'ru': "Sprachbausteine", 'de': "Sprachbausteine"});
+  String get lesenSprachbausteineDesc => _t({'uz': "Til elementlari — grammatika va lug'at (Lesen blokida)", 'kaa': "Til elementleri — grammatika hám lúǵat (Lesen blokında)", 'ru': "Языковые элементы — грамматика и лексика (в блоке Lesen)", 'de': "Sprachbausteine — Grammatik und Wortschatz (im Lesen-Teil)"});
+  String get lesenB1Teil4Title => _t({'uz': "Teil 1 – Grammatika", 'kaa': "Teil 1 – Grammatika", 'ru': "Teil 1 – Грамматика", 'de': "Teil 1 – Grammatik"});
+  String get lesenB1Teil4Desc => _t({'uz': "Matndagi bo'sh joylarga to'g'ri grammatik shaklni tanlang.", 'kaa': "Tekstegi bos orınlarǵa durıs grammatikalıq forманı tańlań.", 'ru': "Выберите правильную грамматическую форму для пропусков в тексте.", 'de': "Wählen Sie die richtige grammatische Form für die Lücken im Text."});
+  String get lesenB1Teil4Note => _t({'uz': "1 ta matn, 10 ta bo'sh joy (a/b/c)", 'kaa': "1 tekst, 10 bos orın (a/b/c)", 'ru': "1 текст, 10 пропусков (a/b/c)", 'de': "1 Text, 10 Lücken (a/b/c)"});
+  String get lesenB1Teil5Title => _t({'uz': "Teil 2 – Lug'at", 'kaa': "Teil 2 – Lúǵat", 'ru': "Teil 2 – Лексика", 'de': "Teil 2 – Wortschatz"});
+  String get lesenB1Teil5Desc => _t({'uz': "Matndagi bo'sh joylarga ro'yxatdan mos so'zni tanlang.", 'kaa': "Tekstegi bos orınlarǵa dizimnen say sózdi tańlań.", 'ru': "Выберите подходящее слово из списка для пропусков в тексте.", 'de': "Wählen Sie das passende Wort aus der Liste für die Lücken im Text."});
+  String get lesenB1Teil5Note => _t({'uz': "1 ta matn, 10 ta bo'sh joy, 15 ta so'z", 'kaa': "1 tekst, 10 bos orın, 15 sóz", 'ru': "1 текст, 10 пропусков, 15 слов", 'de': "1 Text, 10 Lücken, 15 Wörter"});
+
   // ── Study Time Statistics ────────────────────────────────────────────────────
   String get studyTime => _t({
     'uz': "O'qish vaqti",
@@ -3439,6 +3482,56 @@ class AppLocalizations {
     'kaa': "Qayta urınıw",
     'ru': "Повторить",
     'de': "Erneut versuchen",
+  });
+
+  // ── Additional localization keys ───────────────────────────────────────────
+  String get customLessonTypeHint => _t({
+    'uz': "Yoki o'zingiz yozing (Masalan: Imtihon)",
+    'kaa': "Yamasa ózińiz jazıń (Mysal: Imtihan)",
+    'ru': "Или введите свой (Например: Экзамен)",
+    'de': "Oder eigenen eingeben (z.B.: Prüfung)",
+  });
+  String get noWordsYet => _t({
+    'uz': "Sizda hali so'zlar yo'q",
+    'kaa': "Sizde ele sózler joq",
+    'ru': "У вас пока нет слов",
+    'de': "Sie haben noch keine Wörter",
+  });
+  String get vocabStage1Desc => _t({
+    'uz': "Darslikdan yangi so'zlar qo'shing — ular shu yerda saqlanadi.",
+    'kaa': "Sabaqtan jańa sózler qosıń — olar usı jerde saqlanadı.",
+    'ru': "Добавляйте новые слова из учебника — они сохранятся здесь.",
+    'de': "Fügen Sie neue Wörter aus dem Lehrbuch hinzu — sie werden hier gespeichert.",
+  });
+  String get vocabStage2Desc => _t({
+    'uz': "So'zlarni o'rganishni boshlasangiz, ular \"O'rganilayotgan so'zlar\" bo'limida saqlanadi.",
+    'kaa': "Sózlerdi úyreniwdi baslasańız, olar \"Úyrenilip atırǵan sózler\" bóliminde saqlanadı.",
+    'ru': "Когда начнёте учить слова, они появятся в разделе \"Изучаемые слова\".",
+    'de': "Wenn Sie anfangen zu lernen, erscheinen sie im Bereich \"Lernende Wörter\".",
+  });
+  String get vocabStage3Desc => _t({
+    'uz': "To'liq o'zlashtirilgan so'zlar \"Hamma so'zlar\" bo'limiga o'tadi.",
+    'kaa': "Tolıq ózlestirgen sózler \"Barlıq sózler\" bólimine óted.",
+    'ru': "Полностью выученные слова перейдут в раздел \"Все слова\".",
+    'de': "Vollständig gelernte Wörter werden in den Bereich \"Alle Wörter\" verschoben.",
+  });
+  String get accentColorLabel => _t({
+    'uz': "Asosiy rang",
+    'kaa': "Tiykarǵı reń",
+    'ru': "Основной цвет",
+    'de': "Akzentfarbe",
+  });
+  String get noAttendanceDataYet => _t({
+    'uz': "Hali davomat ma'lumoti yo'q",
+    'kaa': "Ele qatnas maǵlıwmatı joq",
+    'ru': "Данных о посещаемости пока нет",
+    'de': "Noch keine Anwesenheitsdaten",
+  });
+  String get noLessonsInFilter => _t({
+    'uz': "Bu filtrdagi darslar yo'q",
+    'kaa': "Bul filtrdegi sabaqlar joq",
+    'ru': "Нет уроков в этом фильтре",
+    'de': "Keine Stunden in diesem Filter",
   });
 }
 

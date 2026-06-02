@@ -6,6 +6,7 @@ import '../../widgets/gamified_card.dart';
 import '../../widgets/grammar/theory_widget.dart';
 import '../../widgets/grammar/grammar_table_widget.dart';
 import '../../widgets/grammar/grammar_example_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Batafsil grammatika tushuntirishini ko'rsatuvchi ekran
 ///
@@ -67,7 +68,7 @@ class GrammarExplanationScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Header
-                  _buildHeader(isDark, levelColor),
+                  _buildHeader(context, isDark, levelColor),
                   const SizedBox(height: 24),
                   // Content - batafsil yoki oddiy ko'rinish
                   if (rule.detailedExplanation != null)
@@ -84,7 +85,7 @@ class GrammarExplanationScreen extends StatelessWidget {
   }
 
   /// Header qismini yaratish
-  Widget _buildHeader(bool isDark, Color levelColor) {
+  Widget _buildHeader(BuildContext context, bool isDark, Color levelColor) {
     return Row(
       children: [
         Container(
@@ -117,7 +118,7 @@ class GrammarExplanationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Grammatika qoidasi',
+                AppLocalizations.of(context).grammar,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,

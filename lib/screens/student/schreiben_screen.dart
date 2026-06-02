@@ -89,6 +89,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
         style: _task.style,
         minWords: _task.minWords,
         answer: answer,
+        wordCount: _wordCount(answer),
       );
       if (!mounted) return;
       setState(() {

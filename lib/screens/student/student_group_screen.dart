@@ -716,6 +716,8 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
     String studentId,
     String dateKey,
   ) async {
+    // Context'ni async gap'dan oldin olamiz
+    final l = AppLocalizations.of(context);
     try {
       final groupDoc = await FirebaseFirestore.instance.collection('groups').doc(groupId).get();
       if (!groupDoc.exists) return;
@@ -734,9 +736,9 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
 
       await notificationService.createNotification(
         AppNotification(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          title: 'Uy vazifa topshirildi',
-          body: '$studentName $groupName guruhida $dateKey sanasidagi vazifani topshirdi',
+          id: '${DateTime.now().millisecondsSinceEpoch}_${studentId.hashCode}',
+          title: l.homeworkSubmittedNotifTitle,
+          body: '$studentName $groupName ($dateKey)',
           type: 'homework',
           createdAt: DateTime.now(),
           userId: teacherId,

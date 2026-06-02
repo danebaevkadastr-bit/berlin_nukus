@@ -1,11 +1,13 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../../services/cloudinary_service.dart';
 import '../../services/firebase_service.dart';
+import '../../services/onesignal_helper.dart'
+    if (dart.library.html) '../../services/onesignal_helper_web.dart';
 import '../../utils/image_picker_helper.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -117,7 +119,7 @@ class UserProvider extends ChangeNotifier {
       );
       // OneSignal ga foydalanuvchini ro'yxatdan o'tkazish (background notification uchun)
       if (credential.user != null) {
-        OneSignal.login(credential.user!.uid);
+        OneSignalHelper.login(credential.user!.uid);
       }
     } finally {
       _isLoading = false;
@@ -161,7 +163,7 @@ class UserProvider extends ChangeNotifier {
       _phone = phone;
       
       // OneSignal ga foydalanuvchini ro'yxatdan o'tkazish (background notification uchun)
-      OneSignal.login(uid);
+      OneSignalHelper.login(uid);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -173,19 +175,29 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        // Foydalanuvchi bekor qildi
-        return;
+      final UserCredential userCredential;
+
+      if (kIsWeb) {
+        // Web uchun — Firebase popup orqali
+        final googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        userCredential = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+      } else {
+        // Android/iOS uchun — google_sign_in paketi orqali
+        final googleUser = await GoogleSignIn().signIn();
+        if (googleUser == null) {
+          return;
+        }
+
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       }
 
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       final user = userCredential.user!;
       final uid = user.uid;
 
@@ -208,7 +220,7 @@ class UserProvider extends ChangeNotifier {
       await loadUserDataByUid(uid);
 
       // OneSignal ga foydalanuvchini ro'yxatdan o'tkazish
-      OneSignal.login(uid);
+      OneSignalHelper.login(uid);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -223,7 +235,7 @@ class UserProvider extends ChangeNotifier {
   /// Sign out current active user session
   Future<void> logout() async {
     // OneSignal dan chiqish (boshqa foydalanuvchiga notification ketmasligi uchun)
-    OneSignal.logout();
+    OneSignalHelper.logout();
     // Google Sign-In dan ham chiqish
     await GoogleSignIn().signOut();
     await FirebaseAuth.instance.signOut();

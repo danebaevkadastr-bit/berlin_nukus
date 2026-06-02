@@ -61,7 +61,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              _editField(nameCtrl, 'Ism Familiya', isDark),
+              _editField(nameCtrl, l.fullNameLabel, isDark),
               const SizedBox(height: 12),
               _editField(phoneCtrl, l.phoneNumber, isDark, keyboardType: TextInputType.phone),
               const SizedBox(height: 12),
@@ -435,6 +435,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
     return ValueListenableBuilder<AccentPreset>(
       valueListenable: ThemeManager.accentNotifier,
       builder: (context, current, _) {
+        final l = AppLocalizations.of(context);
         return GamifiedCard(
           padding: const EdgeInsets.all(16),
           color: isDark
@@ -460,7 +461,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Asosiy rang',
+                      l.accentColorLabel,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,6 +12,7 @@ class TTSService {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final FlutterTts _flutterTts = FlutterTts();
   bool _flutterTtsReady = false;
+  StreamSubscription<PlayerState>? _playerStateSubscription;
 
   bool isPlaying = false;
   String currentText = '';
@@ -20,7 +22,7 @@ class TTSService {
   void _notifyState() => onPlaybackStateChanged?.call();
 
   TTSService() {
-    _audioPlayer.onPlayerStateChanged.listen((state) {
+    _playerStateSubscription = _audioPlayer.onPlayerStateChanged.listen((state) {
       if (state == PlayerState.completed || state == PlayerState.stopped) {
         isPlaying = false;
         currentText = '';
@@ -223,6 +225,7 @@ class TTSService {
   }
 
   void dispose() {
+    _playerStateSubscription?.cancel();
     _audioPlayer.dispose();
     _flutterTts.stop();
   }

@@ -1,4 +1,3 @@
-// ignore_for_file: unused_element
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart';
@@ -6,7 +5,6 @@ import '../../utils/responsive_layout.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/skeleton_loader.dart';
-import '../../widgets/empty_state.dart';
 import '../../utils/app_colors.dart';
 import 'student_group_screen.dart';
 import 'student_learning_screen.dart';
@@ -592,8 +590,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  // Refresh data
-                  await Future.delayed(const Duration(seconds: 1));
+                  // Haqiqiy ma'lumotlarni yangilash
+                  await userProvider.loadUserData();
+                  await _loadWeeklyData();
                 },
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1728,15 +1727,6 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildEmptyState(bool isDark) {
-    return NoGroupsEmptyState(
-      onAction: () {
-        // Navigate to games screen
-        // This would require access to the parent widget's state
-      },
     );
   }
 

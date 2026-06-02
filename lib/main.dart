@@ -4,11 +4,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'services/haptic_service.dart';
+import 'services/onesignal_helper.dart'
+    if (dart.library.html) 'services/onesignal_helper_web.dart';
 import 'firebase_options.dart';
-import 'services/firebase_service.dart';
 import 'services/darslar_service.dart';
 import 'core/providers/user_provider.dart';
 import 'screens/splash_screen.dart';
@@ -26,7 +26,6 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    await FirebaseService().removeMockData();
     // groups ichidagi eski darslarni darslar collectionga ko'chirish
     await DarslarService().migrateLessonsIfNeeded();
 
@@ -53,8 +52,8 @@ void main() async {
 }
 
 Future<void> setupOneSignal() async {
-  // Remove this method to stop OneSignal Debugging 
-  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // OneSignal web da ishlamaydi (Firebase Messaging kerak)
+  if (kIsWeb) return;
 
   final appId = dotenv.env['ONESIGNAL_APP_ID'] ?? '';
   if (appId.isEmpty || appId == 'YOUR_APP_ID_HERE') {
@@ -62,21 +61,13 @@ Future<void> setupOneSignal() async {
     return;
   }
 
-  OneSignal.initialize(appId);
-
-  // Prompts the user for push notification permission (iOS / Android 13+)
-  OneSignal.Notifications.requestPermission(true);
+  OneSignalHelper.setup(appId);
 
   // Set external user id if user is already logged in
   final currentUser = FirebaseAuth.instance.currentUser;
   if (currentUser != null) {
-    OneSignal.login(currentUser.uid);
+    OneSignalHelper.login(currentUser.uid);
   }
-
-  // Handle notification opened
-  OneSignal.Notifications.addClickListener((event) {
-    debugPrint('NOTIFICATION CLICKED: ${event.notification.additionalData}');
-  });
 }
 
 class BerlinNukusApp extends StatelessWidget {

@@ -88,13 +88,16 @@ class _TeacherResultsScreenState extends State<TeacherResultsScreen> {
       ),
       body: uid.isEmpty
           ? Center(
-              child: Text(
-                'Iltimos, qayta kiring',
-                style: TextStyle(
-                  color: isDark ? Colors.white70 : AppColors.duoTextLight,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: Builder(builder: (context) {
+                final l = AppLocalizations.of(context);
+                return Text(
+                  l.pleaseReLoginShort2,
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                    fontWeight: FontWeight.w600,
+                  ),
+                );
+              }),
             )
           : StreamBuilder<List<Map<String, dynamic>>>(
               stream: DarslarService().getTeacherGroupsWithLessonsStream(uid),
@@ -189,7 +192,7 @@ class _CoursesList extends StatelessWidget {
     final courses = <String, _CourseBucket>{};
     for (final g in groups) {
       final id = g['courseId'] as String? ?? '';
-      final title = g['courseTitle'] as String? ?? 'Kurs';
+      final title = g['courseTitle'] as String? ?? l.navGroup;
       courses.putIfAbsent(
         id,
         () => _CourseBucket(id: id, title: title, groupCount: 0, submissionCount: 0),
@@ -204,7 +207,7 @@ class _CoursesList extends StatelessWidget {
     if (list.isEmpty) {
       return Center(
         child: Text(
-          'Kurslar yo\'q',
+          l.noCoursesFound,
           style: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight),
         ),
       );
@@ -627,10 +630,11 @@ class _SubmissionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final checked = entry.submission['checked'] == true;
     final hwTitle = entry.homeworks.isNotEmpty
-        ? ((entry.homeworks.first as Map?)?['title'] as String? ?? 'Uy vazifa')
-        : 'Uy vazifa';
+        ? ((entry.homeworks.first as Map?)?['title'] as String? ?? l.homeworkDefault)
+        : l.homeworkDefault;
 
     return Container(
       width: double.infinity,
@@ -693,9 +697,9 @@ class _SubmissionTile extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text(
-                    'TEKSHIRILDI',
-                    style: TextStyle(
+                  child: Text(
+                    l.checkedUpper,
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
                       color: AppColors.duoBlue,

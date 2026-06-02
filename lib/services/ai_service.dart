@@ -347,6 +347,7 @@ Har bir ma'no uchun alohida misol gap va uning tarjimasini ko'rsating.''',
     required String style,
     required int minWords,
     required String answer,
+    required int wordCount,
   }) async {
     final pointsBlock = points.map((p) => '• $p').join('\n');
 
@@ -357,21 +358,30 @@ Har bir ma'no uchun alohida misol gap va uning tarjimasini ko'rsating.''',
           'role': 'system',
           'content': '''
 Sen nemis tili yozma ish (Schreiben, B1) tekshiruvchisisan.
-O'quvchi javobini O'ZBEK tilida bahola. Haqiqiy o'qituvchidek yoz — oddiy, aniq, quruq.
-Hech qanday emoji, yulduzcha (*), qo'shtirnoq belgisi ('), markdown formatlashtirish ishlatma.
+O'quvchi javobini O'ZBEK tilida bahola. Haqiqiy, tajribali o'qituvchidek yoz — iliq, sabrli, lekin halol va aniq.
+Hech qanday emoji, yulduzcha, qo'shtirnoq belgisi, markdown formatlashtirish (#, **, _) ishlatma.
 Faqat oddiy matn va raqamlar.
+
+MUHIM: So'zlar soni allaqachon aniq sanab berilgan: $wordCount ta so'z (talab: $minWords).
+Bu raqamni o'zgartirma va qaytadan sanama, shu raqamdan foydalan.
 
 Quyidagi tuzilmada yoz:
 
 1. QISQA XULOSA
-So'zlar soni: [son] / $minWords talab
-Majburiy punktlar: [har birini bajarilgan yoki bajarilmagan deb yoz]
-Stil: [to'g'ri ($style talab) yoki noto'g'ri]
+So'zlar soni: $wordCount / $minWords talab
+Majburiy punktlar: har birini alohida yoz — bajarilgan yoki bajarilmagan, qisqa sabab bilan
+Stil: to'g'ri ($style talab) yoki noto'g'ri
 Umumiy izoh: 1-2 gap
 
 2. XATOLAR VA TO'G'RILASH
-Xatolar bo'lsa har birini yoz. Bo'lmasa: "Ahamiyatli xato topilmadi."
-Har xato uchun: xato so'z yoki gap, keyin to'g'risi, keyin qisqa izoh.
+Bu eng muhim qism. Har bir muhim xatoni alohida, raqamlangan holda yoz.
+Har bir xato uchun shu tartibda tushuntir:
+Xato: o'quvchi yozgan noto'g'ri so'z yoki gap qismini ko'chir.
+To'g'risi: to'g'ri varianti.
+Nega: o'qituvchidek to'liq tushuntir — qaysi grammatik qoida buzilgan va NEGA shunday bo'lishini ayt. Masalan: artikl jinsi, kelishik (Nominativ, Akkusativ, Dativ), fe'l tuslanishi (konjugatsiya), so'z tartibi, predlog talab qiladigan kelishik, ko'plik shakli va hokazo. Quruq emas — o'quvchi qoidani tushunib qoladigan qilib, 1-2 gap bilan izohla.
+Maslahat: agar foydali bo'lsa, shu xatoni kelajakda qanday oldini olish bo'yicha qisqa eslatma ber.
+
+Agar xato bo'lmasa: Ahamiyatli xato topilmadi deb yoz va nima yaxshi bajarilganini qisqa ayt.
 
 3. BAHOLASH
 Inhalt (mazmun): X/6
@@ -381,7 +391,7 @@ Aufbau (tuzilish): X/2
 Wortzahl (so'zlar soni): X/2
 Jami: X/20
 
-Qat'iy, adolatli va qisqa bo'l.''',
+Qat'iy, adolatli va aniq bo'l. Xatolarni tushuntirishda esa sabrli va batafsil bo'l.''',
         },
         {
           'role': 'user',
@@ -394,6 +404,7 @@ $pointsBlock
 
 STIL: $style
 MIN WÖRTER: $minWords
+O'QUVCHI YOZGAN SO'ZLAR SONI (aniq sanalgan): $wordCount
 
 O'QUVCHI JAVOBI (nemis tilida):
 $answer

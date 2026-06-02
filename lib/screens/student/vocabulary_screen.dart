@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../../widgets/gamified_card.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../services/vocabulary_service.dart';
 
@@ -588,44 +589,47 @@ class _WordListScreenState extends State<WordListScreen> {
       body: widget.words.isEmpty
           ? SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 32),
-                  Text(
-                    "Sizda hali so'zlar yo'q",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : AppColors.duoTextDark,
+              child: Builder(builder: (context) {
+                final l = AppLocalizations.of(context);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 32),
+                    Text(
+                      l.noWordsYet,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                  _TimelineStage(
-                    number: 1,
-                    title: "Darslikdan yangi so'zlar qo'shing — ular shu yerda saqlanadi.",
-                    isActive: false,
-                    isCompleted: false,
-                    onTap: () {},
-                  ),
-                  const _TimelineConnector(isActive: false),
-                  _TimelineStage(
-                    number: 2,
-                    title: "So'zlarni o'rganishni boshlasangiz, ular \"O'rganilayotgan so'zlar\" bo'limida saqlanadi.",
-                    isActive: false,
-                    isCompleted: false,
-                    onTap: () {},
-                  ),
-                  const _TimelineConnector(isActive: false),
-                  _TimelineStage(
-                    number: 3,
-                    title: "To'liq o'zlashtirilgan so'zlar \"Hamma so'zlar\" bo'limiga o'tadi.",
-                    isActive: false,
-                    isCompleted: false,
-                    onTap: () {},
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 48),
+                    _TimelineStage(
+                      number: 1,
+                      title: l.vocabStage1Desc,
+                      isActive: false,
+                      isCompleted: false,
+                      onTap: () {},
+                    ),
+                    const _TimelineConnector(isActive: false),
+                    _TimelineStage(
+                      number: 2,
+                      title: l.vocabStage2Desc,
+                      isActive: false,
+                      isCompleted: false,
+                      onTap: () {},
+                    ),
+                    const _TimelineConnector(isActive: false),
+                    _TimelineStage(
+                      number: 3,
+                      title: l.vocabStage3Desc,
+                      isActive: false,
+                      isCompleted: false,
+                      onTap: () {},
+                    ),
+                  ],
+                );
+              }),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -692,29 +696,36 @@ class _WordTimelineCard extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Timeline
-          _TimelineStage(
-            number: 1,
-            title: "Darslikdan yangi so'zlar qo'shing — ular shu yerda saqlanadi.",
-            isActive: word.learningStage >= 1,
-            isCompleted: word.learningStage > 1,
-            onTap: () => onStageChange(1),
-          ),
-          _TimelineConnector(isActive: word.learningStage > 1),
-          _TimelineStage(
-            number: 2,
-            title: "So'zlarni o'rganishni boshlasangiz, ular \"O'rganilayotgan so'zlar\" bo'limida saqlanadi.",
-            isActive: word.learningStage >= 2,
-            isCompleted: word.learningStage > 2,
-            onTap: () => onStageChange(2),
-          ),
-          _TimelineConnector(isActive: word.learningStage > 2),
-          _TimelineStage(
-            number: 3,
-            title: "To'liq o'zlashtirilgan so'zlar \"Hamma so'zlar\" bo'limiga o'tadi.",
-            isActive: word.learningStage >= 3,
-            isCompleted: word.learningStage >= 3,
-            onTap: () => onStageChange(3),
-          ),
+          Builder(builder: (context) {
+            final l = AppLocalizations.of(context);
+            return Column(
+              children: [
+                _TimelineStage(
+                  number: 1,
+                  title: l.vocabStage1Desc,
+                  isActive: word.learningStage >= 1,
+                  isCompleted: word.learningStage > 1,
+                  onTap: () => onStageChange(1),
+                ),
+                _TimelineConnector(isActive: word.learningStage > 1),
+                _TimelineStage(
+                  number: 2,
+                  title: l.vocabStage2Desc,
+                  isActive: word.learningStage >= 2,
+                  isCompleted: word.learningStage > 2,
+                  onTap: () => onStageChange(2),
+                ),
+                _TimelineConnector(isActive: word.learningStage > 2),
+                _TimelineStage(
+                  number: 3,
+                  title: l.vocabStage3Desc,
+                  isActive: word.learningStage >= 3,
+                  isCompleted: word.learningStage >= 3,
+                  onTap: () => onStageChange(3),
+                ),
+              ],
+            );
+          }),
         ],
       ),
     );

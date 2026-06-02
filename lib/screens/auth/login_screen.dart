@@ -93,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   void _handleGoogleSignIn() async {
     final l = AppLocalizations.of(context);
+    debugPrint('Google Sign-In button tapped');
     setState(() {
       _isGoogleLoading = true;
     });
@@ -114,6 +115,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         });
       }
     } catch (e) {
+      debugPrint('Google Sign-In error: $e');
       if (!mounted) return;
       setState(() {
         _isGoogleLoading = false;
@@ -121,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l.genericError, style: const TextStyle(fontWeight: FontWeight.bold)),
+          content: Text('${l.genericError}: $e', style: const TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.duoRed,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

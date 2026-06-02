@@ -12,6 +12,7 @@ import 'games/der_die_das_rules_screen.dart';
 import 'grammar_levels_screen.dart';
 import 'mock_test_screen.dart';
 import 'horen/horen_screen.dart';
+import 'lesen/lesen_screen.dart';
 
 class StudentLearningScreen extends StatelessWidget {
   const StudentLearningScreen({super.key});
@@ -119,6 +120,18 @@ class StudentLearningScreen extends StatelessWidget {
               onTap: () => _openWithGroupCheck(
                 context,
                 () => const HorenScreen(),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            _buildLearningCard(
+              context,
+              icon: '📰',
+              title: 'Lesen',
+              subtitle: l.readingExercises,
+              onTap: () => _openWithGroupCheck(
+                context,
+                () => const LesenScreen(),
               ),
             ),
             const SizedBox(height: 14),

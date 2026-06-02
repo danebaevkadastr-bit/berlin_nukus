@@ -1746,7 +1746,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Text(isEdit ? 'DARSNI TAHRIRLASH' : 'DARS QO\'SHISH',
+                    Text(isEdit ? l.editLessonTitle : l.addLesson,
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
@@ -1794,7 +1794,7 @@ class _TeacherCourseDetailScreenState extends State<TeacherCourseDetailScreen> {
                         if (val.isNotEmpty) setModalState(() => selectedType = val);
                       },
                       decoration: InputDecoration(
-                        hintText: 'Yoki o\'zingiz yozing (Masalan: Imtihon)',
+                        hintText: l.customLessonTypeHint,
                         hintStyle: TextStyle(
                             color: isDark ? Colors.white54 : AppColors.duoTextLight,
                             fontWeight: FontWeight.w600),

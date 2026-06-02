@@ -294,8 +294,8 @@ class _StudentAttendanceDetailScreenState
                       ? Center(
                           child: Text(
                             _totalLessons == 0
-                                ? 'Hali davomat ma\'lumoti yo\'q'
-                                : 'Bu filtrdagi darslar yo\'q',
+                                ? l.noAttendanceDataYet
+                                : l.noLessonsInFilter,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               color: isDark

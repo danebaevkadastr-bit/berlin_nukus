@@ -55,6 +55,20 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       return;
     }
 
+    // Email format validatsiyasi
+    final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+    if (!emailRegex.hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l.enterValidEmail, style: const TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: AppColors.duoRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      );
+      return;
+    }
+
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -191,128 +205,138 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  'RO\'YXATDAN O\'TISH',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.duoTextDark,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Sarguzashtingizni boshlang!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white54 : AppColors.duoTextLight,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                GamifiedCard(
-                  padding: const EdgeInsets.all(24),
-                  color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
-                  shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                  child: Column(
+                Builder(builder: (context) {
+                  final l = AppLocalizations.of(context);
+                  return Column(
                     children: [
-                      _buildTextField(
-                        controller: _nameController,
-                        label: 'Ism va familiya',
-                        icon: '🧑',
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 14),
-                      _buildTextField(
-                        controller: _emailController,
-                        label: 'Email',
-                        icon: '📧',
-                        isDark: isDark,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 14),
-                      _buildTextField(
-                        controller: _phoneController,
-                        label: 'Telefon',
-                        icon: '📱',
-                        isDark: isDark,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [_phoneFormatter],
-                      ),
-                      const SizedBox(height: 14),
-                      _buildTextField(
-                        controller: _passwordController,
-                        label: 'Parol',
-                        icon: '🔒',
-                        isDark: isDark,
-                        obscureText: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                            color: isDark ? Colors.white54 : AppColors.duoTextLight,
-                          ),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      Text(
+                        l.register.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                          letterSpacing: 1.0,
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      _buildTextField(
-                        controller: _confirmPasswordController,
-                        label: 'Parolni tasdiqlang',
-                        icon: '🔐',
-                        isDark: isDark,
-                        obscureText: _obscureConfirm,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirm ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                            color: isDark ? Colors.white54 : AppColors.duoTextLight,
-                          ),
-                          onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      SizedBox(
-                        width: double.infinity,
-                        child: GamifiedCard(
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          color: AppColors.duoGreen,
-                          shadowColor: AppColors.duoGreenShadow,
-                          shadowDepth: 5,
-                          onTap: _isLoading ? null : _handleRegister,
-                          child: Center(
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                                  )
-                                : const Text(
-                                    'YUBORISH',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: 1.0,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: const Text(
-                          'Hisobingiz bormi? Kirish',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.duoBlue,
-                          ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l.loginSubtitle,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white54 : AppColors.duoTextLight,
                         ),
                       ),
                     ],
-                  ),
-                ),
+                  );
+                }),
+                const SizedBox(height: 28),
+                Builder(builder: (context) {
+                  final l = AppLocalizations.of(context);
+                  return GamifiedCard(
+                    padding: const EdgeInsets.all(24),
+                    color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                    shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          controller: _nameController,
+                          label: l.fullNameLabel,
+                          icon: '🧑',
+                          isDark: isDark,
+                        ),
+                        const SizedBox(height: 14),
+                        _buildTextField(
+                          controller: _emailController,
+                          label: l.email,
+                          icon: '📧',
+                          isDark: isDark,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        const SizedBox(height: 14),
+                        _buildTextField(
+                          controller: _phoneController,
+                          label: l.phone,
+                          icon: '📱',
+                          isDark: isDark,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [_phoneFormatter],
+                        ),
+                        const SizedBox(height: 14),
+                        _buildTextField(
+                          controller: _passwordController,
+                          label: l.password,
+                          icon: '🔒',
+                          isDark: isDark,
+                          obscureText: _obscurePassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                              color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                            ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        _buildTextField(
+                          controller: _confirmPasswordController,
+                          label: l.confirmPassword,
+                          icon: '🔐',
+                          isDark: isDark,
+                          obscureText: _obscureConfirm,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirm ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                              color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                            ),
+                            onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+                        SizedBox(
+                          width: double.infinity,
+                          child: GamifiedCard(
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            color: AppColors.duoGreen,
+                            shadowColor: AppColors.duoGreenShadow,
+                            shadowDepth: 5,
+                            onTap: _isLoading ? null : _handleRegister,
+                            child: Center(
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                                    )
+                                  : Text(
+                                      l.submit.toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                        letterSpacing: 1.0,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Text(
+                            l.haveAccountLogin,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.duoBlue,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ],
             ),
           ),
