@@ -63,21 +63,28 @@ class NotificationService {
 
   Future<void> _sendOneSignalPush(AppNotification notification) async {
     final appId = dotenv.env['ONESIGNAL_APP_ID'] ?? '';
-    final apiKey = dotenv.env['ONESIGNAL_REST_API_KEY'] ?? '';
-    
-    if (appId.isEmpty || apiKey.isEmpty || appId == 'YOUR_APP_ID_HERE') {
-      debugPrint('OneSignal API keys not set. Skipping push notification.');
+    final proxyUrl =
+        (dotenv.env['CF_WORKER_URL'] ?? '').trim().replaceAll(RegExp(r'/+$'), '');
+
+    if (appId.isEmpty || appId == 'YOUR_APP_ID_HERE') {
+      debugPrint('OneSignal APP ID not set. Skipping push notification.');
+      return;
+    }
+    if (proxyUrl.isEmpty) {
+      debugPrint('CF_WORKER_URL not set. Skipping push notification.');
       return;
     }
 
     try {
-      final url = Uri.parse('https://api.onesignal.com/notifications?c=push');
+      // Maxfiy REST kalit ilovada saqlanmaydi — proksi (worker) o'zi qo'shadi.
+      final appToken = dotenv.env['APP_TOKEN']?.trim() ?? '';
       final response = await http.post(
-        url,
+        Uri.parse(proxyUrl),
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': 'Basic $apiKey',
+          'X-Proxy-Target': 'onesignal',
           'accept': 'application/json',
+          if (appToken.isNotEmpty) 'X-App-Token': appToken,
         },
         body: jsonEncode({
           'app_id': appId,

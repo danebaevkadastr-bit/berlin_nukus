@@ -1,27 +1,21 @@
 import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
-/// Cloudinary ga upload preset orqali rasm/fayl yuklash (unsigned yoki signed).
+/// Cloudinary ga upload preset orqali rasm/fayl yuklash (faqat unsigned).
+/// Maxfiy API secret ilovada SAQLANMAYDI — Cloudinary konsolida unsigned
+/// upload preset yoqilgan bo'lishi kerak (Settings → Upload → Upload presets).
 class CloudinaryService {
   static String get cloudName =>
       dotenv.env['CLOUDINARY_CLOUD_NAME']?.trim() ?? '';
   static String get uploadPreset =>
       dotenv.env['CLOUDINARY_UPLOAD_PRESET']?.trim() ?? '';
-  static String get apiKey =>
-      dotenv.env['CLOUDINARY_API_KEY']?.trim() ?? '';
-  static String get apiSecret =>
-      dotenv.env['CLOUDINARY_API_SECRET']?.trim() ?? '';
 
   static bool get isConfigured =>
       cloudName.isNotEmpty && uploadPreset.isNotEmpty;
-
-  static bool get _canSignUpload =>
-      apiKey.isNotEmpty && apiSecret.isNotEmpty;
 
   /// Rasm uchun endpoint
   static Uri get _imageUploadUri => Uri.parse(
@@ -54,10 +48,6 @@ class CloudinaryService {
         'CLOUDINARY_CLOUD_NAME yoki CLOUDINARY_UPLOAD_PRESET .env da topilmadi',
       );
     }
-    if (_canSignUpload) {
-      return _uploadSigned(
-          bytes: bytes, filename: filename, folder: folder, isRaw: false);
-    }
     return _uploadUnsigned(
         bytes: bytes, filename: filename, folder: folder, isRaw: false);
   }
@@ -72,10 +62,6 @@ class CloudinaryService {
       throw Exception(
         'CLOUDINARY_CLOUD_NAME yoki CLOUDINARY_UPLOAD_PRESET .env da topilmadi',
       );
-    }
-    if (_canSignUpload) {
-      return _uploadSigned(
-          bytes: bytes, filename: filename, folder: folder, isRaw: true);
     }
     return _uploadUnsigned(
         bytes: bytes, filename: filename, folder: folder, isRaw: true);
@@ -97,60 +83,6 @@ class CloudinaryService {
       http.MultipartFile.fromBytes('file', bytes, filename: filename),
     );
     return _send(request);
-  }
-
-  static Future<String> _uploadSigned({
-    required List<int> bytes,
-    required String filename,
-    String? folder,
-    bool isRaw = false,
-  }) async {
-    final timestamp =
-        (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
-
-    final paramsToSign = <String, String>{
-      'timestamp': timestamp,
-      'upload_preset': uploadPreset,
-    };
-    if (folder != null && folder.isNotEmpty) {
-      paramsToSign['folder'] = folder;
-    }
-
-    final uri = isRaw ? _rawUploadUri : _imageUploadUri;
-    final request = http.MultipartRequest('POST', uri)
-      ..fields['api_key'] = apiKey
-      ..fields['timestamp'] = timestamp
-      ..fields['signature'] = _signParams(paramsToSign)
-      ..fields['upload_preset'] = uploadPreset;
-
-    if (folder != null && folder.isNotEmpty) {
-      request.fields['folder'] = folder;
-    }
-
-    request.files.add(
-      http.MultipartFile.fromBytes('file', bytes, filename: filename),
-    );
-
-    try {
-      return await _send(request);
-    } on Exception catch (e) {
-      if (e.toString().contains('401') && uploadPreset.isNotEmpty) {
-        debugPrint('Cloudinary signed upload failed, trying unsigned: $e');
-        return _uploadUnsigned(
-          bytes: bytes,
-          filename: filename,
-          folder: folder,
-          isRaw: isRaw,
-        );
-      }
-      rethrow;
-    }
-  }
-
-  static String _signParams(Map<String, String> params) {
-    final keys = params.keys.toList()..sort();
-    final payload = keys.map((k) => '$k=${params[k]}').join('&');
-    return sha1.convert(utf8.encode('$payload$apiSecret')).toString();
   }
 
   static Future<String> _send(http.MultipartRequest request) async {

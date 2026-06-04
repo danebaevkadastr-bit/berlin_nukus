@@ -36,17 +36,20 @@ class SavedWord {
 
 class WordMeaning {
   final String translation;
+  final String grammar;
   final String exampleGerman;
   final String exampleUzbek;
 
   WordMeaning({
     required this.translation,
+    this.grammar = '',
     required this.exampleGerman,
     required this.exampleUzbek,
   });
 
   Map<String, dynamic> toMap() => {
         'translation': translation,
+        'grammar': grammar,
         'exampleGerman': exampleGerman,
         'exampleUzbek': exampleUzbek,
       };
@@ -54,6 +57,7 @@ class WordMeaning {
   factory WordMeaning.fromMap(Map<String, dynamic> map) {
     return WordMeaning(
       translation: map['translation']?.toString() ?? '',
+      grammar: map['grammar']?.toString() ?? '',
       exampleGerman: map['exampleGerman']?.toString() ?? '',
       exampleUzbek: map['exampleUzbek']?.toString() ?? '',
     );

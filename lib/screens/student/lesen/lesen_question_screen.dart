@@ -64,6 +64,12 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
     return widget.teil.sharedText ?? _current.passage;
   }
 
+  /// Joriy matnda ___(N)___ bo'sh joylari bormi (Sprachbausteine).
+  bool get _currentHasBlanks {
+    final p = _currentPassage;
+    return p != null && RegExp(r'___\((\d+)\)___').hasMatch(p);
+  }
+
   Color get _accentColor => ThemeManager.accent;
   Color get _accentShadow => ThemeManager.accentShadow;
 
@@ -352,12 +358,18 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
                 : null,
           ),
           alignment: Alignment.center,
-          child: Text(
-            '${i + 1}',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
-              color: textColor,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Text(
+                '${i + 1}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: textColor,
+                ),
+              ),
             ),
           ),
         ),
@@ -536,17 +548,17 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            _isMultiTest
+            _currentHasBlanks
                 ? '$_indexWithinTest'
-                : '${l.lesenQuestion} ${_currentIndex + 1}',
+                : '${l.lesenQuestion} ${_isMultiTest ? _indexWithinTest : _currentIndex + 1}',
             style: TextStyle(
-              fontSize: _isMultiTest ? 15 : 12,
+              fontSize: _currentHasBlanks ? 15 : 12,
               fontWeight: FontWeight.w900,
-              color: _isMultiTest ? _accentColor : textSecondary,
+              color: _currentHasBlanks ? _accentColor : textSecondary,
               letterSpacing: 0.8,
             ),
           ),
-          if (!_isMultiTest) ...[
+          if (!_currentHasBlanks) ...[
             const SizedBox(height: 10),
             Text(
               _current.prompt,

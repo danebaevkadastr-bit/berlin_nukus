@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import '../../../core/providers/user_provider.dart';
 import '../../../models/grammar_game_round.dart';
 import '../../../services/ai_service.dart';
@@ -28,6 +29,7 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
   bool _isCorrect = false;
   String? _selectedAnswer;
   int _timeLeft = 15;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -37,6 +39,7 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     _ttsService.stop();
     super.dispose();
   }
@@ -61,13 +64,54 @@ class _GrammarGameScreenState extends State<GrammarGameScreen> {
   }
 
   void _startTimer() {
+    _timer?.cancel();
     setState(() {
       _timeLeft = 15;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_timeLeft <= 1) {
+        timer.cancel();
+        _handleTimeout();
+      } else {
+        setState(() {
+          _timeLeft--;
+        });
+      }
     });
   }
 
   void _stopTimer() {
-    // Timer to'xtatish logikasi
+    _timer?.cancel();
+  }
+
+  void _handleTimeout() {
+    if (_showFeedback) return;
+
+    // Vaqt tugadi — javob noto'g'ri deb hisoblanadi
+    setState(() {
+      _selectedAnswer = null;
+      _isCorrect = false;
+      _showFeedback = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (!mounted) return;
+
+      if (_currentRoundIndex < _rounds.length - 1) {
+        setState(() {
+          _currentRoundIndex++;
+          _selectedAnswer = null;
+          _showFeedback = false;
+          _startTimer();
+        });
+      } else {
+        _finishGame();
+      }
+    });
   }
 
   void _handleAnswer(String answer) {

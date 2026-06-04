@@ -13,142 +13,145 @@ import '../utils/strange_sentences_fallback.dart';
 import '../utils/grammar_fallback.dart';
 
 class AIService {
-  static String get _qwenApiKey => dotenv.env['QWEN_API_KEY']?.trim() ?? '';
-  static String get _qwenBaseUrl =>
-      (dotenv.env['QWEN_BASE_URL'] ?? '').trim().replaceAll(RegExp(r'/+$'), '');
+  /// Maxfiy kalitlar endi ilovada SAQLANMAYDI. Barcha so'rovlar Cloudflare
+  /// Worker proksisi orqali yuboriladi; kalitlar o'sha yerda (Worker Secrets)
+  /// turadi. Ilovada faqat maxfiy bo'lmagan ma'lumotlar qoladi:
+  /// proksi URL va model nomlari.
+  static String get _proxyUrl =>
+      (dotenv.env['CF_WORKER_URL'] ?? '').trim().replaceAll(RegExp(r'/+$'), '');
+
+  static String get _appToken => dotenv.env['APP_TOKEN']?.trim() ?? '';
+
+  // Model nomlari (maxfiy emas) — kerak bo'lsa env orqali o'zgartirsa bo'ladi.
   static String get _qwenChatModel =>
       dotenv.env['QWEN_CHAT_MODEL']?.trim() ?? 'qwen3.5-122b-a10b';
   static String get _qwenGameModel =>
       dotenv.env['QWEN_GAME_MODEL']?.trim() ?? 'qwen-plus-latest';
-
-  static String get _cerebrasApiKey => dotenv.env['CEREBRAS_API_KEY']?.trim() ?? '';
-  static String get _cerebrasBaseUrl =>
-      (dotenv.env['CEREBRAS_BASE_URL'] ?? '').trim().replaceAll(RegExp(r'/+$'), '');
   static String get _cerebrasModel =>
-      dotenv.env['CEREBRAS_MODEL']?.trim() ?? 'llama3.1-8b';
-
-  static String get _mistralApiKey => dotenv.env['MISTRAL_API_KEY']?.trim() ?? '';
-  static String get _mistralBaseUrl =>
-      (dotenv.env['MISTRAL_BASE_URL'] ?? 'https://api.mistral.ai/v1').trim().replaceAll(RegExp(r'/+$'), '');
+      dotenv.env['CEREBRAS_MODEL']?.trim() ?? 'gpt-oss-120b';
   static String get _mistralModel =>
       dotenv.env['MISTRAL_MODEL']?.trim() ?? 'mistral-small-latest';
-
-  static String get _geminiApiKey => dotenv.env['GEMINI_API_KEY']?.trim() ?? '';
-  static String get _geminiBaseUrl =>
-      'https://generativelanguage.googleapis.com/v1beta/openai';
   static String get _geminiModel =>
       dotenv.env['GEMINI_MODEL']?.trim() ?? 'gemini-2.0-flash';
+
+  /// AI provayder identifikatorlari (worker'ga X-Provider header sifatida
+  /// yuboriladi — kichik harflarda).
+  static const String _pQwen = 'qwen';
+  static const String _pCerebras = 'cerebras';
+  static const String _pMistral = 'mistral';
+  static const String _pGemini = 'gemini';
+
+  /// Provayder uchun ishlatiladigan model nomini qaytaradi.
+  static String _modelFor(String provider, bool isGame) {
+    switch (provider) {
+      case _pQwen:
+        return isGame ? _qwenGameModel : _qwenChatModel;
+      case _pCerebras:
+        return _cerebrasModel;
+      case _pMistral:
+        return _mistralModel;
+      case _pGemini:
+        return _geminiModel;
+      default:
+        throw Exception('Noma\'lum provayder: $provider');
+    }
+  }
+
+  /// Bitta provayderga (proksi orqali) so'rov yuboradi. Xatolik bo'lsa
+  /// exception tashlaydi va zanjir keyingi provayderga o'tadi.
+  static Future<String> _callProvider(
+    String provider, {
+    required List<Map<String, String>> messages,
+    required double temperature,
+    required bool isGame,
+  }) async {
+    return _chatViaProxy(
+      provider: provider,
+      model: _modelFor(provider, isGame),
+      messages: messages,
+      temperature: temperature,
+    );
+  }
+
+  /// Provayderlarni berilgan tartibda sinab ko'radi; birortasi ishlasa
+  /// natijani qaytaradi, hammasi xato bo'lsa exception tashlaydi.
+  static Future<String> _chatOrdered({
+    required List<String> order,
+    required List<Map<String, String>> messages,
+    double temperature = 0.7,
+    bool isGame = false,
+  }) async {
+    Object? lastError;
+    for (final provider in order) {
+      try {
+        return await _callProvider(
+          provider,
+          messages: messages,
+          temperature: temperature,
+          isGame: isGame,
+        );
+      } catch (e) {
+        lastError = e;
+        debugPrint('$provider failed: $e');
+      }
+    }
+    throw Exception(
+      'Barcha AI provayderlar ishlamadi (${order.join(", ")}). Oxirgi xato: $lastError',
+    );
+  }
+
+  /// Standart fallback tartibi (chat, o'yinlar va h.k. uchun).
+  static const List<String> _defaultOrder = [
+    _pQwen,
+    _pCerebras,
+    _pMistral,
+    _pGemini,
+  ];
+
+  /// Maqsadli til bo'yicha tarjima uchun eng mos provayder tartibi.
+  /// - rus tili → Qwen birinchi (ruschada kuchli)
+  /// - boshqa (o'zbek) → Gemini birinchi (kam resursli tillarda kuchli)
+  static List<String> _translationOrder(String targetLang) {
+    if (targetLang == 'ru') {
+      return const [_pQwen, _pGemini, _pMistral, _pCerebras];
+    }
+    return const [_pGemini, _pQwen, _pCerebras, _pMistral];
+  }
 
   static Future<String> _chat({
     required List<Map<String, String>> messages,
     double temperature = 0.7,
     bool isGame = false,
-  }) async {
-    // Avval Qwenni sinash
-    try {
-      final result = await _chatWithProvider(
-        apiKey: _qwenApiKey,
-        baseUrl: _qwenBaseUrl,
-        model: isGame ? _qwenGameModel : _qwenChatModel,
-        messages: messages,
-        temperature: temperature,
-        providerName: 'Qwen',
-      );
-      return result;
-    } catch (e) {
-      debugPrint('Qwen failed: $e');
-      
-      // Qwen xatolik bo'lsa, Cerebrasga o'tish
-      try {
-        if (_cerebrasApiKey.isEmpty || _cerebrasBaseUrl.isEmpty) {
-          throw Exception('Cerebras konfiguratsiyasi topilmadi');
-        }
-        
-        debugPrint('Falling back to Cerebras...');
-        return await _chatWithProvider(
-          apiKey: _cerebrasApiKey,
-          baseUrl: _cerebrasBaseUrl,
-          model: _cerebrasModel,
-          messages: messages,
-          temperature: temperature,
-          providerName: 'Cerebras',
-        );
-      } catch (e2) {
-        debugPrint('Cerebras failed: $e2');
-        
-        // Cerebras ham xatolik bo'lsa, Mistralga o'tish
-        try {
-          if (_mistralApiKey.isEmpty || _mistralBaseUrl.isEmpty) {
-            throw Exception('Mistral konfiguratsiyasi topilmadi');
-          }
-
-          debugPrint('Falling back to Mistral...');
-          return await _chatWithProvider(
-            apiKey: _mistralApiKey,
-            baseUrl: _mistralBaseUrl,
-            model: _mistralModel,
-            messages: messages,
-            temperature: temperature,
-            providerName: 'Mistral',
-          );
-        } catch (e3) {
-          debugPrint('Mistral failed: $e3');
-
-          // Hammasi ishlamasa — Gemini
-          if (_geminiApiKey.isEmpty) {
-            throw Exception(
-              'Barcha AI provayderlar ishlamadi (Qwen, Cerebras, Mistral, Gemini)',
-            );
-          }
-
-          debugPrint('Falling back to Gemini...');
-          return await _chatWithProvider(
-            apiKey: _geminiApiKey,
-            baseUrl: _geminiBaseUrl,
-            model: _geminiModel,
-            messages: messages,
-            temperature: temperature,
-            providerName: 'Gemini',
-          );
-        }
-      }
-    }
+  }) {
+    return _chatOrdered(
+      order: _defaultOrder,
+      messages: messages,
+      temperature: temperature,
+      isGame: isGame,
+    );
   }
 
-  static Future<String> _chatWithProvider({
-    required String apiKey,
-    required String baseUrl,
+  /// So'rovni Cloudflare Worker proksisi orqali yuboradi.
+  /// Ilova hech qanday API kalit yubormaydi — kalit worker ichida.
+  static Future<String> _chatViaProxy({
+    required String provider,
     required String model,
     required List<Map<String, String>> messages,
     required double temperature,
-    required String providerName,
   }) async {
-    if (apiKey.isEmpty || baseUrl.isEmpty) {
-      throw Exception(
-        '$providerName API konfiguratsiyasi topilmadi',
-      );
-    }
-
-    final proxyUrl = dotenv.env['CF_WORKER_URL']?.trim() ?? '';
-    const isWeb = kIsWeb;
-
-    Uri uri;
-    Map<String, String> requestHeaders = {
-      'Authorization': 'Bearer $apiKey',
-      'Content-Type': 'application/json',
-    };
-
-    if (isWeb && proxyUrl.isNotEmpty) {
-      uri = Uri.parse(proxyUrl);
-      requestHeaders['X-Target-Url'] = '$baseUrl/chat/completions';
-    } else {
-      uri = Uri.parse('$baseUrl/chat/completions');
+    if (_proxyUrl.isEmpty) {
+      throw Exception('CF_WORKER_URL sozlanmagan');
     }
 
     final response = await http
         .post(
-          uri,
-          headers: requestHeaders,
+          Uri.parse(_proxyUrl),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Proxy-Target': 'ai',
+            'X-Provider': provider,
+            if (_appToken.isNotEmpty) 'X-App-Token': _appToken,
+          },
           body: jsonEncode({
             'model': model,
             'temperature': temperature,
@@ -157,23 +160,24 @@ class AIService {
         )
         .timeout(
           const Duration(seconds: 30),
-          onTimeout: () => throw Exception('$providerName so\'rov vaqti tugadi (30s)'),
+          onTimeout: () => throw Exception('$provider so\'rov vaqti tugadi (30s)'),
         );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      debugPrint('$providerName error ${response.statusCode}: ${response.body}');
-      throw Exception('$providerName javob bermadi (${response.statusCode})');
+      debugPrint('$provider error ${response.statusCode}: ${response.body}');
+      throw Exception('$provider javob bermadi (${response.statusCode})');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final choices = data['choices'] as List<dynamic>?;
     if (choices == null || choices.isEmpty) {
-      throw Exception('$providerName javob bo\'sh');
+      throw Exception('$provider javob bo\'sh');
     }
     final content =
         (choices.first as Map<String, dynamic>)['message']?['content'];
     return (content ?? '').toString().trim();
   }
+
 
   static Future<String> sendMessage({
     required String message,
@@ -230,17 +234,24 @@ class AIService {
     required String text,
     String targetLang = 'uz',
   }) async {
-    final langInstruction = targetLang == 'ru'
-        ? 'Переведи следующий немецкий текст на русский язык. Напиши только перевод.'
-        : 'Quyidagi nemis matnini o\'zbek tiliga tarjima qiling. Faqat tarjima matnini yozing.';
+    final isRu = targetLang == 'ru';
+    final systemPrompt = isRu
+        ? '''Ты профессиональный переводчик с немецкого на русский язык.
+Переведи текст естественно и грамотно, сохраняя смысл, тон и стиль оригинала.
+Не переводи дословно — передавай естественные формулировки русского языка.
+Имена собственные оставляй без изменений.
+Ответь ТОЛЬКО переводом, без пояснений, кавычек и дополнительного текста.'''
+        : '''Sen nemis tilidan o'zbek tiliga tarjima qiluvchi professional tarjimonsan.
+Matnni tabiiy va to'g'ri o'zbek tilida tarjima qil, ma'no, ohang va uslubni saqla.
+So'zma-so'z tarjima qilma — o'zbek tilining tabiiy iboralarini ishlat.
+Atoqli otlarni (ism, joy nomlari) o'zgartirmasdan qoldir.
+FAQAT tarjimani yoz, izoh, qo'shtirnoq yoki qo'shimcha matn yo'q.''';
 
-    return _chat(
-      temperature: 0.3,
+    return _chatOrdered(
+      order: _translationOrder(targetLang),
+      temperature: 0.2,
       messages: [
-        {
-          'role': 'system',
-          'content': langInstruction,
-        },
+        {'role': 'system', 'content': systemPrompt},
         {'role': 'user', 'content': text},
       ],
     );
@@ -248,46 +259,70 @@ class AIService {
 
   static Future<Map<String, dynamic>> translateWithMeanings({
     required String text,
+    String targetLang = 'uz',
   }) async {
-    final raw = await _chat(
-      temperature: 0.4,
-      messages: [
-        {
-          'role': 'system',
-          'content': '''
-Sen nemis-uzbek tarjimonisiz. Quyidagi nemis so'z yoki iborani tahlil qilib, JSON formatida javob ber.
-Agar so'z yoki iboraning bir nechta ma'nosi bo'lsa, barchasini ko'rsat.
+    final isRu = targetLang == 'ru';
 
-Faqat JSON qaytaring, boshqa matn yo'q. Format:
+    final systemPrompt = isRu
+        ? '''Ты немецко-русский лексикограф. Проанализируй немецкое слово или выражение и ответь в формате JSON.
+
+Правила качества:
+- Учитывай ВСЕ распространённые значения слова, каждое — отдельным элементом массива "meanings".
+- Если это существительное, ОБЯЗАТЕЛЬНО укажи артикль и форму множественного числа в поле "grammar" (например: "der Tisch, -e").
+- Если это глагол, укажи в "grammar" управление и форму Perfekt (например: "kommen, kam, ist gekommen").
+- Пример предложения должен быть простым (уровень A1–B1) и естественным.
+- "translation" — точный русский перевод значения.
+
+Ответь ТОЛЬКО валидным JSON, без markdown и пояснений. Формат:
+{
+  "original": "немецкое слово",
+  "meanings": [
+    {
+      "translation": "русский перевод",
+      "grammar": "грамматическая информация (артикль/мн.число/управление)",
+      "exampleGerman": "пример предложения на немецком",
+      "exampleUzbek": "перевод примера на русский"
+    }
+  ]
+}'''
+        : '''Sen nemis-o'zbek lug'atshunosisan. Berilgan nemis so'z yoki iborani tahlil qilib, JSON formatida javob ber.
+
+Sifat qoidalari:
+- So'zning BARCHA keng tarqalgan ma'nolarini hisobga ol, har birini "meanings" massivida alohida element qil.
+- Agar bu ot bo'lsa, "grammar" maydonida artikl va ko'plik shaklini ALBATTA ko'rsat (masalan: "der Tisch, -e").
+- Agar bu fe'l bo'lsa, "grammar" maydonida fe'l boshqaruvi va Perfekt shaklini ko'rsat (masalan: "kommen, kam, ist gekommen").
+- Misol gap oddiy (A1–B1 daraja) va tabiiy bo'lsin.
+- "translation" — ma'noning aniq o'zbekcha tarjimasi.
+
+FAQAT to'g'ri JSON qaytar, markdown yoki izohsiz. Format:
 {
   "original": "nemischa so'z",
   "meanings": [
     {
       "translation": "o'zbekcha tarjima",
+      "grammar": "grammatik ma'lumot (artikl/ko'plik/boshqaruv)",
       "exampleGerman": "nemischa misol gap",
-      "exampleUzbek": "o'zbekcha misol tarjimasi"
+      "exampleUzbek": "misolning o'zbekcha tarjimasi"
     }
   ]
-}
+}''';
 
-Agar bir nechta ma'nosi bo'lsa, "meanings" massivida barchasini yozing.
-Har bir ma'no uchun alohida misol gap va uning tarjimasini ko'rsating.''',
-        },
+    final raw = await _chatOrdered(
+      order: _translationOrder(targetLang),
+      temperature: 0.2,
+      messages: [
+        {'role': 'system', 'content': systemPrompt},
         {'role': 'user', 'content': text},
       ],
     );
 
     try {
       final decoded = jsonDecode(_extractJson(raw));
-      if (decoded is Map<String, dynamic>) {
-        if (!decoded.containsKey('original') || decoded['original'] == null || decoded['original'].toString().isEmpty) {
-          decoded['original'] = text;
-        }
-        return decoded;
-      }
       if (decoded is Map) {
         final map = Map<String, dynamic>.from(decoded);
-        if (!map.containsKey('original') || map['original'] == null || map['original'].toString().isEmpty) {
+        if (!map.containsKey('original') ||
+            map['original'] == null ||
+            map['original'].toString().isEmpty) {
           map['original'] = text;
         }
         return map;
@@ -299,7 +334,8 @@ Har bir ma'no uchun alohida misol gap va uning tarjimasini ko'rsating.''',
       'original': text,
       'meanings': [
         {
-          'translation': await translateGermanText(text: text),
+          'translation': await translateGermanText(text: text, targetLang: targetLang),
+          'grammar': '',
           'exampleGerman': '',
           'exampleUzbek': '',
         }

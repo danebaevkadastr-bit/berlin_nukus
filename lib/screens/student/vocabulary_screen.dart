@@ -588,44 +588,45 @@ class _WordListScreenState extends State<WordListScreen> {
       ),
       body: widget.words.isEmpty
           ? SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
               child: Builder(builder: (context) {
                 final l = AppLocalizations.of(context);
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                     Text(
                       l.noWordsYet,
+                      textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 26,
                         fontWeight: FontWeight.w900,
                         color: isDark ? Colors.white : AppColors.duoTextDark,
                       ),
                     ),
-                    const SizedBox(height: 48),
-                    _TimelineStage(
+                    const SizedBox(height: 40),
+                    // Bosqich 1 — belgi chapda
+                    _EmptyStageRow(
                       number: 1,
                       title: l.vocabStage1Desc,
-                      isActive: false,
-                      isCompleted: false,
-                      onTap: () {},
+                      badgeOnLeft: true,
+                      isDark: isDark,
                     ),
-                    const _TimelineConnector(isActive: false),
-                    _TimelineStage(
+                    const _SnakeConnector(leftToRight: true),
+                    // Bosqich 2 — belgi o'ngda
+                    _EmptyStageRow(
                       number: 2,
                       title: l.vocabStage2Desc,
-                      isActive: false,
-                      isCompleted: false,
-                      onTap: () {},
+                      badgeOnLeft: false,
+                      isDark: isDark,
                     ),
-                    const _TimelineConnector(isActive: false),
-                    _TimelineStage(
+                    const _SnakeConnector(leftToRight: false),
+                    // Bosqich 3 — belgi chapda
+                    _EmptyStageRow(
                       number: 3,
                       title: l.vocabStage3Desc,
-                      isActive: false,
-                      isCompleted: false,
-                      onTap: () {},
+                      badgeOnLeft: true,
+                      isDark: isDark,
                     ),
                   ],
                 );
@@ -679,8 +680,17 @@ class _WordTimelineCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white12 : AppColors.duoCardGray,
+          width: 1.5,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -693,36 +703,37 @@ class _WordTimelineCard extends StatelessWidget {
               color: isDark ? Colors.white : AppColors.duoTextDark,
             ),
           ),
+          const SizedBox(height: 12),
+
+          // Ma'nolari (tarjima + misol gaplar)
+          ...word.meanings.map((m) => _MeaningBlock(meaning: m, isDark: isDark)),
+
           const SizedBox(height: 16),
-          
-          // Timeline
+          Container(height: 1, color: isDark ? Colors.white12 : AppColors.duoCardGray),
+          const SizedBox(height: 16),
+
+          // O'rganish bosqichi selektori
           Builder(builder: (context) {
             final l = AppLocalizations.of(context);
-            return Column(
+            return Row(
               children: [
-                _TimelineStage(
-                  number: 1,
-                  title: l.vocabStage1Desc,
-                  isActive: word.learningStage >= 1,
-                  isCompleted: word.learningStage > 1,
-                  onTap: () => onStageChange(1),
+                Text(
+                  l.learningStageLabel,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                  ),
                 ),
-                _TimelineConnector(isActive: word.learningStage > 1),
-                _TimelineStage(
-                  number: 2,
-                  title: l.vocabStage2Desc,
-                  isActive: word.learningStage >= 2,
-                  isCompleted: word.learningStage > 2,
-                  onTap: () => onStageChange(2),
-                ),
-                _TimelineConnector(isActive: word.learningStage > 2),
-                _TimelineStage(
-                  number: 3,
-                  title: l.vocabStage3Desc,
-                  isActive: word.learningStage >= 3,
-                  isCompleted: word.learningStage >= 3,
-                  onTap: () => onStageChange(3),
-                ),
+                const Spacer(),
+                for (int i = 1; i <= 3; i++) ...[
+                  if (i > 1) const SizedBox(width: 8),
+                  _StageDot(
+                    number: i,
+                    isActive: word.learningStage >= i,
+                    onTap: () => onStageChange(i),
+                  ),
+                ],
               ],
             );
           }),
@@ -732,132 +743,283 @@ class _WordTimelineCard extends StatelessWidget {
   }
 }
 
-class _TimelineStage extends StatelessWidget {
-  final int number;
-  final String title;
-  final bool isActive;
-  final bool isCompleted;
-  final VoidCallback onTap;
+class _MeaningBlock extends StatelessWidget {
+  final WordMeaning meaning;
+  final bool isDark;
 
-  const _TimelineStage({
-    required this.number,
-    required this.title,
-    required this.isActive,
-    required this.isCompleted,
-    required this.onTap,
-  });
+  const _MeaningBlock({required this.meaning, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = ThemeManager.isDark;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Number badge
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: isActive ? const Color(0xFF8B7BA8) : (isDark ? Colors.white24 : Colors.grey[300]),
-              borderRadius: BorderRadius.circular(16),
+          // Tarjima
+          if (meaning.translation.isNotEmpty)
+            Text(
+              meaning.translation,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
             ),
-            child: Center(
+          // Grammatik ma'lumot
+          if (meaning.grammar.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
               child: Text(
-                '$number',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                meaning.grammar,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  fontStyle: FontStyle.italic,
+                  color: isDark ? Colors.white54 : AppColors.duoBlue,
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          
-          // Description
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(16),
-              ),
+          // Misol gap (nemis)
+          if (meaning.exampleGerman.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
               child: Text(
-                title,
+                meaning.exampleGerman,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? Colors.white70 : Colors.black87,
-                  height: 1.4,
+                  fontStyle: FontStyle.italic,
+                  color: isDark ? Colors.white60 : AppColors.duoTextLight,
                 ),
               ),
             ),
-          ),
+          // Misol gap (o'zbek)
+          if (meaning.exampleUzbek.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                meaning.exampleUzbek,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 }
 
-class _TimelineConnector extends StatelessWidget {
+class _StageDot extends StatelessWidget {
+  final int number;
   final bool isActive;
+  final VoidCallback onTap;
 
-  const _TimelineConnector({required this.isActive});
+  const _StageDot({
+    required this.number,
+    required this.isActive,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 28),
+    final isDark = ThemeManager.isDark;
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        width: 2,
-        height: 40,
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: isActive
-                ? [const Color(0xFF8B7BA8), const Color(0xFF8B7BA8)]
-                : [Colors.grey[300]!, Colors.grey[300]!],
-          ),
+          color: isActive ? _kStageColor : (isDark ? Colors.white12 : Colors.grey[200]),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isActive
+              ? const [BoxShadow(color: _kStageShadow, offset: Offset(0, 3), blurRadius: 0)]
+              : null,
         ),
-        child: CustomPaint(
-          painter: _DottedLinePainter(isActive: isActive),
+        child: Center(
+          child: Text(
+            '$number',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: isActive ? Colors.white : (isDark ? Colors.white38 : Colors.grey),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class _DottedLinePainter extends CustomPainter {
-  final bool isActive;
+// ── Bo'sh holat: zigzag (ilon) tartibidagi bosqichlar ──────────────────────────
+const Color _kStageColor = Color(0xFF8B7BA8);
+const Color _kStageShadow = Color(0xFF6F5F8C);
 
-  _DottedLinePainter({required this.isActive});
+class _EmptyStageRow extends StatelessWidget {
+  final int number;
+  final String title;
+  final bool badgeOnLeft;
+  final bool isDark;
+
+  const _EmptyStageRow({
+    required this.number,
+    required this.title,
+    required this.badgeOnLeft,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final badge = _StageBadge(number: number);
+    final bubble = Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.duoCardGray.withValues(alpha: 0.12)
+              : const Color(0xFFF1EDF5),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            height: 1.4,
+            color: isDark ? Colors.white70 : const Color(0xFF4A4458),
+          ),
+        ),
+      ),
+    );
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: badgeOnLeft
+          ? [badge, const SizedBox(width: 20), bubble]
+          : [bubble, const SizedBox(width: 20), badge],
+    );
+  }
+}
+
+class _StageBadge extends StatelessWidget {
+  final int number;
+
+  const _StageBadge({required this.number});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        color: _kStageColor,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [
+          BoxShadow(
+            color: _kStageShadow,
+            offset: Offset(0, 5),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          '$number',
+          style: const TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w900,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bosqichlarni bog'lovchi egri (ilon shaklidagi) chiziqli punktir.
+/// [leftToRight] true bo'lsa chapdagi belgidan o'ngdagi belgiga,
+/// false bo'lsa o'ngdan chapga buriladi.
+class _SnakeConnector extends StatelessWidget {
+  final bool leftToRight;
+
+  const _SnakeConnector({required this.leftToRight});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 90,
+      width: double.infinity,
+      child: CustomPaint(
+        painter: _SnakePainter(leftToRight: leftToRight),
+      ),
+    );
+  }
+}
+
+class _SnakePainter extends CustomPainter {
+  final bool leftToRight;
+
+  _SnakePainter({required this.leftToRight});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = isActive ? const Color(0xFF8B7BA8) : Colors.grey[300]!
-      ..strokeWidth = 2
+      ..color = _kStageColor
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    const dashHeight = 5;
-    const dashSpace = 5;
-    double startY = 0;
+    // Belgilar markazi (64px belgi kengligining yarmi = 32)
+    const double badgeCenter = 32;
+    final double startX = leftToRight ? badgeCenter : size.width - badgeCenter;
+    final double endX = leftToRight ? size.width - badgeCenter : badgeCenter;
+    const double radius = 18;
 
-    while (startY < size.height) {
-      canvas.drawLine(
-        Offset(size.width / 2, startY),
-        Offset(size.width / 2, startY + dashHeight),
-        paint,
-      );
-      startY += dashHeight + dashSpace;
+    final path = Path()..moveTo(startX, 0);
+    // Pastga tushish
+    path.lineTo(startX, size.height / 2 - radius);
+    // Gorizontalga buriladigan burchak
+    path.arcToPoint(
+      Offset(startX + (leftToRight ? radius : -radius), size.height / 2),
+      radius: const Radius.circular(18),
+      clockwise: !leftToRight,
+    );
+    // Gorizontal yo'l
+    path.lineTo(endX - (leftToRight ? radius : -radius), size.height / 2);
+    // Pastga buriladigan burchak
+    path.arcToPoint(
+      Offset(endX, size.height / 2 + radius),
+      radius: const Radius.circular(18),
+      clockwise: leftToRight,
+    );
+    // Pastki belgigacha tushish
+    path.lineTo(endX, size.height);
+
+    _drawDashedPath(canvas, path, paint);
+  }
+
+  void _drawDashedPath(Canvas canvas, Path source, Paint paint) {
+    const double dashWidth = 7;
+    const double dashSpace = 6;
+    for (final metric in source.computeMetrics()) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final double next = distance + dashWidth;
+        canvas.drawPath(
+          metric.extractPath(distance, next.clamp(0, metric.length)),
+          paint,
+        );
+        distance = next + dashSpace;
+      }
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _SnakePainter oldDelegate) =>
+      oldDelegate.leftToRight != leftToRight;
 }
+
 
 

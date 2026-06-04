@@ -3497,6 +3497,12 @@ class AppLocalizations {
     'ru': "У вас пока нет слов",
     'de': "Sie haben noch keine Wörter",
   });
+  String get learningStageLabel => _t({
+    'uz': "O'rganish bosqichi",
+    'kaa': "Úyreniw basqıshı",
+    'ru': "Этап изучения",
+    'de': "Lernstufe",
+  });
   String get vocabStage1Desc => _t({
     'uz': "Darslikdan yangi so'zlar qo'shing — ular shu yerda saqlanadi.",
     'kaa': "Sabaqtan jańa sózler qosıń — olar usı jerde saqlanadı.",

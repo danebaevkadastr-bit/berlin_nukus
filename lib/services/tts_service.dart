@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:aws_signature_v4/aws_signature_v4.dart';
-import 'package:aws_common/aws_common.dart';
+import 'package:http/http.dart' as http;
 
 /// Text-to-speech for German AI replies.
 /// Avval Amazon Polly ishlatiladi. U ishlamasa flutter_tts zaxiraga o'tadi.
@@ -88,23 +88,15 @@ class TTSService {
     required String voiceId,
     required double rateValue,
   }) async {
-    final accessKey = dotenv.env['AWS_ACCESS_KEY_ID']?.trim() ?? '';
-    final secretKey = dotenv.env['AWS_SECRET_ACCESS_KEY']?.trim() ?? '';
+    final proxyUrl =
+        (dotenv.env['CF_WORKER_URL'] ?? '').trim().replaceAll(RegExp(r'/+$'), '');
     final region = dotenv.env['AWS_REGION']?.trim() ?? 'eu-central-1';
 
-    if (accessKey.isEmpty || secretKey.isEmpty) {
-      throw Exception('AWS Credentials not found in .env');
+    if (proxyUrl.isEmpty) {
+      throw Exception('CF_WORKER_URL not set');
     }
 
     final profile = _voiceProfile(voiceId);
-
-    final signer = AWSSigV4Signer(
-      credentialsProvider: AWSCredentialsProvider(
-        AWSCredentials(accessKey, secretKey),
-      ),
-    );
-
-    final url = Uri.parse('https://polly.$region.amazonaws.com/v1/speech');
 
     // Tezlikni SSML orqali boshqarish
     final ssmlRate = '${((profile.pollyRate * rateValue) * 100).round()}%';
@@ -115,28 +107,38 @@ class TTSService {
     final isNeural =
         profile.pollyVoiceId == 'Vicki' || profile.pollyVoiceId == 'Daniel';
 
-    final requestUrl = url.replace(queryParameters: {
-      'Text': ssmlText,
-      'TextType': 'ssml',
-      'OutputFormat': 'mp3',
-      'VoiceId': profile.pollyVoiceId,
-      'Engine': isNeural ? 'neural' : 'standard',
-    });
+    // Maxfiy AWS kalitlari ilovada saqlanmaydi — presigned URL'ni proksi
+    // (Cloudflare Worker) imzolab beradi.
+    final appToken = dotenv.env['APP_TOKEN']?.trim() ?? '';
+    final response = await http
+        .post(
+          Uri.parse(proxyUrl),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Proxy-Target': 'polly',
+            if (appToken.isNotEmpty) 'X-App-Token': appToken,
+          },
+          body: jsonEncode({
+            'region': region,
+            'text': ssmlText,
+            'voiceId': profile.pollyVoiceId,
+            'engine': isNeural ? 'neural' : 'standard',
+            'outputFormat': 'mp3',
+          }),
+        )
+        .timeout(const Duration(seconds: 15));
 
-    final request = AWSHttpRequest.get(requestUrl);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Polly proxy error (${response.statusCode}): ${response.body}');
+    }
 
-    final scope = AWSCredentialScope(
-      region: region,
-      service: const AWSService('polly'),
-    );
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final signedUrl = (data['url'] ?? '').toString();
+    if (signedUrl.isEmpty) {
+      throw Exception('Polly proxy javobida url yo\'q');
+    }
 
-    final signedUrl = await signer.presign(
-      request,
-      credentialScope: scope,
-      expiresIn: const Duration(minutes: 15),
-    );
-
-    await _audioPlayer.play(UrlSource(signedUrl.toString()));
+    await _audioPlayer.play(UrlSource(signedUrl));
   }
 
   Future<void> _playWithFlutterTts({

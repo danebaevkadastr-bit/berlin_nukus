@@ -7,6 +7,7 @@ import '../../../utils/theme_manager.dart';
 import '../../../widgets/decorative_pattern_background.dart';
 import '../../../widgets/gamified_card.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../l10n/locale_manager.dart';
 import '../../../services/vocabulary_service.dart';
 
 class TranslationScreen extends StatefulWidget {
@@ -87,7 +88,12 @@ class _TranslationScreenState extends State<TranslationScreen> {
     });
 
     try {
-      final result = await AIService.translateWithMeanings(text: text);
+      final targetLang =
+          LocaleManager.currentLocale.value.code == 'ru' ? 'ru' : 'uz';
+      final result = await AIService.translateWithMeanings(
+        text: text,
+        targetLang: targetLang,
+      );
       if (!mounted) return;
       setState(() {
         _translationResult = result;
@@ -110,6 +116,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
       final map = e as Map<String, dynamic>;
       return WordMeaning(
         translation: map['translation']?.toString() ?? '',
+        grammar: map['grammar']?.toString() ?? '',
         exampleGerman: map['exampleGerman']?.toString() ?? '',
         exampleUzbek: map['exampleUzbek']?.toString() ?? '',
       );
@@ -393,6 +400,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
   Widget _buildMeaningCard(Map<String, dynamic> meaning, bool isDark, int index) {
     final l = AppLocalizations.of(context);
     final translation = meaning['translation'] ?? '';
+    final grammar = (meaning['grammar'] ?? '').toString();
     final exampleGerman = meaning['exampleGerman'] ?? '';
     final exampleUzbek = meaning['exampleUzbek'] ?? '';
 
@@ -438,6 +446,27 @@ class _TranslationScreenState extends State<TranslationScreen> {
               ),
             ],
           ),
+
+          // Grammatik ma'lumot (artikl / ko'plik / fe'l boshqaruvi)
+          if (grammar.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.duoBlue.withValues(alpha: isDark ? 0.18 : 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                grammar,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  fontStyle: FontStyle.italic,
+                  color: isDark ? Colors.white70 : AppColors.duoBlue,
+                ),
+              ),
+            ),
+          ],
           
           // Example if available
           if (exampleGerman.isNotEmpty && exampleUzbek.isNotEmpty) ...[

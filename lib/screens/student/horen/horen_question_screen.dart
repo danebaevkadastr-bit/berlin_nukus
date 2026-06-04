@@ -435,12 +435,18 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
                 : null,
           ),
           alignment: Alignment.center,
-          child: Text(
-            '${i + 1}',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
-              color: textColor,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Text(
+                '${i + 1}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: textColor,
+                ),
+              ),
             ),
           ),
         ),

@@ -1,3 +1,29 @@
 name = "berlinnukus-proxy"
 main = "index.js"
 compatibility_date = "2024-05-24"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RATE LIMITING (IP bo'yicha) — Cloudflare native rate limiter.
+# Har bir IP uchun 60 soniyada 30 ta so'rovga ruxsat (kerak bo'lsa o'zgartiring).
+# ─────────────────────────────────────────────────────────────────────────────
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 30, period = 60 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MAXFIY KALITLAR (Secrets) — bu yerga YOZILMAYDI!
+# Quyidagi buyruqlar bilan Cloudflare'ga xavfsiz joylanadi:
+#
+#   wrangler secret put APP_TOKEN              # ilova yuboradigan maxfiy token
+#   wrangler secret put QWEN_API_KEY
+#   wrangler secret put CEREBRAS_API_KEY
+#   wrangler secret put MISTRAL_API_KEY
+#   wrangler secret put GEMINI_API_KEY
+#   wrangler secret put ONESIGNAL_REST_API_KEY
+#   wrangler secret put AWS_ACCESS_KEY_ID
+#   wrangler secret put AWS_SECRET_ACCESS_KEY
+#
+# Har bir buyruqdan keyin terminal qiymatni so'raydi (ekranda ko'rinmaydi).
+# ─────────────────────────────────────────────────────────────────────────────
