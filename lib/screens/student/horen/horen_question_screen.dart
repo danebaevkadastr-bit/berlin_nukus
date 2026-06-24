@@ -31,6 +31,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   bool _isLoading = false;
+  bool _audioError = false;
 
   // Stream subscriptions
   final List<StreamSubscription> _subscriptions = [];
@@ -116,6 +117,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     if (url.isEmpty) return;
     setState(() {
       _isLoading = true;
+      _audioError = false;
       _position = Duration.zero;
       _duration = Duration.zero;
     });
@@ -125,19 +127,32 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
       // Get duration after setting source
       final dur = await _player.getDuration();
       if (mounted && dur != null) setState(() => _duration = dur);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[Horen] Audio yuklab bo\'lmadi: $e');
+      if (mounted) setState(() => _audioError = true);
+    }
     if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _togglePlay() async {
     if (_current.audioUrl.isEmpty) return;
-    if (_isPlaying) {
-      await _player.pause();
-    } else {
-      if (_position >= _duration && _duration > Duration.zero) {
-        await _player.seek(Duration.zero);
+    // Avval xato bo'lgan bo'lsa — qayta yuklashga urinamiz
+    if (_audioError) {
+      await _loadAudio();
+      if (_audioError) return;
+    }
+    try {
+      if (_isPlaying) {
+        await _player.pause();
+      } else {
+        if (_position >= _duration && _duration > Duration.zero) {
+          await _player.seek(Duration.zero);
+        }
+        await _player.resume();
       }
-      await _player.resume();
+    } catch (e) {
+      debugPrint('[Horen] Audio ijro xatosi: $e');
+      if (mounted) setState(() => _audioError = true);
     }
   }
 
@@ -187,6 +202,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     if (newUrl != previousUrl) {
       setState(() {
         _isLoading = false;
+        _audioError = false;
         _position = Duration.zero;
         _duration = Duration.zero;
       });
@@ -582,6 +598,55 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // Audio yuklashda xato — sababini ko'rsatamiz va qayta urinish tugmasi
+          if (hasAudio && _audioError) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.error_outline_rounded,
+                    size: 16, color: AppColors.duoRed),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context).horenAudioError,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.duoRed,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _loadAudio,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.duoRed.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.refresh_rounded,
+                            size: 14, color: AppColors.duoRed),
+                        const SizedBox(width: 4),
+                        Text(
+                          AppLocalizations.of(context).horenAudioRetry,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.duoRed,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

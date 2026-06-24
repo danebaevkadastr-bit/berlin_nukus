@@ -7,6 +7,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/schreiben_tasks.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/level_picker_sheet.dart';
 
 class SchreibenScreen extends StatefulWidget {
   const SchreibenScreen({super.key});
@@ -24,9 +25,13 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
   final _mainScrollController = ScrollController();
 
   int _currentIndex = 0;
+  String _level = 'A2';
   bool _isEvaluating = false;
   String? _evaluation;
   bool _showSampleHint = false;
+
+  List<SchreibenTask> get _tasks => schreibenTasksForLevel(_level);
+  int get _taskCount => _tasks.length;
 
   @override
   void dispose() {
@@ -36,7 +41,67 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
     super.dispose();
   }
 
-  SchreibenTask get _task => schreibenTaskByIndex(_currentIndex);
+  SchreibenTask get _task => _tasks[_currentIndex];
+
+  Color _levelColor(String level) {
+    switch (level) {
+      case 'A2':
+        return AppColors.duoBlue;
+      case 'B1':
+        return AppColors.duoOrange;
+      default:
+        return AppColors.duoBlue;
+    }
+  }
+
+  Color _levelShadow(String level) {
+    switch (level) {
+      case 'A2':
+        return AppColors.duoBlueShadow;
+      case 'B1':
+        return AppColors.duoOrangeShadow;
+      default:
+        return AppColors.duoBlueShadow;
+    }
+  }
+
+  String _levelName(AppLocalizations l, String level) {
+    switch (level) {
+      case 'A2':
+        return l.horenA2LevelName;
+      case 'B1':
+        return l.horenB1LevelName;
+      default:
+        return level;
+    }
+  }
+
+  void _showLevelPicker(AppLocalizations l, bool isDark) async {
+    final selected = await LevelPickerSheet.show(
+      context: context,
+      isDark: isDark,
+      title: l.horenSelectLevel,
+      levels: schreibenLevels,
+      selectedLevel: _level,
+      levelName: (lvl) => _levelName(l, lvl),
+      comingSoonLabel: l.horenComingSoon,
+    );
+    if (selected != null) {
+      _changeLevel(selected);
+    }
+  }
+
+  void _changeLevel(String level) {
+    if (level == _level) return;
+    setState(() {
+      _level = level;
+      _currentIndex = 0;
+      _answerController.clear();
+      _evaluation = null;
+      _showSampleHint = false;
+    });
+    _scrollTaskPickerTo(0);
+  }
 
   int _wordCount(String text) {
     final trimmed = text.trim();
@@ -45,7 +110,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
   }
 
   void _goToTask(int index) {
-    if (index < 0 || index >= schreibenTaskCount || index == _currentIndex) {
+    if (index < 0 || index >= _taskCount || index == _currentIndex) {
       return;
     }
     setState(() {
@@ -90,6 +155,8 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
         minWords: _task.minWords,
         answer: answer,
         wordCount: _wordCount(answer),
+        level: _level,
+        letter: _task.letter,
       );
       if (!mounted) return;
       setState(() {
@@ -118,6 +185,8 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
     final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
     final words = _wordCount(_answerController.text);
+    final levelColor = _levelColor(_level);
+    final levelShadow = _levelShadow(_level);
 
     return ValueListenableBuilder<AccentPreset>(
       valueListenable: ThemeManager.accentNotifier,
@@ -134,13 +203,27 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-            title: Text(
-              l.schreibenTitle,
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                color: isDark ? Colors.white : AppColors.duoTextDark,
-                letterSpacing: 1.0,
-                fontSize: 18,
+            title: GestureDetector(
+              onTap: () => _showLevelPicker(l, isDark),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${l.schreibenTitle} – $_level',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : AppColors.duoTextDark,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 22,
+                    color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                  ),
+                ],
               ),
             ),
             centerTitle: true,
@@ -149,7 +232,75 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
           ),
           body: Column(
             children: [
-              _buildTaskPicker(isDark),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                child: GamifiedCard(
+                  color: levelColor,
+                  shadowColor: levelShadow,
+                  shadowDepth: 6,
+                  padding: const EdgeInsets.all(18),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.edit_note_rounded,
+                          color: Colors.white, size: 40),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${l.schreibenTitle} – $_level',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _levelName(l, _level),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white.withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => _showLevelPicker(l, isDark),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _level,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.swap_vert_rounded,
+                                  color: Colors.white, size: 16),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              _buildTaskPicker(isDark, levelColor, levelShadow),
               Expanded(
                 child: SingleChildScrollView(
                   controller: _mainScrollController,
@@ -176,19 +327,19 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
     );
   }
 
-  Widget _buildTaskPicker(bool isDark) {
+  Widget _buildTaskPicker(bool isDark, Color levelColor, Color levelShadow) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Row(
         children: [
           GamifiedCard(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            color: _accent,
-            shadowColor: _accentShadow,
+            color: levelColor,
+            shadowColor: levelShadow,
             shadowDepth: 4,
             borderRadius: 20,
             child: Text(
-              '${_currentIndex + 1} / $schreibenTaskCount',
+              '${_currentIndex + 1} / $_taskCount',
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w900,
@@ -203,7 +354,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
               child: ListView.builder(
                 controller: _taskScrollController,
                 scrollDirection: Axis.horizontal,
-                itemCount: schreibenTaskCount,
+                itemCount: _taskCount,
                 itemBuilder: (context, i) {
                   final selected = i == _currentIndex;
                   return Padding(
@@ -216,13 +367,13 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: selected
-                              ? _accent
+                              ? levelColor
                               : (isDark
                                   ? AppColors.duoCardGray.withValues(alpha: 0.2)
                                   : Colors.white),
                           border: Border.all(
                             color: selected
-                                ? _accentShadow
+                                ? levelShadow
                                 : (isDark
                                     ? Colors.white24
                                     : AppColors.duoCardGrayShadow),
@@ -231,7 +382,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                           boxShadow: selected
                               ? [
                                   BoxShadow(
-                                    color: _accentShadow,
+                                    color: levelShadow,
                                     offset: const Offset(0, 3),
                                   ),
                                 ]
@@ -332,6 +483,10 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
             ),
           ),
           const SizedBox(height: 14),
+          if (_task.letter != null && _task.letter!.isNotEmpty) ...[
+            _buildLetterCard(context, isDark),
+            const SizedBox(height: 14),
+          ],
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -457,6 +612,58 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLetterCard(BuildContext context, bool isDark) {
+    final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
+    final textSecondary = isDark ? Colors.white70 : AppColors.duoTextLight;
+    final letterBg = isDark
+        ? AppColors.duoBlue.withValues(alpha: 0.12)
+        : AppColors.duoBlue.withValues(alpha: 0.06);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: letterBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.duoBlue.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.mail_outline_rounded,
+                  size: 18, color: AppColors.duoBlue),
+              const SizedBox(width: 8),
+              Text(
+                'Brief',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: textSecondary,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _task.letter!,
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: textPrimary,
+              height: 1.5,
+            ),
+          ),
         ],
       ),
     );
@@ -686,7 +893,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
   Widget _buildBottomBar(BuildContext context, bool isDark) {
     final l = AppLocalizations.of(context);
     final canGoBack = _currentIndex > 0;
-    final canGoNext = _currentIndex < schreibenTaskCount - 1;
+    final canGoNext = _currentIndex < _taskCount - 1;
     final textColor = isDark ? Colors.white : AppColors.duoTextDark;
     final disabledText = isDark ? Colors.white38 : AppColors.duoTextLight;
 

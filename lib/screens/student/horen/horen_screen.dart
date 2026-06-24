@@ -4,6 +4,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/gamified_card.dart';
+import '../../../widgets/level_picker_sheet.dart';
 import 'horen_data.dart';
 import 'horen_question_screen.dart';
 
@@ -34,26 +35,46 @@ class _HorenScreenState extends State<HorenScreen> {
     final Map<int, int> correct = {};
     final Map<int, int> wrong = {};
 
-    // A1 yoki B1 ga qarab ma'lumotlarni yuklash
-    final currentLevel = _selectedLevel == 'A1' ? horenA1 : (_selectedLevel == 'B1' ? horenB1 : horenA1);
-    
-    for (final teil in currentLevel.teile) {
-      int c = 0, w = 0;
-      for (int i = 0; i < teil.questions.length; i++) {
-        final val = prefs.getString(
-            'horen_${_selectedLevel}_teil${teil.teilNumber}_q$i');
-        if (val == 'true') c++;
-        if (val == 'false') w++;
+    // Faqat ma'lumoti bor darajalar uchun statistikani yuklaymiz
+    final currentLevel = _levelData(_selectedLevel);
+
+    if (currentLevel != null) {
+      for (final teil in currentLevel.teile) {
+        int c = 0, w = 0;
+        for (int i = 0; i < teil.questions.length; i++) {
+          final val = prefs.getString(
+              'horen_${_selectedLevel}_teil${teil.teilNumber}_q$i');
+          if (val == 'true') c++;
+          if (val == 'false') w++;
+        }
+        correct[teil.teilNumber] = c;
+        wrong[teil.teilNumber] = w;
       }
-      correct[teil.teilNumber] = c;
-      wrong[teil.teilNumber] = w;
     }
 
     if (mounted) {
       setState(() {
-        _correctMap.addAll(correct);
-        _wrongMap.addAll(wrong);
+        // Eski darajaning raqamlari qolib ketmasligi uchun avval tozalaymiz
+        _correctMap
+          ..clear()
+          ..addAll(correct);
+        _wrongMap
+          ..clear()
+          ..addAll(wrong);
       });
+    }
+  }
+
+  /// Daraja uchun ma'lumotlarni qaytaradi. Ma'lumoti yo'q darajalar (A2, B2)
+  /// uchun null qaytaradi — shunda A1 kontenti noto'g'ri ko'rsatilmaydi.
+  HorenLevel? _levelData(String level) {
+    switch (level) {
+      case 'A1':
+        return horenA1;
+      case 'B1':
+        return horenB1;
+      default:
+        return null;
     }
   }
 
@@ -103,141 +124,21 @@ class _HorenScreenState extends State<HorenScreen> {
     }
   }
 
-  void _showLevelPicker(AppLocalizations l, bool isDark) {
-    showModalBottomSheet(
+  void _showLevelPicker(AppLocalizations l, bool isDark) async {
+    final selected = await LevelPickerSheet.show(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 46,
-                  height: 5,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.white24 : AppColors.duoCardGrayShadow,
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                ),
-                Text(
-                  l.horenSelectLevel,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.duoTextDark,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ..._levels.map((level) {
-                  final isSelected = _selectedLevel == level;
-                  final color = _levelColor(level);
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: () {
-                        setState(() => _selectedLevel = level);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? color.withValues(alpha: 0.1)
-                              : (isDark
-                                  ? Colors.white.withValues(alpha: 0.04)
-                                  : AppColors.duoBackground),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: isSelected
-                                ? color.withValues(alpha: 0.5)
-                                : (isDark
-                                    ? Colors.white12
-                                    : AppColors.duoCardGrayShadow),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: color,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                    color: _levelShadow(level), width: 2),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: _levelShadow(level),
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                level,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    level,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w900,
-                                      color: isDark
-                                          ? Colors.white
-                                          : AppColors.duoTextDark,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _levelName(l, level),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark
-                                          ? Colors.white54
-                                          : AppColors.duoTextLight,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (isSelected)
-                              Icon(Icons.check_circle_rounded,
-                                  color: color, size: 22),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-        );
-      },
+      isDark: isDark,
+      title: l.horenSelectLevel,
+      levels: _levels,
+      selectedLevel: _selectedLevel,
+      levelName: (lvl) => _levelName(l, lvl),
+      comingSoonLabel: l.horenComingSoon,
+      readyLevels: const {'A1', 'B1'},
     );
+    if (selected != null && selected != _selectedLevel) {
+      setState(() => _selectedLevel = selected);
+      _loadStats();
+    }
   }
 
   void _openTeil(HorenTeil teil) {
@@ -323,12 +224,12 @@ class _HorenScreenState extends State<HorenScreen> {
     final isDark = ThemeManager.isDark;
     final levelColor = _levelColor(_selectedLevel);
     final levelShadow = _levelShadow(_selectedLevel);
-    final isA1 = _selectedLevel == 'A1';
     final isB1 = _selectedLevel == 'B1';
-    
-    // Hozirgi daraja uchun ma'lumotlarni olish
-    final currentLevelData = isA1 ? horenA1 : (isB1 ? horenB1 : horenA1);
-    
+
+    // Hozirgi daraja uchun ma'lumotlarni olish. null bo'lsa — kontent yo'q.
+    final currentLevelData = _levelData(_selectedLevel);
+    final hasData = currentLevelData != null;
+
     // B1 uchun maxsus title va description
     final teil1Title = isB1 ? l.horenB1Teil1Title : l.horenTeil1Title;
     final teil1Desc = isB1 ? l.horenB1Teil1Desc : l.horenTeil1Desc;
@@ -473,11 +374,12 @@ class _HorenScreenState extends State<HorenScreen> {
               headerIcon: Icons.record_voice_over_rounded,
               color: AppColors.duoBlue,
               shadow: AppColors.duoBlueShadow,
-              totalQuestions: currentLevelData.teile[0].questions.length,
+              totalQuestions:
+                  hasData ? currentLevelData.teile[0].questions.length : 0,
               correct: _correctMap[1] ?? 0,
               wrong: _wrongMap[1] ?? 0,
-              isAvailable: isA1 || isB1,
-              onTap: (isA1 || isB1)
+              isAvailable: hasData,
+              onTap: hasData
                   ? () => _openTeil(currentLevelData.teile[0])
                   : () => _showComingSoon(l, isDark),
             ),
@@ -495,11 +397,12 @@ class _HorenScreenState extends State<HorenScreen> {
               headerIcon: Icons.campaign_rounded,
               color: AppColors.duoOrange,
               shadow: AppColors.duoOrangeShadow,
-              totalQuestions: currentLevelData.teile[1].questions.length,
+              totalQuestions:
+                  hasData ? currentLevelData.teile[1].questions.length : 0,
               correct: _correctMap[2] ?? 0,
               wrong: _wrongMap[2] ?? 0,
-              isAvailable: isA1 || isB1,
-              onTap: (isA1 || isB1)
+              isAvailable: hasData,
+              onTap: hasData
                   ? () => _openTeil(currentLevelData.teile[1])
                   : () => _showComingSoon(l, isDark),
             ),
@@ -517,16 +420,17 @@ class _HorenScreenState extends State<HorenScreen> {
               headerIcon: Icons.short_text_rounded,
               color: AppColors.duoGreen,
               shadow: AppColors.duoGreenShadow,
-              totalQuestions: currentLevelData.teile[2].questions.length,
+              totalQuestions:
+                  hasData ? currentLevelData.teile[2].questions.length : 0,
               correct: _correctMap[3] ?? 0,
               wrong: _wrongMap[3] ?? 0,
-              isAvailable: isA1 || isB1,
-              onTap: (isA1 || isB1)
+              isAvailable: hasData,
+              onTap: hasData
                   ? () => _openTeil(currentLevelData.teile[2])
                   : () => _showComingSoon(l, isDark),
             ),
 
-            if (!isA1 && !isB1) ...[
+            if (!hasData) ...[
               const SizedBox(height: 28),
               Container(
                 width: double.infinity,

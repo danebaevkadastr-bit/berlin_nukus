@@ -604,6 +604,14 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
     } catch (_) {
       if (!mounted) return;
       setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).ttsError),
+          backgroundColor: AppColors.duoRed,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 

@@ -27,6 +27,16 @@ class _TranslationScreenState extends State<TranslationScreen> {
   bool _isListening = false;
   String? _errorMessage;
 
+  @override
+  void initState() {
+    super.initState();
+    // Ovoz holati o'zgarganda tugma holatini yangilab turamiz (bir marta
+    // ro'yxatga olinadi — har bosishda emas).
+    _ttsService.onPlaybackStateChanged = () {
+      _ttsPlaying.value = _ttsService.isPlaying;
+    };
+  }
+
   Future<void> _speakText(String text) async {
     if (_ttsService.isPlaying) {
       await _ttsService.stop();
@@ -34,14 +44,24 @@ class _TranslationScreenState extends State<TranslationScreen> {
       return;
     }
     _ttsPlaying.value = true;
-    _ttsService.onPlaybackStateChanged = () {
-      _ttsPlaying.value = _ttsService.isPlaying;
-    };
-    await _ttsService.play(
-      text: text,
-      voiceId: 'de-DE-ElkeNeural',
-      rateValue: 1.0,
-    );
+    try {
+      await _ttsService.play(
+        text: text,
+        voiceId: 'de-DE-ElkeNeural',
+        rateValue: 1.0,
+      );
+    } catch (_) {
+      _ttsPlaying.value = false;
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).ttsError),
+          backgroundColor: AppColors.duoRed,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Future<void> _toggleListening() async {

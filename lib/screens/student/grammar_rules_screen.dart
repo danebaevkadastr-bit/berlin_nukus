@@ -328,15 +328,15 @@ class GrammarRulesScreen extends StatelessWidget {
   Color _getLevelColor(String level) {
     switch (level) {
       case 'A1':
-        return AppColors.duoBlue;
-      case 'A2':
         return AppColors.duoGreen;
+      case 'A2':
+        return AppColors.duoBlue;
       case 'B1':
         return AppColors.duoOrange;
       case 'B2':
         return AppColors.duoRed;
       default:
-        return AppColors.duoBlue;
+        return AppColors.duoGreen;
     }
   }
 }

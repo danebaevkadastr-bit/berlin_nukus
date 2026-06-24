@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/providers/user_provider.dart';
 import '../../utils/responsive_layout.dart';
 import '../../widgets/bottom_nav_bar.dart';
@@ -60,7 +61,21 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   }
 
   Future<void> _checkStreakAnimation() async {
+    if (!mounted) return;
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Dasturga eng birinchi marta kirilganda streak ekrani chiqmasin.
+    final prefs = await SharedPreferences.getInstance();
+    const launchedKey = 'app_launched_before';
+    final launchedBefore = prefs.getBool(launchedKey) ?? false;
+    if (!launchedBefore) {
+      await prefs.setBool(launchedKey, true);
+      // Birinchi kirishni belgilab qo'yamiz, lekin animatsiya ko'rsatilmaydi.
+      await StreakService.markFirstLoginToday(userProvider.uid);
+      await StreakService.recordActivity(userProvider.uid, minutes: 0);
+      return;
+    }
+
     final isFirstLogin = await StreakService.isFirstLoginToday(userProvider.uid);
     if (isFirstLogin) {
       setState(() {
@@ -69,13 +84,21 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       await StreakService.markFirstLoginToday(userProvider.uid);
       // minutes ni dispose da saqlaymiz, bu yerda faqat streak yangilanadi
       await StreakService.recordActivity(userProvider.uid, minutes: 0);
-      // 3 soniyadan keyin animatsiyani yopish
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) {
+      // Zaxira: foydalanuvchi bosmasa, 5 soniyadan keyin avtomatik yopiladi
+      Future.delayed(const Duration(seconds: 5), () {
+        if (mounted && _showStreakAnimation) {
           setState(() {
             _showStreakAnimation = false;
           });
         }
+      });
+    }
+  }
+
+  void _dismissStreakAnimation() {
+    if (_showStreakAnimation) {
+      setState(() {
+        _showStreakAnimation = false;
       });
     }
   }
@@ -121,7 +144,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     builder: (context) {
                       final streakL = AppLocalizations.of(context);
                       return Positioned.fill(
-                        child: Container(
+                        child: GestureDetector(
+                          onTap: _dismissStreakAnimation,
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
                           color: Colors.black.withValues(alpha: 0.7),
                           child: Center(
                             child: Column(
@@ -152,6 +178,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                 ),
                               ],
                             ),
+                          ),
                           ),
                         ),
                       );
@@ -184,7 +211,10 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     builder: (context) {
                       final streakL = AppLocalizations.of(context);
                       return Positioned.fill(
-                        child: Container(
+                        child: GestureDetector(
+                          onTap: _dismissStreakAnimation,
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
                           color: Colors.black.withValues(alpha: 0.7),
                           child: Center(
                             child: Column(
@@ -215,6 +245,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                 ),
                               ],
                             ),
+                          ),
                           ),
                         ),
                       );
@@ -380,16 +411,20 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
           return _buildLoadingState(isDark);
         }
 
+        // Xatolik yoki ma'lumot yo'q bo'lsa ham ekran qulamasin —
+        // bo'sh ro'yxat bilan davom etamiz (statistika 0 ko'rsatadi).
+        final groups = snapshot.data ?? const <Map<String, dynamic>>[];
+
         List<Map<String, dynamic>> pendingHomeworks = [];
         List<Map<String, dynamic>> upcomingLessons = [];
         Map<String, dynamic>? todayLesson;
         String? todayGroupTitle;
         String? todayTeacher;
 
-        if (snapshot.hasData) {
+        if (groups.isNotEmpty) {
           final todayKey = _formatDateKey(DateTime.now());
 
-          for (final data in snapshot.data!) {
+          for (final data in groups) {
             final lessonsMap = data['lessons'] as Map<String, dynamic>? ?? {};
 
             // Check today's lesson
@@ -459,7 +494,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
         int totalLessons = 0;
         int attendedLessons = 0;
 
-        for (final data in snapshot.data!) {
+        for (final data in groups) {
           final lessonsMap = data['lessons'] as Map<String, dynamic>? ?? {};
           for (final lessonEntry in lessonsMap.entries) {
             final lesson = lessonEntry.value as Map<String, dynamic>;
@@ -1303,8 +1338,8 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
 
                     // ── Peshqadamlar jadvali ──
                     StreamBuilder<List<Map<String, dynamic>>>(
-                      stream: snapshot.hasData && snapshot.data!.isNotEmpty
-                          ? FirebaseService().getGroupLeaderboardStream(snapshot.data!.first['id'])
+                      stream: groups.isNotEmpty
+                          ? FirebaseService().getGroupLeaderboardStream(groups.first['id'])
                           : Stream.value([]),
                       builder: (context, leaderboardSnapshot) {
                         final leaderboard = leaderboardSnapshot.data ?? [];

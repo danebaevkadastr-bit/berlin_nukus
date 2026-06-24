@@ -104,7 +104,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
       if (!mounted) return;
 
-      if (userProvider.firebaseUser != null) {
+      final user = FirebaseAuth.instance.currentUser ?? userProvider.firebaseUser;
+      if (user != null) {
+        await userProvider.loadUserDataByUid(user.uid);
+        if (!mounted) return;
         AuthNavigation.replaceWith(
           context,
           AuthNavigation.homeScreenForRole(userProvider.role),
@@ -121,9 +124,38 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         _isGoogleLoading = false;
       });
 
+      String errorMsg = l.genericError;
+      if (e is FirebaseAuthException) {
+        final code = e.code.replaceFirst('auth/', '');
+        switch (code) {
+          case 'popup-closed-by-user':
+          case 'cancelled-popup-request':
+            return;
+          case 'account-exists-with-different-credential':
+            errorMsg =
+                'Bu email boshqa usul bilan ro\'yxatdan o\'tgan. Email/parol bilan kiring.';
+            break;
+          case 'invalid-credential':
+          case 'sign_in_failed':
+            errorMsg = e.message ??
+                'Google kirish muvaffaqiyatsiz. Firebase Console da SHA-1 qo\'shilganligini tekshiring.';
+            break;
+          case 'unauthorized-domain':
+            errorMsg = 'Bu domen Google kirish uchun ruxsat etilmagan.';
+            break;
+          case 'operation-not-allowed':
+            errorMsg = 'Google kirish Firebase da yoqilmagan.';
+            break;
+          default:
+            errorMsg = e.message ?? '$errorMsg (${e.code})';
+        }
+      } else {
+        errorMsg = '$errorMsg: $e';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l.genericError}: $e', style: const TextStyle(fontWeight: FontWeight.bold)),
+          content: Text(errorMsg, style: const TextStyle(fontWeight: FontWeight.bold)),
           backgroundColor: AppColors.duoRed,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

@@ -164,8 +164,11 @@ class AIService {
         );
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      final bodySnippet = response.body.length > 200
+          ? response.body.substring(0, 200)
+          : response.body;
       debugPrint('$provider error ${response.statusCode}: ${response.body}');
-      throw Exception('$provider javob bermadi (${response.statusCode})');
+      throw Exception('$provider javob bermadi (${response.statusCode}): $bodySnippet');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -384,8 +387,13 @@ FAQAT to'g'ri JSON qaytar, markdown yoki izohsiz. Format:
     required int minWords,
     required String answer,
     required int wordCount,
+    String level = 'B1',
+    String? letter,
   }) async {
     final pointsBlock = points.map((p) => '• $p').join('\n');
+    final letterBlock = (letter != null && letter.trim().isNotEmpty)
+        ? '\nKIRISH XATI (o\'quvchi shunga javob yozadi):\n$letter\n'
+        : '';
 
     return _chat(
       temperature: 0.35,
@@ -393,11 +401,12 @@ FAQAT to'g'ri JSON qaytar, markdown yoki izohsiz. Format:
         {
           'role': 'system',
           'content': '''
-Sen nemis tili yozma ish (Schreiben, B1) tekshiruvchisisan.
+Sen nemis tili yozma ish (Schreiben, $level) tekshiruvchisisan.
 O'quvchi javobini O'ZBEK tilida bahola. Haqiqiy, tajribali o'qituvchidek yoz — iliq, sabrli, lekin halol va aniq.
 Hech qanday emoji, yulduzcha, qo'shtirnoq belgisi, markdown formatlashtirish (#, **, _) ishlatma.
 Faqat oddiy matn va raqamlar.
 
+DARAJA: $level. Baholashda shu darajaning talablaridan kelib chiq.
 MUHIM: So'zlar soni allaqachon aniq sanab berilgan: $wordCount ta so'z (talab: $minWords).
 Bu raqamni o'zgartirma va qaytadan sanama, shu raqamdan foydalan.
 
@@ -434,7 +443,7 @@ Qat'iy, adolatli va aniq bo'l. Xatolarni tushuntirishda esa sabrli va batafsil b
           'content': '''
 AUFGABE:
 $taskText
-
+$letterBlock
 MAJBURIY PUNKTLAR:
 $pointsBlock
 

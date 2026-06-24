@@ -4,6 +4,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/gamified_card.dart';
+import '../../../widgets/level_picker_sheet.dart';
 import 'lesen_data.dart';
 import 'lesen_question_screen.dart';
 
@@ -106,169 +107,21 @@ class _LesenScreenState extends State<LesenScreen> {
     }
   }
 
-  void _showLevelPicker(AppLocalizations l, bool isDark) {
-    showModalBottomSheet(
+  void _showLevelPicker(AppLocalizations l, bool isDark) async {
+    final selected = await LevelPickerSheet.show(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 46,
-                  height: 5,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color:
-                        isDark ? Colors.white24 : AppColors.duoCardGrayShadow,
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                ),
-                Text(
-                  l.lesenSelectLevel,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : AppColors.duoTextDark,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ..._levels.map((level) {
-                  final isSelected = _selectedLevel == level;
-                  final color = _levelColor(level);
-                  final isReady = level == 'B1';
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: () {
-                        setState(() => _selectedLevel = level);
-                        Navigator.pop(context);
-                        _loadStats();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? color.withValues(alpha: 0.1)
-                              : (isDark
-                                  ? Colors.white.withValues(alpha: 0.04)
-                                  : AppColors.duoBackground),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: isSelected
-                                ? color.withValues(alpha: 0.5)
-                                : (isDark
-                                    ? Colors.white12
-                                    : AppColors.duoCardGrayShadow),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: color,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                    color: _levelShadow(level), width: 2),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: _levelShadow(level),
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                level,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        level,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w900,
-                                          color: isDark
-                                              ? Colors.white
-                                              : AppColors.duoTextDark,
-                                        ),
-                                      ),
-                                      if (!isReady) ...[
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.duoOrange
-                                                .withValues(alpha: 0.15),
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          child: Text(
-                                            l.lesenComingSoon,
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w800,
-                                              color: AppColors.duoOrange,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _levelName(l, level),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark
-                                          ? Colors.white54
-                                          : AppColors.duoTextLight,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (isSelected)
-                              Icon(Icons.check_circle_rounded,
-                                  color: color, size: 22),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-        );
-      },
+      isDark: isDark,
+      title: l.lesenSelectLevel,
+      levels: _levels,
+      selectedLevel: _selectedLevel,
+      levelName: (lvl) => _levelName(l, lvl),
+      comingSoonLabel: l.lesenComingSoon,
+      readyLevels: const {'B1'},
     );
+    if (selected != null && selected != _selectedLevel) {
+      setState(() => _selectedLevel = selected);
+      _loadStats();
+    }
   }
 
   void _openTeil(LesenTeil teil) {

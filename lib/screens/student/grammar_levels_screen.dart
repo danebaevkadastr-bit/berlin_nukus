@@ -65,12 +65,12 @@ class GrammarLevelsScreen extends StatelessWidget {
 
     switch (level.level) {
       case 'A1':
-        cardColor = AppColors.duoBlue;
-        shadowColor = AppColors.duoBlueShadow;
-        break;
-      case 'A2':
         cardColor = AppColors.duoGreen;
         shadowColor = AppColors.duoGreenShadow;
+        break;
+      case 'A2':
+        cardColor = AppColors.duoBlue;
+        shadowColor = AppColors.duoBlueShadow;
         break;
       case 'B1':
         cardColor = AppColors.duoOrange;
@@ -81,8 +81,8 @@ class GrammarLevelsScreen extends StatelessWidget {
         shadowColor = AppColors.duoRedShadow;
         break;
       default:
-        cardColor = AppColors.duoBlue;
-        shadowColor = AppColors.duoBlueShadow;
+        cardColor = AppColors.duoGreen;
+        shadowColor = AppColors.duoGreenShadow;
     }
 
     return Padding(

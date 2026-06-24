@@ -72,9 +72,9 @@ class GrammarExplanationScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   // Content - batafsil yoki oddiy ko'rinish
                   if (rule.detailedExplanation != null)
-                    _buildDetailedView(isDark, levelColor, screenWidth)
+                    _buildDetailedView(context, isDark, levelColor, screenWidth)
                   else
-                    _buildSimpleView(isDark, levelColor),
+                    _buildSimpleView(context, isDark, levelColor),
                 ],
               ),
             ),
@@ -133,15 +133,17 @@ class GrammarExplanationScreen extends StatelessWidget {
   }
 
   /// Batafsil ko'rinishni yaratish (detailedExplanation mavjud bo'lganda)
-  Widget _buildDetailedView(bool isDark, Color levelColor, double screenWidth) {
+  Widget _buildDetailedView(
+      BuildContext context, bool isDark, Color levelColor, double screenWidth) {
     final explanation = rule.detailedExplanation!;
+    final l = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Nazariy qism
         if (explanation.theoryText.isNotEmpty) ...[
-          _buildSectionTitle('Nazariy qism', Icons.menu_book_rounded, isDark, levelColor),
+          _buildSectionTitle(l.grammarTheory, Icons.menu_book_rounded, isDark, levelColor),
           const SizedBox(height: 12),
           GamifiedCard(
             color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
@@ -154,7 +156,7 @@ class GrammarExplanationScreen extends StatelessWidget {
 
         // Jadvallar
         if (explanation.tables.isNotEmpty) ...[
-          _buildSectionTitle('Jadvallar', Icons.table_chart_outlined, isDark, levelColor),
+          _buildSectionTitle(l.grammarTables, Icons.table_chart_outlined, isDark, levelColor),
           const SizedBox(height: 12),
           ...explanation.tables.map((table) => Padding(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -174,7 +176,7 @@ class GrammarExplanationScreen extends StatelessWidget {
 
         // Misollar
         if (explanation.examples.isNotEmpty) ...[
-          _buildSectionTitle('Misollar', Icons.format_quote_rounded, isDark, levelColor),
+          _buildSectionTitle(l.grammarExamples, Icons.format_quote_rounded, isDark, levelColor),
           const SizedBox(height: 12),
           GamifiedCard(
             color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
@@ -207,12 +209,13 @@ class GrammarExplanationScreen extends StatelessWidget {
   }
 
   /// Oddiy ko'rinishni yaratish (detailedExplanation mavjud bo'lmaganda)
-  Widget _buildSimpleView(bool isDark, Color levelColor) {
+  Widget _buildSimpleView(BuildContext context, bool isDark, Color levelColor) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Tushuntirish
-        _buildSectionTitle('Tushuntirish', Icons.info_outline_rounded, isDark, levelColor),
+        _buildSectionTitle(l.grammarExplanation, Icons.info_outline_rounded, isDark, levelColor),
         const SizedBox(height: 12),
         GamifiedCard(
           color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
@@ -232,7 +235,7 @@ class GrammarExplanationScreen extends StatelessWidget {
 
         // Misollar (oddiy ro'yxat)
         if (rule.examples.isNotEmpty) ...[
-          _buildSectionTitle('Misollar', Icons.format_quote_rounded, isDark, levelColor),
+          _buildSectionTitle(l.grammarExamples, Icons.format_quote_rounded, isDark, levelColor),
           const SizedBox(height: 12),
           GamifiedCard(
             color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.05) : Colors.white,
@@ -364,15 +367,15 @@ class GrammarExplanationScreen extends StatelessWidget {
   Color _getLevelColor(String level) {
     switch (level) {
       case 'A1':
-        return AppColors.duoBlue;
-      case 'A2':
         return AppColors.duoGreen;
+      case 'A2':
+        return AppColors.duoBlue;
       case 'B1':
         return AppColors.duoOrange;
       case 'B2':
         return AppColors.duoRed;
       default:
-        return AppColors.duoBlue;
+        return AppColors.duoGreen;
     }
   }
 }

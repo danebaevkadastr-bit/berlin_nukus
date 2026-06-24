@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../screens/admin/admin_main_screen.dart';
@@ -21,6 +22,10 @@ class AuthNavigation {
 
   /// Firebase sessiyasini tiklab, mos bosh ekranni qaytaradi yoki null (login kerak).
   static Future<Widget?> resolveInitialScreen(UserProvider userProvider) async {
+    if (kIsWeb) {
+      await userProvider.handleGoogleRedirectResult();
+    }
+
     await FirebaseAuth.instance.authStateChanges().first;
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return null;

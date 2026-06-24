@@ -1,0 +1,150 @@
+rules_version = '2';
+
+// ===============================================================
+// Berlin-Nukus — Firestore Security Rules (PROTOTIP)
+// ===============================================================
+//
+// DIQQAT: Bu rules prototip sifatida yozilgan. Asosiy maqsad —
+// autentifikatsiyani talab qilish va yozuvlarni egasi/roli bo'yicha
+// cheklash. Commercial launch'dan oldin albatta qayta ko'rib chiqing.
+//
+// Taxmin qilingan ma'lumot modeli:
+//
+// Collection: users/{uid}
+//   - uid: string (hujjat ID bilan bir xil)
+//   - fullName: string
+//   - email: string (PII)
+//   - phone: string (PII)
+//   - role: 'student' | 'teacher' | 'admin'
+//   - avatarUrl: string
+//   - currentStreak, totalStars, averageScore, dailyMinutesMap, ...
+//
+// Collection: groups/{groupId}
+//   - teacherId: string, students: [uid], courseId, name, ...
+//   - subcollection: messages/{messageId}
+//
+// Collection: courses/{courseId}
+// Collection: darslar/{groupId_dateKey}
+// Collection: payments/{paymentId}  (studentId, groupId, ...)
+// Collection: notifications/{id}    (userId, ...)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper funksiyalar ────────────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Joriy foydalanuvchining roli (users hujjatidan o'qiladi)
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        userRole() == 'admin';
+    }
+
+    function isTeacher() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        userRole() == 'teacher';
+    }
+
+    // ── users ───────────────────────────────────────────────────────────────
+    // O'qish: tizimga kirgan har kim (leaderboard, o'qituvchi talabalar
+    // ro'yxati va h.k. uchun kerak). PII (email/telefon) shu hujjatda — buni
+    // launch'dan oldin alohida public/private collectionga ajratish tavsiya.
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+
+      // Yaratish: o'z hujjatini FAQAT 'student' roli bilan yaratadi
+      // (privilege escalation oldini olish). Admin esa istalganini yaratadi.
+      allow create: if isAdmin() ||
+        (isOwner(userId) && request.resource.data.role == 'student');
+
+      // Yangilash: egasi o'z hujjatini yangilashi mumkin, lekin ROLNI
+      // o'zgartira olmaydi (agar hujjatda role bo'lsa). Admin esa hamma narsani.
+      // Eski (role maydonisiz) hujjatlar uchun ham buzilmasligi kerak.
+      allow update: if isAdmin() ||
+        (isOwner(userId) &&
+         (!('role' in resource.data) ||
+          !('role' in request.resource.data) ||
+          request.resource.data.role == resource.data.role));
+
+      // O'chirish: faqat admin
+      allow delete: if isAdmin();
+    }
+
+    // ── groups ────────────────────────────────────────────────────────────────
+    // O'qish: tizimga kirgan har kim (talaba o'z guruhini, o'qituvchi o'z
+    // guruhlarini ko'radi). Yozish: o'qituvchi yoki admin.
+    match /groups/{groupId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isTeacher() || isAdmin();
+
+      // Guruh ichidagi xabarlar — a'zolar o'qiy/yoza oladi.
+      match /messages/{messageId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        // O'zgartirish/o'chirish: faqat xabar muallifi yoki o'qituvchi/admin
+        allow update, delete: if isAuthenticated() &&
+          (resource.data.senderId == request.auth.uid || isTeacher() || isAdmin());
+      }
+    }
+
+    // ── courses ─────────────────────────────────────────────────────────────
+    match /courses/{courseId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isTeacher() || isAdmin();
+    }
+
+    // ── darslar (lessons) ───────────────────────────────────────────────────
+    // O'qish: tizimga kirgan har kim. Yozish: o'qituvchi/admin, BIROQ talaba
+    // o'z uyga vazifa topshiriqlarini (homeworkSubmissions) yuborishi kerak,
+    // shuning uchun update'ni autentifikatsiyalangan foydalanuvchiga ochamiz.
+    // (Aniqroq cheklov launch'dan oldin qo'shilishi kerak.)
+    match /darslar/{lessonId} {
+      allow read: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow create, delete: if isTeacher() || isAdmin();
+    }
+
+    // ── payments ──────────────────────────────────────────────────────────────
+    // O'qish: talaba FAQAT o'zinikini, admin esa hammasini ko'radi.
+    // (Avval har bir autentifikatsiyalangan foydalanuvchi hammasini o'qiy
+    //  olardi — bu moliyaviy ma'lumot oshkorligi edi.)
+    // Yaratish: talaba o'ziga, o'qituvchi/admin istalganiga.
+    // O'zgartirish/o'chirish: faqat admin.
+    match /payments/{paymentId} {
+      allow read: if isAdmin() ||
+        (isAuthenticated() && resource.data.studentId == request.auth.uid);
+      allow create: if isAdmin() || isTeacher() ||
+        (isAuthenticated() &&
+         request.resource.data.studentId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // ── notifications ─────────────────────────────────────────────────────────
+    // Foydalanuvchi faqat o'ziga tegishli bildirishnomalarni boshqaradi.
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        resource.data.userId == request.auth.uid;
+    }
+
+    // ── Default: hamma narsa taqiqlangan ───────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

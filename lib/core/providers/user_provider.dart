@@ -11,6 +11,15 @@ import '../../services/onesignal_helper.dart'
 import '../../utils/image_picker_helper.dart';
 
 class UserProvider extends ChangeNotifier {
+  /// Firebase Console → Google Sign-In → Web client ID (Android uchun serverClientId).
+  static const String _googleWebClientId =
+      '901891657911-un0jqsg46o6i3chmm1q8657lsq8ck4do.apps.googleusercontent.com';
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: _googleWebClientId,
+    scopes: ['email', 'profile'],
+  );
+
   User? _firebaseUser;
   String _name = 'Mehmon';
   String _email = '';
@@ -178,19 +187,34 @@ class UserProvider extends ChangeNotifier {
       final UserCredential userCredential;
 
       if (kIsWeb) {
-        // Web uchun — Firebase popup orqali
         final googleProvider = GoogleAuthProvider();
         googleProvider.addScope('email');
         googleProvider.addScope('profile');
-        userCredential = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        googleProvider.setCustomParameters({'prompt': 'select_account'});
+        try {
+          userCredential = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        } on FirebaseAuthException catch (e) {
+          final code = e.code.replaceFirst('auth/', '');
+          if (code == 'popup-blocked' || code == 'cancelled-popup-request') {
+            await FirebaseAuth.instance.signInWithRedirect(googleProvider);
+            return;
+          }
+          rethrow;
+        }
       } else {
-        // Android/iOS uchun — google_sign_in paketi orqali
-        final googleUser = await GoogleSignIn().signIn();
+        final googleUser = await _googleSignIn.signIn();
         if (googleUser == null) {
           return;
         }
 
         final googleAuth = await googleUser.authentication;
+        if (googleAuth.idToken == null) {
+          throw FirebaseAuthException(
+            code: 'invalid-credential',
+            message: 'Google idToken olinmadi. Firebase Console da SHA-1 qo\'shilganini tekshiring.',
+          );
+        }
+
         final credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
@@ -200,11 +224,12 @@ class UserProvider extends ChangeNotifier {
 
       final user = userCredential.user!;
       final uid = user.uid;
+      _firebaseUser = user;
+      _email = user.email ?? '';
 
       // Firestore da profil mavjudligini tekshirish
       final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
       if (!doc.exists) {
-        // Yangi foydalanuvchi — Firestore da profil yaratish
         await FirebaseFirestore.instance.collection('users').doc(uid).set({
           'uid': uid,
           'fullName': user.displayName ?? 'Foydalanuvchi',
@@ -216,14 +241,46 @@ class UserProvider extends ChangeNotifier {
         });
       }
 
-      // Lokal holatni yangilash
       await loadUserDataByUid(uid);
-
-      // OneSignal ga foydalanuvchini ro'yxatdan o'tkazish
       OneSignalHelper.login(uid);
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  /// Web redirect orqali Google kirish natijasini qayta ishlash.
+  Future<bool> handleGoogleRedirectResult() async {
+    if (!kIsWeb) return false;
+
+    try {
+      final result = await FirebaseAuth.instance.getRedirectResult();
+      final user = result.user;
+      if (user == null) return false;
+
+      _firebaseUser = user;
+      _email = user.email ?? '';
+      final uid = user.uid;
+
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!doc.exists) {
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'uid': uid,
+          'fullName': user.displayName ?? 'Foydalanuvchi',
+          'email': user.email ?? '',
+          'phone': '',
+          'role': 'student',
+          'avatarUrl': user.photoURL ?? '',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      await loadUserDataByUid(uid);
+      OneSignalHelper.login(uid);
+      return true;
+    } catch (e) {
+      debugPrint('Google redirect result error: $e');
+      return false;
     }
   }
 
@@ -234,11 +291,18 @@ class UserProvider extends ChangeNotifier {
 
   /// Sign out current active user session
   Future<void> logout() async {
-    // OneSignal dan chiqish (boshqa foydalanuvchiga notification ketmasligi uchun)
     OneSignalHelper.logout();
-    // Google Sign-In dan ham chiqish
-    await GoogleSignIn().signOut();
+    if (!kIsWeb) {
+      await _googleSignIn.signOut();
+    }
     await FirebaseAuth.instance.signOut();
+    _firebaseUser = null;
+    _name = 'Mehmon';
+    _email = '';
+    _role = 'student';
+    _phone = '';
+    _avatarUrl = '';
+    notifyListeners();
   }
 
   // Kept for backwards compatibility with other screens

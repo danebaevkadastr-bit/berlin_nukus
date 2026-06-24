@@ -239,9 +239,9 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
             shadowDepth: 4,
             borderRadius: 20,
             child: Text(
-              _isMultiTest
-                  ? '$_indexWithinTest / $_questionsPerTest'
-                  : '${_currentIndex + 1} / ${_questions.length}',
+              // Har doim teildagi jami savol soniga nisbatan ko'rsatamiz
+              // (masalan 1 / 100), Hören bilan bir xil.
+              '${_currentIndex + 1} / ${_questions.length}',
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w900,

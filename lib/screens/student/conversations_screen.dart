@@ -5,6 +5,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/chat_theme.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/gamified_card.dart';
+import '../../widgets/level_picker_sheet.dart';
 import '../../l10n/app_localizations.dart';
 import 'chat_screen.dart';
 
@@ -190,99 +191,21 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   Future<void> _showLevelPicker() async {
     final l = AppLocalizations.of(context);
     final levels = ['A1', 'A2', 'B1', 'B2'];
+    final isDark = ThemeManager.isDark;
 
-    await showModalBottomSheet(
+    final selected = await LevelPickerSheet.show(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 22),
-          decoration: BoxDecoration(
-            color: _theme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28))),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 46,
-                  height: 5,
-                  margin: const EdgeInsets.only(bottom: 14),
-                  decoration: BoxDecoration(
-                    color: _theme.border,
-                    borderRadius: BorderRadius.circular(99)),
-                ),
-                ...levels.map(
-                  (level) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: () async {
-                        setState(() => selectedLevel = level);
-                        await _loadCompletedTopics();
-                        if (mounted) Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: selectedLevel == level
-                              ? _theme.surfaceSoft
-                              : _theme.background,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: selectedLevel == level
-                                ? AppColors.duoBlue.withValues(alpha: 0.24)
-                                : _theme.border),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 46,
-                              height: 46,
-                              decoration: BoxDecoration(
-                                color: _levelColor(level).withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(14)),
-                              child: Icon(
-                                levelIcons[level],
-                                color: _levelColor(level),
-                                size: 24),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    level,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: _theme.textPrimary),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _levelDescription(l, level),
-                                    style: TextStyle(
-                                      fontSize: 12.5,
-                                      color: _theme.textSecondary),
-                                  ),
-                                ]),
-                            ),
-                            if (selectedLevel == level)
-                              const Icon(
-                                Icons.check_circle_rounded,
-                                color: AppColors.duoBlue,
-                                size: 20),
-                          ]),
-                      )),
-                  )),
-              ]),
-          ),
-        );
-      },
+      isDark: isDark,
+      title: l.horenSelectLevel,
+      levels: levels,
+      selectedLevel: selectedLevel,
+      levelName: (lvl) => _levelDescription(l, lvl),
+      comingSoonLabel: l.horenComingSoon,
     );
+    if (selected != null && selected != selectedLevel) {
+      setState(() => selectedLevel = selected);
+      await _loadCompletedTopics();
+    }
   }
 
   Color _levelColor(String level) {

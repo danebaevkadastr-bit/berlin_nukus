@@ -2249,6 +2249,48 @@ class AppLocalizations {
     'ru': "Микрофон не работает. Проверьте разрешения.",
     'de': "Mikrofon funktioniert nicht. Überprüfen Sie die Berechtigungen.",
   });
+  String get ttsError => _t({
+    'uz': "Ovozni ijro etib bo'lmadi. Internet aloqasini tekshiring.",
+    'kaa': "Dawıstı oynatıp bolmadı. Internet baylanısın tekserıń.",
+    'ru': "Не удалось воспроизвести звук. Проверьте подключение к интернету.",
+    'de': "Audio konnte nicht abgespielt werden. Überprüfen Sie die Internetverbindung.",
+  });
+  String get horenAudioError => _t({
+    'uz': "Audio yuklanmadi. Internet aloqasini tekshiring.",
+    'kaa': "Audio júklenbedi. Internet baylanısın tekserıń.",
+    'ru': "Аудио не загрузилось. Проверьте подключение к интернету.",
+    'de': "Audio konnte nicht geladen werden. Überprüfen Sie die Internetverbindung.",
+  });
+  String get horenAudioRetry => _t({
+    'uz': "Qayta urinish",
+    'kaa': "Qayta urınıw",
+    'ru': "Повторить",
+    'de': "Erneut versuchen",
+  });
+  String get grammarTheory => _t({
+    'uz': "Nazariy qism",
+    'kaa': "Teoriyalıq bólim",
+    'ru': "Теория",
+    'de': "Theorie",
+  });
+  String get grammarTables => _t({
+    'uz': "Jadvallar",
+    'kaa': "Kestelar",
+    'ru': "Таблицы",
+    'de': "Tabellen",
+  });
+  String get grammarExamples => _t({
+    'uz': "Misollar",
+    'kaa': "Mısallar",
+    'ru': "Примеры",
+    'de': "Beispiele",
+  });
+  String get grammarExplanation => _t({
+    'uz': "Tushuntirish",
+    'kaa': "Túsindirme",
+    'ru': "Объяснение",
+    'de': "Erklärung",
+  });
   String get errorFound => _t({
     'uz': "Xato topildi",
     'kaa': "Qáte tabıldı",

@@ -1,4 +1,5 @@
 import '../models/schreiben_task.dart';
+import 'schreiben_tasks_b1.dart';
 
 const String schreibenGeneralHint =
     'Schreiben Sie zu jedem Punkt ein bis zwei Sätze. '
@@ -1231,3 +1232,19 @@ final List<SchreibenTask> schreibenTasks = [
 int get schreibenTaskCount => schreibenTasks.length;
 
 SchreibenTask schreibenTaskByIndex(int index) => schreibenTasks[index];
+
+// ── Daraja bo'yicha vazifalar ────────────────────────────────────────────────
+
+/// Mavjud Schreiben darajalari.
+const List<String> schreibenLevels = ['A2', 'B1'];
+
+/// Berilgan daraja uchun vazifalar ro'yxati.
+List<SchreibenTask> schreibenTasksForLevel(String level) {
+  switch (level) {
+    case 'B1':
+      return schreibenTasksB1;
+    case 'A2':
+    default:
+      return schreibenTasks;
+  }
+}

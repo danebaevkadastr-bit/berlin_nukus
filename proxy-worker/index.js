@@ -1,3 +1,5 @@
+import { AwsClient } from "aws4fetch";
+
 /**
  * Berlin-Nukus secure API proxy (Cloudflare Worker)
  *
@@ -22,12 +24,23 @@
  *      dagi RATE_LIMITER binding orqali).
  */
 
-const CORS_HEADERS = {
+const CORS_BASE = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
   "Access-Control-Max-Age": "86400",
-  "Access-Control-Allow-Headers": "*",
 };
+
+/// CORS headerlarini quradi. Preflight (OPTIONS) so'rovda brauzer so'ragan
+/// custom headerlarni (X-App-Token, X-Provider, X-Proxy-Target ...) aks ettiradi
+/// — shu sabab web versiyada ishlaydi.
+function corsHeaders(request) {
+  const requested = request.headers.get("Access-Control-Request-Headers");
+  return {
+    ...CORS_BASE,
+    "Access-Control-Allow-Headers":
+      requested || "Content-Type,X-App-Token,X-Provider,X-Proxy-Target",
+  };
+}
 
 // AI provayder konfiguratsiyasi: base URL + qaysi secret ishlatilishi.
 const AI_PROVIDERS = {
@@ -49,17 +62,19 @@ const AI_PROVIDERS = {
   },
 };
 
-function json(body, status = 200) {
+function json(body, status = 200, cors = CORS_BASE) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    headers: { ...cors, "Content-Type": "application/json" },
   });
 }
 
 export default {
   async fetch(request, env) {
+    const cors = corsHeaders(request);
+
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: CORS_HEADERS });
+      return new Response(null, { headers: cors });
     }
 
     // ── 1) App-token tekshiruvi ───────────────────────────────────────────────
@@ -68,7 +83,7 @@ export default {
     if (expectedToken) {
       const provided = request.headers.get("X-App-Token") || "";
       if (!timingSafeEqual(provided, expectedToken)) {
-        return json({ error: "Unauthorized" }, 401);
+        return json({ error: "Unauthorized" }, 401, cors);
       }
     }
 
@@ -79,7 +94,7 @@ export default {
       try {
         const { success } = await env.RATE_LIMITER.limit({ key: ip });
         if (!success) {
-          return json({ error: "Juda ko'p so'rov. Biroz kuting." }, 429);
+          return json({ error: "Juda ko'p so'rov. Biroz kuting." }, 429, cors);
         }
       } catch (_) {
         // Rate limiter mavjud bo'lmasa, so'rovni to'smaymiz.
@@ -91,16 +106,16 @@ export default {
     try {
       switch (target) {
         case "ai":
-          return await handleAi(request, env);
+          return await handleAi(request, env, cors);
         case "onesignal":
-          return await handleOneSignal(request, env);
+          return await handleOneSignal(request, env, cors);
         case "polly":
-          return await handlePolly(request, env);
+          return await handlePolly(request, env, cors);
         default:
-          return json({ error: `Noma'lum X-Proxy-Target: ${target}` }, 400);
+          return json({ error: `Noma'lum X-Proxy-Target: ${target}` }, 400, cors);
       }
     } catch (e) {
-      return json({ error: (e && e.message) || String(e) }, 500);
+      return json({ error: (e && e.message) || String(e) }, 500, cors);
     }
   },
 };
@@ -117,16 +132,16 @@ function timingSafeEqual(a, b) {
 }
 
 // ─── AI chat provayderlari ──────────────────────────────────────────────────
-async function handleAi(request, env) {
+async function handleAi(request, env, cors) {
   const provider = (request.headers.get("X-Provider") || "").toLowerCase();
   const cfg = AI_PROVIDERS[provider];
   if (!cfg) {
-    return json({ error: `Noma'lum AI provayder: ${provider}` }, 400);
+    return json({ error: `Noma'lum AI provayder: ${provider}` }, 400, cors);
   }
 
   const apiKey = env[cfg.keyName];
   if (!apiKey) {
-    return json({ error: `${cfg.keyName} worker secretlarida topilmadi` }, 500);
+    return json({ error: `${cfg.keyName} worker secretlarida topilmadi` }, 500, cors);
   }
 
   const bodyText = await request.text();
@@ -143,15 +158,15 @@ async function handleAi(request, env) {
   const respBody = await upstream.text();
   return new Response(respBody, {
     status: upstream.status,
-    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    headers: { ...cors, "Content-Type": "application/json" },
   });
 }
 
 // ─── OneSignal push ───────────────────────────────────────────────────────────
-async function handleOneSignal(request, env) {
+async function handleOneSignal(request, env, cors) {
   const apiKey = env.ONESIGNAL_REST_API_KEY;
   if (!apiKey) {
-    return json({ error: "ONESIGNAL_REST_API_KEY worker secretlarida topilmadi" }, 500);
+    return json({ error: "ONESIGNAL_REST_API_KEY worker secretlarida topilmadi" }, 500, cors);
   }
 
   const bodyText = await request.text();
@@ -169,16 +184,16 @@ async function handleOneSignal(request, env) {
   const respBody = await upstream.text();
   return new Response(respBody, {
     status: upstream.status,
-    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    headers: { ...cors, "Content-Type": "application/json" },
   });
 }
 
-// ─── AWS Polly TTS (SigV4 presigned URL) ───────────────────────────────────────
-async function handlePolly(request, env) {
-  const accessKey = env.AWS_ACCESS_KEY_ID;
-  const secretKey = env.AWS_SECRET_ACCESS_KEY;
+// ─── AWS Polly TTS (server-side POST, audio bytes qaytaradi) ──────────────────
+async function handlePolly(request, env, cors) {
+  const accessKey = (env.AWS_ACCESS_KEY_ID || "").trim();
+  const secretKey = (env.AWS_SECRET_ACCESS_KEY || "").trim();
   if (!accessKey || !secretKey) {
-    return json({ error: "AWS kalitlari worker secretlarida topilmadi" }, 500);
+    return json({ error: "AWS kalitlari worker secretlarida topilmadi" }, 500, cors);
   }
 
   const payload = await request.json();
@@ -188,98 +203,41 @@ async function handlePolly(request, env) {
   const engine = payload.engine || "neural";
   const outputFormat = payload.outputFormat || "mp3";
 
-  const host = `polly.${region}.amazonaws.com`;
-  const path = "/v1/speech";
-  const service = "polly";
-
-  const now = new Date();
-  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, ""); // YYYYMMDDTHHMMSSZ
-  const dateStamp = amzDate.slice(0, 8);
-
-  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
-
-  // Presign uchun query parametrlari (alfavit tartibida)
-  const query = {
-    Engine: engine,
+  const bodyObj = {
     OutputFormat: outputFormat,
     Text: ssmlText,
     TextType: "ssml",
     VoiceId: voiceId,
-    "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
-    "X-Amz-Credential": `${accessKey}/${credentialScope}`,
-    "X-Amz-Date": amzDate,
-    "X-Amz-Expires": "900",
-    "X-Amz-SignedHeaders": "host",
+    Engine: engine,
   };
+  const body = JSON.stringify(bodyObj);
 
-  const canonicalQuery = Object.keys(query)
-    .sort()
-    .map((k) => `${encodeRfc3986(k)}=${encodeRfc3986(query[k])}`)
-    .join("&");
+  const aws = new AwsClient({
+    accessKeyId: accessKey,
+    secretAccessKey: secretKey,
+  });
 
-  const canonicalHeaders = `host:${host}\n`;
-  const signedHeaders = "host";
-  const payloadHash = await sha256Hex("");
+  const upstream = await aws.fetch(`https://polly.${region}.amazonaws.com/v1/speech`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  });
 
-  const canonicalRequest = [
-    "GET",
-    path,
-    canonicalQuery,
-    canonicalHeaders,
-    signedHeaders,
-    payloadHash,
-  ].join("\n");
+  if (!upstream.ok) {
+    const errText = await upstream.text();
+    return json(
+      { error: `Polly xatosi (${upstream.status}): ${errText}` },
+      upstream.status,
+      cors
+    );
+  }
 
-  const stringToSign = [
-    "AWS4-HMAC-SHA256",
-    amzDate,
-    credentialScope,
-    await sha256Hex(canonicalRequest),
-  ].join("\n");
-
-  const signingKey = await getSignatureKey(secretKey, dateStamp, region, service);
-  const signature = bufToHex(await hmac(signingKey, stringToSign));
-
-  const presignedUrl = `https://${host}${path}?${canonicalQuery}&X-Amz-Signature=${signature}`;
-
-  return json({ url: presignedUrl });
-}
-
-// ─── Crypto yordamchilari (Web Crypto API) ─────────────────────────────────────
-function encodeRfc3986(str) {
-  return encodeURIComponent(str).replace(
-    /[!'()*]/g,
-    (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase()
-  );
-}
-
-async function sha256Hex(message) {
-  const data = new TextEncoder().encode(message);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return bufToHex(hash);
-}
-
-function bufToHex(buffer) {
-  return [...new Uint8Array(buffer)]
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function hmac(key, message) {
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    key instanceof Uint8Array ? key : new TextEncoder().encode(key),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  return crypto.subtle.sign("HMAC", cryptoKey, new TextEncoder().encode(message));
-}
-
-async function getSignatureKey(secretKey, dateStamp, region, service) {
-  const kDate = await hmac(`AWS4${secretKey}`, dateStamp);
-  const kRegion = await hmac(new Uint8Array(kDate), region);
-  const kService = await hmac(new Uint8Array(kRegion), service);
-  const kSigning = await hmac(new Uint8Array(kService), "aws4_request");
-  return new Uint8Array(kSigning);
+  const audioBuffer = await upstream.arrayBuffer();
+  return new Response(audioBuffer, {
+    status: 200,
+    headers: {
+      ...cors,
+      "Content-Type": "audio/mpeg",
+    },
+  });
 }

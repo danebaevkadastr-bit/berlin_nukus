@@ -173,24 +173,139 @@ const _t1Test8Headings = [
   'Neue Kurse: Museumsführung für junge Väter',
 ];
 
-/// Sprachbausteine Teil 2 uchun umumiy so'z banki (15 ta so'z, a–o).
-/// Har bir bo'sh joy uchun shu ro'yxatdan bittasi tanlanadi.
-const _sb2Words = [
-  'anmelden',
-  'Antwort',
-  'arbeiten',
-  'Bescheinigung',
-  'bezahlen',
-  'Erfahrung',
-  'geeignet',
-  'gute',
-  'interessiere',
-  'leider',
-  'mitteilen',
-  'möglich',
-  'Unterricht',
-  'verbessern',
-  'wissen',
+/// Lesen Teil 1 – Test 9 uchun 10 ta sarlavha (a–j) banki.
+const _t1Test9Headings = [
+  'Neue Untersuchung über Familien in der Schweiz',
+  'Ein Jahr preiswert reisen',
+  'Buchtipp: Ausflüge für Familien',
+  'Bahnfahren im nächsten Jahr um 25% teurer!',
+  'Ein Unternehmen mit vielen beruflichen Möglichkeiten',
+  'Neue Kindersendung im Fernsehen',
+  'Der Film soll echt sein: Schweizer Filmteam in Indien',
+  'Wie man im Zug Leute kennen lernt',
+  'Jeden Tag ein Stück Wirklichkeit im Fernsehen',
+  'Filmaufnahmen im Berner Oberland',
+];
+
+/// Lesen Teil 1 – Test 10 uchun 10 ta sarlavha (a–j) banki.
+const _t1Test10Headings = [
+  'Sportkurse für ältere Menschen',
+  'Für Jugendliche ist der Computer etwas Alltägliches',
+  'Das Interesse am Handel über Internet nimmt stark ab',
+  'Arbeiten am Computer verursacht häufig Rückenschmerzen',
+  'Internetnutzer machen viele Dinge gleichzeitig',
+  'Firmen müssen auch über Internet für Produkte werben',
+  'Auch Freizeitsportarten sollten trainiert werden',
+  'Was man gegen Rückenschmerzen tun kann',
+  'Kinder wollen mit dem Computer nur spielen',
+  'Internetnutzer interessieren sich nicht fürs Fernsehen',
+];
+
+/// Lesen Teil 1 – Test 11 uchun 10 ta sarlavha (a–j) banki.
+const _t1Test11Headings = [
+  'Eine Karte – viele Vorteile',
+  'Endlich Ferien ohne Kinder',
+  'Günstiger Urlaub für Vereinsmitglieder',
+  'Meer statt Berge',
+  'Neues Wohnprojekt für Alleinerziehende',
+  'Reisebüros weltweit vernetzt',
+  'Schweizer Seen weiterhin sehr beliebt',
+  'Söhne werden mehr beschenkt als Töchter',
+  'Schöne werden großzügiger beschenkt',
+  'Tipps: Wo auch Kinder ihren Spaß haben',
+];
+
+/// Lesen Teil 1 – Test 12 uchun 10 ta sarlavha (a–j) banki.
+const _t1Test12Headings = [
+  'Arbeitsplatz: Bezahlung wichtiger als Zufriedenheit',
+  'Ausstellungseröffnung an bayerischem Gymnasium',
+  'Frauen: mehr Spaß am Beruf als Männer',
+  'Gründe für Zufriedenheit am Arbeitsplatz',
+  'Immer mehr Teilzeitarbeitsplätze für Männer',
+  'Karriere ist Männern weniger wichtig als Frauen',
+  'Technik für Kleinkinder',
+  'Technisches Museum vergibt Umwelt- und Technikpreis',
+  'Umwelt- und Technikpreis',
+  'Wünsche von berufstätigen Eltern',
+];
+
+/// Lesen Teil 1 – Test 13 uchun 10 ta sarlavha (a–j) banki.
+const _t1Test13Headings = [
+  'Nur wenige lesen im Zug',
+  'Bahnfahren bei älteren Menschen immer beliebter',
+  'Per Internet leichter ans Ziel',
+  'Männer fahren besser',
+  'Hilfe beim Reisen mit der Bahn',
+  'Frauen finden den richtigen Weg',
+  'Neuer Deutschkurs in Solothurn',
+  'Jetzt wird auch im Zug gelernt',
+  'Lesen im Zug ist beliebt',
+  'Neue Verkehrsregeln für Autofahrer',
+];
+
+/// Sprachbausteine Teil 2 – har TEST uchun alohida 15 so'zli bank (a–o).
+/// Har testda 10 ta bo'sh joy bor, 5 ta so'z chalg'ituvchi (distraktor).
+const _sb2T1 = [
+  'als', 'anfangen', 'arbeiten', 'erzählt', 'falls', 'informiert',
+  'interessiert', 'möchten', 'möglich', 'nur', 'öfter', 'unbekannt',
+  'vor', 'würde', 'zwischen',
+];
+const _sb2T2 = [
+  'bequem', 'geeignet', 'hätte', 'Ihnen', 'jeden', 'könnte', 'mehr',
+  'nichts', 'ohne', 'schon', 'Sie', 'täglich', 'wie hoch', 'wie viel', 'zwar',
+];
+const _sb2T3 = [
+  'auch', 'Auftrag', 'beschreiben', 'Fragen', 'geeignet', 'gegenüber',
+  'Informationen', 'könnten', 'stattfinden', 'suchen', 'Termin', 'Tour',
+  'vor', 'wären', 'weil',
+];
+const _sb2T4 = [
+  'Anfrage', 'Angebot', 'dabei', 'dafür', 'danach', 'darin', 'deshalb',
+  'hätte', 'mit', 'möchte', 'nämlich', 'unter', 'wäre', 'welche', 'wenn',
+];
+const _sb2T5 = [
+  'bei', 'bereit', 'einmal', 'eure', 'ganz', 'garantieren', 'gestern',
+  'können', 'machen', 'nur', 'statt', 'technisch', 'über', 'unser', 'wenn',
+];
+const _sb2T6 = [
+  'außerdem', 'dürfen', 'erstens', 'für', 'keines', 'möchte', 'müssen',
+  'nichts', 'ob', 'obwohl', 'Tage', 'über', 'Voraus', 'wenn', 'Wochenende',
+];
+const _sb2T7 = [
+  'antworten', 'auf', 'dass', 'dort', 'Fragen', 'für', 'haben', 'hilft',
+  'Ihnen', 'Ihre', 'informiert', 'ob', 'richtige', 'werden', 'zu',
+];
+const _sb2T8 = [
+  'damit', 'denen', 'denn', 'deshalb', 'die', 'ganz', 'im', 'muss', 'ob',
+  'oder', 'um', 'viel', 'während', 'was', 'würde',
+];
+const _sb2T9 = [
+  'besonders', 'da', 'dafür', 'damals', 'damit', 'dankbar', 'deshalb', 'für',
+  'gerne', 'könnten', 'mit', 'müssten', 'schließlich', 'wann', 'wenn',
+];
+const _sb2T10 = [
+  'aber', 'damit', 'der', 'in', 'manchmal', 'mit', 'paar', 'schon', 'sehr',
+  'trotz', 'wann', 'weil', 'wenn', 'wie', 'zu',
+];
+const _sb2T11 = [
+  'aber', 'darf', 'dass', 'deshalb', 'diese', 'in', 'kann', 'können',
+  'mich', 'mir', 'ob', 'obwohl', 'unter', 'vor', 'wann',
+];
+const _sb2T12 = [
+  'der', 'die', 'erst', 'geeignet', 'gerne', 'hätte', 'in', 'muss', 'nach',
+  'noch', 'schon', 'wann', 'wäre', 'wenn', 'wo',
+];
+const _sb2T13 = [
+  'auch', 'beiden', 'eine', 'einige', 'könnten', 'möchte', 'müssen', 'ob',
+  'schnelle', 'schon', 'soll', 'sondern', 'vorne', 'wann', 'werde',
+];
+const _sb2T14 = [
+  'aber', 'außer', 'einmal', 'entdeckt', 'etwas', 'hatten', 'kennen',
+  'lernen', 'oft', 'paar', 'uns', 'wann', 'weil', 'wenn', 'würden',
+];
+const _sb2T15 = [
+  'auf', 'dafür', 'darüber', 'hätte', 'kann', 'können', 'möchte', 'sehr',
+  'seit', 'sprechen', 'vor', 'wenig', 'wie', 'wie viele', 'wissen',
 ];
 
 const lesenB1 = LesenLevel(
@@ -826,6 +941,357 @@ const lesenB1 = LesenLevel(
           prompt: 'Welche Überschrift passt zu Text 5?',
           options: _t1Test8Headings,
           correctAnswer: 'Neue Kurse: Museumsführung für junge Väter',
+        ),
+        // ── TEST 9 ──
+        LesenQuestion(
+          passage:
+              'Immer wieder drehen indische Regisseure Szenen ihrer Kinofilme '
+              'in den Schweizer Bergen. Warum nehmen sie die Strapazen und hohen '
+              'Kosten einer solch langen Reise auf sich? Das Hamburger Abendblatt '
+              'hat eines dieser Filmteams auf dem Drehplatz im idyllischen Berner '
+              'Oberland besucht und erhielt spannende und heitere Antworten.',
+          prompt: 'Welche Überschrift passt zu Text 1?',
+          options: _t1Test9Headings,
+          correctAnswer: 'Filmaufnahmen im Berner Oberland',
+        ),
+        LesenQuestion(
+          passage:
+              'KIDTOURS – Ferien mit Kindern ist ein praktischer Ausflugsführer '
+              'für Familien: mit 1000 Tipps, Tricks und Ideen für jeden '
+              'Geschmack, jedes Alter und jedes Budget. Das übersichtliche, '
+              'hübsch illustrierte Nachschlagewerk erhalten Sie für € 19,50 im '
+              'Buchhandel oder direkt bei Werd Verlag, www.werd.net.',
+          prompt: 'Welche Überschrift passt zu Text 2?',
+          options: _t1Test9Headings,
+          correctAnswer: 'Buchtipp: Ausflüge für Familien',
+        ),
+        LesenQuestion(
+          passage:
+              'Das Halbtax-Abo ist Ihr Schlüssel zu günstigen Reisen mit Bahn, '
+              'Bus und Schiff und präsentiert sich im praktischen '
+              'Kreditkartenformat. Schon beim Abo selbst können Sie kräftig '
+              'sparen: Für ein Jahr halbtaxeln bezahlen Sie 150 Schweizer '
+              'Franken. Und das ist noch nicht alles: Mit dem Halbtax-Abo sind '
+              'Sie gut informiert. Zweimal jährlich erhalten Sie das '
+              'Kundenmagazin mit vielen Reise-Ideen und exklusiven '
+              'Reiseangeboten. Mit Ihrem Halbtax-Abo erhalten Sie 25% '
+              'Preisnachlass auf Zugfahrten von der Schweiz nach Deutschland und '
+              'Österreich.',
+          prompt: 'Welche Überschrift passt zu Text 3?',
+          options: _t1Test9Headings,
+          correctAnswer: 'Ein Jahr preiswert reisen',
+        ),
+        LesenQuestion(
+          passage:
+              'Dokumentarfilm und Seifenoper zusammen heißt Doku-Soap, stammt '
+              'aus England und macht sich seit Jahren auch auf deutschen '
+              'TV-Kanälen breit. Vor allem Privatsender haben sich als '
+              'erfolgreiche Doku-Soap-Sender etabliert. In vielen TV-Serien kann '
+              'man das wirkliche Leben von Menschen verfolgen und mit ihnen '
+              'mitleben. Zurzeit besonders erfolgreich: die Sendung "Tausche '
+              'Familie", die täglich um 18 Uhr viele Zuschauer vor den Fernseher '
+              'lockt.',
+          prompt: 'Welche Überschrift passt zu Text 4?',
+          options: _t1Test9Headings,
+          correctAnswer: 'Jeden Tag ein Stück Wirklichkeit im Fernsehen',
+        ),
+        LesenQuestion(
+          passage:
+              'Wir wollen dir bei der Berufswahl helfen: Die Deutsche Bahn, ein '
+              'Unternehmen mit Zukunft. Viele Berufe ändern sich im Laufe der '
+              'Zeit. Genauso wie die Interessen im Leben. Und trotzdem gibt es '
+              'Neigungen und Fähigkeiten, die du lange Zeit in deinem Leben '
+              'behalten wirst. So zum Beispiel die Freude am Kontakt mit '
+              'Menschen, die Begeisterung für fremde Sprachen oder das Interesse '
+              'an Technik. Je nachdem, wofür du dich interessierst, kannst du bei '
+              'der Deutschen Bahn aus insgesamt 15 Lehrberufen wählen. '
+              'Informiere dich auf unserer Website www.bahn.de.',
+          prompt: 'Welche Überschrift passt zu Text 5?',
+          options: _t1Test9Headings,
+          correctAnswer: 'Ein Unternehmen mit vielen beruflichen Möglichkeiten',
+        ),
+        // ── TEST 10 ──
+        LesenQuestion(
+          passage:
+              'Falsche Körperhaltung, mangelnde Bewegung und psychische Faktoren '
+              'sind meistens die Hauptfaktoren für Rückenschmerzen. Hier finden '
+              'Sie ein ganzheitliches Trainingsprogramm, das hilft: Alle Übungen '
+              'lassen sich im Alltag gut umsetzen und sind auch bei Vorschäden '
+              'der Wirbelsäule durchführbar. Mit speziellem '
+              'Entspannungstraining. 114 Seiten, durchgehend Farbabbildungen, '
+              '18×25 cm, gebunden.',
+          prompt: 'Welche Überschrift passt zu Text 1?',
+          options: _t1Test10Headings,
+          correctAnswer: 'Was man gegen Rückenschmerzen tun kann',
+        ),
+        LesenQuestion(
+          passage:
+              'Der Computer gehört heute wie selbstverständlich in das '
+              'Jugendzimmer, wie früher die Modelleisenbahn oder die '
+              'Barbie-Puppe. Was aber genau treiben die Kids mit den '
+              'hochgerüsteten Rechenmaschinen auf dem Schreibtisch? Das wollte '
+              'die Jugendzeitschrift Bravo wissen. Selbstverständlich spielen, '
+              'aber auch andere, nützlichere Dinge wie Texte schreiben oder '
+              'Hausaufgaben für die Schule erledigen, Tabellen erstellen – und '
+              'natürlich im Internet herumsurfen.',
+          prompt: 'Welche Überschrift passt zu Text 2?',
+          options: _t1Test10Headings,
+          correctAnswer: 'Für Jugendliche ist der Computer etwas Alltägliches',
+        ),
+        LesenQuestion(
+          passage:
+              'Inline-Skating ist ein idealer Ausdauersport – nicht nur für die '
+              'jüngere Generation. Das haben jetzt Untersuchungen am Institut '
+              'für Sportwissenschaften an der Universität Frankfurt bestätigt. '
+              'Danach trainiert Inline-Skating das Herz-Kreislauf-System, '
+              'beansprucht die wichtigsten Muskelgruppen und fördert die '
+              'Koordination. Allerdings fragt der Arzt kritisch, warum jeder '
+              'Skifahrer oder Tennisspieler zu Beginn Trainingsstunden bei einem '
+              'Profi belegt, oft aber nicht der Inliner. Dabei lässt sich das '
+              'Verletzungsrisiko durch regelmäßiges Fahrtraining deutlich '
+              'verringern. In einem Kurs sollten die wichtigsten Sturz-, Brems- '
+              'und Fahrtechniken erlernt werden.',
+          prompt: 'Welche Überschrift passt zu Text 3?',
+          options: _t1Test10Headings,
+          correctAnswer: 'Auch Freizeitsportarten sollten trainiert werden',
+        ),
+        LesenQuestion(
+          passage:
+              'Eine Studie der Fernsehgesellschaften ARD und ZDF besagt, dass '
+              'deutsche Internetnutzer sich auch mit anderen Dingen '
+              'beschäftigen, wenn sie im Internet sind. Ein Großteil der '
+              'beobachteten Personen telefoniert beim Surfen, hört nebenbei '
+              'Musik oder arbeitet mit anderen Computerprogrammen. Aber auch '
+              'Konkurrenzmedien wie Fernsehen und Zeitschriften finden große '
+              'Aufmerksamkeit, während im Internet nach Informationen gesucht '
+              'wird.',
+          prompt: 'Welche Überschrift passt zu Text 4?',
+          options: _t1Test10Headings,
+          correctAnswer: 'Internetnutzer machen viele Dinge gleichzeitig',
+        ),
+        LesenQuestion(
+          passage:
+              'Geschäfte über das Internet werden in Deutschland auch in Zukunft '
+              'Milliarden Euro einbringen. In spätestens zwei Jahren werden 20 '
+              'Prozent aller europäischen Geschäfte über das Internet '
+              'abgewickelt, sagen die Fachleute. Heutzutage ist es kaum '
+              'vorstellbar, dass ein Unternehmen allein mit klassischen '
+              'Verkaufsmethoden und ohne zusätzliches Online-Marketing '
+              'erfolgreich sein wird. Wer heute nicht anfängt, diese '
+              'Möglichkeiten zu nutzen, kann in Zukunft seine Kunden verlieren.',
+          prompt: 'Welche Überschrift passt zu Text 5?',
+          options: _t1Test10Headings,
+          correctAnswer: 'Firmen müssen auch über Internet für Produkte werben',
+        ),
+        // ── TEST 11 ──
+        LesenQuestion(
+          passage:
+              'Das fängt ja gut an: Schon im Kinderzimmer werden Jungs bevorzugt '
+              '– sie bekommen mehr geschenkt als Mädchen. Das ist das Ergebnis '
+              'einer Untersuchung vom Bundesverband des '
+              'Spielwaren-Einzelhandels. Bundesweit wurden 6500 Familien nach '
+              'ihren Schenkgewohnheiten befragt. Fast immer wurde für die Söhne – '
+              'auch schon im Babyalter – mehr gekauft. Zuständig für die '
+              'Geschenke sind übrigens meist die Mütter.',
+          prompt: 'Welche Überschrift passt zu Text 1?',
+          options: _t1Test11Headings,
+          correctAnswer: 'Söhne werden mehr beschenkt als Töchter',
+        ),
+        LesenQuestion(
+          passage:
+              'In diesem Sommer werden weitere 200 Großstadt-Jugendherbergen auf '
+              'der ganzen Welt miteinander vernetzt. ICYN heißt das Zauberwort – '
+              'International Communication Youth Network. Das System wurde '
+              'speziell für Jugendherbergen entwickelt. Für nur 15 Euro '
+              'Jahresgebühr kann man mit der ICYN-Karte weltweit nicht nur '
+              'Übernachtungen in anderen Herbergen reservieren, sondern auch '
+              'unbegrenzt im Internet surfen, sogar gratis übers Internet '
+              'telefonieren, Bahn- und Flugtickets bargeldlos buchen sowie '
+              'günstige Konzerttickets bekommen.',
+          prompt: 'Welche Überschrift passt zu Text 2?',
+          options: _t1Test11Headings,
+          correctAnswer: 'Eine Karte – viele Vorteile',
+        ),
+        LesenQuestion(
+          passage:
+              'Ob zu Hause, irgendwo in der Schweiz oder im Ausland: Ferien mit '
+              'Kindern wollen gut geplant sein. Wo gibt es denn Orte, wo Kinder '
+              'noch Abenteuer erleben, Hotels oder Wohnungen, in denen sie sich '
+              'wohl fühlen, wo aber gleichzeitig auch die Eltern auf ihre '
+              'Rechnung kommen? Ruth Michaela Richter gibt Tipps, verrät '
+              'Adressen und zeigt Beispiele. Damit werden sogar Städtereisen '
+              'oder Schlossferien in England interessant.',
+          prompt: 'Welche Überschrift passt zu Text 3?',
+          options: _t1Test11Headings,
+          correctAnswer: 'Tipps: Wo auch Kinder ihren Spaß haben',
+        ),
+        LesenQuestion(
+          passage:
+              'Die Sehnsucht nach dem Meer ist in der Schweiz groß, vor allem '
+              'bei der jüngeren Generation. Ein Drittel der Schweizerinnen und '
+              'Schweizer würde nach einer Umfrage im Tausch für eine Meeresküste '
+              'die Hälfte der Berge hergeben. Die Zeitschrift mare ließ über '
+              '1000 Personen in der Schweiz nach ihrem Verhältnis zum Meer '
+              'befragen. Rund 42 Prozent der 15- bis 34-Jährigen würden den '
+              'Tausch eingehen. In der Deutschschweiz könnten sich nur 29 '
+              'Prozent von den Bergen trennen, in der Romandie sind es 37 und im '
+              'Tessin 43 Prozent.',
+          prompt: 'Welche Überschrift passt zu Text 4?',
+          options: _t1Test11Headings,
+          correctAnswer: 'Meer statt Berge',
+        ),
+        LesenQuestion(
+          passage:
+              'Ob für die traditionelle Familie oder für Alleinerziehende: Der '
+              'Verein für Familienherbergen in Gelsenkirchen bietet schon seit '
+              'Jahren preisgünstige Ferien. Über 1100 Zimmer und Wohnungen – '
+              'auch für das kleine Portemonnaie – stehen zwischen Nordsee und '
+              'Sizilien den Mitgliedern im neuen Katalog zur Auswahl. '
+              'Nichtmitglieder erhalten diesen Katalog gegen eine Gebühr von 5 '
+              'Euro. Infos: Telefon 061/981 25 25 oder www.ferienwohnung.ch.',
+          prompt: 'Welche Überschrift passt zu Text 5?',
+          options: _t1Test11Headings,
+          correctAnswer: 'Günstiger Urlaub für Vereinsmitglieder',
+        ),
+        // ── TEST 12 ──
+        LesenQuestion(
+          passage:
+              'Eine aktuelle Umfrage der Arbeiterkammer unter berufstätigen '
+              'Eltern zeigt den dringenden Wunsch nach flexiblen Arbeitszeiten '
+              '(60% der Eltern) und nach Kindergärten im oder in der Nähe des '
+              'Betriebes (58%). Frauen verlangen aber deutlich mehr '
+              'Teilzeitarbeitsplätze (50%) als Männer (36%). 52% aller Eltern '
+              'wünschen eine Ersatzperson, die den Vater oder die Mutter bei '
+              'Krankheit des Kindes im Betrieb vertritt.',
+          prompt: 'Welche Überschrift passt zu Text 1?',
+          options: _t1Test12Headings,
+          correctAnswer: 'Wünsche von berufstätigen Eltern',
+        ),
+        LesenQuestion(
+          passage:
+              'MÜNCHEN: Schüler an bayerischen Gymnasien, die sich für Umwelt '
+              'oder Technik interessieren, können sich auch dieses Jahr wieder um '
+              'den Carl-Friedrich-von-Martius-Umwelt- und Technikpreis bewerben. '
+              'Bei diesem Wettbewerb werden Facharbeiten aus dem letzten '
+              'Schuljahr bewertet. Nähere Informationen erhältlich beim '
+              'GSF-Forschungszentrum unter der Telefonnummer 089/311 87 27 12.',
+          prompt: 'Welche Überschrift passt zu Text 2?',
+          options: _t1Test12Headings,
+          correctAnswer: 'Umwelt- und Technikpreis',
+        ),
+        LesenQuestion(
+          passage:
+              'WIEN. Eine einmalige Abteilung für drei- bis sechsjährige Kinder '
+              'wurde im Technischen Museum (15, Mariahilferstraße 112) eröffnet. '
+              'In einem speziell für Kinder eingerichteten Bereich können die '
+              'jüngsten Besucher Technik angreifen. Dort gibt es unter anderem '
+              'Plasmascheiben, die Blitze erzeugen, ein Laufrad und ein '
+              'Hüpfklavier, mit dem die Kinder Töne erspringen können. Viel Spaß '
+              'macht den Kleinen auch, in einem Elektroauto herumzukurven und '
+              'sich in verschiedenen Zerrspiegeln zu betrachten.',
+          prompt: 'Welche Überschrift passt zu Text 3?',
+          options: _t1Test12Headings,
+          correctAnswer: 'Technik für Kleinkinder',
+        ),
+        LesenQuestion(
+          passage:
+              'HAMBURG. Männer haben mehr Karrierechancen, Frauen dafür mehr '
+              'Freude am Beruf: Das ergab eine große Umfrage in Hamburg. Obwohl '
+              'nur 8% der weiblichen Arbeitnehmer an ihre Aufstiegschancen '
+              'glauben, geben 61% an, dass ihre Arbeit ihnen Spaß mache. Bei den '
+              'Männern ist dieses Verhältnis 23 zu 57 Prozent.',
+          prompt: 'Welche Überschrift passt zu Text 4?',
+          options: _t1Test12Headings,
+          correctAnswer: 'Frauen: mehr Spaß am Beruf als Männer',
+        ),
+        LesenQuestion(
+          passage:
+              'Für Zufriedenheit am Arbeitsplatz kann Geld allein nicht '
+              'entscheidend sein. Dies gilt in besonderem Maß für '
+              'hochqualifizierte europäische Arbeitskräfte, wie eine '
+              'vergleichende internationale Management-Studie zeigt. Sowohl in '
+              'Europa wie auch unter japanischen und amerikanischen Managern wird '
+              'der Möglichkeit, neben der Arbeit auch Zeit für das Privatleben zu '
+              'haben, ein zentraler Stellenwert beigemessen. Die Analysen zeigen '
+              'auch, dass neben dem Gehalt der Ruf des Unternehmens für die '
+              'Arbeitsplatzwahl von europäischen Arbeitnehmern besonders wichtig '
+              'ist.',
+          prompt: 'Welche Überschrift passt zu Text 5?',
+          options: _t1Test12Headings,
+          correctAnswer: 'Gründe für Zufriedenheit am Arbeitsplatz',
+        ),
+        // ── TEST 13 ──
+        LesenQuestion(
+          passage:
+              'Frauen kommen genauso gut an ihr Ziel wie Männer, sie geben nur '
+              'nicht so damit an. Das ergab eine Studie der '
+              'Eberhard-Karls-Universität Tübingen mit 600 Testpersonen. Wenn '
+              'Frauen allein unterwegs sind, fragen sie öfter nach dem Weg und '
+              'freuen sich, wenn ihnen Freunde helfen. Die Tübinger Forscher '
+              'nennen das ein kommunikatives Orientierungsmodell. Männer dagegen '
+              'verfahren sich lieber dreimal, als einmal um Hilfe zu bitten. '
+              'Dabei spielt offensichtlich die Erziehung eine Rolle.',
+          prompt: 'Welche Überschrift passt zu Text 1?',
+          options: _t1Test13Headings,
+          correctAnswer: 'Frauen finden den richtigen Weg',
+        ),
+        LesenQuestion(
+          passage:
+              'Bahnfahren ist entspannend und lädt zum Lesen ein. Deswegen liest '
+              'auch etwa die Hälfte aller Reisenden während ihrer Bahnfahrt. '
+              'Frauen sind dabei lesefreudiger als Männer: 63 Prozent von ihnen '
+              'steigen mit dem Buch in den Zug. Wer unterwegs ist, verbringt im '
+              'Durchschnitt etwa eine Stunde und 28 Minuten mit dem Lesen eines '
+              'Buches oder einer Zeitung. Ein Zehntel aller Bahnreisenden '
+              'gesteht, dass sie keine Buchleser sind. Dies sind die '
+              'wesentlichen Ergebnisse einer Studie der Stiftung Lesen in '
+              'Zusammenarbeit mit der Deutschen Bahn.',
+          prompt: 'Welche Überschrift passt zu Text 2?',
+          options: _t1Test13Headings,
+          correctAnswer: 'Lesen im Zug ist beliebt',
+        ),
+        LesenQuestion(
+          passage:
+              'Der frühere Verein junger Mädchen heißt nun Compagna und hat sich '
+              'zu einem modernen gemeinnützigen Dienstleistungsbetrieb '
+              'gewandelt. Das wichtigste Ziel des Vereins ist es weiterhin, '
+              'Menschen zu begleiten. Diese Dienstleistung richtet sich vor allem '
+              'an Menschen, die auf Hilfe angewiesen sind: alleinreisende '
+              'Kinder, alte und behinderte Menschen. Die Reisenden werden am '
+              'Ausgangsbahnhof abgeholt und mit den öffentlichen Verkehrsmitteln '
+              'bis zum Zielort begleitet.',
+          prompt: 'Welche Überschrift passt zu Text 3?',
+          options: _t1Test13Headings,
+          correctAnswer: 'Hilfe beim Reisen mit der Bahn',
+        ),
+        LesenQuestion(
+          passage:
+              'Christine zum Stein, Leiterin der Volkshochschule Solothurn '
+              '(VHS), ist begeistert: Super gelaufen seien die Kurse, die die '
+              'VHS in den Morgenzügen des letzten Quartals angeboten hat. Weil '
+              'sich das Pilotprojekt von VHS und RBS auf der Strecke Solothurn – '
+              'Bern bestens bewährt hat, sollen künftig auch Pendlerinnen und '
+              'Pendler in umgekehrter Richtung die Möglichkeit erhalten, während '
+              'der Bahnfahrt Sprachen zu lernen. Angeboten werden Englisch, '
+              'Italienisch und Französisch.',
+          prompt: 'Welche Überschrift passt zu Text 4?',
+          options: _t1Test13Headings,
+          correctAnswer: 'Jetzt wird auch im Zug gelernt',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie sind in der Schweiz zu einem Fest eingeladen, aber auf der '
+              'Einladung steht nur die Adresse? Kein Problem, auch ohne Auto: '
+              'Seit einiger Zeit hat der Internet-Fahrplan der Schweizerischen '
+              'Bundesbahnen (www.sbb.ch) einen großen Bruder bekommen. Bis jetzt '
+              'konnte man nur Verbindungen von Bahnhöfen zu Bahnhöfen oder '
+              'Haltestellen abfragen. Neuerdings ist das auch für den Weg von '
+              'einer Adresse zu einer anderen möglich. Der elektronische '
+              'Fahrplan führt Sie automatisch zum Haltepunkt des öffentlichen '
+              'Verkehrs, der am nächsten bei der Zieladresse liegt.',
+          prompt: 'Welche Überschrift passt zu Text 5?',
+          options: _t1Test13Headings,
+          correctAnswer: 'Per Internet leichter ans Ziel',
         ),
       ],
     ),
@@ -3929,72 +4395,436 @@ const lesenB1 = LesenLevel(
       ],
     ),
 
-    // ── Sprachbausteine Teil 2 – Wortschatz: 1 matn, 10 bo'sh joy (a–o) ──────
+    // ── Sprachbausteine Teil 2 – Wortschatz (ko'p testli) ───────────────────
+    // Har TEST: 1 ta xat + 10 ta bo'sh joy. Har test uchun 15 so'zli bank
+    // (a–o), 5 tasi chalg'ituvchi. Manba: TELC B1 Sprachbausteine Teil 2.
     LesenTeil(
       teilNumber: 5,
-      sharedText:
-          'Sehr geehrte Damen und Herren,\n\n'
-          'ich möchte mich für einen Deutschkurs ___(1)___ . Ich ___(2)___ mich '
-          'besonders für den Abendkurs, weil ich tagsüber ___(3)___ muss.\n\n'
-          'Ich habe schon ein bisschen ___(4)___ mit der deutschen Sprache, aber '
-          'ich möchte vor allem mein Sprechen ___(5)___ . Bitte lassen Sie mich '
-          '___(6)___ , wann der ___(7)___ beginnt und wie viel ich ___(8)___ '
-          'muss.\n\n'
-          '___(9)___ kann ich erst ab nächster Woche anfangen. Ich hoffe, das ist '
-          'für Sie ___(10)___ .\n\n'
-          'Mit freundlichen Grüßen\n'
-          'Maria Ivanova',
+      questionsPerTest: 10,
+      testTexts: [
+        // ── TEST 1 ──
+        'Sehr geehrte Frau Bauer,\n\n'
+            'ich habe Ihre Anzeige in der Neuen Presse gelesen und bin an dem '
+            'Filmprojekt sehr ___(1)___ . Ich war schon ___(2)___ für einige '
+            'Wochen im Ausland. Vor allem im Sommer habe ich während meines '
+            'Studiums viele Sprachkurse besucht. Länger als ein halbes Jahr habe '
+            'ich ___(3)___ einmal im Ausland gelebt, und zwar ___(4)___ zwei '
+            'Jahren. Mein Chef machte mir damals das Angebot, acht Monate im '
+            'Tochterunternehmen der Firma in Portugal zu ___(5)___ , was ich '
+            'dann auch getan habe. Am Anfang war es sehr schwer, weil ich '
+            'niemanden kannte und alles sehr neu und ___(6)___ für mich war. '
+            'Eigentlich wollte ich so schnell wie ___(7)___ wieder zurück. Aber '
+            'dann habe ich nette Kollegen kennen gelernt, die mir auch über die '
+            'Kultur und das Leben in Portugal ___(8)___ haben. Ich glaube, dass '
+            'meine Erfahrungen für viele andere Menschen sehr interessant sein '
+            'könnten, und ich ___(9)___ gerne auch vor der Kamera darüber '
+            'erzählen. ___(10)___ Sie noch weitere Fragen an mich haben, können '
+            'Sie mich gerne anrufen.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Karoline Pointner',
+        // ── TEST 2 ──
+        'Sehr geehrter Herr Gauberger,\n\n'
+            'Ihre Anzeige habe ich mit Interesse gelesen. Ich bin ___(1)___ '
+            'lange Rentner und bekomme monatlich nur wenig Geld. Wenn ich die '
+            'Möglichkeit ___(2)___ , noch ein wenig zu verdienen, würde mir das '
+            'sehr helfen. Ich bin ___(3)___ schon 72 Jahre alt, aber noch bei '
+            'sehr guter Gesundheit. Daher denke ich, dass ich die Arbeit '
+            '___(4)___ Probleme machen kann. Seit über dreißig Jahren treibe ich '
+            '___(5)___ Tag Sport. Auch das frühe Aufstehen macht mir gar '
+            '___(6)___ aus. Einige Fragen hätte ich trotzdem noch: Müssen die '
+            'Zeitungen ___(7)___ ausgetragen werden und wie lange ist man '
+            'unterwegs? Außerdem möchte ich natürlich wissen, ___(8)___ man '
+            'verdient. Ich bin gerne bereit, mich bei ___(9)___ vorzustellen, '
+            'damit Sie sehen können, dass ich für die Tätigkeit ___(10)___ bin.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Eberhard Spitzweg',
+        // ── TEST 3 ──
+        'Sehr geehrte Damen und Herren,\n\n'
+            'unsere Organisation hat den ___(1)___ , eine deutsch-französische '
+            'Konferenz zu europäischen Entwicklungsprogrammen vorzubereiten. '
+            'Diese Veranstaltung könnte in Breisach ___(2)___ , und daher '
+            'brauchen wir von Ihnen nähere ___(3)___ . In Ihrer Anzeige '
+            '___(4)___ Sie die Sehenswürdigkeiten von Breisach und die '
+            'verschiedenen touristischen Möglichkeiten. Deshalb erscheint uns '
+            'Ihre Stadt als sehr ___(5)___ , auch ___(6)___ sie als Brücke zu '
+            'Europa gilt. Nun haben wir folgende Bitte: Für diese Veranstaltung '
+            '___(7)___ wir ein gutes Hotel, möglichst am Ufer des Rheins, mit '
+            'Konferenz- und Arbeitsräumen. Es sollte ___(8)___ ruhig gelegen '
+            'sein. Der ___(9)___ wäre 15.–21. November. Für Prospekte und '
+            'Informationen zu Preisen ___(10)___ wir Ihnen dankbar.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Adrian Schöller, EVD Trans GmbH',
+        // ── TEST 4 ──
+        'Sehr geehrte Damen und Herren,\n\n'
+            'seit längerem plane ich eine Wanderreise in die Sahara-Länder. Nun '
+            'ist mir beim Lesen der Zeitschrift Berge die Anzeige von Geo-Tours '
+            'aufgefallen, denn ___(1)___ steht, dass Sie auf Erlebnisreisen in '
+            'Wüstenregionen spezialisiert sind. Vielleicht haben Sie das '
+            'richtige Angebot für uns – ___(2)___ für mich und meine '
+            '17-jährige Tochter. Unsere Vorstellungen sind diese: Zuerst eine '
+            'Wanderreise, etwa 10 Tage, und ___(3)___ ein Erholungsurlaub am '
+            'Meer. Bieten Sie solche Kombinationen an? Und ___(4)___ ja, zu '
+            'welchem Preis? Zur Wanderreise ___(5)___ ich noch folgende Fragen: '
+            'Wird das Gepäck von einem Übernachtungsort zum nächsten '
+            'transportiert? Schläft man immer ___(6)___ freiem Himmel? Ich '
+            '___(7)___ auch wissen, wie die Reisegruppen zusammengesetzt sind, '
+            '___(8)___ Sprache die Reiseleiterin spricht und ob ein Arzt '
+            '___(9)___ ist. Ich freue mich auf Ihr ___(10)___ .\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Annette Luchsinger',
+        // ── TEST 5 ──
+        'Sehr geehrte Lottospieler,\n\n'
+            'wer möchte nicht auch ___(1)___ bei sechs Richtigen im Lotto dabei '
+            'sein? Vertrauen Sie beim Lottospiel nicht ___(2)___ auf das Glück, '
+            'denn Sie ___(3)___ Ihre Chancen selbst stark verbessern, ___(4)___ '
+            'Sie mit unserem Lotterie-System spielen – und das für nur 5 Euro in '
+            'der Woche! ___(5)___ allein zu spielen, spielen Sie mit uns in '
+            'einer starken Spielergemeinschaft. Dadurch erhöhen sich ___(6)___ '
+            'automatisch Ihre Chancen! Und was Sie gewinnen können? ___(7)___ '
+            'unserem Quantum-System spielen Sie mit einer Chance auf einen '
+            'Gewinn von 1 Million Euro! Alle Gewinne erhalten Sie umgehend und '
+            'ungekürzt zu 100 % – das ___(8)___ wir Ihnen! ___(9)___ 700 '
+            'Quantum-Systemspielgruppen haben zusammen schon über sieben '
+            'Millionen Euro gewonnen. ___(10)___ Sie hier unbedingt mit und '
+            'gewinnen Sie!\n\n'
+            'Herzliche Grüße,\n'
+            'Ihre Sabine Meier-Pütz',
+        // ── TEST 6 (manbada: Herr Maier) ──
+        'Sehr geehrter Herr Maier,\n\n'
+            'ich habe Ihre Anzeige in der Zeitung vom letzten ___(1)___ gelesen '
+            'und interessiere mich sehr ___(2)___ das Angebot. Ich ___(3)___ mit '
+            'meiner Mutter und ihrer Schwester, die beide schon etwas ältere '
+            'Damen sind, im September ein paar ___(4)___ Urlaub machen und '
+            'benötige daher einige Informationen. Ist die Benutzung des '
+            'Hallenbads und der Sauna im Preis enthalten oder ___(5)___ wir '
+            'diese extra bezahlen? Weiters würde mich interessieren, ___(6)___ '
+            'Pensionisten eine Ermäßigung bekommen. Sie schreiben darüber leider '
+            '___(7)___ in Ihrer Anzeige. ___(8)___ möchte ich wissen, ob man in '
+            'der Gegend um das Hotel einfache Wanderungen unternehmen kann. Ich '
+            'wäre Ihnen sehr dankbar, ___(9)___ Sie mir Bildmaterial und eine '
+            'Preisliste zukommen lassen könnten. Ich bedanke mich im ___(10)___ '
+            'für die Informationen.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Anneliese Schneeberger',
+        // ── TEST 7 (manbada: Frankfurter Allianz) ──
+        'Sehr geehrter Herr Frankel,\n\n'
+            'wir möchten Sie darüber informieren, ___(1)___ Ihre Versicherungen '
+            'künftig von Herrn Max Kuhne bearbeitet werden. Ihm wurden ___(2)___ '
+            'Unterlagen übergeben. Alle Kundendaten ___(3)___ selbstverständlich '
+            'streng vertraulich behandelt. Wenn Sie also ___(4)___ zu Ihren '
+            'Versicherungen haben, wenden Sie sich in Zukunft bitte an Herrn '
+            'Kuhne. Er berät und ___(5)___ Sie gern. Auch im Schadensfall '
+            '___(6)___ er Ihnen schnell und zuverlässig weiter. Im Übrigen '
+            'möchten wir uns ___(7)___ einen Fehler in unserer letzten '
+            'Beitragsrechnung entschuldigen. Leider ist ___(8)___ die Adresse '
+            'von Herrn Kuhne nicht korrekt. Seine ___(9)___ Anschrift und '
+            'Telefonnummer finden Sie auf diesem Brief oben rechts. Wir danken '
+            '___(10)___ für Ihr Vertrauen.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Ihre Frankfurter Allianz',
+        // ── TEST 8 (manbada: Katja Berset) ──
+        'Sehr geehrte Damen und Herren,\n\n'
+            'ich habe Ihre Anzeige in der FAZ vom 7./8. Mai gelesen. Die Arbeit '
+            'interessiert mich und ___(1)___ würde ich gerne mehr darüber '
+            'wissen. Ich bin 16 Jahre alt und in der letzten Klasse der '
+            'Sekundarschule in Brig. Da das Schuljahr ___(2)___ Juni endet, '
+            'könnte ich am 1. Juli in Frankfurt sein. Zu Hause habe ich '
+            '___(3)___ zu tun: Ich muss meiner Mutter helfen, einkaufen, die '
+            'Wohnung sauber machen. Ich habe auch zwei jüngere Geschwister, '
+            '___(4)___ ich bei den Hausaufgaben helfen muss. Ich ___(5)___ gern '
+            'ein Jahr in Frankfurt bleiben. ___(6)___ der Zeit in Frankfurt '
+            'würde ich gern mein Englisch verbessern. Bitte schreiben Sie mir, '
+            '___(7)___ ich für einen solchen Kurs frei bekommen kann. Ich hätte '
+            'auch gern gewusst, ___(8)___ ich machen muss. Ich schicke Ihnen ein '
+            'Foto von mir, ___(9)___ Sie wissen, wie ich aussehe. Natürlich kann '
+            'ich auch nach Frankfurt kommen, ___(10)___ mich vorzustellen.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Katja Berset',
+        // ── TEST 9 (manbada: Anton Müller) ──
+        'Sehr geehrter Herr Janosch,\n\n'
+            'ich habe Ihre Anzeige gelesen und interessiere mich sehr ___(1)___ '
+            'Ihr Angebot. Ich möchte mit meiner Familie vom 10.–24. August in '
+            'Österreich Urlaub machen und hätte deshalb ___(2)___ noch nähere '
+            'Informationen. Meine Frau und mich interessiert ganz ___(3)___ das '
+            'Freizeitprogramm für Kinder, ___(4)___ wir zwei Kinder (3 und 8 '
+            'Jahre) haben. Gibt es Schwimm- und Tenniskurse für Kinder und '
+            '___(5)___ ja, was kosten sie? Wie viel ___(6)___ wir pro Woche für '
+            'unsere Kinder bezahlen? Und ___(7)___ noch eine letzte Frage: Wir '
+            'haben einen kleinen Hund, den wir ___(8)___ auch mitnehmen müssten. '
+            'Wäre das möglich? Bitte schreiben Sie uns so bald wie möglich, '
+            '___(9)___ wir uns bald entscheiden können. Außerdem wären wir Ihnen '
+            'sehr ___(10)___ , wenn Sie uns einige Prospekte zusenden würden.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Ihr Anton Müller',
+        // ── TEST 10 (manbada: Ivica Palic) ──
+        'Sehr geehrte Damen und Herren,\n\n'
+            'ich habe Ihre Anzeige gelesen und interessiere mich sehr für Ihr '
+            'Angebot. Ich komme aus Kroatien und möchte ___(1)___ den nächsten '
+            'Sommerferien mein Deutsch verbessern. Klagenfurt ist für mich der '
+            'ideale Ort, ___(2)___ das nicht so weit weg von meiner Heimatstadt '
+            'Zagreb ist. Da kann ich an den Wochenenden vielleicht auch '
+            '___(3)___ nach Hause fahren. Ich bin 24 Jahre alt und habe in der '
+            'Schule vier Jahre lang Deutsch gelernt. Ich kann zwar ___(4)___ '
+            'ganz gut schreiben, ___(5)___ ich habe immer wieder Probleme beim '
+            'freien Sprechen. Am liebsten wäre mir ein vierwöchiger Deutschkurs, '
+            '___(6)___ nur vormittags stattfindet, ___(7)___ ich nachmittags '
+            'etwas anderes machen kann. ___(8)___ Sie einen passenden Kurs für '
+            'mich haben, schicken Sie mir bitte sobald ___(9)___ möglich nähere '
+            'Informationen zu. Bitte empfehlen Sie mir auch ein ___(10)___ gute '
+            'Webseiten über Klagenfurt.\n\n'
+            'Freundliche Grüße\n'
+            'Ivica Palic',
+        // ── TEST 11 (manbada: Josef Martinell) ──
+        'Sehr geehrte Damen und Herren,\n\n'
+            'mit großem Interesse und auch mit Hoffnung habe ich Ihre Anzeige '
+            'gelesen. Leider ___(1)___ ich Sie im Moment nicht anrufen, da das '
+            'Telefon immer belegt ist. ___(2)___ schreibe ich Ihnen diese Mail. '
+            'Mein Sohn Matthias macht ___(3)___ zwei Jahren sein Abitur, '
+            '___(4)___ seine Leistungen sind zurzeit nicht so gut. Ich mache '
+            '___(5)___ vor allem bei den Fächern Physik und Mathematik große '
+            'Sorgen. Matthias ist nicht dumm, aber er ist etwas faul und denkt, '
+            'er brauche ___(6)___ Fächer nicht. Fragen wollte ich nun, ___(7)___ '
+            'es bei Ihnen auch individuelle Physik- und Mathematiknachhilfe '
+            'gibt. Und ___(8)___ finden die Stunden statt? Mir wäre es sehr '
+            'wichtig, dass Sie meinem Sohn helfen ___(9)___ . Ab 19.30 Uhr bin '
+            'ich telefonisch ___(10)___ der Nummer 0428-1734 zu erreichen.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Josef Martinell',
+        // ── TEST 12 (manbada: Kasia Kloc) ──
+        'Sehr geehrte Frau Hermann,\n\n'
+            'ich habe Ihre Anzeige in der Frankfurter Rundschau vom 5. Oktober '
+            'gelesen und interessiere mich sehr für die 3-Zimmer-Wohnung. '
+            'Zurzeit wohne ich noch in Krakau. Demnächst ___(1)___ ich aber aus '
+            'beruflichen Gründen mit meinem Sohn (3 Jahre) ___(2)___ Frankfurt '
+            'umziehen. Deshalb suche ich zum 1. November eine Wohnung, ___(3)___ '
+            'möglichst zentral gelegen sein sollte. Ihre Wohnung ___(4)___ '
+            'deshalb genau richtig für uns. Ich hätte jedoch noch einige Fragen: '
+            'Ist die Wohnung auch für Kleinkinder ___(5)___ ? Und gibt es in der '
+            'näheren Umgebung einen Spielplatz, ___(6)___ mein Sohn spielen '
+            'könnte? Außerdem würde ich ___(7)___ wissen, ob die Haltung von '
+            'Haustieren in ___(8)___ Wohnung erlaubt ist. ___(9)___ es möglich '
+            'ist, würden wir nämlich gerne unseren Hund mitbringen. Ich danke '
+            'Ihnen ___(10)___ jetzt für Ihre Antwort.\n\n'
+            'Freundliche Grüße\n'
+            'Kasia Kloc',
+        // ── TEST 13 (manbada: Willy Gates) ──
+        'Sehr geehrte Damen und Herren,\n\n'
+            'vielen Dank für die ___(1)___ Zusendung der Informationsmaterialien. '
+            'Ich interessiere mich sowohl für das Seminar „Schutz gegen '
+            'Computerviren" als ___(2)___ für „Einführung ins Internet". Dazu '
+            'habe ich noch ___(3)___ Fragen: Ist die Veranstaltung „Einführung '
+            'ins Internet" auch wirklich für Anfänger gedacht? Da ich noch keine '
+            'Erfahrung habe, möchte ich mich ___(4)___ jetzt auf das Seminar '
+            'vorbereiten. ___(5)___ Sie mir die Schulungsunterlagen bereits '
+            'vorher schicken? Gibt es für die ___(6)___ Seminare noch genügend '
+            'freie Plätze? Bis ___(7)___ muss ich mich spätestens anmelden? Und '
+            'nun eine Frage zur Bezahlung: ___(8)___ ich wissen, ___(9)___ man '
+            'im Voraus bezahlen muss oder vor Ort bar bezahlen kann. ___(10)___ '
+            'ich auch eine Kursbestätigung am Ende des Seminars erhalten?\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Willy Gates',
+        // ── TEST 14 (manbada: Ilka und Heiner Grossmann) ──
+        'Sehr geehrter Unbekannter,\n\n'
+            'mein Mann und ich haben Ihre Anzeige in den Mitteilungen des '
+            'Deutschen Alpenvereins ___(1)___ . Wir wohnen etwa 40 km außerhalb '
+            'von Nürnberg und schreiben Ihnen, ___(2)___ wir Lust hätten, etwas '
+            'in einer Gruppe zu machen. Unseren Sommerurlaub verbringen wir '
+            'regelmäßig in den Bergen. Und ___(3)___ es unser Terminkalender '
+            'erlaubt, gehen wir auch am Wochenende wandern; ___(4)___ fahren wir '
+            'in die Gegend vom Wilden Kaiser, wo wir inzwischen alle Wanderwege '
+            '___(5)___ . Wir fahren zwar beide auch Ski, ___(6)___ der Winter in '
+            'den Bergen ist nicht unbedingt unsere Sache. Dagegen macht es '
+            '___(7)___ viel Spaß, Fahrrad zu fahren. Daher ___(8)___ wir uns '
+            'auch auf gemeinsame Radtouren freuen. Zum Schluss noch ein '
+            '___(9)___ Worte zu uns selbst: Wir sind 64 und 62 Jahre alt. Rufen '
+            'Sie uns doch einfach ___(10)___ an: Tel. 09243/7448.\n\n'
+            'Viele Grüße\n'
+            'Ilka und Heiner Grossmann',
+        // ── TEST 15 (manbada: Nadia Grade) ──
+        'Sehr geehrte Frau Campe,\n\n'
+            'mein Deutschlehrer hat mich ___(1)___ informiert, dass Sie in St. '
+            'Andreasburg Intensivkurse in Deutsch anbieten. Ich lerne ___(2)___ '
+            'zwei Jahren Deutsch in Yverdon, einer kleinen Stadt in der '
+            'Westschweiz. Es gefällt mir hier, aber ich lebe in einer '
+            'französischsprachigen Region und auch meine Arbeitskollegen '
+            '___(3)___ nur Französisch mit mir. So habe ich einfach zu '
+            '___(4)___ Gelegenheit, Deutsch zu sprechen. Deshalb interessiere '
+            'ich mich ___(5)___ für Ihre Intensivkurse. Die Oberpfalz ___(6)___ '
+            'ich schon seit langem einmal kennen lernen. Bevor ich mich für '
+            'einen Sprachkurs entscheide, ___(7)___ ich noch einige Fragen. '
+            '___(8)___ Studenten nehmen an einem Kurs teil? Muss man für die '
+            'Exkursionen extra bezahlen oder sind die Kosten ___(9)___ schon im '
+            'Kursgeld enthalten? Für Ihre Antwort ___(10)___ meine Fragen '
+            'bedanke ich mich vielmals.\n\n'
+            'Mit freundlichen Grüßen\n'
+            'Nadia Grade',
+      ],
       questions: [
-        LesenQuestion(
-          prompt: 'Lücke 1',
-          options: _sb2Words,
-          correctAnswer: 'anmelden',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 2',
-          options: _sb2Words,
-          correctAnswer: 'interessiere',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 3',
-          options: _sb2Words,
-          correctAnswer: 'arbeiten',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 4',
-          options: _sb2Words,
-          correctAnswer: 'Erfahrung',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 5',
-          options: _sb2Words,
-          correctAnswer: 'verbessern',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 6',
-          options: _sb2Words,
-          correctAnswer: 'wissen',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 7',
-          options: _sb2Words,
-          correctAnswer: 'Unterricht',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 8',
-          options: _sb2Words,
-          correctAnswer: 'bezahlen',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 9',
-          options: _sb2Words,
-          correctAnswer: 'leider',
-        ),
-        LesenQuestion(
-          prompt: 'Lücke 10',
-          options: _sb2Words,
-          correctAnswer: 'möglich',
-        ),
+        // ── TEST 1 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T1, correctAnswer: 'interessiert'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T1, correctAnswer: 'öfter'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T1, correctAnswer: 'nur'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T1, correctAnswer: 'vor'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T1, correctAnswer: 'arbeiten'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T1, correctAnswer: 'unbekannt'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T1, correctAnswer: 'möglich'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T1, correctAnswer: 'erzählt'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T1, correctAnswer: 'würde'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T1, correctAnswer: 'falls'),
+        // ── TEST 2 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T2, correctAnswer: 'schon'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T2, correctAnswer: 'hätte'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T2, correctAnswer: 'zwar'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T2, correctAnswer: 'ohne'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T2, correctAnswer: 'jeden'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T2, correctAnswer: 'nichts'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T2, correctAnswer: 'täglich'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T2, correctAnswer: 'wie viel'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T2, correctAnswer: 'Ihnen'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T2, correctAnswer: 'geeignet'),
+        // ── TEST 3 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T3, correctAnswer: 'Auftrag'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T3, correctAnswer: 'stattfinden'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T3, correctAnswer: 'Informationen'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T3, correctAnswer: 'beschreiben'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T3, correctAnswer: 'geeignet'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T3, correctAnswer: 'weil'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T3, correctAnswer: 'suchen'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T3, correctAnswer: 'auch'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T3, correctAnswer: 'Termin'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T3, correctAnswer: 'wären'),
+        // ── TEST 4 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T4, correctAnswer: 'darin'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T4, correctAnswer: 'nämlich'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T4, correctAnswer: 'danach'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T4, correctAnswer: 'wenn'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T4, correctAnswer: 'hätte'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T4, correctAnswer: 'unter'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T4, correctAnswer: 'möchte'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T4, correctAnswer: 'welche'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T4, correctAnswer: 'dabei'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T4, correctAnswer: 'Angebot'),
+        // ── TEST 5 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T5, correctAnswer: 'einmal'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T5, correctAnswer: 'nur'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T5, correctAnswer: 'können'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T5, correctAnswer: 'wenn'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T5, correctAnswer: 'statt'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T5, correctAnswer: 'ganz'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T5, correctAnswer: 'bei'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T5, correctAnswer: 'garantieren'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T5, correctAnswer: 'über'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T5, correctAnswer: 'machen'),
+        // ── TEST 6 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T6, correctAnswer: 'Wochenende'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T6, correctAnswer: 'für'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T6, correctAnswer: 'möchte'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T6, correctAnswer: 'Tage'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T6, correctAnswer: 'müssen'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T6, correctAnswer: 'ob'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T6, correctAnswer: 'nichts'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T6, correctAnswer: 'außerdem'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T6, correctAnswer: 'wenn'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T6, correctAnswer: 'Voraus'),
+        // ── TEST 7 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T7, correctAnswer: 'dass'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T7, correctAnswer: 'Ihre'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T7, correctAnswer: 'werden'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T7, correctAnswer: 'Fragen'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T7, correctAnswer: 'informiert'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T7, correctAnswer: 'hilft'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T7, correctAnswer: 'für'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T7, correctAnswer: 'dort'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T7, correctAnswer: 'richtige'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T7, correctAnswer: 'Ihnen'),
+        // ── TEST 8 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T8, correctAnswer: 'deshalb'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T8, correctAnswer: 'im'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T8, correctAnswer: 'viel'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T8, correctAnswer: 'denen'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T8, correctAnswer: 'würde'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T8, correctAnswer: 'während'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T8, correctAnswer: 'ob'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T8, correctAnswer: 'was'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T8, correctAnswer: 'damit'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T8, correctAnswer: 'um'),
+        // ── TEST 9 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T9, correctAnswer: 'für'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T9, correctAnswer: 'gerne'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T9, correctAnswer: 'besonders'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T9, correctAnswer: 'da'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T9, correctAnswer: 'wenn'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T9, correctAnswer: 'müssten'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T9, correctAnswer: 'schließlich'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T9, correctAnswer: 'damals'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T9, correctAnswer: 'damit'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T9, correctAnswer: 'dankbar'),
+        // ── TEST 10 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T10, correctAnswer: 'in'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T10, correctAnswer: 'weil'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T10, correctAnswer: 'manchmal'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T10, correctAnswer: 'schon'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T10, correctAnswer: 'aber'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T10, correctAnswer: 'der'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T10, correctAnswer: 'damit'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T10, correctAnswer: 'wenn'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T10, correctAnswer: 'wie'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T10, correctAnswer: 'paar'),
+        // ── TEST 11 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T11, correctAnswer: 'kann'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T11, correctAnswer: 'deshalb'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T11, correctAnswer: 'in'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T11, correctAnswer: 'aber'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T11, correctAnswer: 'mir'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T11, correctAnswer: 'diese'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T11, correctAnswer: 'ob'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T11, correctAnswer: 'wann'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T11, correctAnswer: 'können'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T11, correctAnswer: 'unter'),
+        // ── TEST 12 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T12, correctAnswer: 'muss'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T12, correctAnswer: 'nach'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T12, correctAnswer: 'die'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T12, correctAnswer: 'wäre'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T12, correctAnswer: 'geeignet'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T12, correctAnswer: 'wo'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T12, correctAnswer: 'gerne'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T12, correctAnswer: 'der'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T12, correctAnswer: 'wenn'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T12, correctAnswer: 'schon'),
+        // ── TEST 13 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T13, correctAnswer: 'schnelle'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T13, correctAnswer: 'auch'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T13, correctAnswer: 'einige'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T13, correctAnswer: 'schon'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T13, correctAnswer: 'könnten'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T13, correctAnswer: 'beiden'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T13, correctAnswer: 'wann'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T13, correctAnswer: 'möchte'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T13, correctAnswer: 'ob'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T13, correctAnswer: 'werde'),
+        // ── TEST 14 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T14, correctAnswer: 'entdeckt'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T14, correctAnswer: 'weil'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T14, correctAnswer: 'wenn'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T14, correctAnswer: 'oft'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T14, correctAnswer: 'kennen'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T14, correctAnswer: 'aber'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T14, correctAnswer: 'uns'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T14, correctAnswer: 'würden'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T14, correctAnswer: 'paar'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T14, correctAnswer: 'einmal'),
+        // ── TEST 15 ──
+        LesenQuestion(prompt: 'Lücke 1', options: _sb2T15, correctAnswer: 'darüber'),
+        LesenQuestion(prompt: 'Lücke 2', options: _sb2T15, correctAnswer: 'seit'),
+        LesenQuestion(prompt: 'Lücke 3', options: _sb2T15, correctAnswer: 'sprechen'),
+        LesenQuestion(prompt: 'Lücke 4', options: _sb2T15, correctAnswer: 'wenig'),
+        LesenQuestion(prompt: 'Lücke 5', options: _sb2T15, correctAnswer: 'sehr'),
+        LesenQuestion(prompt: 'Lücke 6', options: _sb2T15, correctAnswer: 'möchte'),
+        LesenQuestion(prompt: 'Lücke 7', options: _sb2T15, correctAnswer: 'hätte'),
+        LesenQuestion(prompt: 'Lücke 8', options: _sb2T15, correctAnswer: 'wie viele'),
+        LesenQuestion(prompt: 'Lücke 9', options: _sb2T15, correctAnswer: 'dafür'),
+        LesenQuestion(prompt: 'Lücke 10', options: _sb2T15, correctAnswer: 'auf'),
       ],
     ),
   ],
