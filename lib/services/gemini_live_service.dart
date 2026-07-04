@@ -336,6 +336,25 @@ class GeminiLiveService {
   /// Og'iz amplitudasi timer orqali real-time yangilanadi.
   Future<void> _playTurn() async {
     final pcm = _turnAudio.takeBytes();
+    final emo = emotion.value;
+
+    // Aksirish yoki yo'talish — bot audiosi o'rniga FAQAT sound effect qo'yiladi.
+    // Chunki Gemini 2.5 aksirish/yo'talishni o'zi generatsiya qiladi (yomon
+    // eshitiladi). SFX undan ancha naturallroq.
+    if (emo == AiFaceEmotion.sneezing || emo == AiFaceEmotion.coughing) {
+      state.value = AiFaceState.speaking;
+      final sfxPath = emo == AiFaceEmotion.sneezing
+          ? 'sounds/sneeze.mp3'
+          : 'sounds/cough.mp3';
+      await _playSfx(sfxPath);
+      if (!_closed) {
+        state.value = AiFaceState.listening;
+        emotion.value = AiFaceEmotion.neutral;
+        mouthLevel.value = 0.0;
+      }
+      return;
+    }
+
     if (pcm.isEmpty) {
       state.value = AiFaceState.listening;
       return;
@@ -343,16 +362,6 @@ class GeminiLiveService {
     try {
       final wav = _pcm16ToWav(pcm, sampleRate: 24000, channels: 1);
       state.value = AiFaceState.speaking;
-
-      // Aksirish/yo'talish emotsiyasi bo'lsa — avval real tovush effektini
-      // ijro qilamiz (bot ovozidan oldin).
-      final emo = emotion.value;
-      if (emo == AiFaceEmotion.sneezing) {
-        await _playSfx('sounds/sneeze.mp3');
-      } else if (emo == AiFaceEmotion.coughing) {
-        await _playSfx('sounds/cough.mp3');
-      }
-      if (_closed) return;
 
       // Amplitude tracking boshlash.
       _playingPcm = Uint8List.fromList(pcm);
