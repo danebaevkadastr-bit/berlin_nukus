@@ -251,10 +251,8 @@ class GeminiLiveService {
         numChannels: 1,
       ));
       _micSub = stream.listen((chunk) {
-        // Faqat "listening" holatida yuboramiz — bot gapirayotganda va
-        // javob tayyorlanayotganda mikrofon ovozini yubormaymiz.
+        // Mikrofonni doim ochiq qoldiramiz (barge-in uchun).
         if (!_connected || _closed) return;
-        if (state.value != AiFaceState.listening) return;
         _queueAudioChunk(chunk);
       });
     } catch (e) {
@@ -302,7 +300,7 @@ class GeminiLiveService {
   void _flushMicBuffer() {
     _micFlushTimer?.cancel();
     _micFlushTimer = null;
-    if (!_connected || _closed || state.value != AiFaceState.listening) {
+    if (!_connected || _closed) {
       _pendingMic.clear();
       return;
     }
@@ -316,16 +314,18 @@ class GeminiLiveService {
   void _sendAudioChunk(Uint8List chunk) {
     final ch = _channel;
     if (ch == null) return;
-    // Yangi Live API: realtimeInput.audio (mediaChunks eskirgan).
-    final msg = {
+    // Let's use realtimeInput.mediaChunks
+    final realtimeMsg = {
       'realtimeInput': {
-        'audio': {
-          'mimeType': 'audio/pcm;rate=16000',
-          'data': base64Encode(chunk),
-        },
+        'mediaChunks': [
+          {
+            'mimeType': 'audio/pcm;rate=16000',
+            'data': base64Encode(chunk),
+          }
+        ]
       },
     };
-    ch.sink.add(jsonEncode(msg));
+    ch.sink.add(jsonEncode(realtimeMsg));
     // DEBUG: mikrofon audio yuboryaptimi? Har ~50 bo'lakda bir marta.
     _sentChunks++;
     _sentBytes += chunk.length;

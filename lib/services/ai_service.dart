@@ -206,6 +206,101 @@ class AIService {
     return ChatSanitize.clean(raw);
   }
 
+  /// Yozilgan audioni matnga aylantiradi (Groq Whisper, Cloudflare Worker
+  /// orqali). Nemis tili uchun `language: 'de'`. Brauzer/qurilma STT'siga
+  /// bog'liq emas — web va telefonda bir xil ishlaydi.
+  static Future<String> transcribeAudio({
+    required Uint8List audioBytes,
+    required String mimeType,
+    String language = 'de',
+  }) async {
+    if (_proxyUrl.isEmpty) {
+      throw Exception('CF_WORKER_URL sozlanmagan');
+    }
+    final response = await http
+        .post(
+          Uri.parse(_proxyUrl),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Proxy-Target': 'stt',
+            if (_appToken.isNotEmpty) 'X-App-Token': _appToken,
+          },
+          body: jsonEncode({
+            'audioBase64': base64Encode(audioBytes),
+            'mimeType': mimeType,
+            'language': language,
+          }),
+        )
+        .timeout(const Duration(seconds: 45));
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('STT javob bermadi (${response.statusCode})');
+    }
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return (data['text'] ?? '').toString().trim();
+  }
+
+  /// Gemini Live real-time WebSocket URL'i (Cloudflare Worker proksisi).
+  /// Zaxira: Worker proksi audio oqimida barqaror emas — asosan
+  /// [liveDirectWebSocketUrl] ishlatiladi.
+  static String liveWebSocketUrl({String apiVersion = 'v1beta'}) {
+    if (_proxyUrl.isEmpty) {
+      throw Exception('CF_WORKER_URL sozlanmagan');
+    }
+    final httpUri = Uri.parse(_proxyUrl);
+    final wsUri = httpUri.replace(
+      scheme: httpUri.scheme == 'http' ? 'ws' : 'wss',
+      path: httpUri.path.isEmpty ? '/' : httpUri.path,
+      queryParameters: {
+        ...httpUri.queryParameters,
+        'lv': apiVersion,
+        if (_appToken.isNotEmpty) 't': _appToken,
+      },
+    );
+    return wsUri.toString();
+  }
+
+  /// Ephemeral token bilan to'g'ridan-to'g'ri Gemini Live WebSocket URL'i.
+  /// API kalit ilovaga chiqmaydi — faqat qisqa muddatli token ishlatiladi.
+  /// Token [fetchGeminiLiveToken] orqali Worker'dan olinadi.
+  static String liveDirectWebSocketUrl({required String token}) {
+    const host = 'generativelanguage.googleapis.com';
+    const path =
+        '/ws/google.ai.generativelanguage.v1alpha.GenerativeService'
+        '.BidiGenerateContentConstrained';
+    return Uri(
+      scheme: 'wss',
+      host: host,
+      path: path,
+      queryParameters: {'access_token': token},
+    ).toString();
+  }
+
+  /// Gemini Live (real-time ovozli AI) uchun qisqa muddatli token oladi.
+  /// Token WebSocket ulanishida `access_token` sifatida ishlatiladi.
+  static Future<String> fetchGeminiLiveToken() async {
+    if (_proxyUrl.isEmpty) {
+      throw Exception('CF_WORKER_URL sozlanmagan');
+    }
+    final response = await http.post(
+      Uri.parse(_proxyUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Proxy-Target': 'gemini-live-token',
+        if (_appToken.isNotEmpty) 'X-App-Token': _appToken,
+      },
+      body: '{}',
+    ).timeout(const Duration(seconds: 20));
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Live token olinmadi (${response.statusCode})');
+    }
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final token = (data['token'] ?? '').toString();
+    if (token.isEmpty) throw Exception('Live token bo\'sh');
+    return token;
+  }
+
   static Future<Map<String, dynamic>> checkMistakes({
     required String text,
     String targetLang = 'uz',

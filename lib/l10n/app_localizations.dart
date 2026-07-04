@@ -400,10 +400,10 @@ class AppLocalizations {
     'de': "Teilnehmer",
   });
   String get noLessonAddedYet => _t({
-    'uz': "📭 Hali dars qo'shilmagan",
-    'kaa': "📭 Ele sabaq qosılmaǵan",
-    'ru': "📭 Урок еще не добавлен",
-    'de': "📭 Noch keine Stunde hinzugefügt",
+    'uz': "Hali dars qo'shilmagan",
+    'kaa': "Ele sabaq qosılmaǵan",
+    'ru': "Урок еще не добавлен",
+    'de': "Noch keine Stunde hinzugefügt",
   });
   String get viewMaterials => _t({
     'uz': "Materiallarni ko'rish",
@@ -1691,6 +1691,68 @@ class AppLocalizations {
     'de': "Freies Gespräch",
   });
 
+  // ── Voice AI (real-time ovozli suhbat) ──────────────────────────────────────
+  String get voiceAiTitle => _t({
+    'uz': "Ovozli AI",
+    'kaa': "Dawıslı AI",
+    'ru': "Голосовой AI",
+    'de': "Sprach-KI",
+  });
+  String get voiceAiTapToStart => _t({
+    'uz': "Gaplashishni boshlash uchun bosing",
+    'kaa': "Sóylesiwdi baslaw ushın basıń",
+    'ru': "Нажмите, чтобы начать разговор",
+    'de': "Tippen zum Sprechen",
+  });
+  String get voiceAiListening => _t({
+    'uz': "Tinglayapman...",
+    'kaa': "Tıńlap atırman...",
+    'ru': "Слушаю...",
+    'de': "Ich höre zu...",
+  });
+  String get voiceAiThinking => _t({
+    'uz': "O'ylayapman...",
+    'kaa': "Oylap atırman...",
+    'ru': "Думаю...",
+    'de': "Ich überlege...",
+  });
+  String get voiceAiSpeaking => _t({
+    'uz': "Gapiryapman...",
+    'kaa': "Sóylep atırman...",
+    'ru': "Говорю...",
+    'de': "Ich spreche...",
+  });
+  String get voiceAiConnecting => _t({
+    'uz': "Ulanmoqda...",
+    'kaa': "Baylanısıp atır...",
+    'ru': "Подключение...",
+    'de': "Verbindung...",
+  });
+  String get voiceAiHoldToTalk => _t({
+    'uz': "Gapirish uchun tugmani bosib turing",
+    'kaa': "Sóylew ushın túymeni basıp turıń",
+    'ru': "Зажмите кнопку, чтобы говорить",
+    'de': "Zum Sprechen Taste gedrückt halten",
+  });
+  String get voiceAiRecordingRelease => _t({
+    'uz': "Gapiring... (yuborish uchun qo'yib yuboring)",
+    'kaa': "Sóyleń... (jiberiw ushın qoyıp jiberiń)",
+    'ru': "Говорите... (отпустите, чтобы отправить)",
+    'de': "Sprich... (loslassen zum Senden)",
+  });
+  String get voiceAiComingSoon => _t({
+    'uz': "Real-time ovozli suhbat tez orada to'liq ishga tushadi.",
+    'kaa': "Real-time dawıslı sóylesiw tez arada tolıq iske túsedi.",
+    'ru': "Голосовой разговор в реальном времени скоро заработает полностью.",
+    'de': "Das Echtzeit-Sprachgespräch wird bald vollständig verfügbar sein.",
+  });
+  String get voiceAiEnd => _t({
+    'uz': "Tugatish",
+    'kaa': "Tamamlaw",
+    'ru': "Завершить",
+    'de': "Beenden",
+  });
+
   // ── Home extras ────────────────────────────────────────────────────────────
   String get streakSavedTitle => _t({
     'uz': "STREAK SAQLANDI!",
@@ -2594,7 +2656,7 @@ class AppLocalizations {
   });
   String get cashPaymentExampleHint => _t({
     'uz': "Masalan: Aprel oyi naqd to'lovi...",
-    'kaa': "Mysal: Aprel ayı naq tólemi...",
+    'kaa': "Mısal: Aprel ayı naq tólemi...",
     'ru': "Например: наличная оплата за апрель...",
     'de': "z.B.: Barzahlung für April...",
   });
@@ -2608,7 +2670,7 @@ class AppLocalizations {
   });
   String get deleteLessonConfirm => _t({
     'uz': "Rostdan ham ushbu darsni o'chirmoqchimisiz?",
-    'kaa': "Shıńında da bul sabaqtı óshirmekshi sizbe?",
+    'kaa': "Shınında da bul sabaqtı óshirmekshi sizbe?",
     'ru': "Действительно удалить этот урок?",
     'de': "Diese Lektion wirklich löschen?",
   });

@@ -72,11 +72,22 @@ function json(body, status = 200, cors = CORS_BASE) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const cors = corsHeaders(request);
 
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: cors });
+    }
+
+    // ── 0) WebSocket (Gemini Live real-time proksi) ───────────────────────────
+    // Brauzer WS custom header (X-App-Token) yubora olmaydi — shuning uchun bu
+    // tekshiruvdan oldin ushlaymiz; app token query param orqali tekshiriladi.
+    if ((request.headers.get("Upgrade") || "").toLowerCase() === "websocket") {
+      // Har ulanish uchun alohida Durable Object instansi — ulanish davomida
+      // tirik turadi (oddiy Worker'dagi "internal error"/evict muammosi yo'q).
+      const id = env.LIVE_RELAY.newUniqueId();
+      const stub = env.LIVE_RELAY.get(id);
+      return stub.fetch(request);
     }
 
     // ── 1) App-token tekshiruvi ───────────────────────────────────────────────
@@ -115,6 +126,12 @@ export default {
           return await handlePolly(request, env, cors);
         case "gemini-audio":
           return await handleGeminiAudio(request, env, cors);
+        case "stt":
+          return await handleStt(request, env, cors);
+        case "gemini-live-token":
+          return await handleGeminiLiveToken(request, env, cors);
+        case "elevenlabs-tts":
+          return await handleElevenLabsTts(request, env, cors);
         default:
           return json({ error: `Noma'lum X-Proxy-Target: ${target}` }, 400, cors);
       }
@@ -164,6 +181,308 @@ async function handleAi(request, env, cors) {
     status: upstream.status,
     headers: { ...cors, "Content-Type": "application/json" },
   });
+}
+
+// ─── Gemini Live — qisqa muddatli (ephemeral) token ──────────────────────────
+// Real-time ovozli AI (BidiGenerateContent) uchun. API kalit ILOVAGA
+// yuborilmaydi — bu yerda qisqa muddatli token yaratiladi va ilova o'sha token
+// bilan WebSocket'ga ulanadi. Javob: {token} (auth_tokens/... nomi).
+async function handleGeminiLiveToken(request, env, cors) {
+  const apiKey = env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return json({ error: "GEMINI_API_KEY worker secretlarida topilmadi" }, 500, cors);
+  }
+
+  // Token qisqa muddat amal qiladi (masalan 30 daqiqa), bitta yangi sessiya
+  // ochish uchun (newSessionExpireTime ~5 daqiqa).
+  const now = Date.now();
+  const expireTime = new Date(now + 30 * 60 * 1000).toISOString();
+  const newSessionExpireTime = new Date(now + 5 * 60 * 1000).toISOString();
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1alpha/auth_tokens?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uses: 1,
+          expireTime,
+          newSessionExpireTime,
+        }),
+      }
+    );
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      return json(
+        { error: `Live token xato (${resp.status}): ${JSON.stringify(data).slice(0, 200)}` },
+        502,
+        cors
+      );
+    }
+    // data.name => "auth_tokens/xxxxx" — WebSocket'da access_token sifatida.
+    return json({ token: data.name || "" }, 200, cors);
+  } catch (e) {
+    return json({ error: (e && e.message) || String(e) }, 500, cors);
+  }
+}
+
+// ─── Gemini Live WebSocket proksi (Durable Object) ───────────────────────────
+// Har ulanish uchun alohida DO instansi ochiladi. Oddiy Worker'dan farqli
+// o'laroq, DO ulanish davomida xotirada TIRIK turadi — shuning uchun uzoq
+// audio oqimida "internal error"/evict (1006) muammosi yo'q.
+export class LiveRelay {
+  constructor(state, env) {
+    this.state = state;
+    this.env = env;
+  }
+
+  async fetch(request) {
+    return handleLiveWebSocket(request, this.env);
+  }
+}
+
+// Ilova Worker'ga WS orqali ulanadi; Worker esa API kalit bilan Gemini Live
+// (BidiGenerateContent) ga ulanib, xabarlarni ikki tomonga uzatadi. API kalit
+// hech qachon ilovaga chiqmaydi. App token query param (?t=) orqali tekshiriladi.
+async function handleLiveWebSocket(request, env, ctx) {
+  const apiKey = env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return new Response("GEMINI_API_KEY yo'q", { status: 500 });
+  }
+
+  const url = new URL(request.url);
+  const expectedToken = env.APP_TOKEN;
+  if (expectedToken) {
+    const provided = url.searchParams.get("t") || "";
+    if (!timingSafeEqual(provided, expectedToken)) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+  }
+
+  // API versiyasini query'dan olamiz (lv=v1alpha|v1beta) — model/versiyani
+  // Worker'ni qayta deploy qilmasdan sinab ko'rish uchun. Standart: v1beta.
+  const apiVersion = (url.searchParams.get("lv") || "v1beta").replace(
+    /[^a-z0-9]/gi,
+    ""
+  );
+
+  // Live modelini query (?lm=) yoki worker env'dan olamiz. Standart — kalit
+  // uchun mavjud bo'lgan native-audio modeli. Bu ilovani QAYTA QURMASDAN
+  // model almashtirishga imkon beradi: faqat Worker'ni deploy qilish kifoya.
+  let modelOverride = (
+    url.searchParams.get("lm") ||
+    env.GEMINI_LIVE_MODEL ||
+    "gemini-3.1-flash-live-preview"
+  ).trim();
+  if (modelOverride && !modelOverride.startsWith("models/")) {
+    modelOverride = "models/" + modelOverride;
+  }
+  // MUHIM: Worker fetch() 'wss://' ni qabul qilmaydi — tashqi WebSocket uchun
+  // 'https://' sxema + 'Upgrade: websocket' header ishlatiladi.
+  const upstreamUrl =
+    "https://generativelanguage.googleapis.com/ws/google.ai.generativelanguage." +
+    apiVersion +
+    ".GenerativeService.BidiGenerateContent?key=" +
+    apiKey;
+
+  console.log("Live WS: incoming request, upstream'ga ulanmoqda...");
+  let upstream;
+  try {
+    const upstreamResp = await fetch(upstreamUrl, {
+      headers: { Upgrade: "websocket" },
+    });
+    console.log("Live WS: upstream status =", upstreamResp.status);
+    upstream = upstreamResp.webSocket;
+    if (!upstream) {
+      const errText = await upstreamResp.text().catch(() => "");
+      console.log("Live WS: upstream webSocket yo'q:", errText.slice(0, 200));
+      return new Response("Upstream WS xato: " + upstreamResp.status, {
+        status: 502,
+      });
+    }
+  } catch (e) {
+    console.log("Live WS: upstream exception:", (e && e.message) || e);
+    return new Response("Upstream ulanmadi: " + ((e && e.message) || e), {
+      status: 502,
+    });
+  }
+
+  // WebSocket proksi uchun allowHalfOpen — ikkala tomondagi close handshake'ni
+  // mustaqil boshqaramiz; aks holda CF runtime 1006 abnormal closure beradi.
+  const halfOpen = { allowHalfOpen: true };
+  upstream.accept(halfOpen);
+
+  const pair = new WebSocketPair();
+  const client = pair[0];
+  const server = pair[1];
+  server.accept(halfOpen);
+
+  // MUHIM: oddiy Worker'da fetch() javob qaytargach so'rov konteksti tugaydi va
+  // uzoq davom etadigan WS oqimida isolate EVICT bo'lib "internal error" beradi.
+  // ctx.waitUntil bilan konteksni WS yopilgunga qadar tirik ushlaymiz.
+  let resolveClosed;
+  let closed = false;
+  const closedPromise = new Promise((res) => {
+    resolveClosed = () => {
+      if (closed) return;
+      closed = true;
+      res();
+    };
+  });
+  if (ctx && typeof ctx.waitUntil === "function") {
+    ctx.waitUntil(closedPromise);
+  }
+
+  function wsDataToString(data) {
+    if (typeof data === "string") return data;
+    if (data instanceof ArrayBuffer) {
+      return new TextDecoder().decode(data);
+    }
+    if (ArrayBuffer.isView(data)) {
+      return new TextDecoder().decode(data);
+    }
+    return String(data);
+  }
+
+  function safeSend(ws, data) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return false;
+    try {
+      ws.send(data);
+      return true;
+    } catch (e) {
+      console.log("Live WS: send xato:", (e && e.message) || e);
+      return false;
+    }
+  }
+
+  function closeBoth(code, reason) {
+    const c = code >= 1000 && code <= 4999 ? code : 1000;
+    try {
+      if (upstream.readyState === WebSocket.OPEN ||
+          upstream.readyState === WebSocket.CLOSING) {
+        upstream.close(c, reason || "");
+      }
+    } catch (_) {}
+    try {
+      if (server.readyState === WebSocket.OPEN ||
+          server.readyState === WebSocket.CLOSING) {
+        server.close(c, reason || "");
+      }
+    } catch (_) {}
+    resolveClosed();
+  }
+
+  // Ilova -> Gemini
+  // Birinchi (setup) xabarida model'ni majburan to'g'ri modelga almashtiramiz,
+  // shunda eski ilova buildlari ham ishlaydi.
+  let setupPatched = false;
+  server.addEventListener("message", (e) => {
+    try {
+      let data = wsDataToString(e.data);
+      if (!setupPatched && modelOverride && data.includes('"setup"')) {
+        try {
+          const obj = JSON.parse(data);
+          if (obj && obj.setup) {
+            obj.setup.model = modelOverride;
+            data = JSON.stringify(obj);
+            setupPatched = true;
+            console.log("Live WS: model =>", modelOverride, "ver =>", apiVersion);
+          }
+        } catch (_) {}
+      }
+      if (!safeSend(upstream, data)) {
+        console.log("Live WS: upstream'ga yuborib bo'lmadi (readyState=" +
+          upstream.readyState + ")");
+      }
+    } catch (err) {
+      console.log("Live WS: client message xato:", (err && err.message) || err);
+    }
+  });
+  server.addEventListener("close", (e) => {
+    console.log("Live WS: client yopdi. code=", e.code, "reason=", e.reason);
+    closeBoth(e.code, e.reason);
+  });
+  server.addEventListener("error", (e) => {
+    console.log("Live WS: client error:", (e && e.message) || e);
+    closeBoth(1011, "client error");
+  });
+
+  // Gemini -> ilova
+  upstream.addEventListener("message", (e) => {
+    if (!safeSend(server, e.data)) {
+      console.log("Live WS: client'ga yuborib bo'lmadi (readyState=" +
+        server.readyState + ")");
+    }
+  });
+  upstream.addEventListener("close", (e) => {
+    console.log("Live WS: GEMINI yopdi. code=", e.code, "reason=", e.reason);
+    closeBoth(e.code, e.reason);
+  });
+  upstream.addEventListener("error", (e) => {
+    console.log("Live WS: upstream error:", (e && e.message) || e);
+    closeBoth(1011, "upstream error");
+  });
+
+  return new Response(null, { status: 101, webSocket: client });
+}
+
+// ─── STT (Groq Whisper) — audioni matnga aylantiradi ─────────────────────────
+// Ilova yozilgan audioni base64 sifatida yuboradi; Groq Whisper (whisper-large-v3)
+// orqali matnga o'giramiz va {text} qaytaramiz. "AI bilan mashq" chat mikrofoni
+// shu endpointdan foydalanadi (brauzer STT'siga bog'liq emas).
+// So'rov: {audioBase64, mimeType, language?}  →  Javob: {text}
+async function handleStt(request, env, cors) {
+  const groqKey = env.GROQ_API_KEY;
+  if (!groqKey) {
+    return json({ error: "GROQ_API_KEY worker secretlarida topilmadi" }, 500, cors);
+  }
+
+  const payload = await request.json();
+  const audioBase64 = payload.audioBase64;
+  const mimeType = payload.mimeType || "audio/webm";
+  const language = payload.language || "de";
+
+  if (!audioBase64) {
+    return json({ error: "audioBase64 yo'q" }, 400, cors);
+  }
+
+  try {
+    const audioBuffer = Uint8Array.from(atob(audioBase64), (c) => c.charCodeAt(0));
+    const ext = mimeType.includes("webm")
+      ? "webm"
+      : mimeType.includes("ogg")
+      ? "ogg"
+      : mimeType.includes("wav")
+      ? "wav"
+      : "m4a";
+
+    const formData = new FormData();
+    formData.append("file", new Blob([audioBuffer], { type: mimeType }), `audio.${ext}`);
+    formData.append("model", "whisper-large-v3");
+    formData.append("language", language);
+    formData.append("response_format", "json");
+
+    const sttResp = await fetch(
+      "https://api.groq.com/openai/v1/audio/transcriptions",
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${groqKey}` },
+        body: formData,
+      }
+    );
+
+    if (!sttResp.ok) {
+      const errText = await sttResp.text();
+      return json({ error: `Whisper xato (${sttResp.status}): ${errText.slice(0, 200)}` }, 502, cors);
+    }
+
+    const sttJson = await sttResp.json();
+    return json({ text: (sttJson.text || "").trim() }, 200, cors);
+  } catch (e) {
+    return json({ error: (e && e.message) || String(e) }, 500, cors);
+  }
 }
 
 // ─── Gemini audio baholash (Sprechen) ─────────────────────────────────────────
@@ -384,5 +703,83 @@ async function handlePolly(request, env, cors) {
       ...cors,
       "Content-Type": "audio/mpeg",
     },
+  });
+}
+
+// ─── ElevenLabs TTS — matnni audio'ga aylantiradi ────────────────────────────
+// So'rov: {text, voiceId?, modelId?}  →  Javob: audio/mpeg baytlar.
+// Standart ovoz: "Daniel" (nemis erkak, tabiiy), model: eleven_multilingual_v2.
+async function handleElevenLabsTts(request, env, cors) {
+  const apiKey = env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    return json({ error: "ELEVENLABS_API_KEY worker secretlarida topilmadi" }, 500, cors);
+  }
+
+  const payload = await request.json();
+  const rawText = payload.text || "";
+
+  // TTS ga yuborishdan oldin LLM javobidagi barcha markerlarni olib tashlaymiz:
+  // [baqirib], [krichit], [po russki], (nemis tilida), *bold*, ## sarlavhalar...
+  const text = rawText
+    .replace(/\[[^\]]*\]/g, '')           // [har qanday kontent] — tozalash
+    .replace(/\([^)]{0,40}\)/g, '')       // (qisqa izoh) — tozalash
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1') // **bold**, *italic*
+    .replace(/^#+\s+/gm, '')              // ## markdown sarlavhalar
+    .replace(/\s{2,}/g, ' ')              // ortiqcha bo'shliqlar
+    .trim();
+  // ElevenLabs German voices: 
+  // "Arnold" = VR6AewLTigWG4xSOukaG (erkak, energik)
+  // "Adam" = pNInz6obpgDQGcFmaJgB (erkak, tabiiy)
+  // "Rachel" = 21m00Tcm4TlvDq8ikWAM (ayol, yumshoq)
+  const voiceId = payload.voiceId || "pNInz6obpgDQGcFmaJgB"; // Adam
+  // turbo_v2_5 til majburlashni (language_code) qo'llab-quvvatlaydi.
+  const modelId = payload.modelId || "eleven_turbo_v2_5";
+  const languageCode = payload.languageCode || ""; // "de" | "ru" | "" (auto)
+
+  if (!text.trim()) {
+    return json({ error: "text bo'sh" }, 400, cors);
+  }
+
+  const ttsBody = {
+    text: text,
+    model_id: modelId,
+    voice_settings: {
+      stability: 0.5,
+      similarity_boost: 0.75,
+      style: 0.4,
+      use_speaker_boost: true,
+    },
+  };
+  // Til kodi berilgan bo'lsa, TTS'ni o'sha tilda majburlaymiz.
+  if (languageCode) {
+    ttsBody.language_code = languageCode;
+  }
+
+  const upstream = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+    {
+      method: "POST",
+      headers: {
+        "xi-api-key": apiKey,
+        "Content-Type": "application/json",
+        Accept: "audio/mpeg",
+      },
+      body: JSON.stringify(ttsBody),
+    }
+  );
+
+  if (!upstream.ok) {
+    const errText = await upstream.text().catch(() => "");
+    return json(
+      { error: `ElevenLabs xato (${upstream.status}): ${errText.slice(0, 200)}` },
+      upstream.status,
+      cors
+    );
+  }
+
+  const audioBuffer = await upstream.arrayBuffer();
+  return new Response(audioBuffer, {
+    status: 200,
+    headers: { ...cors, "Content-Type": "audio/mpeg" },
   });
 }

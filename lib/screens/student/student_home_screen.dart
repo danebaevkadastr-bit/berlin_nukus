@@ -16,7 +16,7 @@ import 'student_leaderboard_screen.dart';
 import 'student_statistics_screen.dart';
 import 'student_chat_screen.dart';
 import 'translation_screen.dart';
-import 'chat_screen.dart';
+import 'voice_ai_screen.dart';
 import '../notification_screen.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
@@ -1090,11 +1090,7 @@ class _StudentHomeContentState extends State<StudentHomeContent>
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ChatScreen(
-                                    title: l.freeConversation,
-                                    sourceType: 'conversation',
-                                    isFreeChat: true,
-                                  ),
+                                  builder: (_) => const VoiceAiScreen(),
                                 ),
                               );
                             },

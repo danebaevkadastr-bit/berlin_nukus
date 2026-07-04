@@ -1,145 +1,119 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:speech_to_text/speech_to_text.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/foundation.dart';
 
-/// Speech-to-text for Sprechen AI (German).
+import 'ai_service.dart';
+import 'audio_recorder_service.dart';
+
+/// "AI bilan mashq" / Sprechen AI chat mikrofoni uchun nutqni matnga
+/// aylantirish (STT).
+///
+/// Brauzer/qurilma STT'si (speech_to_text) o'rniga endi audio YOZIB OLINADI va
+/// Cloudflare Worker orqali Groq Whisper'ga (whisper-large-v3, `de`) yuborilib
+/// matnga aylantiriladi. Bu web va telefonda bir xil ishonchli ishlaydi va
+/// nemischani yaxshi taniydi (brauzer tili/takrorlanish muammolari yo'q).
+///
+/// Ommaviy API o'zgarmagan: [startRecording], [stopAndTranscribe],
+/// [onAmplitudeChanged], [dispose] — shuning uchun chaqiruvchi ekran (chat)
+/// o'zgartirilmaydi.
 class STTService {
-  final SpeechToText _speech = SpeechToText();
+  final AudioRecorderService _recorder = AudioRecorderService.instance;
   final _random = Random();
-  bool _available = false;
-  String _lastWords = '';
 
-  Future<bool> _checkMicrophonePermission() async {
-    final status = await Permission.microphone.status;
-    debugPrint('STT: Microphone permission status: $status');
-    
-    if (status.isGranted) {
-      return true;
-    }
-    
-    if (status.isDenied) {
-      final result = await Permission.microphone.request();
-      debugPrint('STT: Permission request result: $result');
-      return result.isGranted;
-    }
-    
-    if (status.isPermanentlyDenied) {
-      debugPrint('STT: Permission permanently denied, opening settings');
-      await openAppSettings();
-      return false;
-    }
-    
-    return false;
-  }
+  bool _recording = false;
+  RecordedAudio? _pendingAudio; // 240s'da avtomatik to'xtaganda saqlanadi
 
-  Future<bool> _ensureReady() async {
-    if (_available) return true;
-    
-    // First check microphone permission
-    if (!await _checkMicrophonePermission()) {
-      debugPrint('STT: Microphone permission not granted');
-      return false;
-    }
-    
-    try {
-      _available = await _speech.initialize(
-        onError: (error) {
-          debugPrint('STT Error: ${error.errorMsg}');
-        },
-        onStatus: (status) {
-          debugPrint('STT Status: $status');
-        },
-      );
-      
-      if (_available) {
-        final locales = await _speech.locales();
-        debugPrint('Available locales: ${locales.map((l) => l.localeId).join(", ")}');
-      } else {
-        debugPrint('STT initialization failed');
-      }
-    } catch (e) {
-      debugPrint('STT initialization error: $e');
-      _available = false;
-    }
-    
-    return _available;
-  }
-
+  /// Yozishni boshlaydi. Mikrofon ruxsatini tekshiradi/so'raydi.
   Future<bool> startRecording() async {
-    debugPrint('STT: startRecording called');
-    
-    if (!await _ensureReady()) {
-      debugPrint('STT: Not ready/available');
-      return false;
-    }
-    
-    _lastWords = '';
-
+    _pendingAudio = null;
     try {
-      // Stop any existing recording first
-      if (_speech.isListening) {
-        await _speech.stop();
-        await Future.delayed(const Duration(milliseconds: 100));
+      final has = await _recorder.hasPermission();
+      if (!has) {
+        final result = await _recorder.requestPermission();
+        if (result != MicPermissionResult.granted) {
+          debugPrint('STT: mikrofon ruxsati berilmadi ($result)');
+          return false;
+        }
       }
 
-      await _speech.listen(
-        onResult: (result) {
-          debugPrint('STT Result: ${result.recognizedWords}');
-          _lastWords = result.recognizedWords;
+      await _recorder.start(
+        recordingName: 'chat_stt_${DateTime.now().millisecondsSinceEpoch}',
+        onAutoStop: (audio) {
+          // 4 daqiqada avtomatik to'xtadi — natijani saqlab qo'yamiz.
+          _pendingAudio = audio;
+          _recording = false;
         },
-        listenOptions: SpeechListenOptions(
-          localeId: 'de_DE',
-          listenMode: ListenMode.confirmation,
-          cancelOnError: false,
-          partialResults: true,
-          autoPunctuation: true,
-        ),
       );
-      
-      // Give it a moment to start
-      await Future.delayed(const Duration(milliseconds: 200));
-      
-      debugPrint('STT: Listening started, isListening=${_speech.isListening}');
-      return _speech.isListening;
+      _recording = true;
+      return true;
     } catch (e) {
-      debugPrint('STT: Error starting recording: $e');
+      debugPrint('STT: yozishni boshlab bo\'lmadi: $e');
+      _recording = false;
       return false;
     }
   }
 
+  /// Yozishni to'xtatadi, audioni Whisper (Worker) orqali matnga aylantiradi
+  /// va matnni qaytaradi. Xato yoki bo'sh bo'lsa '' qaytaradi.
   Future<String> stopAndTranscribe() async {
-    debugPrint('STT: stopAndTranscribe called');
-    
-    if (_speech.isListening) {
-      await _speech.stop();
+    _recording = false;
+    RecordedAudio? audio;
+    try {
+      if (_recorder.isRecording) {
+        audio = await _recorder.stop();
+      } else {
+        audio = _pendingAudio;
+      }
+    } catch (e) {
+      debugPrint('STT: yozishni to\'xtatib bo\'lmadi: $e');
+      audio = _pendingAudio;
     }
-    await Future.delayed(const Duration(milliseconds: 200));
-    
-    debugPrint('STT: Final transcription: $_lastWords');
-    return _lastWords.trim();
+    _pendingAudio = null;
+
+    if (audio == null || audio.pathOrBlobUrl.isEmpty) {
+      debugPrint('STT: audio yo\'q');
+      return '';
+    }
+
+    try {
+      final bytes = await _recorder.readBytes(audio.pathOrBlobUrl);
+      final text = await AIService.transcribeAudio(
+        audioBytes: bytes,
+        mimeType: audio.mimeType,
+        language: 'de',
+      );
+      debugPrint('STT: transkripsiya: $text');
+      return text.trim();
+    } catch (e) {
+      debugPrint('STT: transkripsiya xatosi: $e');
+      return '';
+    } finally {
+      // Vaqtinchalik faylni tozalaymiz.
+      _recorder.deleteRecording(audio.pathOrBlobUrl);
+    }
   }
 
-  /// Amplitude stream for mic ring animation.
-  /// speech_to_text doesn't provide real amplitude, so we simulate it with variation.
+  /// Mikrofon halqasi animatsiyasi uchun amplituda oqimi. record paketining
+  /// haqiqiy amplitudasi o'rniga tabiiy ko'rinadigan tebranish simulyatsiyasi.
   Stream<Amplitude> onAmplitudeChanged(Duration interval) async* {
-    while (_speech.isListening) {
+    while (_recording) {
       await Future.delayed(interval);
-      
-      // Simulate more realistic amplitude variation
-      // Range: -45 dB (quiet) to -5 dB (loud)
-      const baseLevel = -25.0; // Average speaking level
-      final variation = (_random.nextDouble() - 0.5) * 30; // ±15 dB variation
+      const baseLevel = -25.0;
+      final variation = (_random.nextDouble() - 0.5) * 30;
       final db = (baseLevel + variation).clamp(-45.0, -5.0);
-      
       yield Amplitude(current: db, max: db);
     }
   }
 
+  /// Resurslarni tozalaydi. DIQQAT: [AudioRecorderService] — umumiy (singleton)
+  /// va Sprechen yozuvi ham undan foydalanadi, shuning uchun uni bu yerda
+  /// dispose QILMAYMIZ; faqat davom etayotgan yozuvni bekor qilamiz.
   void dispose() {
-    _speech.stop();
+    _recording = false;
+    if (_recorder.isRecording) {
+      _recorder.cancel();
+    }
   }
 }
 
