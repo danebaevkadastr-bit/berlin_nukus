@@ -14,7 +14,6 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-final _rng = math.Random();
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
@@ -61,7 +60,7 @@ class GeminiLiveService {
   bool _fartPlayed = false;
   int _turnCount = 0;
   // 3-6 chi turnda tasodifan chiqadi.
-  final int _fartTriggerTurn = 3 + _rng.nextInt(4);
+  final int _fartTriggerTurn = 3 + math.Random().nextInt(4);
 
   // Dastur tili — botning kirish so'zi va tushuntirishlari uchun.
   String _uiLangCode = 'uz';
