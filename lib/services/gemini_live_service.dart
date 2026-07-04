@@ -314,16 +314,15 @@ class GeminiLiveService {
   void _sendAudioChunk(Uint8List chunk) {
     final ch = _channel;
     if (ch == null) return;
-    // Note: Use realtimeInput.audio for new Live API format
-    final realtimeMsg = {
+    // realtimeInput.audio — Gemini Live API uchun to'g'ri format
+    ch.sink.add(jsonEncode({
       'realtimeInput': {
         'audio': {
           'mimeType': 'audio/pcm;rate=16000',
           'data': base64Encode(chunk),
         }
-      },
-    };
-    ch.sink.add(jsonEncode(realtimeMsg));
+      }
+    }));
     // DEBUG: mikrofon audio yuboryaptimi? Har ~50 bo'lakda bir marta.
     _sentChunks++;
     _sentBytes += chunk.length;
