@@ -3,6 +3,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/responsive_layout.dart';
+import '../../widgets/bottom_nav_bar.dart';
 import 'teacher_courses_screen.dart';
 import 'teacher_home_screen.dart';
 import 'teacher_profile_screen.dart';
@@ -195,48 +196,14 @@ class _TeacherMainScreenState extends State<TeacherMainScreen> {
     const activeColor = AppColors.duoBlue;
     final inactiveColor = isDark ? Colors.white54 : AppColors.duoTextLight;
 
-    return GestureDetector(
+    return AnimatedNavItem(
+      icon: icon,
+      label: label,
+      index: index,
+      isActive: isActive,
+      activeColor: activeColor,
+      inactiveColor: inactiveColor,
       onTap: () => setState(() => _currentIndex = index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: double.infinity,
-        height: 72,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutBack,
-              width: isActive ? 48 : 32,
-              height: isActive ? 48 : 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isActive ? activeColor : Colors.transparent,
-              ),
-              child: Icon(
-                icon,
-                color: isActive ? Colors.white : inactiveColor,
-                size: isActive ? 28 : 24,
-              ),
-            ),
-            if (!isActive) ...[
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: inactiveColor,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-            ]
-          ],
-        ),
-      ),
     );
   }
 }

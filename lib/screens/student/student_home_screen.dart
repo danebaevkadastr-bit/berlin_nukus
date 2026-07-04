@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/providers/user_provider.dart';
 import '../../utils/responsive_layout.dart';
 import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/bn_tiyin.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/skeleton_loader.dart';
 import '../../utils/app_colors.dart';
@@ -33,30 +34,58 @@ class StudentHomeScreen extends StatefulWidget {
   State<StudentHomeScreen> createState() => _StudentHomeScreenState();
 }
 
-class _StudentHomeScreenState extends State<StudentHomeScreen> {
+class _StudentHomeScreenState extends State<StudentHomeScreen>
+    with WidgetsBindingObserver {
   int _currentIndex = 0;
   bool _showStreakAnimation = false;
   DateTime? _sessionStart;
+  String _uid = '';
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _sessionStart = DateTime.now();
     _checkStreakAnimation();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Lifecycle/dispose paytida context'ga murojaat qilmaslik uchun uid'ni
+    // oldindan saqlab qo'yamiz.
+    _uid = Provider.of<UserProvider>(context, listen: false).uid;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      // Ilova fonga o'tganda joriy sessiya daqiqalarini saqlaymiz.
+      _saveSessionMinutes();
+      _sessionStart = null;
+    } else if (state == AppLifecycleState.resumed) {
+      // Ilovaga qaytganda yangi sessiyani boshlaymiz.
+      _sessionStart = DateTime.now();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _saveSessionMinutes();
     super.dispose();
   }
 
   Future<void> _saveSessionMinutes() async {
-    if (_sessionStart == null) return;
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    if (_sessionStart == null || _uid.isEmpty) return;
     final minutes = DateTime.now().difference(_sessionStart!).inMinutes;
-    if (minutes > 0) {
-      await StreakService.recordActivity(userProvider.uid, minutes: minutes);
+    _sessionStart = DateTime.now();
+    // Faqat 2 daqiqadan ko'p bo'lsa hisob qilamiz — passive ochish hisoblanmasin
+    if (minutes >= 2) {
+      await StreakService.recordActivity(_uid, minutes: minutes);
     }
   }
 
@@ -71,7 +100,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     if (!launchedBefore) {
       await prefs.setBool(launchedKey, true);
       // Birinchi kirishni belgilab qo'yamiz, lekin animatsiya ko'rsatilmaydi.
-      await StreakService.markFirstLoginToday(userProvider.uid);
+      // recordActivity o'zi lastActive sanasini belgilab, streakni yangilaydi.
       await StreakService.recordActivity(userProvider.uid, minutes: 0);
       return;
     }
@@ -81,8 +110,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
       setState(() {
         _showStreakAnimation = true;
       });
-      await StreakService.markFirstLoginToday(userProvider.uid);
-      // minutes ni dispose da saqlaymiz, bu yerda faqat streak yangilanadi
+      // recordActivity lastActive'ni today qilib belgilaydi va streakni
+      // (kechagi faollikка qarab) to'g'ri yangilaydi. minutes dispose/lifecycle
+      // da saqlanadi.
       await StreakService.recordActivity(userProvider.uid, minutes: 0);
       // Zaxira: foydalanuvchi bosmasa, 5 soniyadan keyin avtomatik yopiladi
       Future.delayed(const Duration(seconds: 5), () {
@@ -338,7 +368,8 @@ class StudentHomeContent extends StatefulWidget {
   State<StudentHomeContent> createState() => _StudentHomeContentState();
 }
 
-class _StudentHomeContentState extends State<StudentHomeContent> {
+class _StudentHomeContentState extends State<StudentHomeContent>
+    with WidgetsBindingObserver {
   int _currentWeekIndex = 0;
   
   // Cache for weekly data to avoid full rebuild
@@ -352,15 +383,32 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadWeeklyData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Ilovaga qaytganda statistikani yangilaymiz — fonga o'tishda saqlangan
+    // sessiya daqiqalari grafikка aks etadi.
+    if (state == AppLifecycleState.resumed && _currentWeekIndex == 0) {
+      _loadWeeklyData();
+    }
   }
 
   Future<void> _loadWeeklyData() async {
     if (_isLoadingWeeklyData) return;
     
-    setState(() {
-      _isLoadingWeeklyData = true;
-    });
+    // Faqat loading flagini o'rnatamiz — eski ma'lumotni saqlaymiz
+    // shunda ekran butunlay rebuild bo'lmaydi.
+    _isLoadingWeeklyData = true;
 
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     
@@ -391,9 +439,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
   }
 
   void _changeWeek(int delta) {
-    setState(() {
-      _currentWeekIndex += delta;
-    });
+    _currentWeekIndex += delta;
     _loadWeeklyData();
   }
 
@@ -1047,6 +1093,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                   builder: (_) => ChatScreen(
                                     title: l.freeConversation,
                                     sourceType: 'conversation',
+                                    isFreeChat: true,
                                   ),
                                 ),
                               );
@@ -1141,19 +1188,30 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                                   child: CircularProgressIndicator(strokeWidth: 2),
                                                 ),
                                               )
-                                            : Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  for (int i = 0; i < 7; i++)
-                                                    _buildVerticalBarChartItem(
-                                                      context: context,
-                                                      day: (_cachedWeeklyData!['weeklyDates'] as List<String>)[i],
-                                                      value: (_cachedWeeklyData!['weeklyUsage'] as List<double>)[i],
-                                                      isToday: _currentWeekIndex == 0 && i == 6,
-                                                      isDark: isDark,
-                                                    )
-                                                ],
+                                            : Builder(
+                                                builder: (context) {
+                                                  final usage = _cachedWeeklyData!['weeklyUsage'] as List<double>;
+                                                  final dates = _cachedWeeklyData!['weeklyDates'] as List<String>;
+                                                  double maxVal = 0;
+                                                  for (final v in usage) {
+                                                    if (v > maxVal) maxVal = v;
+                                                  }
+                                                  return Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                                    children: [
+                                                      for (int i = 0; i < 7; i++)
+                                                        _buildVerticalBarChartItem(
+                                                          context: context,
+                                                          day: dates[i],
+                                                          value: usage[i],
+                                                          maxValue: maxVal,
+                                                          isToday: _currentWeekIndex == 0 && i == 6,
+                                                          isDark: isDark,
+                                                        )
+                                                    ],
+                                                  );
+                                                },
                                               ),
                                       ),
                                     ),
@@ -1318,7 +1376,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                                         );
                                       }
                                       return _buildStatItem(
-                                        icon: Icons.star_rounded,
+                                        icon: Icons.school_rounded,
                                         title: l.averageScore,
                                         value: display,
                                         color: AppColors.duoPurple,
@@ -1500,13 +1558,16 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
     required BuildContext context,
     required String day,
     required double value,
+    required double maxValue,
     required bool isToday,
     required bool isDark,
   }) {
     const height = 120.0;
-    // Convert minutes to bar height (max 120 minutes)
     final minutes = value.toInt();
-    final barHeight = (minutes / 120).clamp(0.0, 1.0) * height;
+    // Barlar hafta ichidagi eng katta qiymatga nisbatan chiziladi — shunda
+    // kichik qiymatlar ham ko'rinadi. value > 0 bo'lsa kamida 12px ko'rinadi.
+    final ratio = maxValue > 0 ? (value / maxValue).clamp(0.0, 1.0) : 0.0;
+    final barHeight = minutes > 0 ? (ratio * height).clamp(12.0, height) : 0.0;
 
     return Expanded(
       child: GestureDetector(
@@ -1566,9 +1627,13 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
               height: height,
               width: 26,
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.duoCardGray.withValues(alpha: 0.3),
+                // Toza (blur/glowsiz) fon "track".
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : AppColors.duoCardGray.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(13),
               ),
+              clipBehavior: Clip.hardEdge,
               alignment: Alignment.bottomCenter,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 400),
@@ -1576,30 +1641,9 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
                 height: barHeight,
                 width: 26,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: isToday
-                        ? [
-                            AppColors.duoOrange,
-                            AppColors.duoOrange.withValues(alpha: 0.7),
-                          ]
-                        : [
-                            AppColors.duoBlue,
-                            AppColors.duoBlue.withValues(alpha: 0.7),
-                          ],
-                  ),
+                  // Toza, to'liq rangli bar (shaffof gradientsiz — xira emas).
+                  color: isToday ? AppColors.duoOrange : AppColors.duoBlue,
                   borderRadius: BorderRadius.circular(13),
-                  boxShadow: minutes > 0
-                      ? [
-                          BoxShadow(
-                            color: (isToday ? AppColors.duoOrange : AppColors.duoBlue)
-                                .withValues(alpha: 0.4),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
                 ),
               ),
             ),
@@ -1748,7 +1792,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
           ),
           Row(
             children: [
-              const Icon(Icons.star_rounded, size: 16, color: AppColors.duoOrange),
+              const BnTiyin(size: 16),
               const SizedBox(width: 4),
               Text(
                 xp,

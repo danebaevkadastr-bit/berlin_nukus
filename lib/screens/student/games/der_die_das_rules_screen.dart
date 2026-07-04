@@ -10,13 +10,22 @@ import 'der_die_das_game_screen.dart';
 
 enum DerDieDasRulesMode { game, learning }
 
-class DerDieDasRulesScreen extends StatelessWidget {
+class DerDieDasRulesScreen extends StatefulWidget {
   final DerDieDasRulesMode mode;
 
   const DerDieDasRulesScreen({
     super.key,
     this.mode = DerDieDasRulesMode.game,
   });
+
+  @override
+  State<DerDieDasRulesScreen> createState() => _DerDieDasRulesScreenState();
+}
+
+class _DerDieDasRulesScreenState extends State<DerDieDasRulesScreen> {
+  String _selectedLevel = 'A1';
+
+  DerDieDasRulesMode get mode => widget.mode;
 
   Color _articleColor(String article) {
     switch (article) {
@@ -72,7 +81,7 @@ class DerDieDasRulesScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  const Text('📘', style: TextStyle(fontSize: 40)),
+                  const Icon(Icons.article_rounded, size: 40, color: Colors.white),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -192,6 +201,46 @@ class DerDieDasRulesScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            // Daraja tanlash (faqat game mode)
+            if (mode == DerDieDasRulesMode.game) ...[
+              _sectionTitle(isDark, 'DARAJA TANLANG'),
+              const SizedBox(height: 10),
+              Row(children: ['A1', 'A2', 'B1', 'B2'].map((lvl) {
+                final selected = _selectedLevel == lvl;
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: lvl != 'B2' ? 8 : 0),
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedLevel = lvl),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? AppColors.duoBlue.withValues(alpha: 0.15)
+                              : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: selected ? AppColors.duoBlue : (isDark ? Colors.white12 : AppColors.duoCardGrayShadow),
+                            width: selected ? 2.5 : 1.5,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          lvl,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: selected ? AppColors.duoBlue : (isDark ? Colors.white : AppColors.duoTextDark),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList()),
+              const SizedBox(height: 24),
+            ],
             SizedBox(
               width: double.infinity,
               child: ValueListenableBuilder<AccentPreset>(
@@ -212,7 +261,7 @@ class DerDieDasRulesScreen extends StatelessWidget {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const DerDieDasGameScreen()),
+                            builder: (_) => DerDieDasGameScreen(level: _selectedLevel)),
                       );
                     }
                   },

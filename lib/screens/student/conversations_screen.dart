@@ -254,6 +254,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           builder: (_) => ChatScreen(
             title: l.freeChatTitle(userLevel, goalText),
             sourceType: 'conversation',
+            isFreeChat: true,
           ),
         ),
       );
@@ -320,7 +321,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       color: Colors.white.withValues(alpha: 0.22),
                       borderRadius: BorderRadius.circular(16)),
                     child: const Center(
-                      child: Text('💬', style: TextStyle(fontSize: 28))),
+                      child: Icon(Icons.chat_bubble_rounded,
+                          size: 28, color: Colors.white)),
                   ),
                   const SizedBox(width: 14),
                   Expanded(

@@ -23,7 +23,7 @@ class StreakService {
     if (minutes > 0) {
       final doc = await _firestore.collection('users').doc(uid).get();
       final existing = doc.data()?['dailyMinutesMap'] as Map<String, dynamic>? ?? {};
-      final prev = (existing[today] as int?) ?? 0;
+      final prev = (existing[today] as num?)?.toInt() ?? 0;
       await _firestore.collection('users').doc(uid).set({
         'dailyMinutesMap': {today: prev + minutes},
       }, SetOptions(merge: true));
@@ -83,7 +83,7 @@ class StreakService {
         final dailyMinutesMap = doc.data()?['dailyMinutesMap'] as Map<String, dynamic>? ?? {};
         int total = 0;
         for (final value in dailyMinutesMap.values) {
-          total += (value as int?) ?? 0;
+          total += (value as num?)?.toInt() ?? 0;
         }
         return total;
       }
@@ -102,7 +102,7 @@ class StreakService {
       if (doc.exists) {
         final dailyMinutesMap = doc.data()?['dailyMinutesMap'] as Map<String, dynamic>? ?? {};
         final today = _getDateKey(DateTime.now());
-        return (dailyMinutesMap[today] as int?) ?? 0;
+        return (dailyMinutesMap[today] as num?)?.toInt() ?? 0;
       }
     } catch (e) {
       // Xatolikni log qilish
@@ -139,7 +139,7 @@ class StreakService {
         for (int i = 0; i < 7; i++) {
           final date = weekStart.add(Duration(days: i));
           final dateKey = _getDateKey(date);
-          final mins = (dailyMinutesMap[dateKey] as int?) ?? 0;
+          final mins = (dailyMinutesMap[dateKey] as num?)?.toInt() ?? 0;
           usage.add(mins.toDouble());
         }
 

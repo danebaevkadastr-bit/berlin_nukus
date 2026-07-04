@@ -31,17 +31,18 @@ class _StudentLeaderboardScreenState extends State<StudentLeaderboardScreen> {
   /// Requirements: 1.4
   LeaderboardCategory _selectedCategory = LeaderboardCategory.stars;
 
-  /// Kategoriyaga qarab tegishli stream qaytaradi
+  /// Kategoriyaga qarab tegishli stream qaytaradi (foydalanuvchi guruhi bo'yicha)
   /// Requirements: 2.1, 3.1, 4.1
-  Stream<List<Map<String, dynamic>>> _getStreamForCategory(LeaderboardCategory category) {
+  Stream<List<Map<String, dynamic>>> _getStreamForCategory(
+      LeaderboardCategory category, String uid) {
     final firebaseService = FirebaseService();
     switch (category) {
       case LeaderboardCategory.stars:
-        return firebaseService.getLeaderboardStream();
+        return firebaseService.getLeaderboardStream(uid);
       case LeaderboardCategory.attendance:
-        return firebaseService.getAttendanceLeaderboardStream();
+        return firebaseService.getAttendanceLeaderboardStream(uid);
       case LeaderboardCategory.averageScore:
-        return firebaseService.getAverageScoreLeaderboardStream();
+        return firebaseService.getAverageScoreLeaderboardStream(uid);
     }
   }
 
@@ -92,7 +93,8 @@ class _StudentLeaderboardScreenState extends State<StudentLeaderboardScreen> {
               switchOutCurve: Curves.easeOut,
               child: StreamBuilder<List<Map<String, dynamic>>>(
                 key: ValueKey(_selectedCategory),
-                stream: _getStreamForCategory(_selectedCategory),
+                stream: _getStreamForCategory(
+                    _selectedCategory, userProvider.uid),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());

@@ -395,53 +395,106 @@ FAQAT to'g'ri JSON qaytar, markdown yoki izohsiz. Format:
         ? '\nKIRISH XATI (o\'quvchi shunga javob yozadi):\n$letter\n'
         : '';
 
-    return _chat(
-      temperature: 0.35,
-      messages: [
-        {
-          'role': 'system',
-          'content': '''
-Sen nemis tili yozma ish (Schreiben, $level) tekshiruvchisisan.
-O'quvchi javobini O'ZBEK tilida bahola. Haqiqiy, tajribali o'qituvchidek yoz — iliq, sabrli, lekin halol va aniq.
-Hech qanday emoji, yulduzcha, qo'shtirnoq belgisi, markdown formatlashtirish (#, **, _) ishlatma.
-Faqat oddiy matn va raqamlar.
-
-DARAJA: $level. Baholashda shu darajaning talablaridan kelib chiq.
-MUHIM: So'zlar soni allaqachon aniq sanab berilgan: $wordCount ta so'z (talab: $minWords).
-Bu raqamni o'zgartirma va qaytadan sanama, shu raqamdan foydalan.
-
-Quyidagi tuzilmada yoz:
-
-1. QISQA XULOSA
-So'zlar soni: $wordCount / $minWords talab
-Majburiy punktlar: har birini alohida yoz — bajarilgan yoki bajarilmagan, qisqa sabab bilan
-Stil: to'g'ri ($style talab) yoki noto'g'ri
-Umumiy izoh: 1-2 gap
-
-2. XATOLAR VA TO'G'RILASH
-Bu eng muhim qism. Har bir muhim xatoni alohida, raqamlangan holda yoz.
-Har bir xato uchun shu tartibda tushuntir:
-Xato: o'quvchi yozgan noto'g'ri so'z yoki gap qismini ko'chir.
-To'g'risi: to'g'ri varianti.
-Nega: o'qituvchidek to'liq tushuntir — qaysi grammatik qoida buzilgan va NEGA shunday bo'lishini ayt. Masalan: artikl jinsi, kelishik (Nominativ, Akkusativ, Dativ), fe'l tuslanishi (konjugatsiya), so'z tartibi, predlog talab qiladigan kelishik, ko'plik shakli va hokazo. Quruq emas — o'quvchi qoidani tushunib qoladigan qilib, 1-2 gap bilan izohla.
-Maslahat: agar foydali bo'lsa, shu xatoni kelajakda qanday oldini olish bo'yicha qisqa eslatma ber.
-
-Agar xato bo'lmasa: Ahamiyatli xato topilmadi deb yoz va nima yaxshi bajarilganini qisqa ayt.
-
+    // Baholash rubrikasi darajaga bog'liq. B1 (TELC Schriftlicher Ausdruck)
+    // jami 45 ballga, A2 esa jami 20 ballga baholanadi.
+    final scoringBlock = level == 'B1'
+        ? '''
+3. BAHOLASH (TELC B1 mezonlari, jami 45 ball)
+Inhalt (barcha 4 majburiy punkt to'liq va mos yoritilgani): X/15
+Kommunikative Gestaltung (stil/registr to'g'riligi, Anrede va Gruss, matnning bog'liqligi): X/10
+Sprachliche Richtigkeit (grammatika, lug'at, imlo): X/15
+Wortzahl (kamida $minWords so'z yozilgani): X/5
+Jami: X/45'''
+        : '''
 3. BAHOLASH
 Inhalt (mazmun): X/6
 Stil (uslub): X/4
 Grammatik va Wortschatz: X/6
 Aufbau (tuzilish): X/2
 Wortzahl (so'zlar soni): X/2
-Jami: X/20
+Jami: X/20''';
 
-Qat'iy, adolatli va aniq bo'l. Xatolarni tushuntirishda esa sabrli va batafsil bo'l.''',
+    return _chat(
+      temperature: 0.2,
+      messages: [
+        {
+          'role': 'system',
+          'content': '''
+Sen TELC $level Schriftlicher Ausdruck (Schreiben) imtihon tekshiruvchisisiz.
+O'quvchi javobini O'ZBEK tilida bahola. Haqiqiy, tajribali o'qituvchidek yoz — halol, aniq va adolatli.
+Hech qanday emoji, yulduzcha, qo'shtirnoq belgisi, markdown formatlashtirish (#, **, _) ishlatma.
+Faqat oddiy matn va raqamlar.
+
+DARAJA: $level.
+MUHIM: So'zlar soni allaqachon aniq sanab berilgan: $wordCount ta so'z (talab: $minWords).
+
+MAVZU TEKSHIRUVI (ENG MUHIM):
+- Agar o'quvchi javobida berilgan topshiriqqa umuman mos kelmasa (butunlay boshqa mavzuda, bo'sh, yoki safsata), Inhalt uchun 0 ball ber va ochiq yoz.
+- Agar 1-2 majburiy punkt bajarilmagan bo'lsa, Inhalt dan mos ravishda chegir.
+- Agar mazmun to'liq mos bo'lsa, adolatli ball ber — lekin hech qachon 15/15 bera ko'rma, chunki kamchilik har doim topiladi.
+
+XATOLARNI ANIQLASHDA JUDA ANIQ BO'L (soxta xato = jiddiy kamchilik):
+- Faqat HAQIQIY grammatik/imlo xatolarini ko'rsat. To'g'ri yozilgan gapni XATO deb belgilama.
+- Nemis grammatikasini puxta bil, quyidagilar TO'G'RI (bularni xato deb hisoblama):
+  • Modalverb + Infinitiv: "ich möchte das Konzert besuchen", "ich kann morgen kommen", "wir sollen helfen" — infinitiv (besuchen/kommen/helfen) gapning OXIRIDA turadi. Buni "asosiy fe'l yo'q" yoki "fe'l to'liq emas" deb XATO deb ko'rsatma.
+  • Nebensatz'da fe'l oxirida: "..., weil ich müde bin", "..., dass er kommt" — to'g'ri.
+  • Perfekt: "ich habe es gemacht", "sie ist gekommen" — to'g'ri.
+  • Trennbare Verben: "ich rufe dich an", "wir kaufen ein" — to'g'ri.
+- Agar biror qismga ISHONCHING KOMIL bo'lmasa, uni xato deb YOZMA.
+- Agar matnda ahamiyatli xato yo'q bo'lsa, "Ahamiyatli xato topilmadi" deb yoz va Sprachliche Richtigkeit uchun yuqori ball ber. Xato yo'q joyda xato o'ylab topma.
+
+BAHOLASH QOʻLLANMASI (TELC B1, jami 45 ball):
+
+Inhalt (0-15):
+  15: Barcha 4 punkt to'liq, mavzuga mos, aniq va batafsil.
+  10-14: 3-4 punkt bor, lekin ayrimlari yuzaki.
+  5-9: 2 punt bor, qolganlar yo'q yoki mavzusiz.
+  0-4: 0-1 punt bor yoki mavzuga umuman mos emas.
+
+Kommunikative Gestaltung (0-10):
+  10: Anrede, Gruss, matn oqimi a'lo, stil ($style) to'liq mos.
+  7-9: Stil asosan to'g'ri, kichik kamchiliklar.
+  4-6: Anrede yoki Gruss yo'q, stilga amal qilinmagan.
+  0-3: Struktura yo'q, safsata yoki boshqa til.
+
+Sprachliche Richtigkeit (0-15):
+  13-15: Ozgina xato, mazmun tushuniladi.
+  8-12: O'rtacha xatolar, lekin tushuniladi.
+  3-7: Ko'p xato, tushunish qiyin.
+  0-2: Deyarli hammasi noto'g'ri.
+
+Wortzahl (0-5):
+  5: $minWords yoki undan ko'p so'z.
+  3: ${(minWords * 0.8).round()} dan ko'p so'z.
+  0: ${(minWords * 0.8).round()} dan kam so'z.
+
+Quyidagi tuzilmada yoz:
+
+1. QISQA XULOSA
+So'zlar soni: $wordCount / $minWords talab
+Majburiy punktlar: har birini alohida — bajarilgan yoki bajarilmagan, qisqa sabab
+Stil: to'g'ri ($style talab) yoki noto'g'ri
+Mavzu muvofiqligi: mos yoki mos emas (agar mos emas bo'lsa, Inhalt = 0 sababi)
+Umumiy izoh: 1-2 gap
+
+2. XATOLAR VA TO'G'RILASH
+Har bir muhim xatoni raqamlangan holda yoz:
+Xato: noto'g'ri yozilgan qism.
+To'g'risi: to'g'ri varianti.
+Nega: grammatik qoida tushuntirmasi (artikl, kelishik, fe'l tuslanishi, so'z tartibi va h.k.)
+
+Agar xato yo'q: Ahamiyatli xato topilmadi.
+
+$scoringBlock
+
+ESLATMA: Adolatli bo'l. Mavzudan chetga chiqqan yoki bo'sh javob uchun Inhalt = 0.
+Grammatik xatolar ko'p bo'lsa Sprachliche Richtigkeit kam bo'lsin.
+Hech qachon ball oshira ko'rma — bu real imtihon bahosi.''',
         },
         {
           'role': 'user',
           'content': '''
-AUFGABE:
+AUFGABE (Topshiriq):
 $taskText
 $letterBlock
 MAJBURIY PUNKTLAR:
@@ -457,6 +510,78 @@ $answer
         },
       ],
     );
+  }
+
+  /// Mock test Sprechen Teil 3 ("Gemeinsam etwas planen") — AI hamkor bilan
+  /// bo'lgan butun suhbatni baholaydi. Audio emas, chat tarixiga asoslanadi.
+  /// JSON qaytaradi: {score, pronunciation, fluency, grammar, content, overall}.
+  static Future<Map<String, dynamic>> evaluateSprechenPlanung({
+    required String situation,
+    required List<String> keywords,
+    required List<Map<String, dynamic>> history,
+    String level = 'B1',
+  }) async {
+    final keywordsBlock = keywords.isNotEmpty
+        ? keywords.map((k) => '- $k').join('\n')
+        : '- (nuqtalar berilmagan)';
+
+    // Suhbat tarixini "A" (o'quvchi) va "B" (AI hamkor) sifatida formatlaymiz.
+    final transcript = StringBuffer();
+    for (final item in history) {
+      final role = (item['role'] ?? 'user').toString();
+      final text = (item['text'] ?? '').toString().trim();
+      if (text.isEmpty) continue;
+      final speaker = role == 'assistant' ? 'Teilnehmer B (AI)' : 'Teilnehmer A (o\'quvchi)';
+      transcript.writeln('$speaker: $text');
+    }
+
+    final raw = await _chat(
+      temperature: 0.2,
+      messages: [
+        {
+          'role': 'system',
+          'content': '''
+Sen TELC $level Sprechen Teil 3 ("Gemeinsam etwas planen") imtihon tekshiruvchisisiz.
+Faqat JSON qaytaring — boshqa matn yo'q. Hech qanday emoji, markdown, qo'shtirnoq belgisi ishlatma.
+
+Format (barcha maydonlar o'zbek tilida, faqat "score" — X/30 ko'rinishida):
+{"score":"X/30","pronunciation":"...","fluency":"...","grammar":"...","content":"...","overall":"..."}
+
+Maydonlar:
+- score: umumiy ball "X/30" ko'rinishida (TELC B1 Sprechen Teil 3 = 30 ball).
+- content: qaysi nuqtalar muhokama qilindi, qaysilari qoldi. Reja to'liqmi.
+- grammar: grammatik xatolar — har birini to'g'risi bilan (agar bo'lsa). Xato yo'q bo'lsa shuni yoz.
+- fluency: gaplarning ravonligi, hamkor bilan tabiiy muloqot, iboralar boyligi.
+- pronunciation: bu chat mashqi (yozma), shuning uchun "Talaffuz baholanmadi (yozma mashq)" deb yoz.
+- overall: 1-2 gaplik umumiy xulosa va tavsiya.
+
+Ball mezonlari (score, jami 30 ball):
+- 27-30: Barcha nuqtalar muhokama qilindi, grammatika yaxshi, iboralar boy, tabiiy muloqot.
+- 21-26: Ko'p nuqtalar muhokama qilindi, kichik xatolar bor.
+- 15-20: Asosiy nuqtalar bor, lekin grammatik xatolar ko'p.
+- 8-14: Kam muhokama, ko'p xato, sodda gaplar.
+- 0-7: Deyarli ishtirok etmadi, mavzudan chiqib ketdi yoki tushunarsiz.
+
+ADOLATLI bo'l: o'quvchi kam gapirsa yoki nuqtalarni muhokama qilmasa, past ball ber.
+Faqat o'quvchining (Teilnehmer A) gaplarini bahola — AI hamkorning gaplarini emas.''',
+        },
+        {
+          'role': 'user',
+          'content': '''
+SITUATION (Topshiriq):
+$situation
+
+MUHOKAMA QILINISHI KERAK BO'LGAN NUQTALAR:
+$keywordsBlock
+
+SUHBAT TARIXI:
+$transcript
+''',
+        },
+      ],
+    );
+
+    return _parseJsonObject(raw);
   }
 
   /// G'alati gaplar o'yini uchun aralash raundlar (pick + order).
@@ -565,8 +690,17 @@ MUHIM QOIDALAR:
   /// Grammatik o'yin uchun raundlar yaratish
   static Future<List<GrammarGameRound>> generateGrammarRounds({
     int count = 8,
+    String difficulty = 'A1-B2',
   }) async {
     try {
+      final difficultyGuide = switch (difficulty) {
+        'A1' => 'Faqat A1 daraja: oddiy Präsens, einfache Satzstruktur, Nominativ/Akkusativ, einfache Präpositionen (in, auf, mit), haben/sein.',
+        'A2' => 'Faqat A2 daraja: Perfekt, Dativ, Modalverben, trennbare Verben, weil/dass Nebensatz, Reflexivverben (einfach).',
+        'B1' => 'Faqat B1 daraja: Präteritum, Konjunktiv II, Relativsätze, Passiv (einfach), Adjektivdeklination, Infinitiv mit zu.',
+        'B2' => 'Faqat B2 daraja: Passiv (alle Zeiten), Konjunktiv I/II, Partizipialattribute, Nominalisierung, Genitivpräpositionen, zweiteilige Konnektoren.',
+        _ => 'Aralash A1-B2: har xil daraja.',
+      };
+
       final raw = await _chat(
         temperature: 0.9,
         isGame: true,
@@ -574,7 +708,10 @@ MUHIM QOIDALAR:
           {
             'role': 'system',
             'content': '''
-Sen nemis tili A1-B2 grammatik o'yin yaratuvchisisan.
+Sen nemis tili grammatik o'yin yaratuvchisisan.
+DARAJA: $difficulty
+$difficultyGuide
+
 Faqat JSON qaytaring: {"rounds":[...]} — boshqa matn yo'q.
 
 Har raund:
@@ -615,11 +752,12 @@ MUHIM:
 - Savollar qiziqarli, hayotiy va HAR SAFAR yangi fe'l/otlardan iborat bo'lsin.
 - Variantlar orasida o'quvchini adashtiradigan mantiqiy xato javoblar bo'lsin.
 - Har bir raundni mutlaqo UNIQUE qiling, takrorlamang.
-- $count ta raund, har biri BOSHQA mavzudan.''',
+- $count ta raund, har biri BOSHQA mavzudan.
+- Savollar faqat $difficulty darajasiga mos bo'lsin — oson ham, qiyin ham qilmang.''',
           },
           {
             'role': 'user',
-            'content': '$count ta yangi, BOSHQACHA grammatik raund yarating.',
+            'content': '$count ta yangi, BOSHQACHA grammatik raund yarating ($difficulty daraja).',
           },
         ],
       );

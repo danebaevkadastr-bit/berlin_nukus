@@ -12,6 +12,10 @@ class LesenQuestion {
   /// Teil 2 da bu null, chunki matn butun Teil uchun umumiy (sharedText).
   final String? passage;
 
+  /// Teil 3 (reklama+rasm) uchun: ko'rsatiladigan rasm URL'i (Cloudinary).
+  /// null bo'lsa rasm ko'rsatilmaydi.
+  final String? imageUrl;
+
   /// Savol yoki ko'rsatma.
   final String prompt;
 
@@ -20,9 +24,10 @@ class LesenQuestion {
 
   const LesenQuestion({
     this.passage,
-    required this.prompt,
-    required this.options,
-    required this.correctAnswer,
+    this.imageUrl,
+    this.prompt = '',
+    this.options = const [],
+    this.correctAnswer = '',
   });
 }
 
@@ -36,6 +41,10 @@ class LesenTeil {
   /// testTexts[i] — i-chi TEST guruhining matni. null bo'lsa ishlatilmaydi.
   final List<String>? testTexts;
 
+  /// Teil 3 (reklama+rasm) uchun: har TEST'ning reklama varag'i rasmi.
+  /// testImages[i] — i-chi TEST guruhi rasmi (Cloudinary URL).
+  final List<String>? testImages;
+
   /// Agar > 0 bo'lsa, savollar har shuncha tadan TEST guruhlariga bo'linadi
   /// (Sprachbausteine: har testda 10 ta bo'sh joy). 0 — guruhlash yo'q.
   final int questionsPerTest;
@@ -46,6 +55,7 @@ class LesenTeil {
     required this.teilNumber,
     this.sharedText,
     this.testTexts,
+    this.testImages,
     this.questionsPerTest = 0,
     required this.questions,
   });
@@ -57,6 +67,13 @@ class LesenLevel {
 
   const LesenLevel({required this.level, required this.teile});
 }
+
+/// Lesen Teil 3 reklama rasmlari uchun Cloudinary asosiy manzili.
+const _lesenImgBase =
+    'https://res.cloudinary.com/dmk6ir51m/image/upload/v1782313304';
+
+/// Teil 3 javob variantlari: reklama harflari a–l va "x" (mos reklama yo'q).
+const _t3Letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'x'];
 
 // ── B1 (TELC) ────────────────────────────────────────────────────────────────
 
@@ -2987,125 +3004,718 @@ const lesenB1 = LesenLevel(
         ),
       ],
     ),
+    // ── Teil 3 – Anzeigen (reklama rasmlari + moslashtirish) ────────────────
+    // Har TEST: 1 ta reklama varag'i rasmi (testImages) + 10 ta vaziyat.
+    // Foydalanuvchi har vaziyatga rasmda ko'rsatilgan reklama harfini (a–l)
+    // yoki "x" (mos reklama yo'q) ni tanlaydi. Rasm doim ko'rinadi, bosilsa
+    // to'liq ekranda ochiladi va yaqinlashtirsa bo'ladi.
     LesenTeil(
       teilNumber: 3,
+      questionsPerTest: 10,
+      testImages: [
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading1_vokiyp',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading2_vzahyk',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading3_otfmlo',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading4_qsgk4t',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading5_rtsxli',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading6_zayeoj',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading7_crxbzo',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading8_qx3on2',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading9_zdsgns',
+        '$_lesenImgBase/assets_images_telc_b1_reading_reading10_meajzj',
+      ],
       questions: [
+        // ── TEST 1 (reading1) ──
         LesenQuestion(
-          passage:
-              'Sie möchten am Wochenende einen Computerkurs für Anfänger machen.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Computerschule Müller: Abendkurse von Montag bis Freitag, nur für Fortgeschrittene.',
-            'PC-Treff: Computerkurse für Anfänger, jeden Samstag von 10 bis 13 Uhr.',
-            'Online-Shop für gebrauchte Computer und Zubehör zu günstigen Preisen.',
-          ],
-          correctAnswer:
-              'PC-Treff: Computerkurse für Anfänger, jeden Samstag von 10 bis 13 Uhr.',
+          passage: 'Sie suchen einen günstigen Fernseher. Er muss nicht neu sein.',
+          options: _t3Letters,
+          correctAnswer: 'b',
         ),
         LesenQuestion(
           passage:
-              'Sie suchen für sich und Ihre Familie eine Wohnung mit drei Zimmern.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Schöne 3-Zimmer-Wohnung mit Balkon, ruhige Lage, ab sofort frei.',
-            'Kleines 1-Zimmer-Apartment für Studenten, möbliert, zentral.',
-            'Helle Büroräume im Stadtzentrum zu vermieten.',
-          ],
-          correctAnswer:
-              'Schöne 3-Zimmer-Wohnung mit Balkon, ruhige Lage, ab sofort frei.',
+              'Am Samstagabend möchten Sie mit Freunden draußen einen Film sehen.',
+          options: _t3Letters,
+          correctAnswer: 'e',
         ),
         LesenQuestion(
           passage:
-              'Ihr Auto ist kaputt und Sie brauchen schnell eine Werkstatt.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Fahrschule Schnell: Führerschein in nur vier Wochen.',
-            'Autowerkstatt Berg: Reparaturen aller Marken, auch samstags geöffnet.',
-            'Autovermietung: günstige Mietwagen für das Wochenende.',
-          ],
-          correctAnswer:
-              'Autowerkstatt Berg: Reparaturen aller Marken, auch samstags geöffnet.',
+              'Sie möchten Ihre Wohnung neu streichen lassen. Unter der Woche '
+              'haben Sie keine Zeit für Handwerker.',
+          options: _t3Letters,
+          correctAnswer: 'f',
         ),
         LesenQuestion(
           passage:
-              'Sie möchten schwimmen lernen und suchen einen Kurs für Erwachsene.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Schwimmkurs für Kinder ab 5 Jahren im Hallenbad.',
-            'Schwimmschule Delfin: Kurse für erwachsene Anfänger, dienstags abends.',
-            'Tauchclub sucht erfahrene Taucher für Ausflüge am Meer.',
-          ],
-          correctAnswer:
-              'Schwimmschule Delfin: Kurse für erwachsene Anfänger, dienstags abends.',
-        ),
-        LesenQuestion(
-          passage: 'Sie suchen für Ihre Tochter einen Klavierlehrer.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Musikschule Harmonie: Klavierunterricht für Kinder und Jugendliche.',
-            'Gitarrenkurs für Anfänger, jeden Mittwoch im Jugendzentrum.',
-            'Verkaufe altes Klavier, günstig abzugeben.',
-          ],
-          correctAnswer:
-              'Musikschule Harmonie: Klavierunterricht für Kinder und Jugendliche.',
+              'Sie möchten Spanisch lernen. Sie arbeiten von Montag bis Freitag '
+              'und haben nur am Wochenende Zeit.',
+          options: _t3Letters,
+          correctAnswer: 'h',
         ),
         LesenQuestion(
           passage:
-              'Sie möchten Ihren Urlaub am Meer verbringen und suchen ein günstiges Hotel.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Gemütliche Berghütte in den Alpen, ideal zum Wandern.',
-            'Strandhotel Sonne: günstige Zimmer direkt am Meer, Frühstück inklusive.',
-            'Stadtrundfahrten mit dem Bus, jeden Tag um 9 Uhr.',
-          ],
-          correctAnswer:
-              'Strandhotel Sonne: günstige Zimmer direkt am Meer, Frühstück inklusive.',
-        ),
-        LesenQuestion(
-          passage: 'Sie suchen einen Babysitter für Samstagabend.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Erfahrene Studentin passt abends und am Wochenende auf Ihre Kinder auf.',
-            'Hundepension nimmt Ihren Hund über das ganze Wochenende.',
-            'Reinigungsfirma putzt Ihre Wohnung jede Woche zuverlässig.',
-          ],
-          correctAnswer:
-              'Erfahrene Studentin passt abends und am Wochenende auf Ihre Kinder auf.',
-        ),
-        LesenQuestion(
-          passage: 'Sie möchten Ihr Deutsch für den Beruf verbessern.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Deutschkurs B2 mit Schwerpunkt Beruf, abends, zweimal pro Woche.',
-            'Englischkurs für komplette Anfänger, vormittags.',
-            'Nachhilfe in Mathematik für Schüler der Klassen 5 bis 10.',
-          ],
-          correctAnswer:
-              'Deutschkurs B2 mit Schwerpunkt Beruf, abends, zweimal pro Woche.',
+              'Ihre beste Freundin heiratet nächsten Monat. Sie möchten den '
+              'Blumenschmuck für die Feier bestellen.',
+          options: _t3Letters,
+          correctAnswer: 'j',
         ),
         LesenQuestion(
           passage:
-              'Sie suchen ein gebrauchtes Fahrrad für den Weg zur Arbeit.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Neue E-Bikes im Angebot, modern, aber ziemlich teuer.',
-            'Verkaufe gut erhaltenes Damenfahrrad, ideal für die Stadt.',
-            'Geführte Fahrradtouren durch die Berge am Wochenende.',
-          ],
-          correctAnswer:
-              'Verkaufe gut erhaltenes Damenfahrrad, ideal für die Stadt.',
+              'Sie arbeiten den ganzen Tag und Ihr Hund ist allein zu Hause. '
+              'Sie suchen jemanden, der sich um ihn kümmert.',
+          options: _t3Letters,
+          correctAnswer: 'i',
         ),
         LesenQuestion(
           passage:
-              'Sie möchten in Ihrer Freizeit ehrenamtlich anderen Menschen helfen.',
-          prompt: 'Welche Anzeige passt?',
-          options: [
-            'Stellenangebot: Vollzeitjob als Verkäufer mit gutem Gehalt gesucht.',
-            'Die Tafel sucht freiwillige Helfer für die Essensausgabe.',
-            'Putzhilfe für Privathaushalt gesucht, gegen Bezahlung.',
-          ],
-          correctAnswer:
-              'Die Tafel sucht freiwillige Helfer für die Essensausgabe.',
+              'Ihr Arzt hat gesagt, Sie sollen regelmäßig Ihren Blutdruck '
+              'kontrollieren. Sie möchten das kostenlos machen lassen.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie haben starke Zahnschmerzen. Heute ist Samstag und Sie '
+              'brauchen dringend einen Zahnarzt.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Kinder möchten gern ein Kaninchen haben. Es soll aus dem '
+              'Tierheim kommen.',
+          options: _t3Letters,
+          correctAnswer: 'k',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten gern schwimmen gehen und suchen ein Hallenbad mit '
+              'Sauna.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        // ── TEST 2 (reading2) ──
+        LesenQuestion(
+          passage:
+              'Sie brauchen einen Schreibtisch für Ihr Arbeitszimmer. Ein '
+              'gebrauchter ist auch in Ordnung.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Freundin möchte gern Salsa tanzen lernen. Sie hat noch '
+              'keine Erfahrung.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Auto muss bald zum TÜV. Sie möchten keinen Termin machen '
+              'müssen.',
+          options: _t3Letters,
+          correctAnswer: 'a',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Tochter möchte eine Katze aus dem Tierheim. Sie haben aber '
+              'schon einen Hund zu Hause.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie haben eine neue Wohnung gefunden und müssen nächste Woche '
+              'umziehen.',
+          options: _t3Letters,
+          correctAnswer: 'l',
+        ),
+        LesenQuestion(
+          passage:
+              'Der Sohn Ihrer Nachbarin hat Probleme in Physik und braucht '
+              'Nachhilfe.',
+          options: _t3Letters,
+          correctAnswer: 'h',
+        ),
+        LesenQuestion(
+          passage:
+              'Am Sonntag möchten Sie mit Ihren kleinen Kindern etwas '
+              'unternehmen. Es soll nichts kosten.',
+          options: _t3Letters,
+          correctAnswer: 'e',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie kommen nach Hause und merken, dass Sie Ihren Schlüssel '
+              'verloren haben. Es ist 22 Uhr.',
+          options: _t3Letters,
+          correctAnswer: 'f',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten im Sommer einen Wanderurlaub in den Bergen machen.',
+          options: _t3Letters,
+          correctAnswer: 'j',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie sehen seit einiger Zeit schlecht und möchten am '
+              'Freitagnachmittag zum Augenarzt gehen.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        // ── TEST 3 (reading3) ──
+        LesenQuestion(
+          passage:
+              'Ihre Familie wird größer und Sie suchen eine Wohnung mit Garten '
+              'für Ihre Kinder.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Hund zieht immer an der Leine. Sie arbeiten unter der Woche '
+              'und haben nur am Wochenende Zeit.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Sohn möchte in den Sommerferien möglichst schnell den '
+              'Führerschein machen.',
+          options: _t3Letters,
+          correctAnswer: 'a',
+        ),
+        LesenQuestion(
+          passage:
+              'Am Mittwochabend möchten Sie etwas Kulturelles unternehmen. Es '
+              'soll nichts kosten.',
+          options: _t3Letters,
+          correctAnswer: 'e',
+        ),
+        LesenQuestion(
+          passage: 'Ihre sechsjährige Tochter soll schwimmen lernen.',
+          options: _t3Letters,
+          correctAnswer: 'j',
+        ),
+        LesenQuestion(
+          passage:
+              'Der Sohn Ihrer Freundin geht in die 3. Klasse und hat Probleme '
+              'beim Lesen und Schreiben.',
+          options: _t3Letters,
+          correctAnswer: 'i',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Vermieter möchte die Miete um 30 Prozent erhöhen. Sie '
+              'glauben, das ist zu viel.',
+          options: _t3Letters,
+          correctAnswer: 'h',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie planen eine Geburtstagsfeier am Sonntag für 20 Gäste und '
+              'brauchen jemanden, der das Essen liefert.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Kinder möchten einen Hund aus dem Tierheim. Sie wohnen in '
+              'einer kleinen Wohnung ohne Garten.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Waschmaschine ist am Samstag kaputtgegangen. Sie möchten '
+              'wissen, ob sich eine Reparatur lohnt.',
+          options: _t3Letters,
+          correctAnswer: 'f',
+        ),
+        // ── TEST 4 (reading4) ──
+        LesenQuestion(
+          passage:
+              'Ihre beste Freundin hat bald Geburtstag. Sie malt gern und ist '
+              'am liebsten draußen in der Natur. Sie suchen einen passenden Kurs für sie.',
+          options: _t3Letters,
+          correctAnswer: 'a',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Neffe spielt seit drei Jahren in einer Band und möchte seine '
+              'Technik verbessern. Er interessiert sich besonders für Improvisation.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Die italienische Frau Ihres Kollegen lebt seit einem Jahr in Deutschland. '
+              'Sie fühlt sich einsam und möchte im Urlaub nach Hause fahren und '
+              'gleichzeitig ihr Deutsch verbessern.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Schwester hat vier Kinder und wohnt in einer kleinen Stadtwohnung. '
+              'Die Kinder brauchen mehr Platz zum Spielen, am besten einen Garten.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie haben neue Winterstiefel gekauft, aber sie drücken an den Zehen. '
+              'Zurückgeben möchten Sie sie nicht, weil sie Ihnen sehr gut gefallen.',
+          options: _t3Letters,
+          correctAnswer: 'i',
+        ),
+        LesenQuestion(
+          passage:
+              'Der Sohn Ihres Bruders geht in die 10. Klasse und hat große Probleme '
+              'mit Englisch. Er braucht dringend Hilfe vor der nächsten Prüfung.',
+          options: _t3Letters,
+          correctAnswer: 'h',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten ein Musikinstrument lernen, wissen aber noch nicht welches. '
+              'Sie möchten verschiedene Instrumente ausprobieren, bevor Sie sich entscheiden.',
+          options: _t3Letters,
+          correctAnswer: 'e',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie haben eine kleine Firma gegründet und brauchen Räume für Ihr Team. '
+              'Alle Ihre Mitarbeiter fahren mit dem Auto zur Arbeit.',
+          options: _t3Letters,
+          correctAnswer: 'j',
+        ),
+        LesenQuestion(
+          passage:
+              'Im Sommer möchten Sie eine Sprache lernen und gleichzeitig das Land '
+              'kennenlernen. Sie waren noch nie am Mittelmeer und möchten dorthin reisen.',
+          options: _t3Letters,
+          correctAnswer: 'k',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie arbeiten die ganze Woche und möchten am Wochenende den Führerschein '
+              'machen. Sie suchen eine Fahrschule, die auch samstags oder sonntags '
+              'Unterricht anbietet.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        // ── TEST 5 (reading5) ──
+        LesenQuestion(
+          passage:
+              'Sie haben eine neue Stelle in einer anderen Stadt gefunden. In zwei '
+              'Wochen müssen Sie dort anfangen. Ihre Wohnung ist voll mit schweren '
+              'Schränken und einem Klavier.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Hund frisst seit zwei Tagen nichts mehr und liegt nur noch in der '
+              'Ecke. Es ist Sonntagabend und Sie machen sich große Sorgen.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen einen Betreuungsplatz für Ihre zweijährige Tochter. Sie '
+              'arbeiten nur vormittags und brauchen deshalb nur eine Halbtagsbetreuung bis 13 Uhr.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Morgen haben Sie ein wichtiges Vorstellungsgespräch bei einer Bank. '
+              'Leider hat Ihr einziger dunkler Anzug einen großen Kaffeefleck. Sie '
+              'brauchen ihn bis heute Abend zurück.',
+          options: _t3Letters,
+          correctAnswer: 'h',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Vermieter möchte, dass Sie in drei Monaten ausziehen. Sie wohnen '
+              'aber erst seit einem Jahr dort und glauben, dass er das nicht einfach '
+              'so verlangen kann.',
+          options: _t3Letters,
+          correctAnswer: 'g',
+        ),
+        LesenQuestion(
+          passage:
+              'Seit gestern macht Ihre Waschmaschine komische Geräusche und wäscht '
+              'nicht mehr richtig. Sie möchten erst wissen, was die Reparatur kostet, '
+              'bevor Sie eine neue kaufen.',
+          options: _t3Letters,
+          correctAnswer: 'j',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Eltern feiern nächsten Monat ihren 40. Hochzeitstag. Sie möchten '
+              'eine Feier mit etwa 30 Gästen organisieren und brauchen jemanden, der '
+              'das Essen liefert.',
+          options: _t3Letters,
+          correctAnswer: 'a',
+        ),
+        LesenQuestion(
+          passage:
+              'Der Sohn Ihrer Freundin braucht für ein Schulprojekt ein bestimmtes '
+              'Buch über Dinosaurier. Im Buchladen um die Ecke gibt es das Buch leider nicht.',
+          options: _t3Letters,
+          correctAnswer: 'e',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie fahren jeden Tag mit dem Fahrrad zur Arbeit. Seit gestern können '
+              'Sie nicht mehr richtig schalten und die Kette springt immer wieder raus.',
+          options: _t3Letters,
+          correctAnswer: 'f',
+        ),
+        LesenQuestion(
+          passage:
+              'Am Samstag möchten Sie mit Freunden etwas Kreatives machen. Sie suchen '
+              'einen Kurs, bei dem man etwas mit den Händen gestalten kann, zum '
+              'Beispiel Keramik.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        // ── TEST 6 (reading6) ──
+        LesenQuestion(
+          passage:
+              'Sie sind gerade umgezogen und brauchen eine Waschmaschine. Eine '
+              'gebrauchte ist auch in Ordnung.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Kinder möchten gern eine Katze haben. Sie soll aber aus dem '
+              'Tierheim kommen.',
+          options: _t3Letters,
+          correctAnswer: 'k',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie haben seit Tagen Zahnschmerzen. Heute ist Samstag, aber Sie '
+              'brauchen dringend einen Termin.',
+          options: _t3Letters,
+          correctAnswer: 'a',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten am Samstagabend mit Freunden ins Kino gehen.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Eltern feiern goldene Hochzeit. Sie möchten ihnen eine besondere '
+              'Reise schenken.',
+          options: _t3Letters,
+          correctAnswer: 'j',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Tochter hat schlechte Noten in Mathematik. Sie suchen günstigen '
+              'Einzelunterricht.',
+          options: _t3Letters,
+          correctAnswer: 'l',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten am Donnerstagabend etwas Kulturelles unternehmen. Der '
+              'Eintritt soll kostenlos sein.',
+          options: _t3Letters,
+          correctAnswer: 'e',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr junger Hund zieht immer an der Leine und hört nicht auf Ihre '
+              'Kommandos.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr alter Sessel ist noch gut, aber der Stoff ist kaputt. Sie möchten '
+              'ihn nicht wegwerfen, sondern reparieren lassen.',
+          options: _t3Letters,
+          correctAnswer: 'g',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen eine Wohnung mit Garten in Freiburg.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        // ── TEST 7 (reading7) ──
+        LesenQuestion(
+          passage:
+              'Sie möchten heute Abend nicht kochen. Sie hätten gern eine Pizza, '
+              'die nach Hause geliefert wird.',
+          options: _t3Letters,
+          correctAnswer: 'h',
+        ),
+        LesenQuestion(
+          passage:
+              'Seit einigen Wochen sehen Sie schlecht. Sie möchten Ihre Augen '
+              'testen lassen, ohne dafür zu bezahlen.',
+          options: _t3Letters,
+          correctAnswer: 'g',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Katze frisst seit zwei Tagen nichts mehr und Sie machen sich '
+              'Sorgen.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen ein günstiges Bücherregal für Ihr Arbeitszimmer. Es muss '
+              'nicht neu sein.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Sohn liest gern und Sie möchten ihm ein bestimmtes Buch zum '
+              'Geburtstag schenken, das Sie aber nirgends finden können.',
+          options: _t3Letters,
+          correctAnswer: 'j',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten den Führerschein machen. Da Sie berufstätig sind, '
+              'brauchen Sie flexible Termine für die Praxis.',
+          options: _t3Letters,
+          correctAnswer: 'a',
+        ),
+        LesenQuestion(
+          passage:
+              'Am Sonntag möchten Sie mit Ihren kleinen Kindern etwas '
+              'unternehmen. Es soll nichts kosten.',
+          options: _t3Letters,
+          correctAnswer: 'e',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie haben morgen ein Vorstellungsgespräch und Ihr Anzug ist '
+              'schmutzig. Sie brauchen ihn noch heute.',
+          options: _t3Letters,
+          correctAnswer: 'i',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten am Wochenende einen Töpferkurs besuchen.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Sohn möchte Gitarre spielen lernen. Sie suchen einen '
+              'Gitarrenlehrer.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        // ── TEST 8 (reading8) ──
+        LesenQuestion(
+          passage:
+              'Sie möchten Pizza bestellen und nach Hause liefern lassen.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen ein Restaurant mit traditioneller deutscher Küche für '
+              'ein Familienessen.',
+          options: _t3Letters,
+          correctAnswer: 'a',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten Wein kaufen und vorher verschiedene Weine probieren.',
+          options: _t3Letters,
+          correctAnswer: 'g',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten mit Ihren Kindern italienisches Eis essen gehen.',
+          options: _t3Letters,
+          correctAnswer: 'h',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen ein veganes Restaurant mit nur pflanzlichen Gerichten.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten Essen von verschiedenen Restaurants online bestellen '
+              'und liefern lassen.',
+          options: _t3Letters,
+          correctAnswer: 'k',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie organisieren eine Firmenfeier und brauchen Catering mit '
+              'Buffet.',
+          options: _t3Letters,
+          correctAnswer: 'l',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten nur Bio-Lebensmittel kaufen.',
+          options: _t3Letters,
+          correctAnswer: 'f',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen frisches Fleisch und Wurst vom Handwerksmeister.',
+          options: _t3Letters,
+          correctAnswer: 'e',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen ein Restaurant mit Kinderspielplatz.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        // ── TEST 9 (reading9) ──
+        LesenQuestion(
+          passage:
+              'Sie möchten den Pkw-Führerschein machen und suchen flexible '
+              'Kurszeiten.',
+          options: _t3Letters,
+          correctAnswer: 'a',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie brauchen nachts um 2 Uhr ein Taxi zum Flughafen.',
+          options: _t3Letters,
+          correctAnswer: 'd',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten am Wochenende günstig ein Auto mieten.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihr Fahrrad ist kaputt und Sie brauchen eine Reparatur.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten den Führerschein möglichst schnell in wenigen Wochen '
+              'machen.',
+          options: _t3Letters,
+          correctAnswer: 'h',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen einen Fahrradkurier, der ein Paket schnell durch die '
+              'Stadt liefert.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie brauchen vor dem Winter neue Reifen für Ihr Auto.',
+          options: _t3Letters,
+          correctAnswer: 'g',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten Motorrad fahren lernen und suchen eine Schule mit '
+              'Sicherheitstraining.',
+          options: _t3Letters,
+          correctAnswer: 'l',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten für einen Tag ein E-Bike ausleihen, inklusive Helm.',
+          options: _t3Letters,
+          correctAnswer: 'i',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen einen Parkplatz in der Innenstadt für den ganzen Tag.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        // ── TEST 10 (reading10) ──
+        LesenQuestion(
+          passage:
+              'Sie suchen ein Café, in dem man Brettspiele ausleihen und spielen '
+              'kann.',
+          options: _t3Letters,
+          correctAnswer: 'x',
+        ),
+        LesenQuestion(
+          passage:
+              'Ihre Kinder möchten schwimmen lernen. Sie suchen einen '
+              'Anfängerkurs.',
+          options: _t3Letters,
+          correctAnswer: 'b',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten Salsa tanzen lernen und erst kostenlos ausprobieren.',
+          options: _t3Letters,
+          correctAnswer: 'c',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie suchen ein Fitnessstudio ohne Anmeldegebühr.',
+          options: _t3Letters,
+          correctAnswer: 'd',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie sind Student und möchten günstig ins Theater gehen.',
+          options: _t3Letters,
+          correctAnswer: 'e',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie planen einen Kindergeburtstag mit Bowling und eigenem '
+              'Partyraum.',
+          options: _t3Letters,
+          correctAnswer: 'f',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten mit 5 Freunden ein spannendes Rätselspiel machen.',
+          options: _t3Letters,
+          correctAnswer: 'h',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten eine Ausstellung mit moderner Kunst besuchen, ohne '
+              'Eintritt zu bezahlen.',
+          options: _t3Letters,
+          correctAnswer: 'i',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten mit der Familie einen Tag in einem Vergnügungspark '
+              'verbringen.',
+          options: _t3Letters,
+          correctAnswer: 'j',
+        ),
+        LesenQuestion(
+          passage:
+              'Sie möchten einen Kochkurs besuchen und italienische Pasta machen '
+              'lernen.',
+          options: _t3Letters,
+          correctAnswer: 'x',
         ),
       ],
     ),

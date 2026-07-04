@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -11,12 +12,7 @@ import '../../services/onesignal_helper.dart'
 import '../../utils/image_picker_helper.dart';
 
 class UserProvider extends ChangeNotifier {
-  /// Firebase Console → Google Sign-In → Web client ID (Android uchun serverClientId).
-  static const String _googleWebClientId =
-      '901891657911-un0jqsg46o6i3chmm1q8657lsq8ck4do.apps.googleusercontent.com';
-
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId: _googleWebClientId,
     scopes: ['email', 'profile'],
   );
 
@@ -89,6 +85,12 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
+      // Eski keshni tozalash
+      if (_avatarUrl.isNotEmpty) {
+        try {
+          await CachedNetworkImage.evictFromCache(_avatarUrl);
+        } catch (_) {}
+      }
       final url = await CloudinaryService.uploadXFile(
         file: picked,
         folder: 'profiles/$uid',

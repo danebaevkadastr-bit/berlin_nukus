@@ -3,6 +3,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/responsive_layout.dart';
+import '../../widgets/bottom_nav_bar.dart';
 
 import 'admin_courses_screen.dart';
 import 'admin_home_screen.dart';
@@ -172,14 +173,13 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildNavItem(context, Icons.dashboard_rounded, AppLocalizations.of(context).navHome, 0),
-            _buildNavItem(context, Icons.people_rounded, AppLocalizations.of(context).navStudent, 1),
-            _buildNavItem(context, Icons.school_rounded, AppLocalizations.of(context).navTeacher, 2),
-            _buildNavItem(context, Icons.menu_book_rounded, AppLocalizations.of(context).navCourse, 3),
-            _buildNavItem(context, Icons.payments_rounded, AppLocalizations.of(context).navPayment, 4),
-            _buildNavItem(context, Icons.person_rounded, AppLocalizations.of(context).navProfile, 5),
+            Expanded(child: _buildNavItem(context, Icons.dashboard_rounded, AppLocalizations.of(context).navHome, 0)),
+            Expanded(child: _buildNavItem(context, Icons.people_rounded, AppLocalizations.of(context).navStudent, 1)),
+            Expanded(child: _buildNavItem(context, Icons.school_rounded, AppLocalizations.of(context).navTeacher, 2)),
+            Expanded(child: _buildNavItem(context, Icons.menu_book_rounded, AppLocalizations.of(context).navCourse, 3)),
+            Expanded(child: _buildNavItem(context, Icons.payments_rounded, AppLocalizations.of(context).navPayment, 4)),
+            Expanded(child: _buildNavItem(context, Icons.person_rounded, AppLocalizations.of(context).navProfile, 5)),
           ],
         ),
       ),
@@ -194,47 +194,14 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     const activeColor = AppColors.duoBlue;
     final inactiveColor = isDark ? Colors.white54 : AppColors.duoTextLight;
 
-    return GestureDetector(
+    return AnimatedNavItem(
+      icon: icon,
+      label: label,
+      index: index,
+      isActive: isActive,
+      activeColor: activeColor,
+      inactiveColor: inactiveColor,
       onTap: () => setState(() => _currentIndex = index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 50,
-        height: 72,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOutBack,
-              width: isActive ? 40 : 28,
-              height: isActive ? 40 : 28,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isActive ? activeColor : Colors.transparent,
-              ),
-              child: Icon(
-                icon,
-                color: isActive ? Colors.white : inactiveColor,
-                size: isActive ? 22 : 20,
-              ),
-            ),
-            if (!isActive) ...[
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w700,
-                  color: inactiveColor,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ]
-          ],
-        ),
-      ),
     );
   }
 }

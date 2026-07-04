@@ -12,12 +12,18 @@ import '../../../services/sound_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/strange_sentences_rules.dart';
 import '../../../utils/theme_manager.dart';
+import '../../../widgets/bn_tiyin.dart';
 import '../../../widgets/decorative_pattern_background.dart';
+import '../../../widgets/fun_loading.dart';
 import '../../../widgets/gamified_card.dart';
 import 'strange_sentences_rules_screen.dart';
 
 class StrangeSentencesGameScreen extends StatefulWidget {
-  const StrangeSentencesGameScreen({super.key});
+  final StrangeDifficulty difficulty;
+  const StrangeSentencesGameScreen({
+    super.key,
+    this.difficulty = StrangeDifficulty.medium,
+  });
 
   @override
   State<StrangeSentencesGameScreen> createState() =>
@@ -28,7 +34,7 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
   List<StrangeSentencesRound> _deck = [];
   bool _loading = true;
   String? _loadError;
-  StrangeDifficulty _selectedDifficulty = StrangeDifficulty.medium;
+  late StrangeDifficulty _selectedDifficulty;
 
   int _index = 0;
   int _score = 0;
@@ -49,6 +55,7 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
   @override
   void initState() {
     super.initState();
+    _selectedDifficulty = widget.difficulty;
     _loadRounds();
   }
 
@@ -247,78 +254,6 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
             iconTheme:
                 IconThemeData(color: isDark ? Colors.white : AppColors.duoTextDark),
             actions: [
-              PopupMenuButton<StrangeDifficulty>(
-                icon: Icon(
-                  _selectedDifficulty == StrangeDifficulty.easy
-                      ? Icons.looks_one
-                      : _selectedDifficulty == StrangeDifficulty.medium
-                          ? Icons.looks_two
-                          : Icons.looks_3,
-                  color: isDark ? Colors.white : AppColors.duoTextDark,
-                ),
-                onSelected: (difficulty) {
-                  setState(() {
-                    _selectedDifficulty = difficulty;
-                  });
-                  _loadRounds();
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: StrangeDifficulty.easy,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.looks_one, size: 20),
-                        const SizedBox(width: 8),
-                        Text(l.easy),
-                        const Spacer(),
-                        const Text(
-                          '10⭐',
-                          style: TextStyle(
-                            color: AppColors.duoGreen,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: StrangeDifficulty.medium,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.looks_two, size: 20),
-                        const SizedBox(width: 8),
-                        Text(l.medium),
-                        const Spacer(),
-                        const Text(
-                          '15⭐',
-                          style: TextStyle(
-                            color: AppColors.duoOrange,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: StrangeDifficulty.hard,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.looks_3, size: 20),
-                        const SizedBox(width: 8),
-                        Text(l.hard),
-                        const Spacer(),
-                        const Text(
-                          '20⭐',
-                          style: TextStyle(
-                            color: AppColors.duoRed,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
               IconButton(
                 icon: const Icon(Icons.menu_book_rounded),
                 tooltip: l.strangeSentencesRulesHowTo,
@@ -348,25 +283,16 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
   }
 
   Widget _buildLoading(bool isDark, AppLocalizations l) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('🎭', style: TextStyle(fontSize: 56)),
-          const SizedBox(height: 20),
-          Text(
-            l.strangeSentencesLoading,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white70 : AppColors.duoTextLight,
-            ),
-          ),
-          const SizedBox(height: 24),
-          const CircularProgressIndicator(color: AppColors.candyPink),
-        ],
-      ),
+    return FunLoading(
+      title: l.strangeSentencesGame,
+      tips: const [
+        'Grammatik jihatdan to\'g\'ri g\'alati gaplarni topamiz!',
+        'So\'z tartibini bilasizmi?',
+        'Har raund uchun vaqt cheklangan!',
+        'AI qiziqarli gaplar tayyorlayapti...',
+        'Biroz sabr — zo\'r savollar keladi!',
+      ],
+      color: AppColors.candyPink,
     );
   }
 
@@ -423,7 +349,14 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
         children: [
           Row(
             children: [
-              _statChip(isDark, '⭐ $_score', AppColors.duoOrange),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const BnTiyin(size: 14),
+                  const SizedBox(width: 4),
+                  _statChip(isDark, ' $_score', AppColors.duoOrange),
+                ],
+              ),
               const SizedBox(width: 8),
               _statChip(isDark, '✓ $_correct', AppColors.duoGreen),
               const Spacer(),
@@ -731,6 +664,7 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
   }
 
   Widget _buildResults(bool isDark) {
+    final l = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -743,10 +677,11 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('🎉', style: TextStyle(fontSize: 56)),
+              const Icon(Icons.celebration_rounded,
+                  size: 56, color: AppColors.duoOrange),
               const SizedBox(height: 16),
               Text(
-                'Sessiya tugadi!',
+                l.sessionFinished,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
@@ -754,17 +689,24 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
-                '⭐ $_score ball',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.duoOrange,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const BnTiyin(size: 22, spinning: true),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$_score ${l.mockTestPointsSuffix}',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.duoOrange,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(
-                'To\'g\'ri: $_correct  •  Xato: $_wrong',
+                '${l.horenCorrect}: $_correct  •  ${l.horenWrong}: $_wrong',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -772,13 +714,20 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'Jami yulduzlar: $_totalSavedStars ⭐',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? Colors.white54 : AppColors.duoTextLight,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${l.totalStars}: $_totalSavedStars',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  BnTiyin(size: 15, spinning: false),
+                ],
               ),
               const SizedBox(height: 24),
               GamifiedCard(
@@ -786,9 +735,9 @@ class _StrangeSentencesGameScreenState extends State<StrangeSentencesGameScreen>
                 shadowColor: AppColors.duoGreenShadow,
                 padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
                 onTap: () => Navigator.pop(context),
-                child: const Text(
-                  'Yopish',
-                  style: TextStyle(
+                child: Text(
+                  l.close,
+                  style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
                   ),

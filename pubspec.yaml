@@ -45,12 +45,18 @@ dependencies:
   audioplayers: ^6.6.0
   cached_network_image: ^3.4.1
   onesignal_flutter: ^5.5.5
+  record: ^5.2.0
+  path_provider: ^2.1.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
   flutter_launcher_icons: ^0.14.1
+  glados: ^1.1.7
+
+dependency_overrides:
+  record_linux: ^1.0.0
 
 flutter_launcher_icons:
   android: true

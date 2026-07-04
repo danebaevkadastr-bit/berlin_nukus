@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/gamified_card.dart';
 import '../../services/firebase_service.dart';
@@ -33,6 +34,102 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
     AppColors.duoRed,
   ];
   Color _selectedColor = AppColors.duoBlue;
+
+  void _deleteGroup(String groupId, String groupName, List students) {
+    final l = AppLocalizations.of(context);
+    final isDark = ThemeManager.isDark;
+
+    // Talabalar bo'lsa ogohlantirish
+    final hasStudents = students.isNotEmpty;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E2A32) : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.warning_rounded, size: 48, color: AppColors.duoRed),
+              const SizedBox(height: 16),
+              Text(
+                '$groupName guruhini o\'chirmoqchimisiz?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : AppColors.duoTextDark,
+                ),
+              ),
+              if (hasStudents) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.duoOrange.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Bu guruhda ${students.length} ta talaba bor! Ularni avval guruhdan chiqarish kerak.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.duoOrange,
+                    ),
+                  ),
+                ),
+              ] else
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    'Bu amalni qaytarib bo\'lmaydi.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(l.cancel, style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white70 : AppColors.duoTextDark,
+                      )),
+                    ),
+                  ),
+                  if (!hasStudents) ...[
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () async {
+                          await FirebaseFirestore.instance.collection('groups').doc(groupId).delete();
+                          if (ctx.mounted) Navigator.pop(ctx);
+                        },
+                        child: Text(l.delete, style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.duoRed,
+                        )),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   void _showAddGroupDialog(bool isDark) {
     _nameController.clear();
@@ -296,16 +393,13 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
         elevation: 0,
         centerTitle: true,
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 100.0),
-        child: FloatingActionButton(
-          heroTag: 'add_group_fab',
-          onPressed: () => _showAddGroupDialog(isDark),
-          backgroundColor: AppColors.duoGreen,
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: const Icon(Icons.add, color: Colors.white, size: 28),
-        ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'add_group_fab',
+        onPressed: () => _showAddGroupDialog(isDark),
+        backgroundColor: AppColors.duoGreen,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: FirebaseService().getGroupsStream(widget.courseId),
@@ -385,22 +479,22 @@ class _AdminCourseGroupsScreenState extends State<AdminCourseGroupsScreen> {
                             ),
                           ),
                           Icon(Icons.chevron_right_rounded, color: isDark ? Colors.white54 : AppColors.duoTextLight),
+                          IconButton(
+                            onPressed: () => _deleteGroup(data['id'], data['name'] ?? '', data['students'] as List? ?? []),
+                            icon: Icon(Icons.delete_outline_rounded, color: AppColors.duoRed, size: 22),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
                           _buildInfoBox('🧑‍🎓', 'Studentlar', '${(data['students'] as List?)?.length ?? 0} ta', Color(data['color'] ?? AppColors.duoBlue.toARGB32()), isDark),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           _buildInfoBox('📅', 'Boshlangan', data['started'] ?? '', Color(data['color'] ?? AppColors.duoBlue.toARGB32()), isDark),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
+                          const SizedBox(width: 10),
                           _buildInfoBox('⏱️', 'Davomiyligi', data['duration'] ?? '', Color(data['color'] ?? AppColors.duoBlue.toARGB32()), isDark),
-                          const SizedBox(width: 12),
-                          const Expanded(child: SizedBox()), // Placeholder for alignment
                         ],
                       ),
                     ],

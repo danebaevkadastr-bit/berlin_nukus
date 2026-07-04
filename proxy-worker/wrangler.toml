@@ -13,6 +13,15 @@ namespace_id = "1001"
 simple = { limit = 30, period = 60 }
 
 # ─────────────────────────────────────────────────────────────────────────────
+# MAXFIY BO'LMAGAN o'zgaruvchilar (vars) — bularni shu yerga yozsa bo'ladi.
+# GEMINI_AUDIO_MODEL: Sprechen audio baholash uchun model (ixtiyoriy).
+# Berilmasa worker default `gemini-2.5-flash` ishlatadi. Ko'p foydalanuvchi
+# bo'lsa `gemini-2.5-flash-lite` (kunlik limit kattaroq) tavsiya etiladi.
+# ─────────────────────────────────────────────────────────────────────────────
+[vars]
+GEMINI_AUDIO_MODEL = "gemini-2.5-flash"
+
+# ─────────────────────────────────────────────────────────────────────────────
 # MAXFIY KALITLAR (Secrets) — bu yerga YOZILMAYDI!
 # Quyidagi buyruqlar bilan Cloudflare'ga xavfsiz joylanadi:
 #

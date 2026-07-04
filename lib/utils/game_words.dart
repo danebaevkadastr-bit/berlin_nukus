@@ -919,8 +919,19 @@ class GameWords {
   }
 
   /// Tasodifiy tartiblangan nusxa (asosiy ro'yxatni buzmaydi)
-  static List<Map<String, String>> shuffledWords({int? limit}) {
-    final copy = List<Map<String, String>>.from(derDieDasWords);
+  static List<Map<String, String>> shuffledWords({int? limit, String? level}) {
+    List<Map<String, String>> source;
+    switch (level) {
+      case 'A1':
+        source = derDieDasWords.sublist(0, (derDieDasWords.length * 0.37).round()); // ~250 oddiy so'z
+        break;
+      case 'A2':
+        source = derDieDasWords.sublist(0, (derDieDasWords.length * 0.75).round()); // ~500 so'z
+        break;
+      default:
+        source = derDieDasWords; // B1/B2 — barchasi
+    }
+    final copy = List<Map<String, String>>.from(source);
     copy.shuffle();
     if (limit != null && limit > 0 && limit < copy.length) {
       return copy.sublist(0, limit);

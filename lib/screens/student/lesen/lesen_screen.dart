@@ -168,7 +168,8 @@ class _LesenScreenState extends State<LesenScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('🚧', style: TextStyle(fontSize: 52)),
+              const Icon(Icons.construction_rounded,
+                  size: 52, color: AppColors.duoOrange),
               const SizedBox(height: 16),
               Text(
                 l.lesenComingSoon,
@@ -488,7 +489,8 @@ class _LesenScreenState extends State<LesenScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Text('🚧', style: TextStyle(fontSize: 28)),
+                    const Icon(Icons.construction_rounded,
+                        size: 28, color: AppColors.duoOrange),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(

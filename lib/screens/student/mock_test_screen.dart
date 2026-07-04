@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/gamified_card.dart';
+import '../../l10n/app_localizations.dart';
+import 'mock_test/mock_test_intro_screen.dart';
+import 'mock_test/model/mock_test_structure.dart';
+import 'mock_test/model/mock_test_timing.dart';
 
 class MockTestScreen extends StatelessWidget {
   const MockTestScreen({super.key});
@@ -27,6 +31,7 @@ class _MockTestBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
@@ -59,7 +64,8 @@ class _MockTestBody extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Row(
                 children: [
-                  const Text('📝', style: TextStyle(fontSize: 48)),
+                  const Icon(Icons.fact_check_rounded,
+                      size: 48, color: Colors.white),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -76,7 +82,7 @@ class _MockTestBody extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Bilimingizni sinab ko\'ring',
+                          l.mockLandingSubtitle,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -92,124 +98,71 @@ class _MockTestBody extends StatelessWidget {
 
             const SizedBox(height: 28),
 
-            _sectionTitle('DARAJA TANLANG'),
+            _sectionTitle(l.selectLevel.toUpperCase()),
             const SizedBox(height: 14),
 
             _buildLevelCard(
               context,
               level: 'A1',
-              title: 'Boshlang\'ich',
-              description: 'Oddiy so\'zlar, asosiy grammatika',
-              emoji: '🌱',
+              title: l.levelBeginner,
+              description: l.mockLevelDescA1,
+              levelIcon: Icons.spa_rounded,
               color: AppColors.duoGreen,
               shadow: AppColors.duoGreenShadow,
               questionCount: 30,
-              duration: '20 daqiqa',
+              duration: l.minutesShort(20),
             ),
             const SizedBox(height: 14),
 
             _buildLevelCard(
               context,
               level: 'A2',
-              title: 'Elementar',
-              description: 'Kundalik suhbat, kengaytirilgan grammatika',
-              emoji: '🌿',
+              title: l.levelElementary,
+              description: l.mockLevelDescA2,
+              levelIcon: Icons.grass_rounded,
               color: AppColors.duoBlue,
               shadow: AppColors.duoBlueShadow,
               questionCount: 40,
-              duration: '25 daqiqa',
+              duration: l.minutesShort(25),
             ),
             const SizedBox(height: 14),
 
             _buildLevelCard(
               context,
               level: 'B1',
-              title: 'O\'rta',
-              description: 'Murakkab jumlalar, keng lug\'at',
-              emoji: '🌳',
+              title: l.levelIntermediate,
+              description: l.mockLevelDescB1,
+              levelIcon: Icons.park_rounded,
               color: AppColors.duoOrange,
               shadow: AppColors.duoOrangeShadow,
-              questionCount: 50,
-              duration: '35 daqiqa',
+              questionCount: MockTestStructure.totalQuestionCount,
+              duration: l.minutesShort(MockTestTiming.totalDuration.inMinutes),
+              isAvailable: true,
             ),
             const SizedBox(height: 14),
 
             _buildLevelCard(
               context,
               level: 'B2',
-              title: 'O\'rta-yuqori',
-              description: 'Ilg\'or grammatika, akademik til',
-              emoji: '🏔️',
+              title: l.levelUpperIntermediate,
+              description: l.mockLevelDescB2,
+              levelIcon: Icons.terrain_rounded,
               color: AppColors.duoRed,
               shadow: AppColors.duoRedShadow,
               questionCount: 60,
-              duration: '45 daqiqa',
+              duration: l.minutesShort(45),
             ),
 
             const SizedBox(height: 32),
 
-            _sectionTitle('QANDAY ISHLAYDI'),
+            _sectionTitle(l.mockHowItWorks.toUpperCase()),
             const SizedBox(height: 14),
 
-            _buildInfoCard('1️⃣', 'Daraja tanlang',
-                'O\'zingizga mos A1–B2 darajasini tanlang'),
+            _buildInfoCard(1, l.selectLevel, l.mockStep1Desc),
             const SizedBox(height: 10),
-            _buildInfoCard('2️⃣', 'Savollarni javoblang',
-                'Har bir savol uchun to\'g\'ri javobni belgilang'),
+            _buildInfoCard(2, l.mockStep2Title, l.mockStep2Desc),
             const SizedBox(height: 10),
-            _buildInfoCard('3️⃣', 'Natijani ko\'ring',
-                'Test yakunida batafsil tahlil va ball ko\'rsatiladi'),
-
-            const SizedBox(height: 32),
-
-            // Coming soon notice
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: isDark
-                    ? AppColors.duoOrange.withValues(alpha: 0.1)
-                    : AppColors.duoOrange.withValues(alpha: 0.08),
-                border: Border.all(
-                  color: AppColors.duoOrange.withValues(alpha: 0.4),
-                  width: 1.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Text('🚧', style: TextStyle(fontSize: 28)),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Tez kunda',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.duoOrange,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Mock test tizimi hozirda ishlab chiqilmoqda. Yaqin orada faol bo\'ladi!',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            height: 1.4,
-                            color: isDark
-                                ? Colors.white70
-                                : AppColors.duoTextLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildInfoCard(3, l.mockStep3Title, l.mockStep3Desc),
           ],
         ),
       ),
@@ -233,12 +186,14 @@ class _MockTestBody extends StatelessWidget {
     required String level,
     required String title,
     required String description,
-    required String emoji,
+    required IconData levelIcon,
     required Color color,
     required Color shadow,
     required int questionCount,
     required String duration,
+    bool isAvailable = false,
   }) {
+    final l = AppLocalizations.of(context);
     return GamifiedCard(
       color: isDark
           ? AppColors.duoCardGray.withValues(alpha: 0.1)
@@ -246,7 +201,9 @@ class _MockTestBody extends StatelessWidget {
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       shadowDepth: 5,
       padding: const EdgeInsets.all(18),
-      onTap: () => _showComingSoon(context),
+      onTap: () => isAvailable
+          ? _openMockTest(context)
+          : _showComingSoon(context),
       child: Row(
         children: [
           Container(
@@ -292,7 +249,7 @@ class _MockTestBody extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(emoji, style: const TextStyle(fontSize: 16)),
+                    Icon(levelIcon, size: 18, color: color),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -308,13 +265,15 @@ class _MockTestBody extends StatelessWidget {
                 Row(
                   children: [
                     _buildChip(
-                      '❓ $questionCount savol',
+                      Icons.help_outline_rounded,
+                      l.mockQuestionsLabel(questionCount),
                       color.withValues(alpha: 0.15),
                       color,
                     ),
                     const SizedBox(width: 8),
                     _buildChip(
-                      '⏱ $duration',
+                      Icons.schedule_rounded,
+                      duration,
                       color.withValues(alpha: 0.15),
                       color,
                     ),
@@ -325,34 +284,43 @@ class _MockTestBody extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Icon(
-            Icons.lock_rounded,
-            color: isDark ? Colors.white30 : AppColors.duoTextLight,
-            size: 20,
+            isAvailable ? Icons.arrow_forward_ios_rounded : Icons.lock_rounded,
+            color: isAvailable
+                ? color
+                : (isDark ? Colors.white30 : AppColors.duoTextLight),
+            size: isAvailable ? 18 : 20,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChip(String label, Color bg, Color textColor) {
+  Widget _buildChip(IconData icon, String label, Color bg, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          color: textColor,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: textColor),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: textColor,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoCard(String emoji, String title, String subtitle) {
+  Widget _buildInfoCard(int step, String title, String subtitle) {
     return GamifiedCard(
       color: isDark
           ? AppColors.duoCardGray.withValues(alpha: 0.1)
@@ -361,7 +329,23 @@ class _MockTestBody extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 24)),
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: accent.color.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '$step',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: accent.color,
+              ),
+            ),
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -392,7 +376,14 @@ class _MockTestBody extends StatelessWidget {
     );
   }
 
+  void _openMockTest(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const MockTestIntroScreen()),
+    );
+  }
+
   void _showComingSoon(BuildContext context) {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -410,10 +401,11 @@ class _MockTestBody extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('🚧', style: TextStyle(fontSize: 52)),
+              const Icon(Icons.construction_rounded,
+                  size: 52, color: AppColors.duoOrange),
               const SizedBox(height: 16),
               Text(
-                'Tez kunda!',
+                l.mockComingSoonTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
@@ -423,7 +415,7 @@ class _MockTestBody extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Bu daraja uchun mock test hozirda tayyorlanmoqda. Yaqin orada faol bo\'ladi!',
+                l.mockComingSoonDialogMsg,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -441,10 +433,10 @@ class _MockTestBody extends StatelessWidget {
                   shadowDepth: 4,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   onTap: () => Navigator.pop(ctx),
-                  child: const Center(
+                  child: Center(
                     child: Text(
-                      'TUSHUNARLI',
-                      style: TextStyle(
+                      l.understood,
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,

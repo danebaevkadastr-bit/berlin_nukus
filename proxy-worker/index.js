@@ -8,9 +8,11 @@ import { AwsClient } from "aws4fetch";
  * va hech qanday maxfiy kalit yubormaydi.
  *
  * So'rov turi `X-Proxy-Target` header orqali aniqlanadi:
- *   - "ai"        → AI chat provayderlari (X-Provider: qwen|cerebras|mistral|gemini)
- *   - "onesignal" → OneSignal push bildirishnomalari
- *   - "polly"     → AWS Polly TTS (SigV4 imzolangan presigned URL qaytaradi)
+ *   - "ai"           → AI chat provayderlari (X-Provider: qwen|cerebras|mistral|gemini)
+ *   - "onesignal"    → OneSignal push bildirishnomalari
+ *   - "polly"        → AWS Polly TTS (SigV4 imzolangan presigned URL qaytaradi)
+ *   - "gemini-audio" → Gemini audio baholash (Sprechen): inlineData bilan
+ *                      generateContent. {audioBase64, mimeType, prompt, model?}
  *
  * Worker secretlari (wrangler secret put ... yoki dashboard orqali):
  *   QWEN_API_KEY, CEREBRAS_API_KEY, MISTRAL_API_KEY, GEMINI_API_KEY,
@@ -111,6 +113,8 @@ export default {
           return await handleOneSignal(request, env, cors);
         case "polly":
           return await handlePolly(request, env, cors);
+        case "gemini-audio":
+          return await handleGeminiAudio(request, env, cors);
         default:
           return json({ error: `Noma'lum X-Proxy-Target: ${target}` }, 400, cors);
       }
@@ -162,7 +166,148 @@ async function handleAi(request, env, cors) {
   });
 }
 
-// ─── OneSignal push ───────────────────────────────────────────────────────────
+// ─── Gemini audio baholash (Sprechen) ─────────────────────────────────────────
+// Ilova yozilgan audioni base64 sifatida yuboradi; bu yerda Gemini'ning
+// generateContent endpointiga inlineData bilan murojaat qilamiz. Gemini
+// audioni to'g'ridan-to'g'ri tushunadi (alohida STT kerak emas).
+// Fallback: Gemini limit/xato bo'lsa → Whisper STT + OpenAI GPT baholash.
+async function handleGeminiAudio(request, env, cors) {
+  const apiKey = env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return json({ error: "GEMINI_API_KEY worker secretlarida topilmadi" }, 500, cors);
+  }
+
+  const payload = await request.json();
+  const audioBase64 = payload.audioBase64;
+  const mimeType = payload.mimeType || "audio/mp4";
+  const prompt = payload.prompt || "Bewerte die gesprochene Leistung.";
+  const model = payload.model || env.GEMINI_AUDIO_MODEL || "gemini-2.5-flash";
+
+  if (!audioBase64) {
+    return json({ error: "audioBase64 yo'q" }, 400, cors);
+  }
+
+  // 1) Gemini bilan urinish
+  const url =
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+  const upstream = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            { inlineData: { mimeType: mimeType, data: audioBase64 } },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.3,
+        responseMimeType: "application/json",
+      },
+    }),
+  });
+
+  // Gemini muvaffaqiyatli bo'lsa — qaytaramiz
+  if (upstream.status >= 200 && upstream.status < 300) {
+    const respBody = await upstream.text();
+    return new Response(respBody, {
+      status: upstream.status,
+      headers: { ...cors, "Content-Type": "application/json" },
+    });
+  }
+
+  // 2) Gemini xato berdi — fallback: Groq Whisper STT + Mistral baholash
+  const groqKey = env.GROQ_API_KEY;
+  const mistralKey = env.MISTRAL_API_KEY;
+  if (!groqKey || !mistralKey) {
+    // Fallback kalitlari yo'q — Gemini xatosini qaytaramiz
+    const respBody = await upstream.text();
+    return new Response(respBody, {
+      status: upstream.status,
+      headers: { ...cors, "Content-Type": "application/json" },
+    });
+  }
+
+  try {
+    // 2a) Audio → STT (Groq Whisper — bepul, tez)
+    const audioBuffer = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
+    const ext = mimeType.includes("webm") ? "webm" : mimeType.includes("ogg") ? "ogg" : "m4a";
+    const formData = new FormData();
+    formData.append("file", new Blob([audioBuffer], { type: mimeType }), `audio.${ext}`);
+    formData.append("model", "whisper-large-v3");
+    formData.append("language", "de");
+
+    const sttResp = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${groqKey}` },
+      body: formData,
+    });
+
+    if (!sttResp.ok) {
+      return json({ error: "STT fallback xatosi", status: sttResp.status }, 502, cors);
+    }
+
+    const sttJson = await sttResp.json();
+    const transcript = sttJson.text || "";
+
+    if (!transcript.trim()) {
+      const emptyResult = JSON.stringify({
+        candidates: [{ content: { parts: [{ text: JSON.stringify({
+          score: "0/20",
+          pronunciation: "Audio'da gap aniqlanmadi.",
+          fluency: "Audio bo'sh yoki juda past ovozda.",
+          grammar: "Baholab bo'lmadi.",
+          content: "Hech qanday mazmun topilmadi.",
+          overall: "Audio'da nemischa nutq aniqlanmadi. Qayta yozib ko'ring."
+        })}]}}]
+      });
+      return new Response(emptyResult, { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
+    // 2b) Transkripsiya + prompt → Mistral baholash
+    const mistralPrompt = prompt + `\n\nTRANSCRIPT (vom Lernenden gesprochen):\n"${transcript}"`;
+
+    const mistralResp = await fetch("https://api.mistral.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${mistralKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "mistral-small-latest",
+        temperature: 0.3,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: "Du bist ein TELC-Prüfer. Antworte NUR mit validem JSON." },
+          { role: "user", content: mistralPrompt },
+        ],
+      }),
+    });
+
+    if (!mistralResp.ok) {
+      return json({ error: "Mistral fallback xatosi", status: mistralResp.status }, 502, cors);
+    }
+
+    const mistralJson = await mistralResp.json();
+    const mistralText = mistralJson.choices?.[0]?.message?.content || "{}";
+
+    // Gemini format'ida qaytaramiz (app o'zgarmaydi)
+    const wrappedResult = JSON.stringify({
+      candidates: [{ content: { parts: [{ text: mistralText }] } }]
+    });
+    return new Response(wrappedResult, { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+
+  } catch (e) {
+    return json({ error: "Fallback xatosi: " + (e.message || e) }, 502, cors);
+  }
+}
 async function handleOneSignal(request, env, cors) {
   const apiKey = env.ONESIGNAL_REST_API_KEY;
   if (!apiKey) {

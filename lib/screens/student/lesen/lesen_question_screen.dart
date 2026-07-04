@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../services/student_results_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/gamified_card.dart';
@@ -72,6 +75,16 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
 
   Color get _accentColor => ThemeManager.accent;
   Color get _accentShadow => ThemeManager.accentShadow;
+
+  /// Joriy savol uchun ko'rsatiladigan rasm (Teil 3). Avval testImages,
+  /// bo'lmasa savolning o'z imageUrl'i.
+  String? get _currentImage {
+    final imgs = widget.teil.testImages;
+    if (_isMultiTest && imgs != null && _currentTestIndex < imgs.length) {
+      return imgs[_currentTestIndex];
+    }
+    return _current.imageUrl;
+  }
 
   // ── SharedPreferences keys ────────────────────────────────────────────────
   String _prefKey(int index) =>
@@ -163,7 +176,31 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
     if (_currentIndex < _questions.length - 1) {
       _goToQuestion(_currentIndex + 1);
     } else {
-      Navigator.pop(context);
+      _finishAndSave();
+    }
+  }
+
+  Future<void> _finishAndSave() async {
+    await _saveToFirebase();
+    if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> _saveToFirebase() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return;
+      final correct = _results.where((r) => r == true).length;
+      final total = _questions.length;
+      await StudentResultsService.saveResult(
+        uid: uid,
+        type: 'lesen',
+        title: widget.titleOverride ?? 'Teil ${widget.teil.teilNumber}',
+        level: widget.level,
+        score: correct,
+        total: total,
+      );
+    } catch (e) {
+      debugPrint('Lesen save error: $e');
     }
   }
 
@@ -211,6 +248,7 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      _buildImageCard(isDark, l),
                       _buildTextCard(isDark, l),
                       const SizedBox(height: 16),
                       _buildQuestionCard(isDark, l),
@@ -377,6 +415,106 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
     );
   }
 
+  // ── Reklama rasmi (Teil 3) ─────────────────────────────────────────────
+  /// Joriy savol rasmini ko'rsatadi. Rasm doim ko'rinadi; ustiga bosilsa
+  /// to'liq ekranda ochiladi va yaqinlashtirsa bo'ladi.
+  Widget _buildImageCard(bool isDark, AppLocalizations l) {
+    final url = _currentImage;
+    if (url == null || url.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GamifiedCard(
+        color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+        shadowColor: isDark ? Colors.black26 : _accentShadow,
+        shadowDepth: 5,
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.campaign_rounded, size: 18, color: _accentColor),
+                const SizedBox(width: 8),
+                Text(
+                  l.lesenAnzeige.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+                const Spacer(),
+                Icon(Icons.zoom_in_rounded,
+                    size: 18,
+                    color: isDark ? Colors.white38 : AppColors.duoTextLight),
+              ],
+            ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () => _openImageViewer(url),
+              child: Hero(
+                tag: url,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: url,
+                    fit: BoxFit.fitWidth,
+                    width: double.infinity,
+                    placeholder: (context, _) => Container(
+                      height: 220,
+                      color: isDark ? Colors.white10 : AppColors.duoBackground,
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: _accentColor,
+                      ),
+                    ),
+                    errorWidget: (context, _, __) => Container(
+                      height: 160,
+                      color: isDark ? Colors.white10 : AppColors.duoBackground,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.broken_image_rounded,
+                              size: 36, color: AppColors.duoRed),
+                          const SizedBox(height: 8),
+                          Text(
+                            l.lesenImageError,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.duoRed,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Rasmni to'liq ekranda ochadi (yaqinlashtirib ko'rish uchun).
+  void _openImageViewer(String url) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.black,
+        pageBuilder: (_, __, ___) => _ImageViewer(imageUrl: url),
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+      ),
+    );
+  }
+
   // ── Reading text ─────────────────────────────────────────────────────────
   Widget _buildTextCard(bool isDark, AppLocalizations l) {
     final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
@@ -534,9 +672,85 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
   }
 
   // ── Question + answers ───────────────────────────────────────────────────
+  /// Teil 3 — javoblar bitta harf (a–l, x). Shu holatda ixcham harf-katak
+  /// ko'rinishi ishlatiladi.
+  bool get _isLetterChoice =>
+      _current.options.isNotEmpty &&
+      _current.options.every((o) => o.length == 1);
+
+  /// Teil 3 uchun ixcham harf-katak (a, b, c ... x) tanlovi.
+  Widget _buildLetterGrid(bool isDark) {
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: _current.options.map((option) {
+        final isCorrectOption = option == _current.correctAnswer;
+        final isSelected = _selectedAnswer == option;
+        final isCorrectResult = _answered && isCorrectOption;
+        final isWrongResult = _answered && isSelected && !isCorrectOption;
+
+        Color bg;
+        Color border;
+        Color fg;
+        if (isCorrectResult) {
+          bg = AppColors.duoGreen.withValues(alpha: isDark ? 0.2 : 0.1);
+          border = AppColors.duoGreen;
+          fg = AppColors.duoGreen;
+        } else if (isWrongResult) {
+          bg = AppColors.duoRed.withValues(alpha: isDark ? 0.2 : 0.1);
+          border = AppColors.duoRed;
+          fg = AppColors.duoRed;
+        } else if (isSelected) {
+          bg = _accentColor.withValues(alpha: isDark ? 0.2 : 0.1);
+          border = _accentColor;
+          fg = _accentColor;
+        } else {
+          bg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+          border = isDark ? Colors.white12 : _accentColor.withValues(alpha: 0.25);
+          fg = isDark ? Colors.white : AppColors.duoTextDark;
+        }
+
+        // "x" — mos reklama yo'q
+        final isX = option == 'x';
+
+        return GestureDetector(
+          onTap: _answered ? null : () => _selectAnswer(option),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            width: isX ? null : 48,
+            height: 48,
+            padding: isX
+                ? const EdgeInsets.symmetric(horizontal: 16)
+                : EdgeInsets.zero,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: border, width: 2),
+            ),
+            child: Text(
+              isX ? '✕' : option,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: fg,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildQuestionCard(bool isDark, AppLocalizations l) {
     final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
     final textSecondary = isDark ? Colors.white70 : AppColors.duoTextLight;
+
+    // Faqat rasm bo'lgan savol (Teil 3, savol matni hali yo'q) — savol
+    // kartasini ko'rsatmaymiz.
+    if (_current.prompt.isEmpty && _current.options.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return GamifiedCard(
       color:
@@ -571,7 +785,10 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
             ),
           ],
           const SizedBox(height: 20),
-          ...List.generate(_current.options.length, (i) {
+          if (_isLetterChoice)
+            _buildLetterGrid(isDark)
+          else
+            ...List.generate(_current.options.length, (i) {
             final option = _current.options[i];
             final label = String.fromCharCode(97 + i); // a, b, c ...
             final isCorrectOption = option == _current.correctAnswer;
@@ -746,6 +963,97 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
                     color: Colors.white,
                   ),
                 ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// To'liq ekranli rasm ko'ruvchi — yaqinlashtirish (pinch-zoom), surish va
+/// ikki marta bosib kattalashtirish imkoniyati bilan.
+class _ImageViewer extends StatefulWidget {
+  final String imageUrl;
+
+  const _ImageViewer({required this.imageUrl});
+
+  @override
+  State<_ImageViewer> createState() => _ImageViewerState();
+}
+
+class _ImageViewerState extends State<_ImageViewer> {
+  final TransformationController _controller = TransformationController();
+  TapDownDetails? _doubleTapDetails;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleDoubleTap() {
+    if (_controller.value != Matrix4.identity()) {
+      // Allaqachon kattalashgan — asl holatga qaytaramiz
+      _controller.value = Matrix4.identity();
+    } else {
+      // Bosilgan nuqtaga yaqinlashtiramiz (3x)
+      final pos = _doubleTapDetails?.localPosition;
+      if (pos == null) return;
+      const scale = 3.0;
+      final x = -pos.dx * (scale - 1);
+      final y = -pos.dy * (scale - 1);
+      _controller.value = Matrix4.identity()
+        ..setEntry(0, 0, scale)
+        ..setEntry(1, 1, scale)
+        ..setEntry(0, 3, x)
+        ..setEntry(1, 3, y);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          GestureDetector(
+            onDoubleTapDown: (d) => _doubleTapDetails = d,
+            onDoubleTap: _handleDoubleTap,
+            child: InteractiveViewer(
+              transformationController: _controller,
+              minScale: 1.0,
+              maxScale: 5.0,
+              child: Center(
+                child: Hero(
+                  tag: widget.imageUrl,
+                  child: CachedNetworkImage(
+                    imageUrl: widget.imageUrl,
+                    fit: BoxFit.contain,
+                    placeholder: (context, _) => const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                    errorWidget: (context, _, __) => const Icon(
+                      Icons.broken_image_rounded,
+                      color: Colors.white54,
+                      size: 60,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Yopish tugmasi
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 12,
+            child: Material(
+              color: Colors.black54,
+              shape: const CircleBorder(),
+              child: IconButton(
+                icon: const Icon(Icons.close_rounded, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ),
           ),

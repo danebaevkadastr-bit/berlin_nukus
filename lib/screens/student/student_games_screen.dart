@@ -9,6 +9,7 @@ import '../../utils/group_check_helper.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/game_stars_service.dart';
 import '../../services/haptic_service.dart';
+import '../../widgets/bn_tiyin.dart';
 import 'games/der_die_das_rules_screen.dart';
 import 'games/strange_sentences_rules_screen.dart';
 import 'games/story_game_screen.dart';
@@ -134,7 +135,19 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('🚧', style: TextStyle(fontSize: 48)),
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: AppColors.duoOrange.withValues(alpha: isDark ? 0.2 : 0.14),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.construction_rounded,
+                  size: 38,
+                  color: AppColors.duoOrange,
+                ),
+              ),
               const SizedBox(height: 12),
               Text(
                 l.gameComingSoonTitle,
@@ -213,7 +226,7 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('⭐', style: TextStyle(fontSize: 20)),
+                const BnTiyin(size: 22),
                 const SizedBox(width: 4),
                 Text(
                   _loadingStars ? '...' : _formatStars(_totalStars),
@@ -250,7 +263,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                     const SizedBox(height: 16),
 
                     _buildGameCard(
-                      icon: '📝',
+                      icon: Icons.quiz_rounded,
+                      iconColor: AppColors.duoBlue,
                       title: l.gameGrammarTitle,
                       subtitle: l.grammarQuiz,
                       onTap: _openGrammarGame,
@@ -258,7 +272,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                     const SizedBox(height: 14),
 
                     _buildGameCard(
-                      icon: '📘',
+                      icon: Icons.article_rounded,
+                      iconColor: AppColors.duoPurple,
                       title: l.gameDerDieDasTitle,
                       subtitle: l.articleSpeedGame,
                       onTap: _openDerDieDasGame,
@@ -266,7 +281,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                     const SizedBox(height: 14),
 
                     _buildGameCard(
-                      icon: '🎭',
+                      icon: Icons.theater_comedy_rounded,
+                      iconColor: AppColors.duoOrange,
                       title: l.strangeSentencesGame,
                       subtitle: l.strangeSentencesDesc,
                       onTap: _openStrangeSentencesGame,
@@ -274,7 +290,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                     const SizedBox(height: 14),
 
                     _buildGameCard(
-                      icon: '📖',
+                      icon: Icons.auto_stories_rounded,
+                      iconColor: AppColors.duoGreen,
                       title: l.germanStoryGame,
                       subtitle: l.germanStoryDesc,
                       onTap: _openStoryGame,
@@ -282,7 +299,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                     const SizedBox(height: 14),
 
                     _buildGameCard(
-                      icon: '🔄',
+                      icon: Icons.sync_alt_rounded,
+                      iconColor: AppColors.duoRed,
                       title: l.gameSynonymBattleTitle,
                       subtitle: l.synonymBattle,
                       onTap: _openSynonymBattleGame,
@@ -290,7 +308,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                     const SizedBox(height: 14),
 
                     _buildGameCard(
-                      icon: '🎤',
+                      icon: Icons.mic_rounded,
+                      iconColor: AppColors.duoBlue,
                       title: l.gameVoiceTitle,
                       subtitle: l.pronunciationAndListening,
                       onTap: _showComingSoonDialog,
@@ -299,7 +318,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
                     const SizedBox(height: 14),
 
                     _buildGameCard(
-                      icon: '⚔️',
+                      icon: Icons.sports_kabaddi_rounded,
+                      iconColor: AppColors.duoOrange,
                       title: l.gameTranslationBattleTitle,
                       subtitle: l.translationBattle,
                       onTap: _showComingSoonDialog,
@@ -318,7 +338,8 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
   }
 
   Widget _buildGameCard({
-    required String icon,
+    required IconData icon,
+    required Color iconColor,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
@@ -341,27 +362,30 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      title.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.3,
-                        height: 1.15,
-                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                    Flexible(
+                      child: Text(
+                        title.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.3,
+                          height: 1.15,
+                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                        ),
                       ),
                     ),
                     if (isComingSoon) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: AppColors.duoOrange.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text(
-                          '🚧',
-                          style: TextStyle(fontSize: 12),
+                        child: const Icon(
+                          Icons.construction_rounded,
+                          size: 16,
+                          color: AppColors.duoOrange,
                         ),
                       ),
                     ],
@@ -381,7 +405,15 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Text(icon, style: const TextStyle(fontSize: 40)),
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: isDark ? 0.22 : 0.14),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, size: 30, color: iconColor),
+          ),
         ],
       ),
     );

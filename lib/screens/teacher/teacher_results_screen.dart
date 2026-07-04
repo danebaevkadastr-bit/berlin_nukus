@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../../core/providers/user_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/darslar_service.dart';
+import '../../services/mock_test_history_service.dart';
+import '../../services/student_results_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../utils/user_profile_utils.dart';
@@ -251,7 +253,7 @@ class _CoursesList extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${c.groupCount} ${l.groups.toLowerCase()} · ${c.submissionCount} ${l.task}',
+                        '${c.groupCount} ${l.groups.toLowerCase()}',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -345,7 +347,6 @@ class _GroupsList extends StatelessWidget {
         final g = groups[i - 1];
         final name = g['name'] as String? ?? l.groups;
         final students = List<String>.from(g['students'] ?? []);
-        final subs = _CoursesList._countSubmissions(g);
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 14),
@@ -380,7 +381,7 @@ class _GroupsList extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${students.length} ${l.student} · $subs ${l.task}',
+                        '${students.length} ${l.student}',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -410,72 +411,18 @@ class _StudentsResultsList extends StatelessWidget {
     required this.isDark,
   });
 
-  String _fmtDateKey(String dateKey) {
-    final parts = dateKey.split('-');
-    if (parts.length == 3) {
-      return '${parts[2]}.${parts[1]}.${parts[0]}';
-    }
-    return dateKey;
-  }
-
-  List<_StudentResultBundle> _buildBundles() {
-    final studentIds = List<String>.from(groupData['students'] ?? []);
-    final lessons = groupData['lessons'] as Map<String, dynamic>? ?? {};
-    final byStudent = <String, List<_SubmissionEntry>>{
-      for (final id in studentIds) id: [],
-    };
-
-    final sortedDates = lessons.keys.toList()..sort((a, b) => b.compareTo(a));
-
-    for (final dateKey in sortedDates) {
-      final lesson = lessons[dateKey];
-      if (lesson is! Map<String, dynamic>) continue;
-      final subs = lesson['homeworkSubmissions'] as Map<String, dynamic>? ?? {};
-      final homeworks = List<dynamic>.from(lesson['homeworks'] ?? []);
-      final lessonType = lesson['lessonType'] as String? ?? 'Dars';
-
-      subs.forEach((studentId, raw) {
-        if (raw is! Map<String, dynamic>) return;
-        if (raw['submitted'] != true) return;
-        if (!byStudent.containsKey(studentId)) {
-          byStudent[studentId] = [];
-        }
-        byStudent[studentId]!.add(
-          _SubmissionEntry(
-            dateKey: dateKey,
-            lessonType: lessonType,
-            homeworks: homeworks,
-            submission: raw,
-          ),
-        );
-      });
-    }
-
-    return studentIds
-        .map((id) => _StudentResultBundle(
-              studentId: id,
-              entries: byStudent[id] ?? [],
-            ))
-        .where((b) => b.entries.isNotEmpty)
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final groupId = groupData['id'] as String? ?? '';
-    final bundles = _buildBundles();
+    final studentIds = List<String>.from(groupData['students'] ?? []);
+    final l = AppLocalizations.of(context);
 
-    if (bundles.isEmpty) {
+    if (studentIds.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            AppLocalizations.of(context).noHomeworkSubmittedYet,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white54 : AppColors.duoTextLight,
-            ),
+        child: Text(
+          l.noStudentsInGroup,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white54 : AppColors.duoTextLight,
           ),
         ),
       );
@@ -483,26 +430,60 @@ class _StudentsResultsList extends StatelessWidget {
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 110),
-      itemCount: bundles.length,
+      itemCount: studentIds.length,
       itemBuilder: (context, index) {
-        final bundle = bundles[index];
-        return _StudentResultCard(
-          studentId: bundle.studentId,
-          groupId: groupId,
-          entries: bundle.entries,
-          isDark: isDark,
-          fmtDate: _fmtDateKey,
+        final studentId = studentIds[index];
+        return FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance.collection('users').doc(studentId).get(),
+          builder: (context, userSnap) {
+            final uData = userSnap.data?.data() as Map<String, dynamic>? ?? {};
+            final name = UserProfileUtils.displayName(uData, fallback: l.student);
+            final avatar = UserProfileUtils.avatarUrl(uData);
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: GamifiedCard(
+                padding: const EdgeInsets.all(16),
+                color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => _StudentDetailResults(
+                        studentId: studentId,
+                        studentName: name,
+                        groupData: groupData,
+                        isDark: isDark,
+                      ),
+                    ),
+                  );
+                },
+                child: Row(
+                  children: [
+                    UserAvatar(imageUrl: avatar, size: 44, fallbackEmoji: '🧑‍🎓'),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.chevron_right_rounded,
+                        color: isDark ? Colors.white38 : AppColors.duoTextLight),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );
   }
-}
-
-class _StudentResultBundle {
-  final String studentId;
-  final List<_SubmissionEntry> entries;
-
-  _StudentResultBundle({required this.studentId, required this.entries});
 }
 
 class _SubmissionEntry {
@@ -519,94 +500,311 @@ class _SubmissionEntry {
   });
 }
 
-class _StudentResultCard extends StatelessWidget {
+// ─────────────────────────────────────────────────────────────────────────────
+// Talaba natijasi ekrani (gorizontal tablar: Uyga vazifa / Lesen / Hören / Mock test)
+// ─────────────────────────────────────────────────────────────────────────────
+class _StudentDetailResults extends StatelessWidget {
   final String studentId;
-  final String groupId;
-  final List<_SubmissionEntry> entries;
+  final String studentName;
+  final Map<String, dynamic> groupData;
   final bool isDark;
-  final String Function(String) fmtDate;
 
-  const _StudentResultCard({
+  const _StudentDetailResults({
     required this.studentId,
-    required this.groupId,
-    required this.entries,
+    required this.studentName,
+    required this.groupData,
     required this.isDark,
-    required this.fmtDate,
   });
+
+  String _fmtDateKey(String dateKey) {
+    final parts = dateKey.split('-');
+    if (parts.length == 3) return '${parts[2]}.${parts[1]}.${parts[0]}';
+    return dateKey;
+  }
+
+  List<_SubmissionEntry> _getHomeworkEntries() {
+    final lessons = groupData['lessons'] as Map<String, dynamic>? ?? {};
+    final entries = <_SubmissionEntry>[];
+    final sortedDates = lessons.keys.toList()..sort((a, b) => b.compareTo(a));
+
+    for (final dateKey in sortedDates) {
+      final lesson = lessons[dateKey];
+      if (lesson is! Map<String, dynamic>) continue;
+      final subs = lesson['homeworkSubmissions'] as Map<String, dynamic>? ?? {};
+      final homeworks = List<dynamic>.from(lesson['homeworks'] ?? []);
+      final lessonType = lesson['lessonType'] as String? ?? 'Dars';
+
+      final raw = subs[studentId];
+      if (raw is! Map<String, dynamic>) continue;
+      if (raw['submitted'] != true) continue;
+
+      entries.add(_SubmissionEntry(
+        dateKey: dateKey,
+        lessonType: lessonType,
+        homeworks: homeworks,
+        submission: raw,
+      ));
+    }
+    return entries;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('users').doc(studentId).get(),
-      builder: (context, userSnap) {
-        final uData = userSnap.data?.data() as Map<String, dynamic>? ?? {};
-        final l = AppLocalizations.of(context);
-        final name = UserProfileUtils.displayName(uData, fallback: l.student);
-        final phone = UserProfileUtils.phone(uData);
-        final avatar = UserProfileUtils.avatarUrl(uData);
+    final l = AppLocalizations.of(context);
+    final groupId = groupData['id'] as String? ?? '';
+    final homeworkEntries = _getHomeworkEntries();
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: GamifiedCard(
-            padding: const EdgeInsets.all(16),
-            color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
-            shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    UserAvatar(
-                      imageUrl: avatar,
-                      size: 48,
-                      fallbackEmoji: '🧑‍🎓',
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : AppColors.duoTextDark,
-                            ),
-                          ),
-                          if (phone.isNotEmpty)
-                            Text(
-                              phone,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white54 : AppColors.duoTextLight,
-                              ),
-                            ),
-                          Text(
-                            '${entries.length} ta ${l.task}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.duoGreen,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ...entries.map((e) => _SubmissionTile(
-                      entry: e,
-                      groupId: groupId,
-                      studentId: studentId,
-                      isDark: isDark,
-                      fmtDate: fmtDate,
-                    )),
-              ],
+    final tabs = <_ResultTab>[
+      _ResultTab(label: l.homeworkDefault, icon: Icons.assignment_rounded),
+      _ResultTab(label: 'Lesen', icon: Icons.menu_book_rounded),
+      _ResultTab(label: 'Hören', icon: Icons.headphones_rounded),
+      _ResultTab(label: 'Mock Test', icon: Icons.fact_check_rounded),
+    ];
+
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_rounded,
+                color: isDark ? Colors.white : AppColors.duoTextDark, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(
+            studentName,
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+              color: isDark ? Colors.white : AppColors.duoTextDark,
             ),
           ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(48),
+            child: Container(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                indicatorColor: AppColors.duoBlue,
+                indicatorWeight: 3,
+                labelColor: isDark ? Colors.white : AppColors.duoTextDark,
+                unselectedLabelColor: isDark ? Colors.white54 : AppColors.duoTextLight,
+                labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                tabs: tabs.map((t) => Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(t.icon, size: 16),
+                      const SizedBox(width: 6),
+                      Text(t.label),
+                    ],
+                  ),
+                )).toList(),
+              ),
+            ),
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            // Uyga vazifa
+            homeworkEntries.isEmpty
+                ? _emptyTab(l.noHomeworkSubmittedYet)
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+                    itemCount: homeworkEntries.length,
+                    itemBuilder: (context, i) {
+                      final e = homeworkEntries[i];
+                      return _SubmissionTile(
+                        entry: e,
+                        groupId: groupId,
+                        studentId: studentId,
+                        isDark: isDark,
+                        fmtDate: _fmtDateKey,
+                      );
+                    },
+                  ),
+            // Lesen
+            _ResultsFromFirebase(studentId: studentId, type: 'lesen', isDark: isDark),
+            // Hören
+            _ResultsFromFirebase(studentId: studentId, type: 'horen', isDark: isDark),
+            // Mock Test
+            _ResultsFromFirebase(studentId: studentId, type: 'mock_test', isDark: isDark),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _emptyTab(String msg) {
+    return Center(
+      child: Text(
+        msg,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          color: isDark ? Colors.white54 : AppColors.duoTextLight,
+        ),
+      ),
+    );
+  }
+}
+
+class _ResultTab {
+  final String label;
+  final IconData icon;
+  const _ResultTab({required this.label, required this.icon});
+}
+
+/// Firebase'dan Lesen/Hören/Mock Test natijalarini ko'rsatuvchi widget.
+class _ResultsFromFirebase extends StatelessWidget {
+  final String studentId;
+  final String type;
+  final bool isDark;
+
+  const _ResultsFromFirebase({
+    required this.studentId,
+    required this.type,
+    required this.isDark,
+  });
+
+  String _emptyMsg() {
+    switch (type) {
+      case 'lesen':
+        return 'Bu talaba hali Lesen testini topshirmagan';
+      case 'horen':
+        return 'Bu talaba hali Hören testini topshirmagan';
+      case 'mock_test':
+        return 'Bu talaba hali Mock test topshirmagan';
+      default:
+        return 'Natijalar topilmadi';
+    }
+  }
+
+  String _fmtTimestamp(dynamic ts) {    if (ts is Timestamp) {
+      final d = ts.toDate();
+      return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+    }
+    return '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final stream = type == 'mock_test'
+        ? MockTestHistoryService.stream(uid: studentId)
+        : StudentResultsService.resultsStream(studentId, type: type);
+
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.duoBlue),
+          );
+        }
+        final results = snapshot.data ?? [];
+        if (results.isEmpty) {
+          return Center(
+            child: Text(
+              _emptyMsg(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white54 : AppColors.duoTextLight,
+              ),
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+          itemCount: results.length,
+          itemBuilder: (context, i) {
+            final r = results[i];
+            final title = r['title'] as String? ?? (type == 'mock_test' ? 'Mock Test B1' : '');
+            final level = r['level'] as String? ?? '';
+            // Mock test history'da field nomlari boshqacha
+            final score = (r['score'] as num?)?.toInt()
+                ?? (r['totalPoints'] as num?)?.toInt() ?? 0;
+            final total = (r['total'] as num?)?.toInt()
+                ?? (r['totalMax'] as num?)?.toInt() ?? 0;
+            final percentage = (r['percentage'] as num?)?.toInt()
+                ?? (total > 0 ? (score / total * 100).round() : 0);
+            final date = _fmtTimestamp(r['date']);
+
+            Color scoreColor;
+            if (percentage >= 80) {
+              scoreColor = AppColors.duoGreen;
+            } else if (percentage >= 60) {
+              scoreColor = AppColors.duoOrange;
+            } else {
+              scoreColor = AppColors.duoRed;
+            }
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+                ),
+              ),
+              child: Row(
+                children: [
+                  // Score circle
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: scoreColor.withValues(alpha: 0.15),
+                      border: Border.all(color: scoreColor, width: 2.5),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '$percentage%',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: scoreColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$title${level.isNotEmpty ? ' ($level)' : ''}',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? Colors.white : AppColors.duoTextDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$score / $total${date.isNotEmpty ? '  ·  $date' : ''}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

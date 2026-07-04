@@ -211,8 +211,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       color: AppColors.duoBlue.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const Center(
-                      child: Text('🦉', style: TextStyle(fontSize: 54)),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: Image.asset(
+                        'assets/icons/logo.png',
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),

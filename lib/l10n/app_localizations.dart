@@ -183,16 +183,16 @@ class AppLocalizations {
   });
   String get close => _t({'uz': "Yopish", 'kaa': "Jabıw", 'ru': "Закрыть", 'de': "Schließen"});
   String get lastUpdate => _t({
-    'uz': "So'ngi yangilanish: 2026",
-    'kaa': "Aqırǵı jańalanıw: 2026",
-    'ru': "Последнее обновление: 2026",
-    'de': "Letztes Update: 2026",
+    'uz': "So'ngi yangilanish: 2026.07.01",
+    'kaa': "Aqırǵı jańalanıw: 2026.07.01",
+    'ru': "Последнее обновление: 2026.07.01",
+    'de': "Letztes Update: 2026.07.01",
   });
   String get developer => _t({
-    'uz': "Dasturchi: Berlin-Nukus Team",
-    'kaa': "Programmer: Berlin-Nukus Team",
-    'ru': "Разработчик: Berlin-Nukus Team",
-    'de': "Entwickler: Berlin-Nukus Team",
+    'uz': "Dasturchi: Berlin-Nukus, Musa",
+    'kaa': "Programmer: Berlin-Nukus, Musa",
+    'ru': "Разработчик: Berlin-Nukus, Musa",
+    'de': "Entwickler: Berlin-Nukus, Musa",
   });
 
   // ── Home (Student) ─────────────────────────────────────────────────────────
@@ -350,8 +350,8 @@ class AppLocalizations {
     'de': "Ausstehend",
   });
   String get myResults => _t({
-    'uz': "Natijalarim",
-    'kaa': "Natiyjelerim",
+    'uz': "Natijalar",
+    'kaa': "Nátiyjeler",
     'ru': "Мои результаты",
     'de': "Meine Ergebnisse",
   });
@@ -627,6 +627,18 @@ class AppLocalizations {
     'kaa': "Grammatika viktorinası",
     'ru': "Грамматическая викторина",
     'de': "Grammatik-Quiz",
+  });
+  String get grammarGameSelectLevel => _t({
+    'uz': "Darajangizni tanlang va boshlang",
+    'kaa': "Dárejańizdi tańlań hám basłań",
+    'ru': "Выберите уровень и начните",
+    'de': "Wählen Sie Ihr Niveau und starten Sie",
+  });
+  String get grammarGameLoading => _t({
+    'uz': "Savollar tayyorlanmoqda...",
+    'kaa': "Sorawlar tayarlanmaqda...",
+    'ru': "Вопросы готовятся...",
+    'de': "Fragen werden vorbereitet...",
   });
   String get gameDerDieDasTitle => _t({
     'uz': "Der, die, das",
@@ -2134,7 +2146,7 @@ class AppLocalizations {
   });
   String get translationHint => _t({
     'uz': "Masalan: der Tisch, gehen, das Haus...",
-    'kaa': "Mysal: der Tisch, gehen, das Haus...",
+    'kaa': "Maselen: der Tisch, gehen, das Haus...",
     'ru': "Например: der Tisch, gehen, das Haus...",
     'de': "z.B.: der Tisch, gehen, das Haus...",
   });
@@ -2541,7 +2553,7 @@ class AppLocalizations {
   String groupStudentsTitle(String groupName) {
     final template = _t({
       'uz': '{name} — STUDENTLAR',
-      'kaa': '{name} — STUDENTLAR',
+      'kaa': '{name} — STUDENTLER',
       'ru': '{name} — УЧЕНИКИ',
       'de': '{name} — SCHÜLER',
     });
@@ -2894,7 +2906,7 @@ class AppLocalizations {
   }
   String get freeChatPickTopic => _t({
     'uz': "O'zingiz xohlagan mavzuda suhbatlashing",
-    'kaa': "Ózińiz xohlagan máwzuda sóylesiń",
+    'kaa': "Ózińiz qálegen temada sóylesiń",
     'ru': "Общайтесь на любую тему",
     'de': "Sprechen Sie über jedes Thema",
   });
@@ -2929,13 +2941,12 @@ class AppLocalizations {
     'de': "Tägliche Kommunikation",
   });
   String freeChatTitle(String level, String goal) {
-    final template = _t({
-      'uz': 'Erkin suhbat ({level} - {goal})',
-      'kaa': 'Erkin sóylesiw ({level} - {goal})',
-      'ru': 'Свободный чат ({level} - {goal})',
-      'de': 'Freies Gespräch ({level} - {goal})',
+    return _t({
+      'uz': 'Erkin suhbat',
+      'kaa': 'Erkin sóylesiw',
+      'ru': 'Свободный чат',
+      'de': 'Freies Gespräch',
     });
-    return template.replaceAll('{level}', level).replaceAll('{goal}', goal);
   }
 
   // ── Games ──────────────────────────────────────────────────────────────────
@@ -3434,6 +3445,67 @@ class AppLocalizations {
   String get lesenNextQuestion => _t({'uz': "Keyingi savol", 'kaa': "Keyingi soraw", 'ru': "Следующий вопрос", 'de': "Nächste Frage"});
   String get lesenFinish => _t({'uz': "Yakunlash", 'kaa': "Juwmaqlaw", 'ru': "Завершить", 'de': "Beenden"});
   String get lesenBack => _t({'uz': "Orqaga", 'kaa': "Artqa", 'ru': "Назад", 'de': "Zurück"});
+  String get lesenAnzeige => _t({'uz': "Reklama", 'kaa': "Reklama", 'ru': "Объявление", 'de': "Anzeige"});
+
+  // ── Sprechen (og'zaki nutq) ──────────────────────────────────────────────────
+  String get sprechenScreenTitle => _t({'uz': "Sprechen", 'kaa': "Sprechen", 'ru': "Sprechen", 'de': "Sprechen"});
+  String get sprechenSelectLevel => _t({'uz': "Daraja tanlang", 'kaa': "Dárejeni tańlań", 'ru': "Выберите уровень", 'de': "Niveau wählen"});
+  String get sprechenComingSoon => _t({'uz': "Tez kunda", 'kaa': "Tez arada", 'ru': "Скоро", 'de': "Demnächst"});
+  String get sprechenExercises => _t({'uz': "Gapirish mashqlari", 'kaa': "Sóylew mashqları", 'ru': "Упражнения по говорению", 'de': "Sprechübungen"});
+  String get sprechenTasks => _t({'uz': "topshiriq", 'kaa': "tapsırma", 'ru': "заданий", 'de': "Aufgaben"});
+  String get sprechenKeywords => _t({'uz': "Kalit so'zlar", 'kaa': "Gilt sózler", 'ru': "Ключевые слова", 'de': "Stichwörter"});
+  String get sprechenCandidate => _t({'uz': "Nomzod", 'kaa': "Kandidat", 'ru': "Кандидат", 'de': "Kandidat/in"});
+  String get sprechenTest => _t({'uz': "Test", 'kaa': "Test", 'ru': "Тест", 'de': "Test"});
+  String get sprechenExamples => _t({'uz': "Foydali iboralar", 'kaa': "Paydalı sózler", 'ru': "Полезные фразы", 'de': "Redemittel"});
+  String get sprechenSampleAnswer => _t({'uz': "Namuna javob (bosing)", 'kaa': "Úlgi juwap (basıń)", 'ru': "Образец ответа (нажмите)", 'de': "Musterlösung (tippen)"});
+
+  // ── Sprechen Teil 3: AI bilan reja qurish ─────────────────────────────────
+  String get sprechenPlanWithAi => _t({'uz': "AI bilan mashq qilish", 'kaa': "JI menen mashq qılıw", 'ru': "Практика с ИИ", 'de': "Mit KI üben"});
+  String get sprechenPlanWithAiHint => _t({'uz': "AI hamkor bilan birgalikda reja quring", 'kaa': "JI penen birgelikte reje qurıń", 'ru': "Составьте план вместе с ИИ-партнёром", 'de': "Planen Sie gemeinsam mit dem KI-Partner"});
+
+  // ── Sprechen audio yozish (recording) ────────────────────────────────────
+  String get sprechenRecord => _t({'uz': "Yozish", 'kaa': "Jazıw", 'ru': "Записать", 'de': "Aufnehmen"});
+  String get sprechenStop => _t({'uz': "To'xtatish", 'kaa': "Toqtatıw", 'ru': "Остановить", 'de': "Stopp"});
+  String get sprechenReRecord => _t({'uz': "Qayta yozish", 'kaa': "Qayta jazıw", 'ru': "Перезаписать", 'de': "Neu aufnehmen"});
+  String get sprechenPlay => _t({'uz': "Tinglash", 'kaa': "Tıńlaw", 'ru': "Прослушать", 'de': "Abspielen"});
+  String get sprechenPause => _t({'uz': "Pauza", 'kaa': "Pauza", 'ru': "Пауза", 'de': "Pause"});
+  String get sprechenSubmit => _t({'uz': "Baholashga yuborish", 'kaa': "Bahalawǵa jiberiw", 'ru': "Отправить на оценку", 'de': "Zur Bewertung senden"});
+  String get sprechenEvaluating => _t({'uz': "Baholanyapti...", 'kaa': "Bahalanıp atır...", 'ru': "Оценивается...", 'de': "Wird bewertet..."});
+  String get sprechenRecordingStatus => _t({'uz': "Yozilyapti...", 'kaa': "Jazılıp atır...", 'ru': "Идёт запись...", 'de': "Aufnahme läuft..."});
+  String get sprechenMaxLengthReached => _t({'uz': "Maksimal vaqt (4 daqiqa) tugadi.", 'kaa': "Maksimal waqıt (4 minut) tamam boldı.", 'ru': "Достигнут лимит (4 минуты).", 'de': "Maximale Länge (4 Minuten) erreicht."});
+  String get sprechenMicPermissionDenied => _t({'uz': "Yozish uchun mikrofon ruxsati kerak.", 'kaa': "Jazıw ushın mikrofon ruxsatı kerek.", 'ru': "Для записи нужен доступ к микрофону.", 'de': "Für die Aufnahme wird Mikrofonzugriff benötigt."});
+  String get sprechenMicPermissionSettings => _t({'uz': "Mikrofon ruxsati o'chirilgan. Sozlamalardan yoqing.", 'kaa': "Mikrofon ruxsatı óshirilgen. Sazlawlardan qosıń.", 'ru': "Доступ к микрофону отключён. Включите в настройках.", 'de': "Mikrofonzugriff ist deaktiviert. In den Einstellungen aktivieren."});
+  String get sprechenOpenSettings => _t({'uz': "Sozlamalarni ochish", 'kaa': "Sazlawlardı ashıw", 'ru': "Открыть настройки", 'de': "Einstellungen öffnen"});
+  String get sprechenRecordingUnavailable => _t({'uz': "Bu qurilmada audio yozish mavjud emas.", 'kaa': "Bul qurılmada audio jazıw joq.", 'ru': "Запись аудио недоступна на этом устройстве.", 'de': "Audioaufnahme ist auf diesem Gerät nicht verfügbar."});
+  String get sprechenRecordingError => _t({'uz': "Yozishni boshlab bo'lmadi. Qayta urinib ko'ring.", 'kaa': "Jazıwdı baslap bolmadı. Qayta urınıp kóriń.", 'ru': "Не удалось начать запись. Попробуйте снова.", 'de': "Aufnahme konnte nicht gestartet werden. Bitte erneut versuchen."});
+  String get sprechenUploadError => _t({'uz': "Yuborib bo'lmadi. Internetni tekshiring.", 'kaa': "Jiberip bolmadı. Internetti tekseriń.", 'ru': "Не удалось отправить. Проверьте интернет.", 'de': "Senden fehlgeschlagen. Internetverbindung prüfen."});
+  String get sprechenEvaluationError => _t({'uz': "Baholab bo'lmadi. Qayta urinib ko'ring.", 'kaa': "Bahalap bolmadı. Qayta urınıp kóriń.", 'ru': "Не удалось оценить. Попробуйте снова.", 'de': "Bewertung fehlgeschlagen. Bitte erneut versuchen."});
+  String get sprechenTimeoutError => _t({'uz': "Javob kelmadi. Qayta urinib ko'ring.", 'kaa': "Juwap kelmedi. Qayta urınıp kóriń.", 'ru': "Нет ответа. Попробуйте снова.", 'de': "Keine Antwort. Bitte erneut versuchen."});
+  String get sprechenRetry => _t({'uz': "Qayta urinish", 'kaa': "Qayta urınıw", 'ru': "Повторить", 'de': "Erneut versuchen"});
+  String get sprechenFeedbackTitle => _t({'uz': "AI bahosi", 'kaa': "AI bahası", 'ru': "Оценка ИИ", 'de': "KI-Bewertung"});
+  String get sprechenScore => _t({'uz': "Ball", 'kaa': "Ball", 'ru': "Балл", 'de': "Punktzahl"});
+  String get sprechenPronunciation => _t({'uz': "Talaffuz", 'kaa': "Talaffuz", 'ru': "Произношение", 'de': "Aussprache"});
+  String get sprechenFluency => _t({'uz': "Ravonlik", 'kaa': "Rawanlıq", 'ru': "Беглость", 'de': "Flüssigkeit"});
+  String get sprechenGrammar => _t({'uz': "Grammatika", 'kaa': "Grammatika", 'ru': "Грамматика", 'de': "Grammatik"});
+  String get sprechenContent => _t({'uz': "Mazmun", 'kaa': "Mazmun", 'ru': "Содержание", 'de': "Inhalt"});
+  String get sprechenOverall => _t({'uz': "Umumiy", 'kaa': "Ulıwma", 'ru': "Итог", 'de': "Gesamt"});
+  String get sprechenMockSubmitted => _t({
+    'uz': "Javobingiz qabul qilindi. Baho test yakunida ko'rinadi.",
+    'kaa': "Juwabıńız qabıl etildi. Baha test juwmaǵında kórinedi.",
+    'ru': "Ваш ответ принят. Оценка появится в конце теста.",
+    'de': "Ihre Antwort wurde erfasst. Die Bewertung erscheint am Ende des Tests.",
+  });
+  String get sprechenHint => _t({
+    'uz': "Bu bo'lim o'z-o'zini baholash uchun. Topshiriqni o'qing va ovoz chiqarib gapirib mashq qiling.",
+    'kaa': "Bul bólim óz-ózin bahalaw ushın. Tapsırmanı oqıń hám dawıslap sóylep mashıq qılıń.",
+    'ru': "Этот раздел для самостоятельной практики. Прочитайте задание и тренируйтесь говорить вслух.",
+    'de': "Dieser Bereich dient der Selbstübung. Lesen Sie die Aufgabe und üben Sie laut zu sprechen.",
+  });
+  String get sprechenA1LevelName => _t({'uz': "Boshlang'ich", 'kaa': "Baslawısh", 'ru': "Начальный", 'de': "Anfänger"});
+  String get sprechenA2LevelName => _t({'uz': "Elementar", 'kaa': "Elementar", 'ru': "Элементарный", 'de': "Grundlegend"});
+  String get sprechenB1LevelName => _t({'uz': "O'rta", 'kaa': "Orta", 'ru': "Средний", 'de': "Mittelstufe"});
+  String get sprechenB2LevelName => _t({'uz': "O'rta-yuqori", 'kaa': "Orta-joqarı", 'ru': "Выше среднего", 'de': "Gute Mittelstufe"});
+  String get lesenImageError => _t({'uz': "Rasm yuklanmadi", 'kaa': "Súwret júklenbedi", 'ru': "Изображение не загрузилось", 'de': "Bild konnte nicht geladen werden"});
   // ── Lesen B1 (TELC) ────────────────────────────────────────────────────────
   String get lesenB1Teil1Title => _t({'uz': "Teil 1 – Sarlavhalar", 'kaa': "Teil 1 – Atamalar", 'ru': "Teil 1 – Заголовки", 'de': "Teil 1 – Überschriften"});
   String get lesenB1Teil1Desc => _t({'uz': "Qisqa matnni o'qing va unga mos sarlavhani tanlang (Globalverstehen).", 'kaa': "Qısqa tekstti oqıń hám oǵan say atamanı tańlań (Globalverstehen).", 'ru': "Прочитайте короткий текст и выберите подходящий заголовок (Globalverstehen).", 'de': "Lesen Sie den kurzen Text und wählen Sie die passende Überschrift (Globalverstehen)."});
@@ -3580,6 +3652,542 @@ class AppLocalizations {
     'kaa': "Bul filtrdegi sabaqlar joq",
     'ru': "Нет уроков в этом фильтре",
     'de': "Keine Stunden in diesem Filter",
+  });
+
+  // ── Mock Test (B1) — runner ─────────────────────────────────────────────────
+  String get mockNextTeil => _t({
+    'uz': "Keyingi",
+    'kaa': "Keyingi",
+    'ru': "Далее",
+    'de': "Weiter",
+  });
+  String get mockPreviousTeil => _t({
+    'uz': "Oldingi",
+    'kaa': "Aldıńǵı",
+    'ru': "Назад",
+    'de': "Zurück",
+  });
+  String get mockFinishTest => _t({
+    'uz': "Yakunlash",
+    'kaa': "Juwmaqlaw",
+    'ru': "Завершить",
+    'de': "Abschließen",
+  });
+  String get mockExitTitle => _t({
+    'uz': "Testdan chiqasizmi?",
+    'kaa': "Testten shıǵasızba?",
+    'ru': "Выйти из теста?",
+    'de': "Test verlassen?",
+  });
+  String get mockExitMessage => _t({
+    'uz': "Agar chiqsangiz, joriy urinish bekor qilinadi va javoblaringiz saqlanmaydi.",
+    'kaa': "Eger shıqsańız, házirgi urınıs biykarlanadı hám juwaplarıńız saqlanbaydı.",
+    'ru': "Если вы выйдете, текущая попытка будет отменена, а ваши ответы не сохранятся.",
+    'de': "Wenn Sie den Test verlassen, wird der aktuelle Versuch verworfen und Ihre Antworten gehen verloren.",
+  });
+  String get mockExitStay => _t({
+    'uz': "Davom etish",
+    'kaa': "Dawam etiw",
+    'ru': "Продолжить",
+    'de': "Fortfahren",
+  });
+  String get mockExitLeave => _t({
+    'uz': "Chiqish",
+    'kaa': "Shıǵıw",
+    'ru': "Выйти",
+    'de': "Verlassen",
+  });
+
+  // ── Mock Test (B1) — redesign (overview / timer / review) ───────────────────
+  String get mockOverviewTitle => _t({
+    'uz': "Imtihon tuzilishi",
+    'kaa': "Imtixan dúzilisi",
+    'ru': "Структура экзамена",
+    'de': "Prüfungsstruktur",
+  });
+  String get mockTimerLabel => _t({
+    'uz': "Qolgan vaqt",
+    'kaa': "Qalǵan waqıt",
+    'ru': "Оставшееся время",
+    'de': "Verbleibende Zeit",
+  });
+  String get mockTimerExpired => _t({
+    'uz': "Vaqt tugadi",
+    'kaa': "Waqıt tamam boldı",
+    'ru': "Время вышло",
+    'de': "Zeit abgelaufen",
+  });
+  String get mockReviewTitle => _t({
+    'uz': "Javoblarni ko'rib chiqish",
+    'kaa': "Juwaplardı kórip shıǵıw",
+    'ru': "Разбор ответов",
+    'de': "Antworten überprüfen",
+  });
+  String get mockReviewYourAnswer => _t({
+    'uz': "Sizning javobingiz",
+    'kaa': "Sizdiń juwabıńız",
+    'ru': "Ваш ответ",
+    'de': "Ihre Antwort",
+  });
+  String get mockReviewCorrectAnswer => _t({
+    'uz': "To'g'ri javob",
+    'kaa': "Durıs juwap",
+    'ru': "Правильный ответ",
+    'de': "Richtige Antwort",
+  });
+  String get mockReviewUnanswered => _t({
+    'uz': "Javob berilmagan",
+    'kaa': "Juwap berilmegen",
+    'ru': "Нет ответа",
+    'de': "Nicht beantwortet",
+  });
+  String get mockExitTooltip => _t({
+    'uz': "Testdan chiqish",
+    'kaa': "Testten shıǵıw",
+    'ru': "Выйти из теста",
+    'de': "Test verlassen",
+  });
+
+  // ── Mock Test (B1) — intro screen ───────────────────────────────────────────
+  String get mockTestIntroTitle => _t({
+    'uz': "B1 sinov imtihoni",
+    'kaa': "B1 sınaq imtixanı",
+    'ru': "Пробный экзамен B1",
+    'de': "B1 Übungsprüfung",
+  });
+  String get mockTestIntroSubtitle => _t({
+    'uz': "TELC Deutsch B1 imtihonining to'liq mashqi. Har bir bo'lim mavjud darslardan tasodifiy tanlanadi.",
+    'kaa': "TELC Deutsch B1 imtixanınıń tolıq shınıǵıwı. Hár bir bólim bar sabaqlardan tosınnan tańlanadı.",
+    'ru': "Полная практика экзамена TELC Deutsch B1. Каждый раздел случайно выбирается из имеющихся уроков.",
+    'de': "Eine vollständige Übung der Prüfung TELC Deutsch B1. Jeder Teil wird zufällig aus vorhandenen Lektionen ausgewählt.",
+  });
+  String get mockTestTimingTitle => _t({
+    'uz': "Vaqt va ballar",
+    'kaa': "Waqıt hám ballar",
+    'ru': "Время и баллы",
+    'de': "Zeit und Punkte",
+  });
+  String get mockTestPointsSuffix => _t({
+    'uz': "ball",
+    'kaa': "ball",
+    'ru': "балл",
+    'de': "Punkte",
+  });
+  String get mockTestTotalLabel => _t({
+    'uz': "Jami",
+    'kaa': "Jámi",
+    'ru': "Всего",
+    'de': "Gesamt",
+  });
+  String get mockTestDurationReading => _t({
+    'uz': "90 daqiqa (birgalikda)",
+    'kaa': "90 minut (birgelikte)",
+    'ru': "90 минут (вместе)",
+    'de': "90 Minuten (zusammen)",
+  });
+  String get mockTestDurationListening => _t({
+    'uz': "≈30 daqiqa (audio davomida)",
+    'kaa': "≈30 minut (audio dawamında)",
+    'ru': "≈30 минут (аудио)",
+    'de': "≈30 Minuten (Hördauer)",
+  });
+  String get mockTestDurationWriting => _t({
+    'uz': "30 daqiqa",
+    'kaa': "30 minut",
+    'ru': "30 минут",
+    'de': "30 Minuten",
+  });
+  String get mockTestDurationSpeaking => _t({
+    'uz': "20 daq tayyorgarlik + 15 daq gapirish",
+    'kaa': "20 min tayarlıq + 15 min sóylew",
+    'ru': "20 мин подготовка + 15 мин говорение",
+    'de': "20 Min Vorbereitung + 15 Min Sprechen",
+  });
+  String get mockTestStartButton => _t({
+    'uz': "Boshlash",
+    'kaa': "Baslaw",
+    'ru': "Начать",
+    'de': "Starten",
+  });
+  String get mockTestCannotAssemble => _t({
+    'uz': "Imtihonni tuzib bo'lmadi: ba'zi bo'limlar uchun yetarli material yo'q.",
+    'kaa': "Imtixandı dúziw múmkin bolmadı: ayırım bólimler ushın jeterli material joq.",
+    'ru': "Не удалось собрать экзамен: для некоторых разделов недостаточно материала.",
+    'de': "Die Prüfung kann nicht zusammengestellt werden: Für einige Teile fehlt das Material.",
+  });
+
+  // ── Mock Test (B1) — result screen ──────────────────────────────────────────
+  String get mockResultTitle => _t({
+    'uz': "Natijalar",
+    'kaa': "Nátiyjeler",
+    'ru': "Результаты",
+    'de': "Ergebnisse",
+  });
+  String get mockResultSubtitle => _t({
+    'uz': "TELC Deutsch B1 ballariga moslashtirilgan",
+    'kaa': "TELC Deutsch B1 ballarına say keltirilgen",
+    'ru': "Приведено к баллам TELC Deutsch B1",
+    'de': "Normiert auf die TELC-Deutsch-B1-Punkte",
+  });
+  String get mockResultSectionsTitle => _t({
+    'uz': "Bo'limlar bo'yicha ballar",
+    'kaa': "Bólimler boyınsha ballar",
+    'ru': "Баллы по разделам",
+    'de': "Punkte nach Teilen",
+  });
+  String get mockResultWrittenLabel => _t({
+    'uz': "Yozma qism",
+    'kaa': "Jazıw bólimi",
+    'ru': "Письменная часть",
+    'de': "Schriftlicher Teil",
+  });
+  String get mockResultOralLabel => _t({
+    'uz': "Og'zaki qism",
+    'kaa': "Awızsha bólim",
+    'ru': "Устная часть",
+    'de': "Mündlicher Teil",
+  });
+  String get mockResultPassed => _t({
+    'uz': "O'tdi",
+    'kaa': "Ótti",
+    'ru': "Сдано",
+    'de': "Bestanden",
+  });
+  String get mockResultFailed => _t({
+    'uz': "O'tmadi",
+    'kaa': "Ótpedi",
+    'ru': "Не сдано",
+    'de': "Nicht bestanden",
+  });
+  String get mockResultUnavailable => _t({
+    'uz': "Baholash mavjud emas",
+    'kaa': "Bahalaw qoljetimsiz",
+    'ru': "Оценка недоступна",
+    'de': "Bewertung nicht verfügbar",
+  });
+  String get mockResultDoneButton => _t({
+    'uz': "Tugatish",
+    'kaa': "Tamamlaw",
+    'ru': "Готово",
+    'de': "Fertig",
+  });
+  String get mockResultOverallPassed => _t({
+    'uz': "Imtihon topshirildi",
+    'kaa': "Imtixan tapsırıldı",
+    'ru': "Экзамен сдан",
+    'de': "Prüfung bestanden",
+  });
+  String get mockResultOverallFailed => _t({
+    'uz': "Imtihon topshirilmadi",
+    'kaa': "Imtixan tapsırılmadı",
+    'ru': "Экзамен не сдан",
+    'de': "Prüfung nicht bestanden",
+  });
+  String get mockResultGradeLabel => _t({
+    'uz': "Baho",
+    'kaa': "Baha",
+    'ru': "Оценка",
+    'de': "Note",
+  });
+  String get mockResultPassRule => _t({
+    'uz': "O'tish uchun yozma va og'zaki qismlarning HAR BIRIDA kamida 60% (135 va 45 ball) kerak.",
+    'kaa': "Ótiw ushın jazıw hám awızsha bólimlerdiń HÁR BIRINDE keminde 60% (135 hám 45 ball) kerek.",
+    'ru': "Для сдачи нужно набрать минимум 60% в КАЖДОЙ части — письменной и устной (135 и 45 баллов).",
+    'de': "Zum Bestehen sind in BEIDEN Teilen — schriftlich und mündlich — mindestens 60 % nötig (135 und 45 Punkte).",
+  });
+
+  // ── Mock Test (B1) — Schreiben section view ─────────────────────────────────
+  String get mockSchreibenEvalError => _t({
+    'uz': "Baholashni yakunlab bo'lmadi. Keyingi bo'limga o'tib, qolgan natijalarni ko'rishingiz mumkin.",
+    'kaa': "Bahalawdı tamamlaw múmkin bolmadı. Keyingi bólimge ótip, qalǵan nátiyjelerdi kóriwińiz múmkin.",
+    'ru': "Не удалось завершить оценку. Вы можете перейти к следующему разделу и посмотреть остальные результаты.",
+    'de': "Die Bewertung konnte nicht abgeschlossen werden. Sie können mit dem nächsten Teil fortfahren und die übrigen Ergebnisse ansehen.",
+  });
+  String get mockSchreibenRetry => _t({
+    'uz': "Qayta urinish",
+    'kaa': "Qayta urınıw",
+    'ru': "Повторить",
+    'de': "Erneut versuchen",
+  });
+
+  // ── Mock Test (B1) — Sprechen section view ──────────────────────────────────
+  String get mockSprechenInstruction => _t({
+    'uz': "Har bir topshiriq uchun javobingizni ovozda yozib, baholash uchun yuboring.",
+    'kaa': "Hár bir tapsırma ushın juwabıńızdı dawısqa jazıp, bahalaw ushın jiberiń.",
+    'ru': "Запишите устный ответ для каждого задания и отправьте его на оценку.",
+    'de': "Nehmen Sie für jede Aufgabe Ihre Antwort auf und senden Sie sie zur Bewertung.",
+  });
+  String get mockSprechenThemaLabel => _t({
+    'uz': "Mavzu",
+    'kaa': "Tema",
+    'ru': "Тема",
+    'de': "Thema",
+  });
+  String get mockSprechenUnavailable => _t({
+    'uz': "Og'zaki javob baholanmadi. Keyingi bo'limga o'tib, qolgan natijalarni ko'rishingiz mumkin.",
+    'kaa': "Awızsha juwap bahalanbadı. Keyingi bólimge ótip, qalǵan nátiyjelerdi kóriwińiz múmkin.",
+    'ru': "Устный ответ не был оценён. Вы можете перейти к следующему разделу и посмотреть остальные результаты.",
+    'de': "Die mündliche Antwort wurde nicht bewertet. Sie können mit dem nächsten Teil fortfahren und die übrigen Ergebnisse ansehen.",
+  });
+
+  // ── Mock Test — Sprechen Teil 3 (Gemeinsam planen, AI hamkor bilan chat) ────
+  String get mockPlanungInstruction => _t({
+    'uz': "Hamkoringiz (AI) bilan yozishmalar orqali birgalikda rejalashtiring. Barcha nuqtalarni muhokama qilib bo'lgach, \"Yakunlash va baholash\" tugmasini bosing.",
+    'kaa': "Hámkorińiz (AI) menen jazısıwlar arqalı birge rejalastırıń. Barlıq noqatlardı dodalap bolǵannan keyin, \"Juwmaqlaw hám bahalaw\" túymesin basıń.",
+    'ru': "Планируйте вместе с партнёром (ИИ) в переписке. После обсуждения всех пунктов нажмите «Завершить и оценить».",
+    'de': "Planen Sie gemeinsam mit Ihrem Partner (KI) im Chat. Wenn Sie alle Punkte besprochen haben, tippen Sie auf „Beenden und bewerten“.",
+  });
+  String get mockPlanungPartnerLabel => _t({
+    'uz': "Hamkor (AI)",
+    'kaa': "Hámkor (AI)",
+    'ru': "Партнёр (ИИ)",
+    'de': "Partner (KI)",
+  });
+  String get mockPlanungInputHint => _t({
+    'uz': "Javobingizni nemis tilida yozing...",
+    'kaa': "Juwabıńızdı nemis tilinde jazıń...",
+    'ru': "Напишите ответ на немецком...",
+    'de': "Antwort auf Deutsch schreiben...",
+  });
+  String get mockPlanungFinish => _t({
+    'uz': "Yakunlash va baholash",
+    'kaa': "Juwmaqlaw hám bahalaw",
+    'ru': "Завершить и оценить",
+    'de': "Beenden und bewerten",
+  });
+  String get mockPlanungEvaluating => _t({
+    'uz': "Suhbat baholanmoqda...",
+    'kaa': "Sáwbet bahalanbaqta...",
+    'ru': "Оценивание разговора...",
+    'de': "Das Gespräch wird bewertet...",
+  });
+  String get mockPlanungDone => _t({
+    'uz': "Suhbat baholandi. To'liq natijani test yakunida ko'rasiz.",
+    'kaa': "Sáwbet bahalandı. Tolıq nátiyjeni test juwmaǵında kóresiz.",
+    'ru': "Разговор оценён. Полный результат вы увидите в конце теста.",
+    'de': "Das Gespräch wurde bewertet. Das vollständige Ergebnis sehen Sie am Ende des Tests.",
+  });
+  String get mockPlanungError => _t({
+    'uz': "Baholab bo'lmadi. Internetni tekshiring va qayta urinib ko'ring.",
+    'kaa': "Bahalaw múmkin bolmadı. Internetti tekseriń hám qayta urınıp kóriń.",
+    'ru': "Не удалось оценить. Проверьте интернет и попробуйте снова.",
+    'de': "Bewertung fehlgeschlagen. Prüfen Sie das Internet und versuchen Sie es erneut.",
+  });
+  String get mockPlanungConfirmTitle => _t({
+    'uz': "Suhbatni yakunlash",
+    'kaa': "Sáwbetti juwmaqlaw",
+    'ru': "Завершить разговор",
+    'de': "Gespräch beenden",
+  });
+  String get mockPlanungConfirmBody => _t({
+    'uz': "Suhbatni yakunlab, baholashni boshlaymizmi? Yakunlagandan keyin yozib bo'lmaydi.",
+    'kaa': "Sáwbetti juwmaqlap, bahalawdı baslaymız ba? Juwmaqlaǵannan keyin jazıp bolmaydı.",
+    'ru': "Завершить разговор и начать оценку? После завершения писать нельзя.",
+    'de': "Gespräch beenden und mit der Bewertung beginnen? Danach können Sie nicht mehr schreiben.",
+  });
+
+  // ── Mock Test — landing (level selector) screen ─────────────────────────────
+  String get mockLandingSubtitle => _t({
+    'uz': "Bilimingizni sinab ko'ring",
+    'kaa': "Bilimińizdi sınań",
+    'ru': "Проверьте свои знания",
+    'de': "Testen Sie Ihr Wissen",
+  });
+  String get mockLevelDescA1 => _t({
+    'uz': "Oddiy so'zlar, asosiy grammatika",
+    'kaa': "Ápiwayı sózler, tiykarǵı grammatika",
+    'ru': "Простые слова, базовая грамматика",
+    'de': "Einfache Wörter, Grundgrammatik",
+  });
+  String get mockLevelDescA2 => _t({
+    'uz': "Kundalik suhbat, kengaytirilgan grammatika",
+    'kaa': "Kúndelik sóylesiw, keńeytirilgen grammatika",
+    'ru': "Повседневный разговор, расширенная грамматика",
+    'de': "Alltagsgespräche, erweiterte Grammatik",
+  });
+  String get mockLevelDescB1 => _t({
+    'uz': "Murakkab jumlalar, keng lug'at",
+    'kaa': "Quramalı gápler, keń sózlik",
+    'ru': "Сложные предложения, широкий словарь",
+    'de': "Komplexe Sätze, großer Wortschatz",
+  });
+  String get mockLevelDescB2 => _t({
+    'uz': "Ilg'or grammatika, akademik til",
+    'kaa': "Joqarı grammatika, akademiyalıq til",
+    'ru': "Продвинутая грамматика, академический язык",
+    'de': "Fortgeschrittene Grammatik, akademische Sprache",
+  });
+  String mockQuestionsLabel(int n) {
+    final template = _t({
+      'uz': '{n} savol',
+      'kaa': '{n} soraw',
+      'ru': '{n} вопр.',
+      'de': '{n} Fragen',
+    });
+    return template.replaceAll('{n}', '$n');
+  }
+  String get mockHowItWorks => _t({
+    'uz': "Qanday ishlaydi",
+    'kaa': "Qalay isleydi",
+    'ru': "Как это работает",
+    'de': "So funktioniert es",
+  });
+  String get mockStep1Desc => _t({
+    'uz': "O'zingizga mos A1–B2 darajasini tanlang",
+    'kaa': "Ózińizge say A1–B2 dárejesin tańlań",
+    'ru': "Выберите подходящий уровень A1–B2",
+    'de': "Wählen Sie Ihr passendes Niveau A1–B2",
+  });
+  String get mockStep2Title => _t({
+    'uz': "Savollarni javoblang",
+    'kaa': "Sorawlarǵa juwap beriń",
+    'ru': "Отвечайте на вопросы",
+    'de': "Beantworten Sie die Fragen",
+  });
+  String get mockStep2Desc => _t({
+    'uz': "Har bir savol uchun to'g'ri javobni belgilang",
+    'kaa': "Hár bir soraw ushın durıs juwaptı belgileń",
+    'ru': "Отметьте правильный ответ для каждого вопроса",
+    'de': "Markieren Sie für jede Frage die richtige Antwort",
+  });
+  String get mockStep3Title => _t({
+    'uz': "Natijani ko'ring",
+    'kaa': "Nátiyjeni kóriń",
+    'ru': "Посмотрите результат",
+    'de': "Sehen Sie das Ergebnis",
+  });
+  String get mockStep3Desc => _t({
+    'uz': "Test yakunida batafsil tahlil va ball ko'rsatiladi",
+    'kaa': "Test sońında tolıq talqılaw hám ball kórsetiledi",
+    'ru': "В конце теста показываются подробный разбор и баллы",
+    'de': "Am Ende des Tests werden eine ausführliche Analyse und Punkte angezeigt",
+  });
+  String get mockComingSoonShort => _t({
+    'uz': "Tez kunda",
+    'kaa': "Tez arada",
+    'ru': "Скоро",
+    'de': "Demnächst",
+  });
+  String get mockComingSoonNotice => _t({
+    'uz': "Mock test tizimi hozirda ishlab chiqilmoqda. Yaqin orada faol bo'ladi!",
+    'kaa': "Mock test sisteması házir islep shıǵılıp atır. Jaqın arada iske túsedi!",
+    'ru': "Система пробного теста сейчас в разработке. Скоро будет доступна!",
+    'de': "Das Mock-Test-System wird derzeit entwickelt. Es ist bald verfügbar!",
+  });
+  String get mockComingSoonTitle => _t({
+    'uz': "Tez kunda!",
+    'kaa': "Tez arada!",
+    'ru': "Скоро!",
+    'de': "Demnächst!",
+  });
+  String get mockComingSoonDialogMsg => _t({
+    'uz': "Bu daraja uchun mock test hozirda tayyorlanmoqda. Yaqin orada faol bo'ladi!",
+    'kaa': "Bul dáreje ushın mock test házir tayarlanıp atır. Jaqın arada iske túsedi!",
+    'ru': "Пробный тест для этого уровня сейчас готовится. Скоро будет доступен!",
+    'de': "Der Mock-Test für dieses Niveau wird gerade vorbereitet. Er ist bald verfügbar!",
+  });
+  String get understood => _t({
+    'uz': "Tushunarli",
+    'kaa': "Túsinikli",
+    'ru': "Понятно",
+    'de': "Verstanden",
+  });
+
+  // ── Games — shared labels ───────────────────────────────────────────────────
+  String get wordsLoading => _t({
+    'uz': "So'zlar yuklanmoqda...",
+    'kaa': "Sózler júklenip atır...",
+    'ru': "Загрузка слов...",
+    'de': "Wörter werden geladen...",
+  });
+  String get gameOver => _t({
+    'uz': "O'yin tugadi!",
+    'kaa': "Oyın tamam!",
+    'ru': "Игра окончена!",
+    'de': "Spiel beendet!",
+  });
+  String get sessionFinished => _t({
+    'uz': "Sessiya tugadi!",
+    'kaa': "Sessiya tamam!",
+    'ru': "Сессия завершена!",
+    'de': "Sitzung beendet!",
+  });
+
+  // ── Mock Test — intro overview (Duration / Sections / Notes) ────────────────
+  String get mockTestDurationTitle => _t({
+    'uz': "Davomiyligi",
+    'kaa': "Dawamlılıǵı",
+    'ru': "Длительность",
+    'de': "Dauer",
+  });
+  String get mockTestSectionsHeader => _t({
+    'uz': "Bo'limlar",
+    'kaa': "Bólimler",
+    'ru': "Разделы",
+    'de': "Prüfungsteile",
+  });
+  String mockTestQuestionsCount(int n) {
+    final template = _t({
+      'uz': '{n} savol',
+      'kaa': '{n} soraw',
+      'ru': '{n} вопр.',
+      'de': '{n} Fragen',
+    });
+    return template.replaceAll('{n}', '$n');
+  }
+  String get mockTestImportantNotes => _t({
+    'uz': "Muhim eslatmalar",
+    'kaa': "Áhmiyetli eskertpeler",
+    'ru': "Важные замечания",
+    'de': "Wichtige Hinweise",
+  });
+  String get mockTestNoteTimer => _t({
+    'uz': "Vaqt imtihonni boshlaganingizdan hisoblana boshlaydi",
+    'kaa': "Waqıt imtixandı baslaǵanıńızdan esaplana baslaydı",
+    'ru': "Время начнёт идти, как только вы начнёте",
+    'de': "Die Zeit beginnt, sobald Sie starten",
+  });
+  String get mockTestNoteNavigate => _t({
+    'uz': "Savollar orasida erkin harakatlanishingiz mumkin",
+    'kaa': "Sorawlar arasında erkin háreketleniwińiz múmkin",
+    'ru': "Вы можете свободно перемещаться между вопросами",
+    'de': "Sie können sich frei zwischen den Fragen bewegen",
+  });
+  String get mockTestNoteSectionTime => _t({
+    'uz': "Har bir bo'lim uchun alohida vaqt beriladi",
+    'kaa': "Hár bir bólim ushın bólek waqıt beriledi",
+    'ru': "Для каждого раздела даётся отдельное время",
+    'de': "Für jeden Teil gibt es eine eigene Zeit",
+  });
+  String get mockTestNoteAutoSubmit => _t({
+    'uz': "Vaqt tugaganda test avtomatik yakunlanadi",
+    'kaa': "Waqıt tamam bolǵanda test avtomat túrde juwmaqlanadı",
+    'ru': "Когда время истечёт, тест завершится автоматически",
+    'de': "Wenn die Zeit abläuft, wird der Test automatisch abgegeben",
+  });
+  String get mockTestNoteInternet => _t({
+    'uz': "Internet aloqasi barqaror ekanligiga ishonch hosil qiling",
+    'kaa': "Internet baylanısı turaqlı ekenine isenim payda etiń",
+    'ru': "Убедитесь, что у вас стабильное интернет-соединение",
+    'de': "Stellen Sie sicher, dass Ihre Internetverbindung stabil ist",
+  });
+  String get mockTestNoteQuiet => _t({
+    'uz': "Test topshirish uchun tinch joy toping",
+    'kaa': "Test tapsırıw ushın tınısh orın tabıń",
+    'ru': "Найдите тихое место для прохождения теста",
+    'de': "Suchen Sie sich einen ruhigen Ort für den Test",
+  });
+  String get mockTestCancel => _t({
+    'uz': "Bekor qilish",
+    'kaa': "Biykarlaw",
+    'ru': "Отмена",
+    'de': "Abbrechen",
+  });
+  String get mockTestStartTest => _t({
+    'uz': "Testni boshlash",
+    'kaa': "Testti baslaw",
+    'ru': "Начать тест",
+    'de': "Test starten",
   });
 }
 

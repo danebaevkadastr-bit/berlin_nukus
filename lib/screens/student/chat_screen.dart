@@ -14,18 +14,33 @@ import '../../widgets/chat/selected_word_sheet.dart';
 import '../../widgets/decorative_pattern_background.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/typing_dots.dart';
 import '../../l10n/app_localizations.dart';
 
 class ChatScreen extends StatefulWidget {
   final String title;
-  final String sourceType; // lesson | conversation
+  final String sourceType; // lesson | conversation | planung
   final bool initiallyCompleted;
+  final bool isFreeChat;
+
+  /// Teil 3 "Gemeinsam etwas planen" — AI hamkor rejimi.
+  final bool isPlanungPartner;
+
+  /// Planung rejimida: situation ko'rsatmasi (instruction).
+  final String? planungSituation;
+
+  /// Planung rejimida: muhokama qilinadigan nuqtalar (keywords).
+  final List<String> planungKeywords;
 
   const ChatScreen({
     super.key,
     required this.title,
     required this.sourceType,
     this.initiallyCompleted = false,
+    this.isFreeChat = false,
+    this.isPlanungPartner = false,
+    this.planungSituation,
+    this.planungKeywords = const [],
   });
 
   @override
@@ -100,7 +115,97 @@ QOIDALAR (qat'iy):
 - MUHIM: Hech qachon yordamchi javob variantlarini o'zingdan berma. Faqat savol ber.
 ''';
 
+  static const String _freeChatRules = '''
+QOIDALAR (qat'iy):
+- Hech qanday emoji, smaylik ishlatma.
+- Har javobda faqat BITTA savol ber — bir nechta savol bir vaqtda berma.
+- Javob qisqa bo'lsin: 2-4 gap.
+- Bu erkin suhbat: foydalanuvchi xohlagan mavzuda gaplash, uni biror mavzuga majburlama.
+- Foydalanuvchi mavzuni o'zgartirsa, tabiiy ravishda yangi mavzuga o't.
+- Avvalgi savollarga qaytma, takrorlanma.
+- Asosan nemis tilida yoz; kerak bo'lsa 1 qator o'zbekcha yordam.
+- Tabiiy va samimiy suhbat qil; agar xato bo'lsa, yumshoq tuzat.
+- MUHIM: Hech qachon yordamchi javob variantlarini o'zingdan berma. Faqat savol ber.
+''';
+
+  /// Teil 3 "Gemeinsam etwas planen" uchun AI hamkor prompt'i.
+  String get _planungPrompt {
+    final situation = widget.planungSituation ?? widget.title;
+    final keywords = widget.planungKeywords;
+    final keywordsList = keywords.isNotEmpty
+        ? keywords.map((k) => '- $k').join('\n')
+        : '- (nuqtalar berilmagan)';
+
+    return '''
+Sen TELC B1 Sprechen Teil 3 imtihonida Teilnehmer B (hamkor) sisan.
+Foydalanuvchi = Teilnehmer A. Siz birgalikda reja qurasiz.
+
+TOPSHIRIQ (Situation):
+"$situation"
+
+MUHOKAMA QILINISHI KERAK BO'LGAN NUQTALAR:
+$keywordsList
+
+QOIDALAR (qat'iy):
+- Hech qanday emoji, smaylik ishlatma.
+- Sen o'qituvchi EMASMAN. Sen imtihondagi hamkorsan (Teilnehmer B).
+- Har javobda: 1) o'z taklifingni ayt YOKI hamkorning taklifiga munosabat bildir, 2) keyingi nuqtaga o't yoki hozirgi nuqta bo'yicha aniqlashtir.
+- Javob qisqa bo'lsin: 2-4 gap. Real imtihandagidek tabiiy gapir.
+- Faqat nemis tilida yoz (B1 daraja — sodda, tushunarli).
+- Ba'zan rozi bo'l ("Gute Idee!"), ba'zan boshqa taklif ber ("Ich finde, wir sollten lieber...").
+- Barcha nuqtalar muhokama qilinishi kerak. Hali muhokama qilinmagan nuqtalarga yo'nalt.
+- Suhbatni hech qachon bir o'zing yakunlama — foydalanuvchi qatnashishi kerak.
+- Xatolarni tuzatma — bu imtihon mashqi, dars emas.
+- Agar foydalanuvchi mavzudan chiqsa, uni reja qilishga qaytaring.
+
+YAKUNLASH VA BAHOLASH:
+Barcha nuqtalar muhokama qilinganidan keyin BAHOLASH ber. Quyidagi formatda yoz:
+
+---BEWERTUNG---
+Gut, dann haben wir alles geplant!
+
+BAHOLASH (o'zbek tilida):
+1. Muhokama qilingan nuqtalar: [qaysilari muhokama qilindi, qaysilari qoldi]
+2. Grammatik xatolar: [agar bo'lsa, har birini to'g'risi bilan yoz]
+3. Lug'at va iboralar: [yaxshi ishlatilgan iboralar yoki kamchiliklar]
+4. Umumiy ball: X/20 (TELC B1 Teil 3 mezonlari bo'yicha)
+
+Ball mezonlari:
+- 18-20: Barcha nuqtalar muhokama qilindi, grammatika yaxshi, iboralar boy
+- 14-17: Ko'p nuqtalar muhokama qilindi, kichik xatolar bor
+- 10-13: Asosiy nuqtalar bor, lekin grammatik xatolar ko'p
+- 5-9: Kam muhokama, ko'p xato, sodda gaplar
+- 0-4: Deyarli ishtirok etmadi yoki tushunarsiz
+
+MUHIM: "---BEWERTUNG---" matnini FAQAT barcha nuqtalar muhokama qilinganidan keyin yoz. Buni erta yozma!
+
+USLUB MISOLLARI:
+- "Ich schlage vor, dass wir am Samstag feiern. Was meinst du?"
+- "Gute Idee! Und was sollen wir zum Essen machen?"
+- "Hmm, ich bin nicht sicher. Vielleicht könnten wir lieber..."
+- "Okay, einverstanden. Und wer kauft ein?"
+''';
+  }
+
   String get _contextPrompt {
+    if (widget.isPlanungPartner) {
+      return _planungPrompt;
+    }
+    if (_isFreeChat) {
+      return '''
+Sen do'stona nemis tili suhbatdoshisan. Bu ERKIN SUHBAT — oldindan belgilangan mavzu yo'q.
+
+$_freeChatRules
+
+SUHBAT USLUBI:
+- Foydalanuvchini erkin suhbatga undab, u tanlagan mavzuda davom et.
+- Agar foydalanuvchi nima haqida gaplashishni bilmasa, unga bir nechta qiziqarli mavzu taklif qil.
+- Foydalanuvchining darajasiga moslash: sodda va tushunarli nemis tilida gapir.
+- Uzun dars bermay, tabiiy suhbat qil; har javobda 1 ta konkret savol ber.
+- Suhbatni majburan yakunlama; foydalanuvchi davom etgani sayin suhbatlash.
+''';
+    }
+
     final totalLimit = _chatMessageLimit;
     final remaining = totalLimit - _userMessageCount;
     final isLastMessage = remaining <= 1;
@@ -158,7 +263,11 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
     );
   }
 
-  bool get _isFreeChat => widget.title.startsWith('Erkin suhbat');
+  bool get _isFreeChat =>
+      widget.isFreeChat || widget.title.startsWith('Erkin suhbat');
+
+  /// Limit yo'q rejimlar: freeChat va planungPartner.
+  bool get _hasNoLimit => _isFreeChat || widget.isPlanungPartner;
 
   int get _userMessageCount =>
       _messages.where((m) => m.isUser && !m.isTyping).length;
@@ -185,7 +294,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
     );
 
     _lessonFinished =
-        widget.initiallyCompleted || (!_isFreeChat && completed);
+        widget.initiallyCompleted || (!_hasNoLimit && completed);
 
     if (saved.isNotEmpty) {
       _messages
@@ -213,7 +322,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
   }
 
   Future<void> _markSessionFinished() async {
-    if (_isFreeChat || _lessonFinished) return;
+    if (_hasNoLimit || _lessonFinished) return;
     setState(() => _lessonFinished = true);
     await ChatProgressService.markCompleted(widget.sourceType, widget.title);
     await _persistMessages();
@@ -221,7 +330,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
   }
 
   void _checkMessageLimitCompletion() {
-    if (_isFreeChat || _lessonFinished) return;
+    if (_hasNoLimit || _lessonFinished) return;
     // Limit yetganda AI javobidan keyin yakunlanadi (_checkLessonCompletion orqali)
     // Bu yerda faqat input bloklanadi
   }
@@ -240,7 +349,16 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
 
   /// Dars tugashini tekshirish
   void _checkLessonCompletion(String aiResponse) {
-    if (widget.sourceType != 'lesson' && widget.sourceType != 'conversation') return;
+    // Erkin suhbatda yakunlanish yo'q
+    if (_isFreeChat) return;
+    // Planung AI hamkor — faqat "---BEWERTUNG---" chiqganda yakunlanadi
+    if (widget.isPlanungPartner) {
+      if (aiResponse.contains('---BEWERTUNG---')) {
+        _markSessionFinished();
+      }
+      return;
+    }
+    if (widget.sourceType != 'lesson' && widget.sourceType != 'conversation' && widget.sourceType != 'planung') return;
     if (_lessonFinished) return;
 
     // AI tugatish iboralari
@@ -284,7 +402,12 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
   void _addInitialMessage() {
     _messages.clear();
 
-    final intro = 'Hallo! Heute sprechen wir über "${widget.title}". Bist du bereit?';
+    final intro = widget.isPlanungPartner
+        ? 'Also, wir sollen gemeinsam etwas planen: "${widget.title}". '
+            'Hast du schon eine Idee, wann wir das machen könnten?'
+        : _isFreeChat
+        ? 'Hallo! Schön, dass du da bist. Worüber möchtest du heute sprechen?'
+        : 'Hallo! Heute sprechen wir über "${widget.title}". Bist du bereit?';
 
     _messages.add(
       ChatMessageModel(
@@ -331,7 +454,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
       if (!force && !_isNearBottom) return;
-      final offset = _scrollController.position.maxScrollExtent + 140;
+      final offset = _scrollController.position.maxScrollExtent;
       if (animated) {
         _scrollController.animateTo(
           offset,
@@ -359,8 +482,8 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
   Future<void> _sendMessage(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty || _isSending) return;
-    if (!_isFreeChat && _lessonFinished) return;
-    if (!_isFreeChat &&
+    if (!_hasNoLimit && _lessonFinished) return;
+    if (!_hasNoLimit &&
         _userMessageCount >= _chatMessageLimit) {
       return;
     }
@@ -370,6 +493,12 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
 
     setState(() {
       _isSending = true;
+      // Hint kartochkalarini yashirish
+      for (int i = 0; i < _messages.length; i++) {
+        if (_messages[i].replyHintsVisible) {
+          _messages[i] = _messages[i].copyWith(replyHintsVisible: false);
+        }
+      }
       _messages.add(ChatMessageModel(id: userId, text: trimmed, isUser: true));
       _messages.add(
         ChatMessageModel(id: typingId, text: '', isUser: false, isTyping: true),
@@ -407,7 +536,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
         _updateReplyHintVisibility();
       });
 
-      _scrollToBottom(force: true);
+      _scrollToBottom();
 
       _checkLessonCompletion(reply);
       _checkMessageLimitCompletion();
@@ -498,6 +627,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
           translationVisible: !msg.translationVisible,
         );
       });
+      _scrollToBottom();
       return;
     }
 
@@ -518,6 +648,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
           isTranslating: false,
         );
       });
+      _scrollToBottom();
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -616,7 +747,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
   }
 
   Future<void> _handleMicTap() async {
-    if (!_isFreeChat && _lessonFinished) return;
+    if (!_hasNoLimit && _lessonFinished) return;
 
     if (_isRecording) {
       // Stop recording
@@ -998,7 +1129,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
     final colors = ChatTheme.of(context);
     final isDark = ThemeManager.isDark;
 
-    final showSessionActions = !_isFreeChat && _lessonFinished;
+    final showSessionActions = !_hasNoLimit && _lessonFinished;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -1056,7 +1187,9 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
       ),
       body: DecorativePatternBackground(
         isDark: isDark,
-        variant: DecorativePatternVariant.derDieDas,
+        variant: widget.isPlanungPartner || widget.sourceType == 'conversation'
+            ? DecorativePatternVariant.sprechenAi
+            : DecorativePatternVariant.derDieDas,
         child: SafeArea(
           top: false,
           child: Column(
@@ -1132,7 +1265,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
                   ),
                 ),
               ),
-              if (!_isFreeChat && !_lessonFinished)
+              if (!_hasNoLimit && !_lessonFinished)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
                   child: GamifiedCard(
@@ -1269,7 +1402,7 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
               isTypingMode: _isTypingMode,
               isSending: _isSending,
               isRecording: _isRecording,
-              inputEnabled: _isFreeChat || !_lessonFinished,
+              inputEnabled: _hasNoLimit || !_lessonFinished,
               micLevel: _micLevel,
               onToggleMode: _toggleTypingMode,
               onSend: () => _sendMessage(_textController.text),
@@ -1676,16 +1809,12 @@ class _ChatBubble extends StatelessWidget {
             shadowDepth: 4,
             borderRadius: 18,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: const SizedBox(
-              width: 52,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _Dot(color: AppColors.duoBlue),
-                  _Dot(color: AppColors.duoGreen),
-                  _Dot(color: AppColors.duoOrange),
-                ],
-              ),
+            child: const TypingDots(
+              colors: [
+                AppColors.duoBlue,
+                AppColors.duoGreen,
+                AppColors.duoOrange,
+              ],
             ),
           ),
         ),
@@ -2090,17 +2219,6 @@ class _IconBtn extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _Dot extends StatelessWidget {
-  final Color color;
-
-  const _Dot({required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return CircleAvatar(radius: 4, backgroundColor: color);
   }
 }
 

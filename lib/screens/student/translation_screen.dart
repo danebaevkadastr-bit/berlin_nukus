@@ -504,7 +504,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text('💡', style: TextStyle(fontSize: 16)),
+                      const Icon(Icons.lightbulb_rounded,
+                          size: 16, color: AppColors.duoOrange),
                       const SizedBox(width: 8),
                       Text(
                         l.example,

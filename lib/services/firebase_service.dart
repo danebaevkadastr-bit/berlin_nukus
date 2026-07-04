@@ -189,6 +189,23 @@ class FirebaseService {
     });
   }
 
+  /// Update an existing course
+  Future<void> updateCourse({
+    required String courseId,
+    required String title,
+    required String type,
+  }) async {
+    await _firestore.collection('courses').doc(courseId).update({
+      'title': title,
+      'type': type,
+    });
+  }
+
+  /// Delete a course
+  Future<void> deleteCourse(String courseId) async {
+    await _firestore.collection('courses').doc(courseId).delete();
+  }
+
   /// Stream of groups for a specific course
   Stream<List<Map<String, dynamic>>> getGroupsStream(String courseId) {
     return _firestore
@@ -373,17 +390,38 @@ class FirebaseService {
 
   // ── LEADERBOARD ─────────────────────────────────────────────────────────────
 
-  /// Stream of leaderboard (top students by total stars)
+  /// Returns the set of student IDs that share at least one group with [uid]
+  /// (the union of the `students` arrays of every group the user belongs to).
+  /// The set includes [uid] itself. Empty when the user is in no group.
+  Future<Set<String>> _coGroupStudentIds(String uid) async {
+    if (uid.isEmpty) return <String>{};
+    final groupsSnap = await _firestore
+        .collection('groups')
+        .where('students', arrayContains: uid)
+        .get();
+    final ids = <String>{};
+    for (final g in groupsSnap.docs) {
+      ids.addAll(List<String>.from(g.data()['students'] ?? const []));
+    }
+    return ids;
+  }
+
+  /// Stream of leaderboard (top students by total stars) restricted to the
+  /// groups the current user ([uid]) belongs to.
   /// Sorts by totalStars (descending), then by fullName (alphabetically) for ties
-  /// @deprecated Use getGroupLeaderboardStream instead for group-specific leaderboard
   /// _Requirements: 2.1, 2.3_
-  Stream<List<Map<String, dynamic>>> getLeaderboardStream() {
+  Stream<List<Map<String, dynamic>>> getLeaderboardStream(String uid) {
     return _firestore
         .collection('users')
         .where('role', isEqualTo: 'student')
         .snapshots()
-        .map((snapshot) {
-          final students = snapshot.docs.map((doc) {
+        .asyncMap((snapshot) async {
+          final memberIds = await _coGroupStudentIds(uid);
+          if (memberIds.isEmpty) return <Map<String, dynamic>>[];
+
+          final students = snapshot.docs
+              .where((doc) => memberIds.contains(doc.id))
+              .map((doc) {
             final data = doc.data();
             data['id'] = doc.id;
             // Null qiymatlar uchun 0 default
@@ -439,7 +477,7 @@ class FirebaseService {
   /// Stream of leaderboard sorted by attendance percentage (descending)
   /// Calculates attendance from lessons data in 'darslar' collection
   /// Returns 0% for students with no attendance data
-  Stream<List<Map<String, dynamic>>> getAttendanceLeaderboardStream() {
+  Stream<List<Map<String, dynamic>>> getAttendanceLeaderboardStream(String uid) {
     // Combine students stream with lessons stream to calculate attendance
     return _firestore
         .collection('users')
@@ -447,6 +485,9 @@ class FirebaseService {
         .snapshots()
         .asyncMap((usersSnapshot) async {
       if (usersSnapshot.docs.isEmpty) return [];
+
+      final memberIds = await _coGroupStudentIds(uid);
+      if (memberIds.isEmpty) return <Map<String, dynamic>>[];
 
       // Get all lessons to calculate attendance
       final lessonsSnapshot =
@@ -475,8 +516,10 @@ class FirebaseService {
         }
       }
 
-      // Map users with calculated attendance percentage
-      final students = usersSnapshot.docs.map((doc) {
+      // Map users (restricted to co-group members) with attendance percentage
+      final students = usersSnapshot.docs
+          .where((doc) => memberIds.contains(doc.id))
+          .map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
 
@@ -516,13 +559,18 @@ class FirebaseService {
   /// Teng qiymatlar uchun fullName bo'yicha alifbo tartibida tartiblaydi
   /// Null qiymatlar uchun 0 default qiymati ishlatiladi
   /// _Requirements: 4.1, 4.3, 4.4, 4.5_
-  Stream<List<Map<String, dynamic>>> getAverageScoreLeaderboardStream() {
+  Stream<List<Map<String, dynamic>>> getAverageScoreLeaderboardStream(String uid) {
     return _firestore
         .collection('users')
         .where('role', isEqualTo: 'student')
         .snapshots()
-        .map((snapshot) {
-          final students = snapshot.docs.map((doc) {
+        .asyncMap((snapshot) async {
+          final memberIds = await _coGroupStudentIds(uid);
+          if (memberIds.isEmpty) return <Map<String, dynamic>>[];
+
+          final students = snapshot.docs
+              .where((doc) => memberIds.contains(doc.id))
+              .map((doc) {
             final data = doc.data();
             data['id'] = doc.id;
             // Null qiymatlar uchun 0 default (Requirement 4.5)

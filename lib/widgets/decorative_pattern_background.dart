@@ -6,6 +6,7 @@ import '../utils/app_colors.dart';
 enum DecorativePatternVariant {
   derDieDas,
   synonymBattle,
+  sprechenAi,
 }
 
 enum _GlyphKind { text, shapeX, shapeO }
@@ -188,6 +189,41 @@ class DecorativePatternBackground extends StatelessWidget {
           _PatternGlyph.shapeO(x: 0.86, y: 0.14, rotation: -0.3, scale: 0.6, color: AppColors.duoPurple),
           _PatternGlyph.shapeO(x: 0.10, y: 0.78, rotation: 0.45, scale: 0.55, color: AppColors.duoGreen),
           _PatternGlyph.shapeO(x: 0.66, y: 0.34, rotation: -0.15, scale: 0.5, color: AppColors.duoGreen),
+        ];
+      case DecorativePatternVariant.sprechenAi:
+        return const [
+          // Nutq va suhbat belgilari
+          _PatternGlyph.text(x: 0.06, y: 0.07, rotation: -0.3, scale: 1.0, text: '🎤', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.84, y: 0.05, rotation: 0.2, scale: 0.9, text: 'A', color: AppColors.duoBlue),
+          _PatternGlyph.text(x: 0.12, y: 0.22, rotation: 0.15, scale: 0.78, text: 'B', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.90, y: 0.18, rotation: -0.2, scale: 0.95, text: '🗣️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.03, y: 0.42, rotation: 0.4, scale: 0.82, text: '💬', color: AppColors.duoBlue),
+          _PatternGlyph.text(x: 0.94, y: 0.38, rotation: -0.45, scale: 0.76, text: 'AI', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.22, y: 0.56, rotation: -0.1, scale: 0.72, text: '🎤', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.76, y: 0.52, rotation: 0.3, scale: 0.85, text: '💬', color: AppColors.duoBlue),
+          _PatternGlyph.text(x: 0.08, y: 0.72, rotation: 0.2, scale: 0.9, text: 'B1', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.68, y: 0.68, rotation: -0.25, scale: 0.8, text: '🗣️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.38, y: 0.88, rotation: -0.35, scale: 0.88, text: 'A', color: AppColors.duoBlue),
+          _PatternGlyph.text(x: 0.56, y: 0.78, rotation: 0.15, scale: 0.7, text: 'B', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.50, y: 0.12, rotation: 0.5, scale: 0.6, text: '💬', color: AppColors.duoBlue),
+          _PatternGlyph.text(x: 0.28, y: 0.34, rotation: -0.15, scale: 0.55, text: '🎤', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.72, y: 0.26, rotation: 0.08, scale: 0.62, text: 'AI', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.46, y: 0.50, rotation: -0.5, scale: 0.52, text: '🗣️', color: AppColors.duoPurple),
+          _PatternGlyph.text(x: 0.62, y: 0.16, rotation: 0.12, scale: 0.54, text: '💬', color: AppColors.duoBlue),
+          // So'z bulutchalari
+          _PatternGlyph.text(x: 0.18, y: 0.14, rotation: 0.1, scale: 0.85, text: '...', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.82, y: 0.74, rotation: 0.35, scale: 0.75, text: '...', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.32, y: 0.64, rotation: -0.12, scale: 0.7, text: '?', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.88, y: 0.50, rotation: 0.18, scale: 0.65, text: '!', color: AppColors.duoGreen),
+          _PatternGlyph.text(x: 0.14, y: 0.90, rotation: -0.22, scale: 0.6, text: '?', color: AppColors.duoOrange),
+          _PatternGlyph.text(x: 0.48, y: 0.24, rotation: -0.28, scale: 0.8, text: '!', color: AppColors.duoGreen),
+          // Doira va chiziqlar
+          _PatternGlyph.shapeO(x: 0.54, y: 0.54, rotation: 0.0, scale: 0.8, color: AppColors.duoPurple),
+          _PatternGlyph.shapeO(x: 0.16, y: 0.38, rotation: 0.15, scale: 0.65, color: AppColors.duoBlue),
+          _PatternGlyph.shapeO(x: 0.86, y: 0.16, rotation: -0.3, scale: 0.55, color: AppColors.duoPurple),
+          _PatternGlyph.shapeO(x: 0.10, y: 0.80, rotation: 0.4, scale: 0.5, color: AppColors.duoGreen),
+          _PatternGlyph.shapeO(x: 0.66, y: 0.36, rotation: -0.12, scale: 0.45, color: AppColors.duoBlue),
+          _PatternGlyph.shapeO(x: 0.40, y: 0.70, rotation: 0.25, scale: 0.4, color: AppColors.duoPurple),
         ];
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/leaderboard_category.dart';
 import '../utils/app_colors.dart';
 import '../utils/theme_manager.dart';
+import './bn_tiyin.dart';
 import './gamified_card.dart';
 import './siz_badge.dart';
 import './user_avatar.dart';
@@ -169,7 +170,7 @@ class LeaderboardListItem extends StatelessWidget {
         final stars = user['totalStars'] ?? 0;
         return Row(
           children: [
-            const Text('⭐', style: TextStyle(fontSize: 16)),
+            const BnTiyin(size: 16),
             const SizedBox(width: 4),
             Text(
               '$stars',

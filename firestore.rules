@@ -82,6 +82,15 @@ service cloud.firestore {
 
       // O'chirish: faqat admin
       allow delete: if isAdmin();
+
+      // Foydalanuvchi subkolleksiyalari: results (Lesen/Hören natijalari),
+      // mock_test_history (mock test tarixi) va boshqalar.
+      // O'qish: egasi o'zinikini; o'qituvchi/admin talaba natijalarini ko'radi.
+      // Yozish: faqat egasi.
+      match /{subPath=**} {
+        allow read: if isOwner(userId) || isTeacher() || isAdmin();
+        allow write: if isOwner(userId);
+      }
     }
 
     // ── groups ────────────────────────────────────────────────────────────────

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../services/student_results_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/gamified_card.dart';
@@ -241,7 +243,31 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     if (_currentIndex < _questions.length - 1) {
       _goToQuestion(_currentIndex + 1);
     } else {
-      Navigator.pop(context);
+      _finishAndSave();
+    }
+  }
+
+  Future<void> _finishAndSave() async {
+    await _saveToFirebase();
+    if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> _saveToFirebase() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return;
+      final correct = _results.where((r) => r == true).length;
+      final total = _questions.length;
+      await StudentResultsService.saveResult(
+        uid: uid,
+        type: 'horen',
+        title: 'Teil ${widget.teil.teilNumber}',
+        level: widget.level,
+        score: correct,
+        total: total,
+      );
+    } catch (e) {
+      debugPrint('Horen save error: $e');
     }
   }
 

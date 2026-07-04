@@ -10,12 +10,15 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/der_die_das_rules.dart';
 import '../../../utils/game_words.dart';
 import '../../../utils/theme_manager.dart';
+import '../../../widgets/bn_tiyin.dart';
 import '../../../widgets/decorative_pattern_background.dart';
+import '../../../widgets/fun_loading.dart';
 import '../../../widgets/gamified_card.dart';
 import 'der_die_das_rules_screen.dart';
 
 class DerDieDasGameScreen extends StatefulWidget {
-  const DerDieDasGameScreen({super.key});
+  final String level;
+  const DerDieDasGameScreen({super.key, this.level = 'A1'});
 
   @override
   State<DerDieDasGameScreen> createState() => _DerDieDasGameScreenState();
@@ -51,7 +54,7 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
   void _startNewRound() {
     _timer?.cancel();
     setState(() {
-      _deck = GameWords.shuffledWords(limit: DerDieDasRules.questionsPerRound);
+      _deck = GameWords.shuffledWords(limit: DerDieDasRules.questionsPerRound, level: widget.level);
       _index = 0;
       _score = 0;
       _correct = 0;
@@ -216,7 +219,11 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
   Widget _buildGame(bool isDark, String localeCode) {
     final current = _current;
     if (current == null) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.duoRed));
+      return FunLoading(
+        title: 'Der, Die, Das',
+        tips: FunLoading.gameTips,
+        color: AppColors.duoRed,
+      );
     }
 
     final noun = GameWords.nounWithoutArticle(current);
@@ -229,7 +236,14 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
         children: [
           Row(
             children: [
-              _statChip(isDark, '⭐ $_score', AppColors.duoOrange),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const BnTiyin(size: 14),
+                  const SizedBox(width: 4),
+                  _statChip(isDark, ' $_score', AppColors.duoOrange),
+                ],
+              ),
               const SizedBox(width: 8),
               _statChip(isDark, '✓ $_correct', AppColors.duoGreen),
               const Spacer(),
@@ -492,9 +506,9 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          _resultRow(isDark, 'Bu raund', '+$_score ⭐', AppColors.duoOrange),
+          _resultRow(isDark, 'Bu raund', '+$_score', AppColors.duoOrange, coin: true),
           const SizedBox(height: 10),
-          _resultRow(isDark, 'Jami yulduz', '$_totalSavedStars ⭐', AppColors.duoOrange),
+          _resultRow(isDark, 'Jami Tiyin', '$_totalSavedStars', AppColors.duoOrange, coin: true),
           const SizedBox(height: 10),
           _resultRow(isDark, 'To\'g\'ri', '$_correct / ${_deck.length}', AppColors.duoGreen),
           const SizedBox(height: 10),
@@ -547,7 +561,7 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
     );
   }
 
-  Widget _resultRow(bool isDark, String label, String value, Color color) {
+  Widget _resultRow(bool isDark, String label, String value, Color color, {bool coin = false}) {
     return GamifiedCard(
       color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
@@ -563,9 +577,18 @@ class _DerDieDasGameScreenState extends State<DerDieDasGameScreen> {
               color: isDark ? Colors.white70 : AppColors.duoTextLight,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (coin) ...[
+                const BnTiyin(size: 16, spinning: true),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                value,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color),
+              ),
+            ],
           ),
         ],
       ),

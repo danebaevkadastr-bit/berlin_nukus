@@ -11,7 +11,9 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/synonym_data.dart';
 import '../../../utils/synonym_rules.dart';
 import '../../../utils/theme_manager.dart';
+import '../../../widgets/bn_tiyin.dart';
 import '../../../widgets/decorative_pattern_background.dart';
+import '../../../widgets/fun_loading.dart';
 import '../../../widgets/gamified_card.dart';
 import 'synonym_battle_rules_screen.dart';
 
@@ -251,8 +253,10 @@ class _SynonymBattleGameScreenState extends State<SynonymBattleGameScreen> {
   Widget _buildGame(bool isDark) {
     final current = _current;
     if (current == null) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.duoPurple),
+      return FunLoading(
+        title: 'Sinonim jang',
+        tips: FunLoading.gameTips,
+        color: AppColors.duoPurple,
       );
     }
 
@@ -265,7 +269,14 @@ class _SynonymBattleGameScreenState extends State<SynonymBattleGameScreen> {
           // Stats row
           Row(
             children: [
-              _statChip(isDark, '⭐ $_score', AppColors.duoOrange),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const BnTiyin(size: 14),
+                  const SizedBox(width: 4),
+                  _statChip(isDark, ' $_score', AppColors.duoOrange),
+                ],
+              ),
               const SizedBox(width: 8),
               _statChip(isDark, '✓ $_correct', AppColors.duoGreen),
               const Spacer(),
@@ -544,9 +555,9 @@ class _SynonymBattleGameScreenState extends State<SynonymBattleGameScreen> {
           ),
           const SizedBox(height: 20),
           // Stats rows
-          _resultRow(isDark, SynonymRules.roundScoreLabel, '+$_score ⭐', AppColors.duoOrange),
+          _resultRow(isDark, SynonymRules.roundScoreLabel, '+$_score', AppColors.duoOrange, coin: true),
           const SizedBox(height: 10),
-          _resultRow(isDark, SynonymRules.totalStarsLabel, '$_totalSavedStars ⭐', AppColors.duoOrange),
+          _resultRow(isDark, SynonymRules.totalStarsLabel, '$_totalSavedStars', AppColors.duoOrange, coin: true),
           const SizedBox(height: 10),
           _resultRow(isDark, SynonymRules.correctLabel, '$_correct / ${_deck.length}', AppColors.duoGreen),
           const SizedBox(height: 10),
@@ -602,7 +613,7 @@ class _SynonymBattleGameScreenState extends State<SynonymBattleGameScreen> {
   }
 
   /// Natija qatori widgeti
-  Widget _resultRow(bool isDark, String label, String value, Color color) {
+  Widget _resultRow(bool isDark, String label, String value, Color color, {bool coin = false}) {
     return GamifiedCard(
       color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
@@ -618,9 +629,18 @@ class _SynonymBattleGameScreenState extends State<SynonymBattleGameScreen> {
               color: isDark ? Colors.white70 : AppColors.duoTextLight,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (coin) ...[
+                const BnTiyin(size: 16, spinning: true),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                value,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color),
+              ),
+            ],
           ),
         ],
       ),

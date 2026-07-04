@@ -50,7 +50,7 @@ class SynonymBattleRulesScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  const Text('⚔️', style: TextStyle(fontSize: 40)),
+                  const Icon(Icons.sync_alt_rounded, size: 40, color: Colors.white),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(

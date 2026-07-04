@@ -90,7 +90,7 @@ class AdminGroupDetailScreen extends StatelessWidget {
         backgroundColor: AppColors.duoGreen,
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Text('➕', style: TextStyle(fontSize: 24)),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('groups').doc(groupId).snapshots(),

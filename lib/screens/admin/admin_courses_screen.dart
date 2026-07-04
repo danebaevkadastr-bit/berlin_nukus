@@ -14,6 +14,93 @@ class AdminCoursesScreen extends StatefulWidget {
 }
 
 class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
+  void _deleteCourse(_AdminCourseItem course) {
+    final l = AppLocalizations.of(context);
+    final isDark = ThemeManager.isDark;
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E2A32) : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.warning_rounded, size: 48, color: AppColors.duoRed),
+              const SizedBox(height: 16),
+              Text(
+                '${course.title} kursini o\'chirmoqchimisiz?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : AppColors.duoTextDark,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Bu amalni qaytarib bo\'lmaydi.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.white60 : AppColors.duoTextLight,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: GamifiedCard(
+                      onTap: () => Navigator.pop(context),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      color: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.duoBackground,
+                      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                      child: Center(
+                        child: Text(
+                          l.cancel.toUpperCase(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? Colors.white70 : AppColors.duoTextDark,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GamifiedCard(
+                      onTap: () async {
+                        await FirebaseService().deleteCourse(course.id);
+                        if (context.mounted) Navigator.pop(context);
+                      },
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      color: AppColors.duoRed,
+                      shadowColor: const Color(0xFFCC3B3E),
+                      shadowDepth: 4,
+                      child: Center(
+                        child: Text(
+                          l.delete.toUpperCase(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _openGroups(String courseId, String title) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -26,46 +113,40 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
   }
 
   void _editCourse(_AdminCourseItem course) {
-    final l = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${course.title} ${l.willBeAddedSoon}', style: const TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: AppColors.duoBlue,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-    );
-  }
-
-  void _showAddCourseDialog() {
-    final titleController = TextEditingController();
-    String type = 'Offline';
+    final titleController = TextEditingController(text: course.title);
+    String type = course.type;
     final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.duoCardGray : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          l.addCourse.toUpperCase(),
-          style: TextStyle(
-            color: isDark ? Colors.white : AppColors.duoTextDark,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.5,
-          ),
-        ),
-        content: StatefulBuilder(
-          builder: (context, setState) => SingleChildScrollView(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialog) => Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E2A32) : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  l.edit.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                  ),
+                ),
+                const SizedBox(height: 20),
                 _buildDialogField(titleController, l.courseName, isDark),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  initialValue: type,
-                  dropdownColor: isDark ? AppColors.duoCardGray : Colors.white,
+                  value: type,
+                  dropdownColor: isDark ? const Color(0xFF1E2A32) : Colors.white,
                   decoration: InputDecoration(
                     labelText: l.courseType,
                     labelStyle: TextStyle(
@@ -73,7 +154,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                       color: isDark ? Colors.white54 : AppColors.duoTextLight,
                     ),
                     filled: true,
-                    fillColor: isDark ? Colors.black12 : AppColors.duoBackground,
+                    fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.duoBackground,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
@@ -91,42 +172,179 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                             ),
                           ))
                       .toList(),
-                  onChanged: (v) => setState(() => type = v!),
+                  onChanged: (v) => setDialog(() => type = v!),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GamifiedCard(
+                        onTap: () => Navigator.pop(context),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        color: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.duoBackground,
+                        shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                        child: Center(
+                          child: Text(
+                            l.cancel.toUpperCase(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white70 : AppColors.duoTextDark,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GamifiedCard(
+                        onTap: () async {
+                          if (titleController.text.isEmpty) return;
+                          await FirebaseService().updateCourse(
+                            courseId: course.id,
+                            title: titleController.text.trim(),
+                            type: type,
+                          );
+                          if (context.mounted) Navigator.pop(context);
+                        },
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        color: AppColors.duoGreen,
+                        shadowColor: AppColors.duoGreenShadow,
+                        shadowDepth: 4,
+                        child: Center(
+                          child: Text(
+                            l.save.toUpperCase(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              l.cancel.toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.w800, color: AppColors.duoRed),
+      ),
+    );
+  }
+
+  void _showAddCourseDialog() {
+    final titleController = TextEditingController();
+    String type = 'Offline';
+    final l = AppLocalizations.of(context);
+    final isDark = ThemeManager.isDark;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialog) => Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E2A32) : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.addCourse.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : AppColors.duoTextDark,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildDialogField(titleController, l.courseName, isDark),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: type,
+                  dropdownColor: isDark ? const Color(0xFF1E2A32) : Colors.white,
+                  decoration: InputDecoration(
+                    labelText: l.courseType,
+                    labelStyle: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                    ),
+                    filled: true,
+                    fillColor: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.duoBackground,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  items: ['Offline', 'Online']
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(
+                              e.toUpperCase(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white : AppColors.duoTextDark,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setDialog(() => type = v!),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GamifiedCard(
+                        onTap: () => Navigator.pop(context),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        color: isDark ? Colors.white.withValues(alpha: 0.06) : AppColors.duoBackground,
+                        shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                        child: Center(
+                          child: Text(
+                            l.cancel.toUpperCase(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white70 : AppColors.duoTextDark,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: GamifiedCard(
+                        onTap: () async {
+                          if (titleController.text.isEmpty) return;
+                          await FirebaseService().addCourse(
+                            title: titleController.text.trim(),
+                            type: type,
+                          );
+                          if (context.mounted) Navigator.pop(context);
+                        },
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        color: AppColors.duoGreen,
+                        shadowColor: AppColors.duoGreenShadow,
+                        shadowDepth: 4,
+                        child: Center(
+                          child: Text(
+                            l.save.toUpperCase(),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              if (titleController.text.isEmpty) return;
-              
-              await FirebaseService().addCourse(
-                title: titleController.text.trim(),
-                type: type,
-              );
-              
-              if (context.mounted) Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.duoGreen,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 4,
-            ),
-            child: Text(
-              l.save.toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -207,7 +425,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('📚', style: TextStyle(fontSize: 64)),
+                  Icon(Icons.menu_book_rounded, size: 64, color: isDark ? Colors.white24 : AppColors.duoTextLight.withValues(alpha: 0.4)),
                   const SizedBox(height: 16),
                   Text(
                     l.noCoursesYet,
@@ -237,7 +455,6 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                         type: course['type'] ?? 'Offline',
                         groups: course['groups'] ?? 0,
                         students: course['students'] ?? 0,
-                        emoji: course['type'] == 'Online' ? '💻' : '🇩🇪',
                         color: course['type'] == 'Online' ? AppColors.duoOrange : AppColors.duoBlue,
                         shadow: course['type'] == 'Online' ? AppColors.duoOrangeShadow : AppColors.duoBlueShadow,
                       );
@@ -250,6 +467,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                           l: l,
                           onTap: () => _openGroups(item.id, item.title),
                           onEdit: () => _editCourse(item),
+                          onDelete: () => _deleteCourse(item),
                           onGroups: () => _openGroups(item.id, item.title),
                         ),
                       );
@@ -287,14 +505,14 @@ class _CoursesHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'KURS BOSHQARUVI 📚',
+                  const Text(
+                    'KURS BOSHQARUVI',
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 11,
@@ -302,8 +520,8 @@ class _CoursesHeader extends StatelessWidget {
                       letterSpacing: 0.5,
                     ),
                   ),
-                  SizedBox(height: 6),
-                  Text(
+                  const SizedBox(height: 6),
+                  const Text(
                     'Berlin Nukus Kurslari',
                     style: TextStyle(
                       fontSize: 20,
@@ -313,6 +531,7 @@ class _CoursesHeader extends StatelessWidget {
                   ),
                 ],
               ),
+              const Icon(Icons.school_rounded, size: 32, color: Colors.white70),
             ],
           ),
           const SizedBox(height: 24),
@@ -372,6 +591,7 @@ class _AdminCourseCard extends StatelessWidget {
   final AppLocalizations l;
   final VoidCallback onTap;
   final VoidCallback onEdit;
+  final VoidCallback onDelete;
   final VoidCallback onGroups;
 
   const _AdminCourseCard({
@@ -380,6 +600,7 @@ class _AdminCourseCard extends StatelessWidget {
     required this.l,
     required this.onTap,
     required this.onEdit,
+    required this.onDelete,
     required this.onGroups,
   });
 
@@ -402,7 +623,11 @@ class _AdminCourseCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Center(
-                  child: Text(course.emoji, style: const TextStyle(fontSize: 28)),
+                  child: Icon(
+                    course.type == 'Online' ? Icons.laptop_rounded : Icons.school_rounded,
+                    color: course.color,
+                    size: 28,
+                  ),
                 ),
               ),
               const SizedBox(width: 14),
@@ -440,9 +665,11 @@ class _AdminCourseCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: isDark ? Colors.white54 : AppColors.duoTextLight,
+              IconButton(
+                onPressed: onDelete,
+                icon: Icon(Icons.delete_outline_rounded, color: AppColors.duoRed, size: 22),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
               ),
             ],
           ),
@@ -557,7 +784,6 @@ class _AdminCourseItem {
   final String type;
   final int groups;
   final int students;
-  final String emoji;
   final Color color;
   final Color shadow;
 
@@ -567,7 +793,6 @@ class _AdminCourseItem {
     required this.type,
     required this.groups,
     required this.students,
-    required this.emoji,
     required this.color,
     required this.shadow,
   });

@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../models/strange_sentences_round.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/strange_sentences_rules.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/gamified_card.dart';
 import 'strange_sentences_game_screen.dart';
 
-class StrangeSentencesRulesScreen extends StatelessWidget {
+class StrangeSentencesRulesScreen extends StatefulWidget {
   const StrangeSentencesRulesScreen({super.key});
+
+  @override
+  State<StrangeSentencesRulesScreen> createState() =>
+      _StrangeSentencesRulesScreenState();
+}
+
+class _StrangeSentencesRulesScreenState
+    extends State<StrangeSentencesRulesScreen> {
+  StrangeDifficulty _selectedDifficulty = StrangeDifficulty.medium;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +26,8 @@ class StrangeSentencesRulesScreen extends StatelessWidget {
     final isDark = ThemeManager.isDark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
+      backgroundColor:
+          isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
       appBar: AppBar(
         title: Text(
           l.strangeSentencesGame.toUpperCase(),
@@ -30,7 +41,8 @@ class StrangeSentencesRulesScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: isDark ? Colors.white : AppColors.duoTextDark),
+        iconTheme: IconThemeData(
+            color: isDark ? Colors.white : AppColors.duoTextDark),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
@@ -43,7 +55,8 @@ class StrangeSentencesRulesScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  const Text('🎭', style: TextStyle(fontSize: 40)),
+                  const Icon(Icons.theater_comedy_rounded,
+                      size: 40, color: Colors.white),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -85,8 +98,11 @@ class StrangeSentencesRulesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             GamifiedCard(
-              color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
-              shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+              color: isDark
+                  ? AppColors.duoCardGray.withValues(alpha: 0.1)
+                  : Colors.white,
+              shadowColor:
+                  isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
               padding: const EdgeInsets.all(18),
               child: Text(
                 StrangeSentencesRules.howToPlayText.trim(),
@@ -99,20 +115,25 @@ class StrangeSentencesRulesScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _modeCard(
-              isDark,
-              '🎯',
-              l.strangeSentencesPickHint,
-              '3 ta gapdan grammatik to\'g\'ri g\'alati gapni tanlang.',
+            _modeCard(isDark, '🎯', l.strangeSentencesPickHint,
+                '3 ta gapdan grammatik to\'g\'ri g\'alati gapni tanlang.'),
+            const SizedBox(height: 12),
+            _modeCard(isDark, '🔀', l.strangeSentencesOrderHint,
+                'Aralashtirilgan so\'zlarni bosib to\'g\'ri tartibda gap tuzing.'),
+            const SizedBox(height: 24),
+            // ── Daraja tanlash ──
+            Text(
+              l.grammarGameSelectLevel,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : AppColors.duoTextDark,
+              ),
             ),
             const SizedBox(height: 12),
-            _modeCard(
-              isDark,
-              '🔀',
-              l.strangeSentencesOrderHint,
-              'Aralashtirilgan so\'zlarni bosib to\'g\'ri tartibda gap tuzing.',
-            ),
+            _buildDifficultySelector(isDark, l),
             const SizedBox(height: 28),
+            // ── Boshlash tugmasi ──
             GamifiedCard(
               color: AppColors.duoGreen,
               shadowColor: AppColors.duoGreenShadow,
@@ -120,7 +141,11 @@ class StrangeSentencesRulesScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 16),
               onTap: () => Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => const StrangeSentencesGameScreen()),
+                MaterialPageRoute(
+                  builder: (_) => StrangeSentencesGameScreen(
+                    difficulty: _selectedDifficulty,
+                  ),
+                ),
               ),
               child: Center(
                 child: Text(
@@ -140,9 +165,78 @@ class StrangeSentencesRulesScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildDifficultySelector(bool isDark, AppLocalizations l) {
+    final items = [
+      (StrangeDifficulty.easy, l.easy, '10⭐', AppColors.duoGreen),
+      (StrangeDifficulty.medium, l.medium, '15⭐', AppColors.duoOrange),
+      (StrangeDifficulty.hard, l.hard, '20⭐', AppColors.duoRed),
+    ];
+
+    return Row(
+      children: items.map((item) {
+        final (diff, label, stars, color) = item;
+        final selected = _selectedDifficulty == diff;
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: diff != StrangeDifficulty.hard ? 10 : 0,
+            ),
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedDifficulty = diff),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? color.withValues(alpha: 0.15)
+                      : (isDark
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : Colors.white),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: selected
+                        ? color
+                        : (isDark ? Colors.white12 : AppColors.duoCardGrayShadow),
+                    width: selected ? 2.5 : 1.5,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        color: selected
+                            ? color
+                            : (isDark ? Colors.white : AppColors.duoTextDark),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      stars,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _modeCard(bool isDark, String emoji, String title, String body) {
     return GamifiedCard(
-      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.08) : Colors.white,
+      color: isDark
+          ? AppColors.duoCardGray.withValues(alpha: 0.08)
+          : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
       padding: const EdgeInsets.all(16),
       child: Row(

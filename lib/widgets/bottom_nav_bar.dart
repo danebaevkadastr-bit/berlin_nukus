@@ -58,7 +58,7 @@ class BottomNavBar extends StatelessWidget {
     const activeColor = AppColors.duoBlue;
     final inactiveColor = isDark ? Colors.white54 : AppColors.duoTextLight;
 
-    return _AnimatedNavItem(
+    return AnimatedNavItem(
       icon: icon,
       label: label,
       index: index,
@@ -70,7 +70,7 @@ class BottomNavBar extends StatelessWidget {
   }
 }
 
-class _AnimatedNavItem extends StatefulWidget {
+class AnimatedNavItem extends StatefulWidget {
   final IconData icon;
   final String label;
   final int index;
@@ -79,7 +79,8 @@ class _AnimatedNavItem extends StatefulWidget {
   final Color inactiveColor;
   final VoidCallback onTap;
 
-  const _AnimatedNavItem({
+  const AnimatedNavItem({
+    super.key,
     required this.icon,
     required this.label,
     required this.index,
@@ -90,10 +91,10 @@ class _AnimatedNavItem extends StatefulWidget {
   });
 
   @override
-  State<_AnimatedNavItem> createState() => _AnimatedNavItemState();
+  State<AnimatedNavItem> createState() => _AnimatedNavItemState();
 }
 
-class _AnimatedNavItemState extends State<_AnimatedNavItem>
+class _AnimatedNavItemState extends State<AnimatedNavItem>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -143,7 +144,6 @@ class _AnimatedNavItemState extends State<_AnimatedNavItem>
         scale: _scaleAnimation,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: 64,
           height: 72,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

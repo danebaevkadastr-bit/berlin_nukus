@@ -13,6 +13,7 @@ import 'grammar_levels_screen.dart';
 import 'mock_test_screen.dart';
 import 'horen/horen_screen.dart';
 import 'lesen/lesen_screen.dart';
+import 'sprechen/sprechen_screen.dart';
 
 class StudentLearningScreen extends StatelessWidget {
   const StudentLearningScreen({super.key});
@@ -76,7 +77,8 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '🤖',
+              icon: Icons.smart_toy_rounded,
+              iconColor: AppColors.duoPurple,
               title: 'Sprechen AI',
               subtitle: l.speakWithAi,
               onTap: () => _openWithGroupCheck(
@@ -88,7 +90,8 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '📘',
+              icon: Icons.article_rounded,
+              iconColor: AppColors.duoBlue,
               title: 'Der, Die, Das',
               subtitle: l.learnArticles,
               onTap: () => _openWithGroupCheck(
@@ -102,7 +105,8 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '✍️',
+              icon: Icons.edit_rounded,
+              iconColor: AppColors.duoOrange,
               title: 'Schreiben',
               subtitle: l.writingExercises,
               onTap: () => _openWithGroupCheck(
@@ -114,7 +118,8 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '👂',
+              icon: Icons.headphones_rounded,
+              iconColor: AppColors.duoGreen,
               title: 'Hören',
               subtitle: l.listeningExercises,
               onTap: () => _openWithGroupCheck(
@@ -126,7 +131,8 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '📰',
+              icon: Icons.menu_book_rounded,
+              iconColor: AppColors.duoRed,
               title: 'Lesen',
               subtitle: l.readingExercises,
               onTap: () => _openWithGroupCheck(
@@ -138,7 +144,21 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '📖',
+              icon: Icons.record_voice_over_rounded,
+              iconColor: AppColors.duoBlue,
+              title: 'Sprechen',
+              subtitle: l.sprechenExercises,
+              onTap: () => _openWithGroupCheck(
+                context,
+                () => const SprechenScreen(),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            _buildLearningCard(
+              context,
+              icon: Icons.translate_rounded,
+              iconColor: AppColors.duoGreen,
               title: l.translation,
               subtitle: l.vocabAndTranslation,
               onTap: () => _openWithGroupCheck(
@@ -150,7 +170,8 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '📚',
+              icon: Icons.style_rounded,
+              iconColor: AppColors.duoPurple,
               title: l.vocabulary,
               subtitle: l.savedVocabulary,
               onTap: () => _openWithGroupCheck(
@@ -162,7 +183,8 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '📚',
+              icon: Icons.school_rounded,
+              iconColor: AppColors.duoOrange,
               title: 'Grammatika',
               subtitle: 'A1, A2, B1, B2 darajalari',
               onTap: () => _openWithGroupCheck(
@@ -174,10 +196,11 @@ class StudentLearningScreen extends StatelessWidget {
 
             _buildLearningCard(
               context,
-              icon: '📝',
+              icon: Icons.fact_check_rounded,
+              iconColor: AppColors.duoRed,
               title: 'Mock Test',
               subtitle: 'A1–B2 darajalarida bilimni sinash',
-              badge: '🆕',
+              showNewBadge: true,
               onTap: () => _openWithGroupCheck(
                 context,
                 () => const MockTestScreen(),
@@ -194,10 +217,11 @@ class StudentLearningScreen extends StatelessWidget {
 
   Widget _buildLearningCard(
     BuildContext context, {
-    required String icon,
+    required IconData icon,
+    required Color iconColor,
     required String title,
     required String subtitle,
-    String? badge,
+    bool showNewBadge = false,
     VoidCallback? onTap,
   }) {
     final isDark = ThemeManager.isDark;
@@ -217,28 +241,31 @@ class StudentLearningScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      title.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.3,
-                        height: 1.15,
-                        color: isDark ? Colors.white : AppColors.duoTextDark,
+                    Flexible(
+                      child: Text(
+                        title.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.3,
+                          height: 1.15,
+                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                        ),
                       ),
                     ),
-                    if (badge != null) ...[
+                    if (showNewBadge) ...[
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: ThemeManager.accent.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text(
-                          badge,
-                          style: const TextStyle(fontSize: 12),
+                        child: Icon(
+                          Icons.fiber_new_rounded,
+                          size: 16,
+                          color: ThemeManager.accent,
                         ),
                       ),
                     ],
@@ -258,7 +285,15 @@ class StudentLearningScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Text(icon, style: const TextStyle(fontSize: 40)),
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: isDark ? 0.22 : 0.14),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, size: 30, color: iconColor),
+          ),
         ],
       ),
     );

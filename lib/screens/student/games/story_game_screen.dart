@@ -8,6 +8,7 @@ import '../../../services/sound_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/decorative_pattern_background.dart';
+import '../../../widgets/fun_loading.dart';
 import '../../../widgets/gamified_card.dart';
 
 class StoryGameScreen extends StatefulWidget {
@@ -306,25 +307,16 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
   }
 
   Widget _buildLoading(bool isDark, AppLocalizations l) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('📝', style: TextStyle(fontSize: 56)),
-          const SizedBox(height: 20),
-          Text(
-            'So\'zlar yuklanmoqda...',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white70 : AppColors.duoTextLight,
-            ),
-          ),
-          const SizedBox(height: 24),
-          const CircularProgressIndicator(color: AppColors.candyPink),
-        ],
-      ),
+    return FunLoading(
+      title: l.wordsLoading,
+      tips: const [
+        'AI qiziqarli so\'zlar tanlayapti...',
+        'Hikoya yozishga tayyormisiz?',
+        'Kreativlikni mashq qilish vaqti!',
+        'So\'z boyligingizni oshiramiz!',
+        'Biroz sabr — zo\'r savollar keladi!',
+      ],
+      color: AppColors.duoGreen,
     );
   }
 
@@ -456,7 +448,9 @@ class _StoryGameScreenState extends State<StoryGameScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('🎯 ', style: TextStyle(fontSize: 16)),
+                  const Icon(Icons.track_changes_rounded,
+                      size: 16, color: AppColors.duoBlue),
+                  const SizedBox(width: 6),
                   Text(
                     'Mavzu: ${_round!.theme}',
                     style: const TextStyle(
