@@ -314,15 +314,13 @@ class GeminiLiveService {
   void _sendAudioChunk(Uint8List chunk) {
     final ch = _channel;
     if (ch == null) return;
-    // Let's use realtimeInput.mediaChunks
+    // Note: Use realtimeInput.audio for new Live API format
     final realtimeMsg = {
       'realtimeInput': {
-        'mediaChunks': [
-          {
-            'mimeType': 'audio/pcm;rate=16000',
-            'data': base64Encode(chunk),
-          }
-        ]
+        'audio': {
+          'mimeType': 'audio/pcm;rate=16000',
+          'data': base64Encode(chunk),
+        }
       },
     };
     ch.sink.add(jsonEncode(realtimeMsg));
