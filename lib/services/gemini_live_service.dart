@@ -14,6 +14,8 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+final _rng = math.Random();
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:record/record.dart';
@@ -54,6 +56,12 @@ class GeminiLiveService {
 
   bool _connected = false;
   bool _closed = false;
+
+  // Bitta suhbatda bir martalik "fart" surprise effekti.
+  bool _fartPlayed = false;
+  int _turnCount = 0;
+  // 3-6 chi turnda tasodifan chiqadi.
+  final int _fartTriggerTurn = 3 + _rng.nextInt(4);
 
   // Dastur tili — botning kirish so'zi va tushuntirishlari uchun.
   String _uiLangCode = 'uz';
@@ -355,6 +363,17 @@ class GeminiLiveService {
       return;
     }
 
+    // Har turnda fart triggerini tekshiramiz.
+    _turnCount++;
+    if (!_fartPlayed && _turnCount >= _fartTriggerTurn) {
+      _fartPlayed = true;
+      // Avval bot audiosini o'ynatamiz, keyin fart.
+      // Keyingi blok bot audioni o'ynatadi; biz fartni audiosidan KEYIN qo'yamiz.
+      // Shuning uchun alohida metod chaqiramiz.
+      _scheduleFartAfterTurn(pcm);
+      return;
+    }
+
     if (pcm.isEmpty) {
       state.value = AiFaceState.listening;
       return;
@@ -429,6 +448,84 @@ class GeminiLiveService {
       await done.timeout(const Duration(seconds: 4), onTimeout: () {});
     } catch (e) {
       debugPrint('GeminiLive sfx error: $e');
+    }
+  }
+
+  /// Bot audiosini o'ynatadi, keyin Fart.mp3 qo'yadi, so'ng AI ga reaktsiya
+  /// buyrug'ini yuboradi. Bitta suhbatda faqat bir marta chaqiriladi.
+  Future<void> _scheduleFartAfterTurn(Uint8List pcm) async {
+    // Avval bot audiosini (agar bo'lsa) normal o'ynatamiz.
+    if (pcm.isNotEmpty && !_closed) {
+      try {
+        final wav = _pcm16ToWav(pcm, sampleRate: 24000, channels: 1);
+        state.value = AiFaceState.speaking;
+        _playingPcm = Uint8List.fromList(pcm);
+        _playStartMs = DateTime.now().millisecondsSinceEpoch;
+        _startAmpTimer();
+        _playerCompleteSub ??= _player.onPlayerComplete.listen((_) {
+          _stopAmpTimer();
+          if (!_closed) {
+            state.value = AiFaceState.listening;
+            emotion.value = AiFaceEmotion.neutral;
+            mouthLevel.value = 0.0;
+          }
+        });
+        await _player.stop();
+        await _player.play(BytesSource(wav));
+        // Bot audiosi tugashini kutamiz (max 10s).
+        await _player.onPlayerComplete.first
+            .timeout(const Duration(seconds: 10), onTimeout: () {});
+      } catch (e) {
+        debugPrint('GeminiLive fart-turn play error: $e');
+      }
+    }
+    if (_closed) return;
+
+    // 1 soniya pauza, keyin fart 💨
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (_closed) return;
+
+    await _playSfx('sounds/Fart.mp3');
+    if (_closed) return;
+
+    // AI ga o'z tilida reaktsiya buyrug'i yuboramiz.
+    final lang = _uiLangCode;
+    final String reactPrompt;
+    switch (lang) {
+      case 'ru':
+        reactPrompt =
+            '(Только что произошёл неловкий звук. Скажи по-русски что-то вроде: '
+            '"Извините, это был не я!" смущённо и немного смешно. '
+            'Если спросят кто это был — скажи что это был словарный запас ученика.)';
+        break;
+      case 'de':
+        reactPrompt =
+            '(Gerade ist ein peinliches Geräusch passiert. Sage auf Deutsch: '
+            '"Entschuldigung, das war wirklich nicht ich!" verlegen und leicht amüsiert. '
+            'Falls gefragt wer es war — sage, das war der Wortschatz des Lernenden.)';
+        break;
+      default:
+        reactPrompt =
+            "(Hozir noqulay bir tovush chiqdi. O'zbek tilida xijolat bilan: "
+            '"Kechirasiz, bu men emas edi!" de va sal kul. '
+            "Agar kim deb so'rasa — bu sening slovar zapasing edi de.)";
+    }
+
+    final ch = _channel;
+    if (ch != null && !_closed) {
+      ch.sink.add(jsonEncode({
+        'clientContent': {
+          'turns': [
+            {
+              'role': 'user',
+              'parts': [
+                {'text': reactPrompt}
+              ]
+            }
+          ],
+          'turnComplete': true,
+        }
+      }));
     }
   }
 
