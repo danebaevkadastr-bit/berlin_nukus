@@ -64,6 +64,10 @@ class GeminiLiveService {
 
   // Dastur tili — botning kirish so'zi va tushuntirishlari uchun.
   String _uiLangCode = 'uz';
+  String? _customPersonality;
+  int _reconnectAttempts = 0;
+  static const int _maxReconnectAttempts = 3;
+  Timer? _reconnectTimer;
 
   /// Ekran kuzatadigan holat (yuz animatsiyasi uchun).
   final ValueNotifier<AiFaceState> state =
@@ -90,6 +94,7 @@ class GeminiLiveService {
     if (_connected) return;
     if (_channel != null) await disconnect();
     _uiLangCode = uiLangCode;
+    _customPersonality = customPersonality;
     _closed = false;
     state.value = AiFaceState.thinking; // "connecting"
     error.value = null;
@@ -107,8 +112,7 @@ class GeminiLiveService {
         _onMessage,
         onError: (e) {
           debugPrint('GeminiLive WS error: $e');
-          error.value = 'Ulanishda xato: $e';
-          state.value = AiFaceState.idle;
+          if (!_closed) _scheduleReconnect();
         },
         onDone: () {
           final code = _channel?.closeCode;
@@ -116,8 +120,14 @@ class GeminiLiveService {
           debugPrint('GeminiLive WS closed (code=$code, reason=$reason)');
           _connected = false;
           if (!_closed) {
-            error.value = 'Ulanish yopildi (code=$code, reason=$reason)';
-            state.value = AiFaceState.idle;
+            // 1011 = server internal error, 1006 = abnormal closure — qayta ulanish
+            if (code == 1011 || code == 1006 || code == null) {
+              debugPrint('GeminiLive: $code xatosi — qayta ulanish urinilmoqda...');
+              _scheduleReconnect();
+            } else {
+              error.value = 'Ulanish yopildi (code=$code)';
+              state.value = AiFaceState.idle;
+            }
           }
         },
       );
@@ -297,6 +307,47 @@ class GeminiLiveService {
     _stopAmpTimer();
     _turnAudio.clear();
     state.value = AiFaceState.listening;
+  }
+
+  /// 1011/1006 xatolarida avtomatik qayta ulanish (exponential backoff).
+  /// 3 ta urinishdan keyin muvaffaqiyatsiz bo'lsa xato ko'rsatadi.
+  void _scheduleReconnect() {
+    if (_closed) return;
+    if (_reconnectAttempts >= _maxReconnectAttempts) {
+      debugPrint('GeminiLive: qayta ulanish urinishlari tugadi.');
+      error.value = 'Ulanish uzildi. Sahifani yangilang.';
+      state.value = AiFaceState.idle;
+      _reconnectAttempts = 0;
+      return;
+    }
+    _reconnectAttempts++;
+    final delay = Duration(seconds: _reconnectAttempts * 2); // 2s, 4s, 6s
+    debugPrint('GeminiLive: ${delay.inSeconds}s dan keyin qayta ulanish (#$_reconnectAttempts)...');
+    state.value = AiFaceState.thinking; // "qayta ulanmoqda..."
+    error.value = null;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = Timer(delay, () async {
+      if (_closed) return;
+      // Eski kanallarni tozalaymiz, lekin _closed = false saqlaymiz.
+      _connected = false;
+      _turnAudio.clear();
+      _pendingMic.clear();
+      _micFlushTimer?.cancel();
+      _micFlushTimer = null;
+      await _micSub?.cancel();
+      _micSub = null;
+      try { await _recorder.stop(); } catch (_) {}
+      await _wsSub?.cancel();
+      _wsSub = null;
+      try { await _channel?.sink.close(); } catch (_) {}
+      _channel = null;
+      try { await _player.stop(); } catch (_) {}
+      // Qayta ulanish — connect() ni chaqiramiz.
+      await connect(
+        uiLangCode: _uiLangCode,
+        customPersonality: _customPersonality,
+      );
+    });
   }
 
   void _queueAudioChunk(Uint8List chunk) {
@@ -599,6 +650,9 @@ class GeminiLiveService {
   Future<void> disconnect() async {
     _closed = true;
     _connected = false;
+    _reconnectAttempts = 0;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
     state.value = AiFaceState.idle;
     emotion.value = AiFaceEmotion.neutral;
     _micFlushTimer?.cancel();
