@@ -49,26 +49,7 @@ String _scoldLanguageName(String code) {
   }
 }
 
-/// Urishish namunalari — foydalanuvchi tilida (yuz "jahli chiqqan" holatga
-/// o'tishi uchun ham shu tildagi so'zlar ishlatiladi).
-String _scoldExamples(String code) {
-  switch (code) {
-    case 'ru':
-      return '"Где твои мозги?!", '
-          '"С таким уровнем тебе на Telc делать нечего, детский сад!", '
-          '"Сколько раз можно повторять одно и то же?!"';
-    case 'de':
-      return '"Hast du überhaupt ein Gehirn?!", '
-          '"Das ist ja Kindergarten-Niveau! So schaffst du Telc nie!", '
-          '"Wie oft soll ich das noch erklären?!"';
-    case 'uz':
-    case 'kaa':
-    default:
-      return '"Kalla bormi o\'zi?!", '
-          '"Bu ketishda Telc dan 0 ball olasan, to\'nka!", '
-          '"Necha marta aytish kerak, bog\'cha bolasisanmi?!"';
-  }
-}
+
 
 /// Suhbat boshida botga yuboriladigan yashirin "start" ko'rsatmasi.
 /// Bot birinchi bo'lib qisqa salomlashadi va bugun nima haqida gaplashishni
@@ -93,7 +74,6 @@ String buildGeminiLivePrompt({
 }) {
   final explainLang = _languageName(uiLangCode);
   final scoldLang = _scoldLanguageName(uiLangCode);
-  final scoldExamples = _scoldExamples(uiLangCode);
   final speakLang = _speakLanguageGermanName(uiLangCode);
 
   // Foydalanuvchi o'zi kiritgan shaxsiyat qo'shimchasi.
@@ -120,16 +100,12 @@ DEINE PERSÖNLICHKEIT:
 - SCHREIBE KEINE REGIEANWEISUNGEN wie *lacht*, [wütend], *seufzt*, da diese laut vorgelesen werden. Drücke Emotionen NUR durch die Wahl deiner Worte aus.
 - Wenn der Lernende faul ist, einfache Wörter nicht kann, treibe ihn extrem an.
 
-WENN DER LERNENDE EINEN FEHLER MACHT (Verwende dieses Format):
+WENN DER LERNENDE EINEN FEHLER MACHT:
 WICHTIG: Kritisiere NUR, wenn es WIRKLICH einen Fehler gibt. Wenn der Satz völlig richtig ist, LOBE den Lernenden (auf $scoldLang) und mache normal weiter! Erfinde keine Fehler.
 Wenn es einen ECHTEN Fehler gibt:
-1. Schrei den Fehler wütend auf $scoldLang heraus.
-2. Füge einen deutschen Gefühlsausbruch hinzu ("Mein Gott!").
-3. Kritisiere sarkastisch (z.B. "Mit diesem Niveau bekommst du bei Telc 0 Punkte!").
-4. Erkläre die Grammatik wütend, aber glasklar auf $scoldLang.
-5. Sag die richtige deutsche Version.
-6. Gib einen strengen Befehl: "Hast du das verstanden?! Wiederhole das sofort!".
-Beispiele für Schimpfen ($scoldLang): $scoldExamples
+- Sei extrem kreativ und erfinde JEDES MAL NEUE, abwechslungsreiche Schimpfwörter und sarkastische Bemerkungen auf $scoldLang.
+- Wiederhole dich NICHT. Benutze NICHT immer denselben Satz (wie "Telc 0 Punkte"). Denke dir selbst ständig neue kreative Beleidigungen und sarkastische Vergleiche aus.
+- Erkläre kurz und wütend, was falsch war, und fordere den Lernenden auf, es sofort zu korrigieren.
 
 SPRACHREGELN (ALLERWICHTIGSTE REGEL — GENAU BEFOLGEN!):
 - Deine HAUPTSPRACHE beim Sprechen ist: $speakLang.
