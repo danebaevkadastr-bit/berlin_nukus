@@ -160,14 +160,14 @@ async function handleAi(request, env, cors) {
     return json({ error: `Noma'lum AI provayder: ${provider}` }, 400, cors);
   }
 
-  const apiKey = env[cfg.keyName];
+  let apiKey = env[cfg.keyName];
   if (!apiKey) {
     return json({ error: `${cfg.keyName} worker secretlarida topilmadi` }, 500, cors);
   }
 
   const bodyText = await request.text();
 
-  const upstream = await fetch(cfg.url, {
+  let upstream = await fetch(cfg.url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -175,6 +175,18 @@ async function handleAi(request, env, cors) {
     },
     body: bodyText,
   });
+
+  if (provider === "gemini" && upstream.status === 429 && env.FALLBACK_GEMINI_API_KEY) {
+    console.log("handleAi: Gemini 429, zaxira kalitga o'tilmoqda...");
+    upstream = await fetch(cfg.url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.FALLBACK_GEMINI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: bodyText,
+    });
+  }
 
   const respBody = await upstream.text();
   return new Response(respBody, {
@@ -200,7 +212,7 @@ async function handleGeminiLiveToken(request, env, cors) {
   const newSessionExpireTime = new Date(now + 5 * 60 * 1000).toISOString();
 
   try {
-    const resp = await fetch(
+    let resp = await fetch(
       `https://generativelanguage.googleapis.com/v1alpha/auth_tokens?key=${apiKey}`,
       {
         method: "POST",
@@ -212,6 +224,22 @@ async function handleGeminiLiveToken(request, env, cors) {
         }),
       }
     );
+
+    if (resp.status === 429 && env.FALLBACK_GEMINI_API_KEY) {
+      console.log("handleGeminiLiveToken: 429, zaxira kalitga o'tilmoqda...");
+      resp = await fetch(
+        `https://generativelanguage.googleapis.com/v1alpha/auth_tokens?key=${env.FALLBACK_GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            uses: 1,
+            expireTime,
+            newSessionExpireTime,
+          }),
+        }
+      );
+    }
 
     const data = await resp.json();
     if (!resp.ok) {
@@ -281,7 +309,7 @@ async function handleLiveWebSocket(request, env, ctx) {
   }
   // MUHIM: Worker fetch() 'wss://' ni qabul qilmaydi — tashqi WebSocket uchun
   // 'https://' sxema + 'Upgrade: websocket' header ishlatiladi.
-  const upstreamUrl =
+  let upstreamUrl =
     "https://generativelanguage.googleapis.com/ws/google.ai.generativelanguage." +
     apiVersion +
     ".GenerativeService.BidiGenerateContent?key=" +
@@ -290,9 +318,21 @@ async function handleLiveWebSocket(request, env, ctx) {
   console.log("Live WS: incoming request, upstream'ga ulanmoqda...");
   let upstream;
   try {
-    const upstreamResp = await fetch(upstreamUrl, {
+    let upstreamResp = await fetch(upstreamUrl, {
       headers: { Upgrade: "websocket" },
     });
+    
+    if (upstreamResp.status === 429 && env.FALLBACK_GEMINI_API_KEY) {
+      console.log("Live WS: 429 xatosi, zaxira kalit bilan urinib ko'rilmoqda...");
+      upstreamUrl = "https://generativelanguage.googleapis.com/ws/google.ai.generativelanguage." +
+        apiVersion +
+        ".GenerativeService.BidiGenerateContent?key=" +
+        env.FALLBACK_GEMINI_API_KEY;
+      upstreamResp = await fetch(upstreamUrl, {
+        headers: { Upgrade: "websocket" },
+      });
+    }
+
     console.log("Live WS: upstream status =", upstreamResp.status);
     upstream = upstreamResp.webSocket;
     if (!upstream) {
@@ -510,28 +550,42 @@ async function handleGeminiAudio(request, env, cors) {
   const url =
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
-  const upstream = await fetch(url, {
+  const reqBody = JSON.stringify({
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: mimeType, data: audioBase64 } },
+        ],
+      },
+    ],
+    generationConfig: {
+      temperature: 0.3,
+      responseMimeType: "application/json",
+    },
+  });
+
+  let upstream = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "x-goog-api-key": apiKey,
     },
-    body: JSON.stringify({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: prompt },
-            { inlineData: { mimeType: mimeType, data: audioBase64 } },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.3,
-        responseMimeType: "application/json",
-      },
-    }),
+    body: reqBody,
   });
+
+  if (upstream.status === 429 && env.FALLBACK_GEMINI_API_KEY) {
+    console.log("handleGeminiAudio: 429, zaxira kalitga o'tilmoqda...");
+    upstream = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": env.FALLBACK_GEMINI_API_KEY,
+      },
+      body: reqBody,
+    });
+  }
 
   // Gemini muvaffaqiyatli bo'lsa — qaytaramiz
   if (upstream.status >= 200 && upstream.status < 300) {
