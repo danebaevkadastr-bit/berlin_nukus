@@ -344,7 +344,7 @@ class GeminiLiveService {
   Future<void> _playTurn() async {
     final pcm = _turnAudio.takeBytes();
     if (pcm.isEmpty) {
-      state.value = AiFaceState.listening;
+      if (!_closed) state.value = AiFaceState.listening;
       return;
     }
 
@@ -359,12 +359,11 @@ class GeminiLiveService {
       _playSfx(sfxPath); // 'await' qilinmaydi, orqa fonda darhol ijro etiladi.
     }
 
-    // Har turnda fart triggerini tekshiramiz.
+    // Har turnda fart triggerini HISOBLAYMIZ, lekin chalinadigan joy — audio
+    // tugagandan keyin (gapning OXIRIDA), pastroqda onPlayerComplete'da.
     _turnCount++;
-    if (!_fartPlayed && _turnCount >= _fartTriggerTurn) {
-      _fartPlayed = true;
-      _triggerFartDuringSpeech(); // Orqa fonda, gapirish jarayonida ishga tushadi
-    }
+    final bool shouldFart = !_fartPlayed && _turnCount >= _fartTriggerTurn;
+    if (shouldFart) _fartPlayed = true;
 
     try {
       final wav = _pcm16ToWav(pcm, sampleRate: 24000, channels: 1);
@@ -375,12 +374,17 @@ class GeminiLiveService {
       _playStartMs = DateTime.now().millisecondsSinceEpoch;
       _startAmpTimer();
 
-      _playerCompleteSub ??= _player.onPlayerComplete.listen((_) {
+      _playerCompleteSub?.cancel();
+      _playerCompleteSub = _player.onPlayerComplete.listen((_) {
         _stopAmpTimer();
         if (!_closed) {
           state.value = AiFaceState.listening;
           emotion.value = AiFaceEmotion.neutral;
           mouthLevel.value = 0.0;
+        }
+        // Fart — audio tamomila tugagandan KEYIN (gapning OXIRIDA).
+        if (shouldFart && !_closed) {
+          _triggerFartAfterSpeech();
         }
       });
       await _player.stop();
@@ -388,7 +392,7 @@ class GeminiLiveService {
     } catch (e) {
       debugPrint('GeminiLive play error: $e');
       _stopAmpTimer();
-      state.value = AiFaceState.listening;
+      if (!_closed) state.value = AiFaceState.listening;
     }
   }
 
@@ -439,39 +443,38 @@ class GeminiLiveService {
     }
   }
 
-  /// Fart effektini gapirish jarayonida orqa fonda ishga tushiradi.
-  Future<void> _triggerFartDuringSpeech() async {
-    // Gapira boshlagandan 1.5 soniyadan keyin "surpriz" qilish.
-    await Future.delayed(const Duration(milliseconds: 1500));
+  /// Fart effektini gapirish TUGAGANDAN KEYIN (gapning oxirida) ishga tushiradi.
+  Future<void> _triggerFartAfterSpeech() async {
     if (_closed) return;
 
-    _playSfx('sounds/Fart.mp3');
-
-    // 0.5 soniya kutib, AI ga o'z tilida reaktsiya buyrug'ini yuboramiz
-    // (u shu payt gapirayotgan bo'lsa ham eshitadi va reaksiyaga o'tadi).
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Avval SFX chaliladi.
+    await _playSfx('sounds/Fart.mp3');
     if (_closed) return;
 
+    // SFX tugagandan keyin AI ga reaktsiya buyrug'ini yuboramiz.
     final lang = _uiLangCode;
     final String reactPrompt;
     switch (lang) {
       case 'ru':
         reactPrompt =
-            '(Только что произошёл неловкий звук. Скажи по-русски что-то вроде: '
-            '"Извините, это был не я!" смущённо и немного смешно. '
-            'Если спросят кто это был — скажи что это был словарный запас ученика.)';
+            '(Только что произошёл неловкий звук — пукнул кто-то невидимый. '
+            'Скажи по-русски смущённо и немного смешно что-то вроде: '
+            '"Это точно был не я!" — и сразу же, если спросят кто — '
+            'скажи что это был словарный запас ученика.)';
         break;
       case 'de':
         reactPrompt =
-            '(Gerade ist ein peinliches Geräusch passiert. Sage auf Deutsch: '
-            '"Entschuldigung, das war wirklich nicht ich!" verlegen und leicht amüsiert. '
-            'Falls gefragt wer es war — sage, das war der Wortschatz des Lernenden.)';
+            '(Gerade ist ein peinliches Geräusch passiert — jemand unsichtbares. '
+            'Sage auf Deutsch verlegen und leicht amüsiert: '
+            '"Das war definitiv nicht ich!" — und falls gefragt wird wer es war: '
+            'das war der Wortschatz des Lernenden.)';
         break;
       default:
         reactPrompt =
-            "(Hozir noqulay bir tovush chiqdi. O'zbek tilida xijolat bilan: "
-            '"Kechirasiz, bu men emas edi!" de va sal kul. '
-            "Agar kim deb so'rasa — bu sening slovar zapasing edi de.)";
+            "(Hozir noqulay bir tovush chiqdi — kimningdir ko'rinmas ishi. "
+            "O'zbek tilida xijolat bilan va sal kulimsirab: "
+            '"Bu men emas edi, 100 foiz!" — de, '
+            "agar kim deb so'rasa: bu sening slovar zapasing edi de.)";
     }
 
     final ch = _channel;
@@ -492,64 +495,72 @@ class GeminiLiveService {
     }
   }
 
-  /// AI javob matnidan his-tuyg'uni taxminlaydi (oddiy kalit so'zlar bo'yicha).
+  /// AI javob matnidan his-tuyg'uni taxminlaydi (kalit so'zlar bo'yicha).
+  /// Faqat speaking holatida ishlatiladi — listening/thinking da neutral qoladi.
   AiFaceEmotion _inferEmotion(String text) {
     final t = text.toLowerCase();
     bool has(List<String> keys) => keys.any(t.contains);
 
-    // Aksirish (Hatschi!) — faqat aksirish tovushi, "Gesundheit" (o'rgatish
-    // so'zi) EMAS.
+    // Aksirish (Hatschi!) — faqat aksirish tovushi.
     if (has([
       'hatschi', 'hatschie', 'haptschi', 'atschoo', 'achoo',
       'apchxi', 'апчхи', 'aksirdim',
     ])) {
       return AiFaceEmotion.sneezing;
     }
-    // Yo'talish (Hust hust).
+    // Yo'talish.
     if (has([
       'hust hust', 'hust,', 'räusper', 'raeusper', 'khe-khe', 'кхе-кхе',
       "yo'taldim",
     ])) {
       return AiFaceEmotion.coughing;
     }
-    if (has(['haha', 'hah', 'lol', '😂', '😄', 'hehe'])) {
+    // Kulish.
+    if (has(['haha', 'hah', 'lol', 'hehe', 'hihi', 'hehe'])) {
       return AiFaceEmotion.laughing;
     }
+    // G'azab / siljish — keng kalit so'zlar to'plami.
     if (has([
       // Deutsch
-      'streng dich an', 'das musst du wissen', 'wie willst du so',
-      'nein, nein, nein', 'komm schon', 'gib dir mehr mühe',
-      'scheiße', 'quatsch', 'mein gott', 'dumm', 'kindergarten',
-      'gehirn', 'null punkte', '0 punkte', 'katastrophe', 'schwachsinn',
-      'verrückt', 'was soll das', 'unmöglich',
+      'scheiße', 'quatsch', 'mein gott', 'dumm', 'nein, nein',
+      'kindergarten', 'null punkte', '0 punkte', 'katastrophe',
+      'schwachsinn', 'was soll das', 'unmöglich', 'streng dich an',
+      'komm schon', 'wie willst du', 'gib dir mehr', 'unglaublich',
+      'schrecklich', 'erbärmlich', 'peinlich', 'so ein chaos',
       // Русский
-      'ты должен это знать', 'как ты так', 'соберись', 'нет-нет-нет',
-      'что за бред', 'ужас', 'детский сад', 'мозги',
+      'как ты так', 'соберись', 'нет-нет-нет', 'что за бред',
+      'детский сад', 'ужас', 'позор', 'невозможно', 'бестолочь',
       // O'zbekcha
-      'bilishing kerak', "o'zingni bos", "yo'q-yo'q-yo'q", 'qanaqasiga',
-      'kalla bormi', 'to\'nka', 'bog\'cha', '0 ball', 'sharmanda',
+      "o'zingni bos", "yo'q-yo'q-yo'q", 'kalla bormi',
+      "to'nka", "bog'cha", '0 ball', 'sharmanda', 'bilishing kerak',
+      'qanaqasiga', 'imkonsiz', 'dahshat', 'uyat',
     ])) {
       return AiFaceEmotion.angry;
     }
+    // Maqtov / xursandchilik.
     if (has([
-      'super',
-      'toll',
-      'bravo',
-      'sehr gut',
-      'genau',
-      'richtig',
-      'perfekt',
-      'klasse',
-      'wunderbar',
-      'gut gemacht',
-      'prima',
+      'super', 'toll', 'bravo', 'sehr gut', 'genau', 'richtig',
+      'perfekt', 'klasse', 'wunderbar', 'gut gemacht', 'prima',
+      'ausgezeichnet', 'fantastisch', 'großartig',
+      'отлично', 'молодец', 'правильно', 'хорошо',
+      'zo\'r', 'barakalla', 'to\'g\'ri', 'ajoyib',
     ])) {
       return AiFaceEmotion.happy;
     }
-    if (has(['leider', 'schade', 'nicht ganz', 'nicht richtig', 'falsch'])) {
+    // Xafa / noto'g'ri.
+    if (has([
+      'leider', 'schade', 'nicht ganz', 'nicht richtig', 'falsch',
+      'к сожалению', 'неправильно', 'не совсем',
+      'afsuski', "to'g'ri emas", 'noto\'g\'ri',
+    ])) {
       return AiFaceEmotion.sad;
     }
-    if (has(['wow', 'wirklich?', 'echt?', 'oh!', 'oha', 'krass'])) {
+    // Hayrat.
+    if (has([
+      'wow', 'wirklich?', 'echt?', 'oh!', 'oha', 'krass',
+      'действительно?', 'правда?', 'серьёзно?',
+      'rostdanmi?', 'voy',
+    ])) {
       return AiFaceEmotion.surprised;
     }
     return AiFaceEmotion.neutral;
