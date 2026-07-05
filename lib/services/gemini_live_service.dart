@@ -551,17 +551,19 @@ class GeminiLiveService {
     if (has(['haha', 'hah', 'lol', '😂', '😄', 'hehe'])) {
       return AiFaceEmotion.laughing;
     }
-    // Jahl / qattiqqo'llik bilan dalda berish (baqirish effekti). FAQAT aniq,
-    // uzun iboralar — umumiy so'zlar ("qani", "genau") YO'Q, aks holda oddiy
-    // gapda ham qizarib ketadi.
     if (has([
       // Deutsch
       'streng dich an', 'das musst du wissen', 'wie willst du so',
       'nein, nein, nein', 'komm schon', 'gib dir mehr mühe',
+      'scheiße', 'quatsch', 'mein gott', 'dumm', 'kindergarten',
+      'gehirn', 'null punkte', '0 punkte', 'katastrophe', 'schwachsinn',
+      'verrückt', 'was soll das', 'unmöglich',
       // Русский
       'ты должен это знать', 'как ты так', 'соберись', 'нет-нет-нет',
+      'что за бред', 'ужас', 'детский сад', 'мозги',
       // O'zbekcha
       'bilishing kerak', "o'zingni bos", "yo'q-yo'q-yo'q", 'qanaqasiga',
+      'kalla bormi', 'to\'nka', 'bog\'cha', '0 ball', 'sharmanda',
     ])) {
       return AiFaceEmotion.angry;
     }
