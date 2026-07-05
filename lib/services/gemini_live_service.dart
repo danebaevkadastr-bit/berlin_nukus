@@ -343,40 +343,29 @@ class GeminiLiveService {
   /// Og'iz amplitudasi timer orqali real-time yangilanadi.
   Future<void> _playTurn() async {
     final pcm = _turnAudio.takeBytes();
+    if (pcm.isEmpty) {
+      state.value = AiFaceState.listening;
+      return;
+    }
+
     final emo = emotion.value;
 
-    // Aksirish yoki yo'talish — bot audiosi o'rniga FAQAT sound effect qo'yiladi.
-    // Chunki Gemini 2.5 aksirish/yo'talishni o'zi generatsiya qiladi (yomon
-    // eshitiladi). SFX undan ancha naturallroq.
+    // Aksirish yoki yo'talish bo'lsa, audioni to'xtatmaymiz, balki
+    // fonga SFX ni qo'shib yuboramiz (parallel ijro).
     if (emo == AiFaceEmotion.sneezing || emo == AiFaceEmotion.coughing) {
-      state.value = AiFaceState.speaking;
       final sfxPath = emo == AiFaceEmotion.sneezing
           ? 'sounds/sneeze.mp3'
           : 'sounds/cough.mp3';
-      await _playSfx(sfxPath);
-      if (!_closed) {
-        state.value = AiFaceState.listening;
-        emotion.value = AiFaceEmotion.neutral;
-        mouthLevel.value = 0.0;
-      }
-      return;
+      _playSfx(sfxPath); // 'await' qilinmaydi, orqa fonda darhol ijro etiladi.
     }
 
     // Har turnda fart triggerini tekshiramiz.
     _turnCount++;
     if (!_fartPlayed && _turnCount >= _fartTriggerTurn) {
       _fartPlayed = true;
-      // Avval bot audiosini o'ynatamiz, keyin fart.
-      // Keyingi blok bot audioni o'ynatadi; biz fartni audiosidan KEYIN qo'yamiz.
-      // Shuning uchun alohida metod chaqiramiz.
-      _scheduleFartAfterTurn(pcm);
-      return;
+      _triggerFartDuringSpeech(); // Orqa fonda, gapirish jarayonida ishga tushadi
     }
 
-    if (pcm.isEmpty) {
-      state.value = AiFaceState.listening;
-      return;
-    }
     try {
       final wav = _pcm16ToWav(pcm, sampleRate: 24000, channels: 1);
       state.value = AiFaceState.speaking;
@@ -450,44 +439,19 @@ class GeminiLiveService {
     }
   }
 
-  /// Bot audiosini o'ynatadi, keyin Fart.mp3 qo'yadi, so'ng AI ga reaktsiya
-  /// buyrug'ini yuboradi. Bitta suhbatda faqat bir marta chaqiriladi.
-  Future<void> _scheduleFartAfterTurn(Uint8List pcm) async {
-    // Avval bot audiosini (agar bo'lsa) normal o'ynatamiz.
-    if (pcm.isNotEmpty && !_closed) {
-      try {
-        final wav = _pcm16ToWav(pcm, sampleRate: 24000, channels: 1);
-        state.value = AiFaceState.speaking;
-        _playingPcm = Uint8List.fromList(pcm);
-        _playStartMs = DateTime.now().millisecondsSinceEpoch;
-        _startAmpTimer();
-        _playerCompleteSub ??= _player.onPlayerComplete.listen((_) {
-          _stopAmpTimer();
-          if (!_closed) {
-            state.value = AiFaceState.listening;
-            emotion.value = AiFaceEmotion.neutral;
-            mouthLevel.value = 0.0;
-          }
-        });
-        await _player.stop();
-        await _player.play(BytesSource(wav));
-        // Bot audiosi tugashini kutamiz (max 10s).
-        await _player.onPlayerComplete.first
-            .timeout(const Duration(seconds: 10), onTimeout: () {});
-      } catch (e) {
-        debugPrint('GeminiLive fart-turn play error: $e');
-      }
-    }
+  /// Fart effektini gapirish jarayonida orqa fonda ishga tushiradi.
+  Future<void> _triggerFartDuringSpeech() async {
+    // Gapira boshlagandan 1.5 soniyadan keyin "surpriz" qilish.
+    await Future.delayed(const Duration(milliseconds: 1500));
     if (_closed) return;
 
-    // 1 soniya pauza, keyin fart 💨
-    await Future.delayed(const Duration(milliseconds: 800));
+    _playSfx('sounds/Fart.mp3');
+
+    // 0.5 soniya kutib, AI ga o'z tilida reaktsiya buyrug'ini yuboramiz
+    // (u shu payt gapirayotgan bo'lsa ham eshitadi va reaksiyaga o'tadi).
+    await Future.delayed(const Duration(milliseconds: 500));
     if (_closed) return;
 
-    await _playSfx('sounds/Fart.mp3');
-    if (_closed) return;
-
-    // AI ga o'z tilida reaktsiya buyrug'i yuboramiz.
     final lang = _uiLangCode;
     final String reactPrompt;
     switch (lang) {
