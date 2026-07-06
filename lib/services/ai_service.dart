@@ -267,7 +267,7 @@ class AIService {
     const host = 'generativelanguage.googleapis.com';
     const path =
         '/ws/google.ai.generativelanguage.v1alpha.GenerativeService'
-        '.BidiGenerateContentConstrained';
+        '.BidiGenerateContent';
     return Uri(
       scheme: 'wss',
       host: host,
