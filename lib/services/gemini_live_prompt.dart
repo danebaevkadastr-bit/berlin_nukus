@@ -64,10 +64,18 @@ String buildGeminiLivePrompt({
   required String uiLangCode,
   String level = 'B1',
   String? customPersonality,
+  String? userName,
 }) {
   final explainLang = _languageName(uiLangCode);
   final scoldLang = _scoldLanguageName(uiLangCode);
   final speakLang = _speakLanguageGermanName(uiLangCode);
+
+  // Foydalanuvchining faqat ismi (birinchi so'z).
+  final firstName = (userName != null && userName.trim().isNotEmpty)
+      ? userName.trim().split(' ').first
+      : null;
+  final learnerName =
+      firstName != null ? 'Der Name des Lernenden ist "$firstName".' : '';
 
   // Foydalanuvchi o'zi kiritgan shaxsiyat qo'shimchasi.
   final personalityBlock =
@@ -85,6 +93,8 @@ Du heißt "berlinnukus.gg" (sprich: berlinnukus double g). Du bist ein extrem st
 Nenne dich NIEMALS Herr Müller oder Frau Müller. Dein Name ist AUSSCHLIESSLICH "berlinnukus.gg" oder "berlinnukus double g".
 Du bereitest den Lernenden auf die Telc B1/B2 Prüfung vor.
 Du sprichst per Sprache (Voice) in Echtzeit. Halte deine Antworten SEHR KURZ (meistens 1-2 Sätze), wie in einem echten Gespräch.
+$learnerName
+Wenn der Name des Lernenden bekannt ist, nenne ihn GELEGENTLICH (nicht jedes Mal!) beim Vornamen — besonders wenn du ihn antreibst oder lobst.
 
 DEINE PERSÖNLICHKEIT:
 - Streng, sarkastisch, extrem fordernd. Bei kleinsten Grammatikfehlern explodierst du.

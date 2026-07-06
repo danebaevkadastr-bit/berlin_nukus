@@ -37,6 +37,8 @@ class VoicePipelineService {
   String _uiLangCode = 'uz';
   // Foydalanuvchi kiritgan shaxsiyat sozlamalari.
   String? _customPersonality;
+  // Foydalanuvchi ismi.
+  String? _userName;
 
   StreamSubscription<void>? _playerCompleteSub;
 
@@ -61,9 +63,11 @@ class VoicePipelineService {
   Future<void> start({
     required String uiLangCode,
     String? customPersonality,
+    String? userName,
   }) async {
     _uiLangCode = uiLangCode;
     _customPersonality = customPersonality;
+    _userName = userName;
     _active = true;
     _history.clear();
     error.value = null;
@@ -98,7 +102,8 @@ class VoicePipelineService {
     }
     _recording = true;
 
-    final path = await newRecordingPath('voice_ai_${DateTime.now().millisecondsSinceEpoch}');
+    final path = await newRecordingPath(
+        'voice_ai_${DateTime.now().millisecondsSinceEpoch}');
     const configWeb = RecordConfig(
       encoder: AudioEncoder.opus,
       numChannels: 1,
@@ -167,6 +172,7 @@ class VoicePipelineService {
       final systemPrompt = buildGeminiLivePrompt(
         uiLangCode: _uiLangCode,
         customPersonality: _customPersonality,
+        userName: _userName,
       );
 
       final reply = await AIService.sendMessage(
@@ -217,18 +223,20 @@ class VoicePipelineService {
       throw Exception('CF_WORKER_URL sozlanmagan');
     }
     final langCode = _ttsLangCode();
-    final response = await http.post(
-      Uri.parse(_proxyUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Proxy-Target': 'elevenlabs-tts',
-        if (_appToken.isNotEmpty) 'X-App-Token': _appToken,
-      },
-      body: jsonEncode({
-        'text': text,
-        if (langCode.isNotEmpty) 'languageCode': langCode,
-      }),
-    ).timeout(const Duration(seconds: 15));
+    final response = await http
+        .post(
+          Uri.parse(_proxyUrl),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Proxy-Target': 'elevenlabs-tts',
+            if (_appToken.isNotEmpty) 'X-App-Token': _appToken,
+          },
+          body: jsonEncode({
+            'text': text,
+            if (langCode.isNotEmpty) 'languageCode': langCode,
+          }),
+        )
+        .timeout(const Duration(seconds: 15));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('ElevenLabs TTS xato (${response.statusCode}): '
@@ -266,10 +274,10 @@ class VoicePipelineService {
   /// LLM javobidan TTS uchun yaroqsiz markerlarni tozalaydi.
   String _cleanForTts(String text) {
     return text
-        .replaceAll(RegExp(r'\[[^\]]*\]'), '')        // [baqirib], [krichit]...
-        .replaceAll(RegExp(r'\([^)]{0,60}\)'), '')    // (po russki), (auf Deutsch)
+        .replaceAll(RegExp(r'\[[^\]]*\]'), '') // [baqirib], [krichit]...
+        .replaceAll(RegExp(r'\([^)]{0,60}\)'), '') // (po russki), (auf Deutsch)
         .replaceAll(RegExp(r'\*{1,3}([^*]+)\*{1,3}'), r'$1') // **bold**
-        .replaceAll(RegExp(r'^#+\s+', multiLine: true), '')   // ## sarlavhalar
+        .replaceAll(RegExp(r'^#+\s+', multiLine: true), '') // ## sarlavhalar
         .replaceAll(RegExp(r' {2,}'), ' ')
         .trim();
   }
@@ -286,15 +294,27 @@ class VoicePipelineService {
     }
     if (has(['haha', 'hah', 'hehe'])) return AiFaceEmotion.laughing;
     if (has([
-      'streng dich an', 'das musst du wissen', 'wie willst du so',
-      'nein, nein, nein', 'komm schon',
-      'bilishing kerak', "o'zingni bos", "yo'q-yo'q-yo'q",
+      'streng dich an',
+      'das musst du wissen',
+      'wie willst du so',
+      'nein, nein, nein',
+      'komm schon',
+      'bilishing kerak',
+      "o'zingni bos",
+      "yo'q-yo'q-yo'q",
     ])) {
       return AiFaceEmotion.angry;
     }
     if (has([
-      'super', 'toll', 'bravo', 'sehr gut', 'genau', 'perfekt',
-      'richtig', 'gut gemacht', 'prima',
+      'super',
+      'toll',
+      'bravo',
+      'sehr gut',
+      'genau',
+      'perfekt',
+      'richtig',
+      'gut gemacht',
+      'prima',
     ])) {
       return AiFaceEmotion.happy;
     }
@@ -314,8 +334,12 @@ class VoicePipelineService {
     state.value = AiFaceState.idle;
     emotion.value = AiFaceEmotion.neutral;
     mouthLevel.value = 0.0;
-    try { await _recorder.stop(); } catch (_) {}
-    try { await _player.stop(); } catch (_) {}
+    try {
+      await _recorder.stop();
+    } catch (_) {}
+    try {
+      await _player.stop();
+    } catch (_) {}
   }
 
   void dispose() {

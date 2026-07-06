@@ -4,8 +4,10 @@
 // pipeline ishlaydi → bot Amazon Polly orqali javob beradi.
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/providers/user_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../l10n/locale_manager.dart';
 import '../../services/gemini_live_service.dart';
@@ -69,18 +71,23 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
 
   Future<void> _connect() async {
     setState(() => _active = true);
+    final userName =
+        context.read<UserProvider>().name; // fullName dan birinchi so'z
     await _service.connect(
       uiLangCode: LocaleManager.code,
-      customPersonality: _customPersonality.isNotEmpty ? _customPersonality : null,
+      customPersonality:
+          _customPersonality.isNotEmpty ? _customPersonality : null,
+      userName: userName.isNotEmpty ? userName : null,
     );
   }
 
   Future<void> _endSession() async {
     await _service.disconnect();
-    if (mounted) setState(() {
-      _active = false;
-      _holding = false;
-    });
+    if (mounted)
+      setState(() {
+        _active = false;
+        _holding = false;
+      });
   }
 
   void _pressStart() {
@@ -162,7 +169,8 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.close_rounded, color: Colors.white),
+                      icon:
+                          const Icon(Icons.close_rounded, color: Colors.white),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     Expanded(
@@ -178,7 +186,8 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.tune_rounded, color: Colors.white70),
+                      icon:
+                          const Icon(Icons.tune_rounded, color: Colors.white70),
                       onPressed: _active ? null : _showPersonalityDialog,
                     ),
                   ],
@@ -230,7 +239,8 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
               ValueListenableBuilder<String?>(
                 valueListenable: _service.error,
                 builder: (context, err, _) {
-                  if (err == null || err.isEmpty) return const SizedBox(height: 20);
+                  if (err == null || err.isEmpty)
+                    return const SizedBox(height: 20);
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Text(

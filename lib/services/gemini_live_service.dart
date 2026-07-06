@@ -64,6 +64,7 @@ class GeminiLiveService {
   // Dastur tili — botning kirish so'zi va tushuntirishlari uchun.
   String _uiLangCode = 'uz';
   String? _customPersonality;
+  String? _userName;
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 3;
   Timer? _reconnectTimer;
@@ -90,11 +91,13 @@ class GeminiLiveService {
   Future<void> connect({
     required String uiLangCode,
     String? customPersonality,
+    String? userName,
   }) async {
     if (_connected) return;
     if (_channel != null) await disconnect();
     _uiLangCode = uiLangCode;
     _customPersonality = customPersonality;
+    _userName = userName;
     _closed = false;
     _isFirstTurn = true;
     state.value = AiFaceState.thinking; // "connecting"
@@ -159,6 +162,7 @@ class GeminiLiveService {
                 'text': buildGeminiLivePrompt(
                   uiLangCode: uiLangCode,
                   customPersonality: customPersonality,
+                  userName: _userName,
                 )
               },
             ],
