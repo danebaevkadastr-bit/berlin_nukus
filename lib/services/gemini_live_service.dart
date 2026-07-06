@@ -68,6 +68,7 @@ class GeminiLiveService {
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 3;
   Timer? _reconnectTimer;
+  bool _isFirstTurn = false;
 
   /// Ekran kuzatadigan holat (yuz animatsiyasi uchun).
   final ValueNotifier<AiFaceState> state =
@@ -96,6 +97,7 @@ class GeminiLiveService {
     _uiLangCode = uiLangCode;
     _customPersonality = customPersonality;
     _closed = false;
+    _isFirstTurn = true;
     state.value = AiFaceState.thinking; // "connecting"
     error.value = null;
 
@@ -270,6 +272,9 @@ class GeminiLiveService {
       _micSub = stream.listen((chunk) {
         // Mikrofonni doim ochiq qoldiramiz (barge-in uchun).
         if (!_connected || _closed) return;
+        // Birinchi navbatda (AI salomlashayotganda) shovqin xalaqit bermasligi
+        // uchun mikrofonni vaqtincha o'chirib turamiz.
+        if (_isFirstTurn) return;
         _queueAudioChunk(chunk);
       });
     } catch (e) {
@@ -395,6 +400,7 @@ class GeminiLiveService {
   Future<void> _playTurn() async {
     final pcm = _turnAudio.takeBytes();
     if (pcm.isEmpty) {
+      _isFirstTurn = false;
       if (!_closed) state.value = AiFaceState.listening;
       return;
     }
@@ -428,6 +434,7 @@ class GeminiLiveService {
       _playerCompleteSub?.cancel();
       _playerCompleteSub = _player.onPlayerComplete.listen((_) {
         _stopAmpTimer();
+        _isFirstTurn = false;
         if (!_closed) {
           state.value = AiFaceState.listening;
           emotion.value = AiFaceEmotion.neutral;
