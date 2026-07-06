@@ -14,7 +14,6 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:record/record.dart';
@@ -124,7 +123,8 @@ class GeminiLiveService {
           if (!_closed) {
             // 1011 = server internal error, 1006 = abnormal closure — qayta ulanish
             if (code == 1011 || code == 1006 || code == null) {
-              debugPrint('GeminiLive: $code xatosi — qayta ulanish urinilmoqda...');
+              debugPrint(
+                  'GeminiLive: $code xatosi — qayta ulanish urinilmoqda...');
               _scheduleReconnect();
             } else {
               error.value = 'Ulanish yopildi (code=$code)';
@@ -155,10 +155,12 @@ class GeminiLiveService {
           },
           'systemInstruction': {
             'parts': [
-              {'text': buildGeminiLivePrompt(
-                uiLangCode: uiLangCode,
-                customPersonality: customPersonality,
-              )},
+              {
+                'text': buildGeminiLivePrompt(
+                  uiLangCode: uiLangCode,
+                  customPersonality: customPersonality,
+                )
+              },
             ],
           },
           'inputAudioTranscription': <String, dynamic>{},
@@ -200,13 +202,15 @@ class GeminiLiveService {
       final serverContent = msg['serverContent'] as Map<String, dynamic>?;
       if (serverContent != null) {
         // DEBUG: foydalanuvchi nutqi transkripsiyasi — model eshitayaptimi?
-        final inT = serverContent['inputTranscription'] as Map<String, dynamic>?;
+        final inT =
+            serverContent['inputTranscription'] as Map<String, dynamic>?;
         if (inT != null && inT['text'] != null) {
           debugPrint('GeminiLive: USER dedi => "${inT['text']}"');
         }
 
         // AI javob matnini yig'amiz va emotsiyani JONLI aniqlaymiz.
-        final outT = serverContent['outputTranscription'] as Map<String, dynamic>?;
+        final outT =
+            serverContent['outputTranscription'] as Map<String, dynamic>?;
         if (outT != null && outT['text'] != null) {
           _turnText.write(outT['text']);
           final e = _inferEmotion(_turnText.toString());
@@ -216,6 +220,9 @@ class GeminiLiveService {
         // Model audio qismlarini yig'amiz.
         final modelTurn = serverContent['modelTurn'] as Map<String, dynamic>?;
         if (modelTurn != null) {
+          if (!_closed && state.value != AiFaceState.speaking) {
+            state.value = AiFaceState.thinking; // Audio yig'ilmoqda
+          }
           final parts = modelTurn['parts'] as List<dynamic>? ?? [];
           for (final p in parts) {
             final inline = (p as Map<String, dynamic>)['inlineData']
@@ -327,7 +334,8 @@ class GeminiLiveService {
     }
     _reconnectAttempts++;
     final delay = Duration(seconds: _reconnectAttempts * 2); // 2s, 4s, 6s
-    debugPrint('GeminiLive: ${delay.inSeconds}s dan keyin qayta ulanish (#$_reconnectAttempts)...');
+    debugPrint(
+        'GeminiLive: ${delay.inSeconds}s dan keyin qayta ulanish (#$_reconnectAttempts)...');
     state.value = AiFaceState.thinking; // "qayta ulanmoqda..."
     error.value = null;
     _reconnectTimer?.cancel();
@@ -341,12 +349,18 @@ class GeminiLiveService {
       _micFlushTimer = null;
       await _micSub?.cancel();
       _micSub = null;
-      try { await _recorder.stop(); } catch (_) {}
+      try {
+        await _recorder.stop();
+      } catch (_) {}
       await _wsSub?.cancel();
       _wsSub = null;
-      try { await _channel?.sink.close(); } catch (_) {}
+      try {
+        await _channel?.sink.close();
+      } catch (_) {}
       _channel = null;
-      try { await _player.stop(); } catch (_) {}
+      try {
+        await _player.stop();
+      } catch (_) {}
       // Qayta ulanish — connect() ni chaqiramiz.
       await connect(
         uiLangCode: _uiLangCode,
@@ -407,19 +421,20 @@ class GeminiLiveService {
 
     final emo = emotion.value;
 
-    // Aksirish yoki yo'talish bo'lsa, audioni to'xtatmaymiz, balki
-    // fonga SFX ni qo'shib yuboramiz (parallel ijro).
+    // Aksirish yoki yo'talish vaqtincha o'chirilgan
+    /*
     if (emo == AiFaceEmotion.sneezing || emo == AiFaceEmotion.coughing) {
       final sfxPath = emo == AiFaceEmotion.sneezing
           ? 'sounds/sneeze.mp3'
           : 'sounds/cough.mp3';
       _playSfx(sfxPath); // 'await' qilinmaydi, orqa fonda darhol ijro etiladi.
     }
+    */
 
-    // Har turnda fart triggerini HISOBLAYMIZ, lekin chalinadigan joy — audio
-    // tugagandan keyin (gapning OXIRIDA), pastroqda onPlayerComplete'da.
+    // Har turnda fart triggerini HISOBLAYMIZ, lekin vaqtincha o'chirilgan
     _turnCount++;
-    final bool shouldFart = !_fartPlayed && _turnCount >= _fartTriggerTurn;
+    final bool shouldFart =
+        false; // !_fartPlayed && _turnCount >= _fartTriggerTurn;
     if (shouldFart) _fartPlayed = true;
 
     try {
@@ -561,14 +576,25 @@ class GeminiLiveService {
 
     // Aksirish (Hatschi!) — faqat aksirish tovushi.
     if (has([
-      'hatschi', 'hatschie', 'haptschi', 'atschoo', 'achoo',
-      'apchxi', 'апчхи', 'aksirdim',
+      'hatschi',
+      'hatschie',
+      'haptschi',
+      'atschoo',
+      'achoo',
+      'apchxi',
+      'апчхи',
+      'aksirdim',
     ])) {
       return AiFaceEmotion.sneezing;
     }
     // Yo'talish.
     if (has([
-      'hust hust', 'hust,', 'räusper', 'raeusper', 'khe-khe', 'кхе-кхе',
+      'hust hust',
+      'hust,',
+      'räusper',
+      'raeusper',
+      'khe-khe',
+      'кхе-кхе',
       "yo'taldim",
     ])) {
       return AiFaceEmotion.coughing;
@@ -597,27 +623,60 @@ class GeminiLiveService {
     }
     // Maqtov / xursandchilik.
     if (has([
-      'super', 'toll', 'bravo', 'sehr gut', 'genau', 'richtig',
-      'perfekt', 'klasse', 'wunderbar', 'gut gemacht', 'prima',
-      'ausgezeichnet', 'fantastisch', 'großartig',
-      'отлично', 'молодец', 'правильно', 'хорошо',
-      'zo\'r', 'barakalla', 'to\'g\'ri', 'ajoyib',
+      'super',
+      'toll',
+      'bravo',
+      'sehr gut',
+      'genau',
+      'richtig',
+      'perfekt',
+      'klasse',
+      'wunderbar',
+      'gut gemacht',
+      'prima',
+      'ausgezeichnet',
+      'fantastisch',
+      'großartig',
+      'отлично',
+      'молодец',
+      'правильно',
+      'хорошо',
+      'zo\'r',
+      'barakalla',
+      'to\'g\'ri',
+      'ajoyib',
     ])) {
       return AiFaceEmotion.happy;
     }
     // Xafa / noto'g'ri.
     if (has([
-      'leider', 'schade', 'nicht ganz', 'nicht richtig', 'falsch',
-      'к сожалению', 'неправильно', 'не совсем',
-      'afsuski', "to'g'ri emas", 'noto\'g\'ri',
+      'leider',
+      'schade',
+      'nicht ganz',
+      'nicht richtig',
+      'falsch',
+      'к сожалению',
+      'неправильно',
+      'не совсем',
+      'afsuski',
+      "to'g'ri emas",
+      'noto\'g\'ri',
     ])) {
       return AiFaceEmotion.sad;
     }
     // Hayrat.
     if (has([
-      'wow', 'wirklich?', 'echt?', 'oh!', 'oha', 'krass',
-      'действительно?', 'правда?', 'серьёзно?',
-      'rostdanmi?', 'voy',
+      'wow',
+      'wirklich?',
+      'echt?',
+      'oh!',
+      'oha',
+      'krass',
+      'действительно?',
+      'правда?',
+      'серьёзно?',
+      'rostdanmi?',
+      'voy',
     ])) {
       return AiFaceEmotion.surprised;
     }
