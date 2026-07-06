@@ -25,7 +25,7 @@ class _SchreibenScreenState extends State<SchreibenScreen> {
   final _mainScrollController = ScrollController();
 
   int _currentIndex = 0;
-  String _level = 'A2';
+  String _level = 'B1';
   bool _isEvaluating = false;
   String? _evaluation;
   bool _showSampleHint = false;

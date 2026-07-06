@@ -16,7 +16,7 @@ class HorenScreen extends StatefulWidget {
 }
 
 class _HorenScreenState extends State<HorenScreen> {
-  String _selectedLevel = 'A1';
+  String _selectedLevel = 'B1';
 
   // teilNumber → {correct, wrong}
   final Map<int, int> _correctMap = {};

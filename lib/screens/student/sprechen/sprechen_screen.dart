@@ -15,7 +15,7 @@ class SprechenScreen extends StatefulWidget {
 }
 
 class _SprechenScreenState extends State<SprechenScreen> {
-  String _selectedLevel = 'A1';
+  String _selectedLevel = 'B1';
 
   final List<String> _levels = ['A1', 'A2', 'B1', 'B2'];
 
