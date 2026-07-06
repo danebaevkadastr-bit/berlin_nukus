@@ -177,6 +177,13 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     super.dispose();
   }
 
+  /// Kamida 1 ta javob berilgan bo'lsa — Firestore'ga saqlaydi.
+  Future<void> _saveIfNeeded() async {
+    final answered = _results.where((r) => r != null).length;
+    if (answered == 0) return;
+    await _saveToFirebase();
+  }
+
   void _goToQuestion(int index) {
     if (index < 0 || index >= _questions.length || index == _currentIndex) {
       return;
@@ -286,18 +293,28 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     return ValueListenableBuilder<AccentPreset>(
       valueListenable: ThemeManager.accentNotifier,
       builder: (context, _, __) {
-        return Scaffold(
-          backgroundColor:
-              isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: isDark ? Colors.white : AppColors.duoTextDark,
-                size: 20,
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) async {
+            if (didPop) return;
+            await _saveIfNeeded();
+            if (context.mounted) Navigator.pop(context);
+          },
+          child: Scaffold(
+            backgroundColor:
+                isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
+            appBar: AppBar(
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: isDark ? Colors.white : AppColors.duoTextDark,
+                  size: 20,
+                ),
+                onPressed: () async {
+                  await _saveIfNeeded();
+                  if (context.mounted) Navigator.pop(context);
+                },
               ),
-              onPressed: () => Navigator.pop(context),
-            ),
             title: Text(
               'Teil ${widget.teil.teilNumber}',
               style: TextStyle(
@@ -330,6 +347,7 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
               ),
               _buildBottomBar(isDark, l, isLast),
             ],
+          ),
           ),
         );
       },
