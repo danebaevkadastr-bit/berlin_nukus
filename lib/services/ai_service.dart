@@ -1034,11 +1034,17 @@ Min: $minWords, Max: $maxWords''',
           .replaceFirst(RegExp(r'\s*```$'), '')
           .trim();
     }
-    final start = trimmed.indexOf('{');
-    final listStart = trimmed.indexOf('[');
-    if (start == -1 && listStart == -1) return trimmed;
-    if (start == -1) return trimmed.substring(listStart);
-    if (listStart == -1) return trimmed.substring(start);
-    return trimmed.substring(start < listStart ? start : listStart);
+    final startObj = trimmed.indexOf('{');
+    final endObj = trimmed.lastIndexOf('}');
+    final startArr = trimmed.indexOf('[');
+    final endArr = trimmed.lastIndexOf(']');
+    
+    if (startObj != -1 && endObj != -1 && (startArr == -1 || startObj < startArr)) {
+      return trimmed.substring(startObj, endObj + 1);
+    }
+    if (startArr != -1 && endArr != -1) {
+      return trimmed.substring(startArr, endArr + 1);
+    }
+    return trimmed;
   }
 }

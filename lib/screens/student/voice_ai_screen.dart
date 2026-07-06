@@ -24,7 +24,6 @@ class VoiceAiScreen extends StatefulWidget {
 class _VoiceAiScreenState extends State<VoiceAiScreen> {
   final GeminiLiveService _service = GeminiLiveService();
   bool _active = false;
-  bool _holding = false;
 
   // Foydalanuvchi kiritgan AI shaxsiyat sozlamalari (persistent).
   String _customPersonality = '';
@@ -65,7 +64,6 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
     if (!_active) return l.voiceAiTapToStart;
     if (s == AiFaceState.speaking) return l.voiceAiSpeaking;
     if (s == AiFaceState.thinking) return l.voiceAiThinking;
-    if (_holding) return "Botni to'xtatish";
     return l.voiceAiListening ?? 'Eshitilmoqda... (Gapiring)';
   }
 
@@ -86,19 +84,7 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
     if (mounted)
       setState(() {
         _active = false;
-        _holding = false;
       });
-  }
-
-  void _pressStart() {
-    if (!_active) return;
-    _service.interrupt();
-    setState(() => _holding = true);
-  }
-
-  void _pressEnd() {
-    if (!_holding) return;
-    setState(() => _holding = false);
   }
 
   void _showPersonalityDialog() {
@@ -114,8 +100,8 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
           maxLines: 6,
           style: const TextStyle(color: Colors.white, fontSize: 14),
           decoration: InputDecoration(
-            hintText: 'Masalan: "Sen qat\'iy Herr Müller o\'qituvchisan, '
-                'xatolarni keskin ko\'rsatasan..."',
+            hintText: 'Masalan: "Sen xatolarni doim kulgili ohangda '
+                'tushuntiradigan hazilkashsan..."',
             hintStyle: TextStyle(color: Colors.white38, fontSize: 13),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             enabledBorder: OutlineInputBorder(
@@ -293,52 +279,24 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
   }
 
   Widget _buildActiveControls() {
-    final micColor = _holding ? AppColors.duoGreen : AppColors.duoBlue;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Sessiyani tugatish.
-        GestureDetector(
-          onTap: _endSession,
-          child: Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.12),
-              border: Border.all(color: AppColors.duoRed, width: 2),
+    return GestureDetector(
+      onTap: _endSession,
+      child: Container(
+        width: 84,
+        height: 84,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.duoRed,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.duoRed.withValues(alpha: 0.5),
+              blurRadius: 24,
+              spreadRadius: 2,
             ),
-            child: const Icon(Icons.close_rounded,
-                color: AppColors.duoRed, size: 26),
-          ),
+          ],
         ),
-        const SizedBox(width: 40),
-        // Push-to-talk mikrofoni.
-        Listener(
-          onPointerDown: (_) => _pressStart(),
-          onPointerUp: (_) => _pressEnd(),
-          onPointerCancel: (_) => _pressEnd(),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: _holding ? 96 : 84,
-            height: _holding ? 96 : 84,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: micColor,
-              boxShadow: [
-                BoxShadow(
-                  color: micColor.withValues(alpha: 0.5),
-                  blurRadius: _holding ? 34 : 24,
-                  spreadRadius: _holding ? 4 : 2,
-                ),
-              ],
-            ),
-            child: const Icon(Icons.mic_rounded, color: Colors.white, size: 40),
-          ),
-        ),
-        const SizedBox(width: 40),
-        const SizedBox(width: 56), // balans
-      ],
+        child: const Icon(Icons.stop_rounded, color: Colors.white, size: 40),
+      ),
     );
   }
 }

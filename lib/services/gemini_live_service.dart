@@ -24,7 +24,7 @@ import 'ai_service.dart';
 import 'gemini_live_prompt.dart';
 
 class GeminiLiveService {
-  static const String _model = 'models/gemini-3.1-flash-live-preview';
+  static const String _model = 'models/gemini-2.0-flash-exp';
 
   final AudioRecorder _recorder = AudioRecorder();
   final AudioPlayer _player = AudioPlayer();
@@ -43,7 +43,6 @@ class GeminiLiveService {
 
   // Amplitude tracking uchun: ijro paytida raw PCM saqlash va timer.
   Uint8List? _playingPcm;
-  int _playStartMs = 0;
   Timer? _ampTimer;
 
   // Mikrofon chunklarini 100ms da bir marta yuboramiz — WS xabarlar sonini
@@ -55,12 +54,6 @@ class GeminiLiveService {
   bool _connected = false;
   bool _closed = false;
 
-  // Bitta suhbatda bir martalik "fart" surprise effekti.
-  bool _fartPlayed = false;
-  int _turnCount = 0;
-  // 3-6 chi turnda tasodifan chiqadi.
-  final int _fartTriggerTurn = 3 + math.Random().nextInt(4);
-
   // Dastur tili — botning kirish so'zi va tushuntirishlari uchun.
   String _uiLangCode = 'uz';
   String? _customPersonality;
@@ -68,7 +61,6 @@ class GeminiLiveService {
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 3;
   Timer? _reconnectTimer;
-  bool _isFirstTurn = false;
 
   /// Ekran kuzatadigan holat (yuz animatsiyasi uchun).
   final ValueNotifier<AiFaceState> state =
@@ -99,7 +91,6 @@ class GeminiLiveService {
     _customPersonality = customPersonality;
     _userName = userName;
     _closed = false;
-    _isFirstTurn = true;
     state.value = AiFaceState.thinking; // "connecting"
     error.value = null;
 
@@ -283,9 +274,6 @@ class GeminiLiveService {
       _micSub = stream.listen((chunk) {
         // Mikrofonni doim ochiq qoldiramiz (barge-in uchun).
         if (!_connected || _closed) return;
-        // Birinchi navbatda (AI salomlashayotganda) shovqin xalaqit bermasligi
-        // uchun mikrofonni vaqtincha o'chirib turamiz.
-        if (_isFirstTurn) return;
         _queueAudioChunk(chunk);
       });
     } catch (e) {
@@ -418,28 +406,9 @@ class GeminiLiveService {
   Future<void> _playTurn() async {
     final pcm = _turnAudio.takeBytes();
     if (pcm.isEmpty) {
-      _isFirstTurn = false;
       if (!_closed) state.value = AiFaceState.listening;
       return;
     }
-
-    final emo = emotion.value;
-
-    // Aksirish yoki yo'talish vaqtincha o'chirilgan
-    /*
-    if (emo == AiFaceEmotion.sneezing || emo == AiFaceEmotion.coughing) {
-      final sfxPath = emo == AiFaceEmotion.sneezing
-          ? 'sounds/sneeze.mp3'
-          : 'sounds/cough.mp3';
-      _playSfx(sfxPath); // 'await' qilinmaydi, orqa fonda darhol ijro etiladi.
-    }
-    */
-
-    // Har turnda fart triggerini HISOBLAYMIZ, lekin vaqtincha o'chirilgan
-    _turnCount++;
-    final bool shouldFart =
-        false; // !_fartPlayed && _turnCount >= _fartTriggerTurn;
-    if (shouldFart) _fartPlayed = true;
 
     try {
       final wav = _pcm16ToWav(pcm, sampleRate: 24000, channels: 1);
@@ -447,21 +416,15 @@ class GeminiLiveService {
 
       // Amplitude tracking boshlash.
       _playingPcm = Uint8List.fromList(pcm);
-      _playStartMs = DateTime.now().millisecondsSinceEpoch;
       _startAmpTimer();
 
       _playerCompleteSub?.cancel();
       _playerCompleteSub = _player.onPlayerComplete.listen((_) {
         _stopAmpTimer();
-        _isFirstTurn = false;
         if (!_closed) {
           state.value = AiFaceState.listening;
           emotion.value = AiFaceEmotion.neutral;
           mouthLevel.value = 0.0;
-        }
-        // Fart — audio tamomila tugagandan KEYIN (gapning OXIRIDA).
-        if (shouldFart && !_closed) {
-          _triggerFartAfterSpeech();
         }
       });
       await _player.stop();
@@ -477,10 +440,11 @@ class GeminiLiveService {
   /// yangilaydi — og'iz real audio balandligiga mos qimirlaydi.
   void _startAmpTimer() {
     _ampTimer?.cancel();
-    _ampTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+    _ampTimer = Timer.periodic(const Duration(milliseconds: 50), (_) async {
       final pcm = _playingPcm;
       if (pcm == null || pcm.isEmpty) return;
-      final elapsed = DateTime.now().millisecondsSinceEpoch - _playStartMs;
+      final pos = await _player.getCurrentPosition();
+      final elapsed = pos?.inMilliseconds ?? 0;
       // 24kHz, 16-bit mono: har millisekunda 24 * 2 = 48 bayt.
       final bytePos = (elapsed * 48).clamp(0, pcm.length - 2);
       // 512 sample oynada RMS hisoblaymiz.
@@ -731,7 +695,9 @@ class GeminiLiveService {
     await _micSub?.cancel();
     _micSub = null;
     try {
-      await _recorder.stop();
+      if (await _recorder.isRecording()) {
+        await _recorder.stop();
+      }
     } catch (_) {}
     await _wsSub?.cancel();
     _wsSub = null;
