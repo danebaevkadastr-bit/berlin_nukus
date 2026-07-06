@@ -197,8 +197,7 @@ const sprechenA2 = SprechenLevel(
       aufgaben: [
         SprechenAufgabe(
           title: 'Über sich erzählen',
-          instruction:
-              'Erzählen Sie etwas über sich und Ihr Leben.',
+          instruction: 'Erzählen Sie etwas über sich und Ihr Leben.',
           keywords: [
             'Familie',
             'Arbeit / Schule',
@@ -264,7 +263,14 @@ const sprechenA2 = SprechenLevel(
           title: 'Eine Feier planen',
           instruction:
               'Planen Sie gemeinsam mit Ihrem Partner eine Geburtstagsfeier.',
-          keywords: ['Wann?', 'Wo?', 'Wer kommt?', 'Essen', 'Musik', 'Geschenk'],
+          keywords: [
+            'Wann?',
+            'Wo?',
+            'Wer kommt?',
+            'Essen',
+            'Musik',
+            'Geschenk'
+          ],
           examples: [
             'Wann sollen wir die Feier machen?',
             'Ich schlage vor, dass wir …',
@@ -326,8 +332,7 @@ const sprechenB1 = SprechenLevel(
             'Was machst du – gehst du zur Schule, studierst du oder arbeitest du?',
             'Welche Sprachen sprichst du und wie lange lernst du sie schon?',
           ],
-          sampleAnswer:
-              'A: Hallo! Mein Name ist Aziz. Und wie heißt du?\n'
+          sampleAnswer: 'A: Hallo! Mein Name ist Aziz. Und wie heißt du?\n'
               'B: Hallo Aziz, ich heiße Marta. Freut mich!\n'
               'A: Woher kommst du, Marta?\n'
               'B: Ich komme aus Polen, aus einer kleinen Stadt in der Nähe von '
@@ -358,378 +363,827 @@ const sprechenB1 = SprechenLevel(
         SprechenTest(
           thema: 'TikTok',
           aufgaben: [
-        SprechenAufgabe(
-          partner: 'A',
-          title: 'TikTok',
-          instruction:
-              'Lesen Sie die folgende Meinung vor und sagen Sie, was Sie '
-              'davon halten. Reagieren Sie dann auf die Meinung Ihres Partners '
-              'und sprechen Sie gemeinsam über das Thema.',
-          meinung:
-              'Manche Menschen verbringen Stunden mit TikTok-Videos. Das ist '
-              'doch reine Zeitverschwendung. Warum sollten einem die '
-              'Darstellungen und Meinungen fremder Leute wichtig sein? Ich '
-              'würde mir lieber ein schönes Hobby suchen. Es gibt so viele '
-              'Möglichkeiten.',
-          examples: [
-            'In dieser Meinung geht es um …',
-            'Ich kann diese Meinung gut verstehen, denn …',
-            'Auf der einen Seite stimmt das, auf der anderen Seite …',
-            'Wie siehst du das?',
-            'Da bin ich (nicht) deiner Meinung, weil …',
-          ],
-          sampleAnswer:
-              'In dieser Meinung geht es darum, dass viele Menschen zu viel '
-              'Zeit mit TikTok-Videos verbringen und dass das Zeitverschwendung '
-              'sei.\n\n'
-              'Ich kann diese Meinung teilweise verstehen. Es stimmt, dass '
-              'manche Leute stundenlang Videos anschauen, statt etwas Sinnvolles '
-              'zu tun. Man könnte diese Zeit auch für ein Hobby, für Sport oder '
-              'für Freunde nutzen.\n\n'
-              'Auf der anderen Seite finde ich nicht, dass TikTok nur '
-              'Zeitverschwendung ist. Man kann dort auch viel lernen, zum '
-              'Beispiel Kochrezepte, Sprachen oder kleine Tricks. Es kommt also '
-              'darauf an, wie man die App benutzt.\n\n'
-              'Und wie ist deine Meinung dazu?',
-        ),
-        SprechenAufgabe(
-          partner: 'B',
-          title: 'TikTok',
-          instruction:
-              'Lesen Sie die folgende Meinung vor und sagen Sie, was Sie '
-              'davon halten. Reagieren Sie dann auf die Meinung Ihres Partners '
-              'und sprechen Sie gemeinsam über das Thema.',
-          meinung:
-              'Unsere Tochter postet regelmäßig Videos auf TikTok. Anfangs habe '
-              'ich mir Sorgen gemacht. Aber nun sehe ich, wie gut es ihr tut. '
-              'Sie hat wirklich Talent als Schauspielerin und Sängerin, und '
-              'das kann sie so mit anderen teilen. Ihre Videos haben viel '
-              'Erfolg.',
-          examples: [
-            'In dieser Meinung geht es um …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Das ist ein gutes Beispiel dafür, dass …',
-            'Was meinst du dazu?',
-            'Zusammenfassend kann man sagen, dass …',
-          ],
-          sampleAnswer:
-              'In dieser Meinung erzählt ein Elternteil, dass die Tochter '
-              'regelmäßig Videos auf TikTok postet und damit viel Erfolg hat.\n\n'
-              'Ich sehe das sehr positiv. Früher hatten junge Menschen kaum '
-              'eine Möglichkeit, ihr Talent zu zeigen. Heute kann man über '
-              'TikTok ein großes Publikum erreichen, ohne berühmt zu sein.\n\n'
-              'Natürlich gibt es auch Risiken: Man sollte vorsichtig sein, '
-              'welche Informationen man teilt, und nicht zu viel Zeit damit '
-              'verbringen. Aber wenn jemand wie diese Tochter Talent als '
-              'Sängerin oder Schauspielerin hat, ist TikTok eine tolle Chance.\n\n'
-              'Zusammenfassend würde ich sagen: Es kommt darauf an, wie man die '
-              'App nutzt. Was denkst du?',
-        ),
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'TikTok',
+              instruction:
+                  'Lesen Sie die folgende Meinung vor und sagen Sie, was Sie '
+                  'davon halten. Reagieren Sie dann auf die Meinung Ihres Partners '
+                  'und sprechen Sie gemeinsam über das Thema.',
+              meinung:
+                  'Manche Menschen verbringen Stunden mit TikTok-Videos. Das ist '
+                  'doch reine Zeitverschwendung. Warum sollten einem die '
+                  'Darstellungen und Meinungen fremder Leute wichtig sein? Ich '
+                  'würde mir lieber ein schönes Hobby suchen. Es gibt so viele '
+                  'Möglichkeiten.',
+              examples: [
+                'In dieser Meinung geht es um …',
+                'Ich kann diese Meinung gut verstehen, denn …',
+                'Auf der einen Seite stimmt das, auf der anderen Seite …',
+                'Wie siehst du das?',
+                'Da bin ich (nicht) deiner Meinung, weil …',
+              ],
+              sampleAnswer:
+                  'In dieser Meinung geht es darum, dass viele Menschen zu viel '
+                  'Zeit mit TikTok-Videos verbringen und dass das Zeitverschwendung '
+                  'sei.\n\n'
+                  'Ich kann diese Meinung teilweise verstehen. Es stimmt, dass '
+                  'manche Leute stundenlang Videos anschauen, statt etwas Sinnvolles '
+                  'zu tun. Man könnte diese Zeit auch für ein Hobby, für Sport oder '
+                  'für Freunde nutzen.\n\n'
+                  'Auf der anderen Seite finde ich nicht, dass TikTok nur '
+                  'Zeitverschwendung ist. Man kann dort auch viel lernen, zum '
+                  'Beispiel Kochrezepte, Sprachen oder kleine Tricks. Es kommt also '
+                  'darauf an, wie man die App benutzt.\n\n'
+                  'Und wie ist deine Meinung dazu?',
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'TikTok',
+              instruction:
+                  'Lesen Sie die folgende Meinung vor und sagen Sie, was Sie '
+                  'davon halten. Reagieren Sie dann auf die Meinung Ihres Partners '
+                  'und sprechen Sie gemeinsam über das Thema.',
+              meinung:
+                  'Unsere Tochter postet regelmäßig Videos auf TikTok. Anfangs habe '
+                  'ich mir Sorgen gemacht. Aber nun sehe ich, wie gut es ihr tut. '
+                  'Sie hat wirklich Talent als Schauspielerin und Sängerin, und '
+                  'das kann sie so mit anderen teilen. Ihre Videos haben viel '
+                  'Erfolg.',
+              examples: [
+                'In dieser Meinung geht es um …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Das ist ein gutes Beispiel dafür, dass …',
+                'Was meinst du dazu?',
+                'Zusammenfassend kann man sagen, dass …',
+              ],
+              sampleAnswer:
+                  'In dieser Meinung erzählt ein Elternteil, dass die Tochter '
+                  'regelmäßig Videos auf TikTok postet und damit viel Erfolg hat.\n\n'
+                  'Ich sehe das sehr positiv. Früher hatten junge Menschen kaum '
+                  'eine Möglichkeit, ihr Talent zu zeigen. Heute kann man über '
+                  'TikTok ein großes Publikum erreichen, ohne berühmt zu sein.\n\n'
+                  'Natürlich gibt es auch Risiken: Man sollte vorsichtig sein, '
+                  'welche Informationen man teilt, und nicht zu viel Zeit damit '
+                  'verbringen. Aber wenn jemand wie diese Tochter Talent als '
+                  'Sängerin oder Schauspielerin hat, ist TikTok eine tolle Chance.\n\n'
+                  'Zusammenfassend würde ich sagen: Es kommt darauf an, wie man die '
+                  'App nutzt. Was denkst du?',
+            ),
           ],
         ),
         SprechenTest(
           thema: 'Gemeinschaftsgarten',
           aufgaben: [
-        SprechenAufgabe(
-          partner: 'A',
-          title: 'Gemeinschaftsgarten',
-          instruction:
-              'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
-              'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
-              'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
-              'Thema aus und sprechen Sie dabei über Ihre persönlichen '
-              'Meinungen und Erfahrungen.',
-          meinung:
-              'Wir nutzen seit einem Jahr ein Stück in einem '
-              'Gemeinschaftsgarten. Wir bauen Gemüse und Kräuter an. So wissen '
-              'wir, wo unser Essen herkommt. Wir können ganz sicher sein, dass '
-              'es wirklich Bio ist. Außerdem macht uns die Arbeit im Freien '
-              'viel Freude.',
-          author: 'Lisa Feldmann (43), Kamerafrau',
-          examples: [
-            'In meiner Meinung geht es um …',
-            'Die Person findet einen Gemeinschaftsgarten gut, weil …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Ich persönlich habe die Erfahrung gemacht, dass …',
-            'Wie ist das bei dir?',
-          ],
-          sampleAnswer:
-              'In meiner Meinung geht es um Gemeinschaftsgärten. Lisa Feldmann '
-              'nutzt seit einem Jahr ein Stück in so einem Garten und baut dort '
-              'Gemüse und Kräuter an.\n\n'
-              'Sie findet das gut, weil sie genau weiß, wo ihr Essen herkommt '
-              'und dass es wirklich Bio ist. Außerdem macht ihr die Arbeit im '
-              'Freien Freude.\n\n'
-              'Ich kann das gut verstehen. Frische Lebensmittel selbst '
-              'anzubauen ist gesund und macht Spaß. Bei uns auf dem Land hatten '
-              'wir früher einen eigenen Garten, und das Gemüse hat viel besser '
-              'geschmeckt als aus dem Supermarkt.\n\n'
-              'Wie ist das bei dir? Hast du auch schon einmal etwas selbst '
-              'angebaut?',
-        ),
-        SprechenAufgabe(
-          partner: 'B',
-          title: 'Gemeinschaftsgarten',
-          instruction:
-              'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
-              'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
-              'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
-              'Thema aus und sprechen Sie dabei über Ihre persönlichen '
-              'Meinungen und Erfahrungen.',
-          meinung:
-              'Meine Eltern sind Mieter in einem Gemeinschaftsgarten. Da gibt '
-              'es oft Stress: zum Beispiel, wenn es lange nicht regnet, und die '
-              'teuren Pflanzen vertrocknen. Wenn sie in Urlaub fahren wollen, '
-              'muss jemand den Garten für sie gießen. Ich kaufe mein Gemüse '
-              'lieber im Laden.',
-          author: 'Harald Daubner (29), Kaufmann',
-          examples: [
-            'In meiner Meinung geht es um …',
-            'Die Person sieht eher die Nachteile, zum Beispiel …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Aus eigener Erfahrung kann ich sagen, dass …',
-            'Und wie denkst du darüber?',
-          ],
-          sampleAnswer:
-              'In meiner Meinung geht es auch um Gemeinschaftsgärten, aber '
-              'Harald Daubner sieht eher die Nachteile.\n\n'
-              'Seine Eltern mieten ein Stück in so einem Garten, und er '
-              'berichtet, dass es oft Stress gibt: Wenn es lange nicht regnet, '
-              'vertrocknen die teuren Pflanzen, und wenn man in Urlaub fährt, '
-              'muss jemand gießen. Deshalb kauft er sein Gemüse lieber im '
-              'Laden.\n\n'
-              'Ich kann diese Sorgen verstehen. Ein Garten bedeutet viel Arbeit '
-              'und Verantwortung, und nicht jeder hat dafür Zeit. Trotzdem '
-              'finde ich, dass die Vorteile überwiegen, wenn man die Zeit hat.\n\n'
-              'Und wie denkst du darüber – lohnt sich der Aufwand?',
-        ),
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Gemeinschaftsgarten',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung: 'Wir nutzen seit einem Jahr ein Stück in einem '
+                  'Gemeinschaftsgarten. Wir bauen Gemüse und Kräuter an. So wissen '
+                  'wir, wo unser Essen herkommt. Wir können ganz sicher sein, dass '
+                  'es wirklich Bio ist. Außerdem macht uns die Arbeit im Freien '
+                  'viel Freude.',
+              author: 'Lisa Feldmann (43), Kamerafrau',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet einen Gemeinschaftsgarten gut, weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+              sampleAnswer:
+                  'In meiner Meinung geht es um Gemeinschaftsgärten. Lisa Feldmann '
+                  'nutzt seit einem Jahr ein Stück in so einem Garten und baut dort '
+                  'Gemüse und Kräuter an.\n\n'
+                  'Sie findet das gut, weil sie genau weiß, wo ihr Essen herkommt '
+                  'und dass es wirklich Bio ist. Außerdem macht ihr die Arbeit im '
+                  'Freien Freude.\n\n'
+                  'Ich kann das gut verstehen. Frische Lebensmittel selbst '
+                  'anzubauen ist gesund und macht Spaß. Bei uns auf dem Land hatten '
+                  'wir früher einen eigenen Garten, und das Gemüse hat viel besser '
+                  'geschmeckt als aus dem Supermarkt.\n\n'
+                  'Wie ist das bei dir? Hast du auch schon einmal etwas selbst '
+                  'angebaut?',
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Gemeinschaftsgarten',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Meine Eltern sind Mieter in einem Gemeinschaftsgarten. Da gibt '
+                  'es oft Stress: zum Beispiel, wenn es lange nicht regnet, und die '
+                  'teuren Pflanzen vertrocknen. Wenn sie in Urlaub fahren wollen, '
+                  'muss jemand den Garten für sie gießen. Ich kaufe mein Gemüse '
+                  'lieber im Laden.',
+              author: 'Harald Daubner (29), Kaufmann',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht eher die Nachteile, zum Beispiel …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+              sampleAnswer:
+                  'In meiner Meinung geht es auch um Gemeinschaftsgärten, aber '
+                  'Harald Daubner sieht eher die Nachteile.\n\n'
+                  'Seine Eltern mieten ein Stück in so einem Garten, und er '
+                  'berichtet, dass es oft Stress gibt: Wenn es lange nicht regnet, '
+                  'vertrocknen die teuren Pflanzen, und wenn man in Urlaub fährt, '
+                  'muss jemand gießen. Deshalb kauft er sein Gemüse lieber im '
+                  'Laden.\n\n'
+                  'Ich kann diese Sorgen verstehen. Ein Garten bedeutet viel Arbeit '
+                  'und Verantwortung, und nicht jeder hat dafür Zeit. Trotzdem '
+                  'finde ich, dass die Vorteile überwiegen, wenn man die Zeit hat.\n\n'
+                  'Und wie denkst du darüber – lohnt sich der Aufwand?',
+            ),
           ],
         ),
         SprechenTest(
           thema: 'Im Internet bestellen',
           aufgaben: [
-        SprechenAufgabe(
-          partner: 'A',
-          title: 'Im Internet bestellen',
-          instruction:
-              'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
-              'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
-              'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
-              'Thema aus und sprechen Sie dabei über Ihre persönlichen '
-              'Meinungen und Erfahrungen.',
-          meinung:
-              'Am liebsten bestelle ich meine Kleider im Internet. Die Auswahl '
-              'ist viel größer als im Laden. Überfüllte Geschäfte mag ich '
-              'nicht. Ich suche lieber zu Hause aus und probiere dann in aller '
-              'Ruhe. Was mir nicht gefällt, kann ich problemlos '
-              'zurückschicken.',
-          author: 'Heike Bittner (36), Hausfrau',
-          examples: [
-            'In meiner Meinung geht es um …',
-            'Die Person bestellt am liebsten online, weil …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Ich persönlich bestelle (nicht) gern im Internet, weil …',
-            'Wie machst du das?',
-          ],
-          sampleAnswer:
-              'In meiner Meinung geht es um das Einkaufen im Internet. Heike '
-              'Bittner bestellt ihre Kleidung am liebsten online.\n\n'
-              'Sie findet das gut, weil die Auswahl viel größer ist als im '
-              'Laden und sie überfüllte Geschäfte nicht mag. Sie sucht lieber '
-              'in Ruhe zu Hause aus und kann alles problemlos zurückschicken.\n\n'
-              'Ich kann das gut nachvollziehen. Online-Shopping ist bequem und '
-              'man spart Zeit. Ich selbst bestelle auch oft im Internet, vor '
-              'allem Bücher und Elektronik.\n\n'
-              'Bei Kleidung bin ich aber vorsichtiger, weil die Größen oft nicht '
-              'passen. Wie machst du das – kaufst du lieber online oder im '
-              'Laden?',
-        ),
-        SprechenAufgabe(
-          partner: 'B',
-          title: 'Im Internet bestellen',
-          instruction:
-              'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
-              'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
-              'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
-              'Thema aus und sprechen Sie dabei über Ihre persönlichen '
-              'Meinungen und Erfahrungen.',
-          meinung:
-              'Ich kaufe nicht oft Kleidung. Aber wenn ich etwas brauche, nehme '
-              'ich mir Zeit und gehe in die Stadt. Im Internet bestellen mag '
-              'ich nicht. Die Farben sind oft ganz anders als auf den Fotos. '
-              'Der Stoff sieht auf den Bildern auch meistens besser aus.',
-          author: 'Carlo Marchese (33), Malermeister',
-          examples: [
-            'In meiner Meinung geht es um …',
-            'Die Person kauft lieber im Laden, weil …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Aus eigener Erfahrung kann ich sagen, dass …',
-            'Und wie ist deine Meinung dazu?',
-          ],
-          sampleAnswer:
-              'In meiner Meinung geht es auch um das Einkaufen im Internet, '
-              'aber Carlo Marchese hat eine andere Meinung.\n\n'
-              'Er kauft nicht oft Kleidung, und wenn er etwas braucht, geht er '
-              'lieber in die Stadt. Online bestellen mag er nicht, weil die '
-              'Farben oft anders sind als auf den Fotos und der Stoff auf den '
-              'Bildern besser aussieht.\n\n'
-              'Da hat er recht: Mir ist das auch schon passiert. Einmal habe '
-              'ich eine Jacke bestellt, und die Farbe war ganz anders als '
-              'erwartet.\n\n'
-              'Trotzdem finde ich Online-Shopping praktisch, wenn man wenig '
-              'Zeit hat. Und wie ist deine Meinung dazu?',
-        ),
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Im Internet bestellen',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Am liebsten bestelle ich meine Kleider im Internet. Die Auswahl '
+                  'ist viel größer als im Laden. Überfüllte Geschäfte mag ich '
+                  'nicht. Ich suche lieber zu Hause aus und probiere dann in aller '
+                  'Ruhe. Was mir nicht gefällt, kann ich problemlos '
+                  'zurückschicken.',
+              author: 'Heike Bittner (36), Hausfrau',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person bestellt am liebsten online, weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich bestelle (nicht) gern im Internet, weil …',
+                'Wie machst du das?',
+              ],
+              sampleAnswer:
+                  'In meiner Meinung geht es um das Einkaufen im Internet. Heike '
+                  'Bittner bestellt ihre Kleidung am liebsten online.\n\n'
+                  'Sie findet das gut, weil die Auswahl viel größer ist als im '
+                  'Laden und sie überfüllte Geschäfte nicht mag. Sie sucht lieber '
+                  'in Ruhe zu Hause aus und kann alles problemlos zurückschicken.\n\n'
+                  'Ich kann das gut nachvollziehen. Online-Shopping ist bequem und '
+                  'man spart Zeit. Ich selbst bestelle auch oft im Internet, vor '
+                  'allem Bücher und Elektronik.\n\n'
+                  'Bei Kleidung bin ich aber vorsichtiger, weil die Größen oft nicht '
+                  'passen. Wie machst du das – kaufst du lieber online oder im '
+                  'Laden?',
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Im Internet bestellen',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich kaufe nicht oft Kleidung. Aber wenn ich etwas brauche, nehme '
+                  'ich mir Zeit und gehe in die Stadt. Im Internet bestellen mag '
+                  'ich nicht. Die Farben sind oft ganz anders als auf den Fotos. '
+                  'Der Stoff sieht auf den Bildern auch meistens besser aus.',
+              author: 'Carlo Marchese (33), Malermeister',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person kauft lieber im Laden, weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie ist deine Meinung dazu?',
+              ],
+              sampleAnswer:
+                  'In meiner Meinung geht es auch um das Einkaufen im Internet, '
+                  'aber Carlo Marchese hat eine andere Meinung.\n\n'
+                  'Er kauft nicht oft Kleidung, und wenn er etwas braucht, geht er '
+                  'lieber in die Stadt. Online bestellen mag er nicht, weil die '
+                  'Farben oft anders sind als auf den Fotos und der Stoff auf den '
+                  'Bildern besser aussieht.\n\n'
+                  'Da hat er recht: Mir ist das auch schon passiert. Einmal habe '
+                  'ich eine Jacke bestellt, und die Farbe war ganz anders als '
+                  'erwartet.\n\n'
+                  'Trotzdem finde ich Online-Shopping praktisch, wenn man wenig '
+                  'Zeit hat. Und wie ist deine Meinung dazu?',
+            ),
           ],
         ),
         SprechenTest(
           thema: 'Haustiere',
           aufgaben: [
-        SprechenAufgabe(
-          partner: 'A',
-          title: 'Haustiere',
-          instruction:
-              'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
-              'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
-              'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
-              'Thema aus und sprechen Sie dabei über Ihre persönlichen '
-              'Meinungen und Erfahrungen.',
-          meinung:
-              'Haustiere sind wichtig für Kinder. Ein Hund zum Beispiel kann '
-              'ein guter Freund sein. Vor allem für Kinder, die sich oft allein '
-              'fühlen oder schüchtern sind, ist das eine große Hilfe. Und mit '
-              'Tieren lernen Kinder, sich um jemanden zu kümmern.',
-          author: 'Udo Franke (39), Betriebswirt',
-          examples: [
-            'In meiner Meinung geht es um …',
-            'Die Person findet Haustiere für Kinder wichtig, weil …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Ich persönlich habe als Kind … gehabt.',
-            'Wie ist das bei dir?',
-          ],
-          sampleAnswer:
-              'In meiner Meinung geht es um Haustiere. Udo Franke findet, dass '
-              'Haustiere für Kinder wichtig sind.\n\n'
-              'Er meint, ein Hund kann ein guter Freund sein, besonders für '
-              'Kinder, die sich allein fühlen oder schüchtern sind. Außerdem '
-              'lernen Kinder mit Tieren, Verantwortung zu übernehmen und sich '
-              'um jemanden zu kümmern.\n\n'
-              'Ich sehe das ähnlich. Als Kind hatte ich eine Katze, und ich '
-              'habe gelernt, jeden Tag für sie zu sorgen. Das war eine gute '
-              'Erfahrung.\n\n'
-              'Tiere machen Kinder auch fröhlicher und aktiver. Wie ist das bei '
-              'dir – hattest du als Kind ein Haustier?',
-        ),
-        SprechenAufgabe(
-          partner: 'B',
-          title: 'Haustiere',
-          instruction:
-              'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
-              'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
-              'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
-              'Thema aus und sprechen Sie dabei über Ihre persönlichen '
-              'Meinungen und Erfahrungen.',
-          meinung:
-              'Unser Sohn, Timo, wünscht sich einen Hund. Doch Timo ist erst '
-              'sieben Jahre alt. Wir denken, dass er zu jung ist. Ein Hund '
-              'macht viel Arbeit. Man muss ihn regelmäßig füttern und mit ihm '
-              'spazieren gehen. Kindern fehlt aber die nötige Disziplin.',
-          author: 'Saskia Vorbeck (35), Grafikerin',
-          examples: [
-            'In meiner Meinung geht es um …',
-            'Die Person ist eher dagegen, weil …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Aus eigener Erfahrung kann ich sagen, dass …',
-            'Und wie denkst du darüber?',
-          ],
-          sampleAnswer:
-              'In meiner Meinung geht es auch um Haustiere, aber Saskia '
-              'Vorbeck ist eher dagegen.\n\n'
-              'Ihr Sohn Timo wünscht sich einen Hund, aber er ist erst sieben '
-              'Jahre alt. Sie findet, dass er noch zu jung ist, weil ein Hund '
-              'viel Arbeit macht: Man muss ihn regelmäßig füttern und mit ihm '
-              'spazieren gehen, und Kindern fehle dafür die Disziplin.\n\n'
-              'Ich kann ihre Sorgen verstehen. Ein kleines Kind kann nicht '
-              'allein die ganze Verantwortung tragen. Aber ich denke, die '
-              'Eltern können dem Kind helfen und es so Schritt für Schritt '
-              'lernen lassen.\n\n'
-              'Und wie denkst du darüber – ab welchem Alter ist ein Haustier '
-              'sinnvoll?',
-        ),
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Haustiere',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Haustiere sind wichtig für Kinder. Ein Hund zum Beispiel kann '
+                  'ein guter Freund sein. Vor allem für Kinder, die sich oft allein '
+                  'fühlen oder schüchtern sind, ist das eine große Hilfe. Und mit '
+                  'Tieren lernen Kinder, sich um jemanden zu kümmern.',
+              author: 'Udo Franke (39), Betriebswirt',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet Haustiere für Kinder wichtig, weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe als Kind … gehabt.',
+                'Wie ist das bei dir?',
+              ],
+              sampleAnswer:
+                  'In meiner Meinung geht es um Haustiere. Udo Franke findet, dass '
+                  'Haustiere für Kinder wichtig sind.\n\n'
+                  'Er meint, ein Hund kann ein guter Freund sein, besonders für '
+                  'Kinder, die sich allein fühlen oder schüchtern sind. Außerdem '
+                  'lernen Kinder mit Tieren, Verantwortung zu übernehmen und sich '
+                  'um jemanden zu kümmern.\n\n'
+                  'Ich sehe das ähnlich. Als Kind hatte ich eine Katze, und ich '
+                  'habe gelernt, jeden Tag für sie zu sorgen. Das war eine gute '
+                  'Erfahrung.\n\n'
+                  'Tiere machen Kinder auch fröhlicher und aktiver. Wie ist das bei '
+                  'dir – hattest du als Kind ein Haustier?',
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Haustiere',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Unser Sohn, Timo, wünscht sich einen Hund. Doch Timo ist erst '
+                  'sieben Jahre alt. Wir denken, dass er zu jung ist. Ein Hund '
+                  'macht viel Arbeit. Man muss ihn regelmäßig füttern und mit ihm '
+                  'spazieren gehen. Kindern fehlt aber die nötige Disziplin.',
+              author: 'Saskia Vorbeck (35), Grafikerin',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person ist eher dagegen, weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+              sampleAnswer:
+                  'In meiner Meinung geht es auch um Haustiere, aber Saskia '
+                  'Vorbeck ist eher dagegen.\n\n'
+                  'Ihr Sohn Timo wünscht sich einen Hund, aber er ist erst sieben '
+                  'Jahre alt. Sie findet, dass er noch zu jung ist, weil ein Hund '
+                  'viel Arbeit macht: Man muss ihn regelmäßig füttern und mit ihm '
+                  'spazieren gehen, und Kindern fehle dafür die Disziplin.\n\n'
+                  'Ich kann ihre Sorgen verstehen. Ein kleines Kind kann nicht '
+                  'allein die ganze Verantwortung tragen. Aber ich denke, die '
+                  'Eltern können dem Kind helfen und es so Schritt für Schritt '
+                  'lernen lassen.\n\n'
+                  'Und wie denkst du darüber – ab welchem Alter ist ein Haustier '
+                  'sinnvoll?',
+            ),
           ],
         ),
         SprechenTest(
           thema: 'Brief oder E-Mail',
           aufgaben: [
-        SprechenAufgabe(
-          partner: 'A',
-          title: 'Brief oder E-Mail',
-          instruction:
-              'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
-              'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
-              'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
-              'Thema aus und sprechen Sie dabei über Ihre persönlichen '
-              'Meinungen und Erfahrungen.',
-          meinung:
-              'Ich finde es schade, dass viele Menschen nicht mehr mit der Hand '
-              'schreiben wollen. Also, ich freue mich immer über einen '
-              'handgeschriebenen Brief oder eine Karte, zum Beispiel zum '
-              'Geburtstag. Das ist viel persönlicher als eine E-Mail oder eine '
-              'Nachricht am Telefon.',
-          author: 'Max Bayer (30), Lehrer',
-          examples: [
-            'In meiner Meinung geht es um …',
-            'Die Person mag handgeschriebene Briefe, weil …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Ich persönlich schreibe (nicht) gern Briefe, weil …',
-            'Wie ist das bei dir?',
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Brief oder E-Mail',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich finde es schade, dass viele Menschen nicht mehr mit der Hand '
+                  'schreiben wollen. Also, ich freue mich immer über einen '
+                  'handgeschriebenen Brief oder eine Karte, zum Beispiel zum '
+                  'Geburtstag. Das ist viel persönlicher als eine E-Mail oder eine '
+                  'Nachricht am Telefon.',
+              author: 'Max Bayer (30), Lehrer',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person mag handgeschriebene Briefe, weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich schreibe (nicht) gern Briefe, weil …',
+                'Wie ist das bei dir?',
+              ],
+              sampleAnswer:
+                  'In meiner Meinung geht es um Briefe und E-Mails. Max Bayer '
+                  'findet es schade, dass viele Menschen nicht mehr mit der Hand '
+                  'schreiben.\n\n'
+                  'Er freut sich immer über einen handgeschriebenen Brief oder eine '
+                  'Karte, zum Beispiel zum Geburtstag, weil das viel persönlicher '
+                  'ist als eine E-Mail oder eine Nachricht am Telefon.\n\n'
+                  'Ich sehe das ähnlich. Einen handgeschriebenen Brief zu bekommen '
+                  'ist etwas Besonderes. Man merkt, dass sich jemand Zeit genommen '
+                  'hat.\n\n'
+                  'Trotzdem schreibe ich im Alltag meistens Nachrichten, weil es '
+                  'schneller geht. Wie ist das bei dir – schreibst du noch Briefe?',
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Brief oder E-Mail',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Briefe schreibe ich nie. Wozu auch? Es dauert viel zu lange, bis '
+                  'ein Brief endlich ankommt. Eine E-Mail oder eine Nachricht per '
+                  'Telefon ist sofort beim Empfänger. Da kann ich auch Emojis '
+                  'benutzen. Briefe finde ich altmodisch.',
+              author: 'Tina Klein (35), Pflegerin',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person schreibt nie Briefe, weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie ist deine Meinung dazu?',
+              ],
+              sampleAnswer:
+                  'In meiner Meinung geht es auch um Briefe und E-Mails, aber Tina '
+                  'Klein hat eine andere Meinung.\n\n'
+                  'Sie schreibt nie Briefe. Sie findet, dass es viel zu lange '
+                  'dauert, bis ein Brief ankommt. Eine E-Mail oder eine Nachricht '
+                  'per Telefon ist sofort beim Empfänger, und sie kann dabei auch '
+                  'Emojis benutzen. Briefe findet sie altmodisch.\n\n'
+                  'Da hat sie in vielen Punkten recht: Digitale Nachrichten sind '
+                  'schnell und praktisch. Ich benutze sie auch jeden Tag.\n\n'
+                  'Aber ich finde, ein persönlicher Brief hat trotzdem seinen '
+                  'Wert. Und wie ist deine Meinung dazu?',
+            ),
           ],
-          sampleAnswer:
-              'In meiner Meinung geht es um Briefe und E-Mails. Max Bayer '
-              'findet es schade, dass viele Menschen nicht mehr mit der Hand '
-              'schreiben.\n\n'
-              'Er freut sich immer über einen handgeschriebenen Brief oder eine '
-              'Karte, zum Beispiel zum Geburtstag, weil das viel persönlicher '
-              'ist als eine E-Mail oder eine Nachricht am Telefon.\n\n'
-              'Ich sehe das ähnlich. Einen handgeschriebenen Brief zu bekommen '
-              'ist etwas Besonderes. Man merkt, dass sich jemand Zeit genommen '
-              'hat.\n\n'
-              'Trotzdem schreibe ich im Alltag meistens Nachrichten, weil es '
-              'schneller geht. Wie ist das bei dir – schreibst du noch Briefe?',
         ),
-        SprechenAufgabe(
-          partner: 'B',
-          title: 'Brief oder E-Mail',
-          instruction:
-              'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
-              'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
-              'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
-              'Thema aus und sprechen Sie dabei über Ihre persönlichen '
-              'Meinungen und Erfahrungen.',
-          meinung:
-              'Briefe schreibe ich nie. Wozu auch? Es dauert viel zu lange, bis '
-              'ein Brief endlich ankommt. Eine E-Mail oder eine Nachricht per '
-              'Telefon ist sofort beim Empfänger. Da kann ich auch Emojis '
-              'benutzen. Briefe finde ich altmodisch.',
-          author: 'Tina Klein (35), Pflegerin',
-          examples: [
-            'In meiner Meinung geht es um …',
-            'Die Person schreibt nie Briefe, weil …',
-            'Ich sehe das ähnlich / anders, weil …',
-            'Aus eigener Erfahrung kann ich sagen, dass …',
-            'Und wie ist deine Meinung dazu?',
+        SprechenTest(
+          thema: 'Gesundheit',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Gesundheit',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Naja, in meinem Alter muss ich doch noch nicht auf die Gesundheit aufpassen. Ich fühle mich sehr wohl und esse und trinke einfach, was mir schmeckt. Und zum Sport bin ich nach der Arbeit einfach zu müde. Zum Glück bin ich schlank und muss nicht auf mein Gewicht achten.',
+              author: 'Carsten Martens 23 Jahre, Angestellter',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Gesundheit',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich versuche schon, auf meine Gesundheit zu achten. Ich rauche nicht und mache regelmäßig Sport. Ich bin Mitglied in einem Turnierverein und jogge auch sehr oft. Nur beim Essen kann ich mich manchmal nicht zurückhalten. Ich esse nämlich unheimlich gerne Süßigkeiten und Kuchen.',
+              author: 'Silke Bauer, 21 Jahre Studentin',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
           ],
-          sampleAnswer:
-              'In meiner Meinung geht es auch um Briefe und E-Mails, aber Tina '
-              'Klein hat eine andere Meinung.\n\n'
-              'Sie schreibt nie Briefe. Sie findet, dass es viel zu lange '
-              'dauert, bis ein Brief ankommt. Eine E-Mail oder eine Nachricht '
-              'per Telefon ist sofort beim Empfänger, und sie kann dabei auch '
-              'Emojis benutzen. Briefe findet sie altmodisch.\n\n'
-              'Da hat sie in vielen Punkten recht: Digitale Nachrichten sind '
-              'schnell und praktisch. Ich benutze sie auch jeden Tag.\n\n'
-              'Aber ich finde, ein persönlicher Brief hat trotzdem seinen '
-              'Wert. Und wie ist deine Meinung dazu?',
         ),
+        SprechenTest(
+          thema: 'Ausziehen und alleine wohnen',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Ausziehen und alleine wohnen',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Pünktlich zu meinem Geburtstag bin ich ausgezogen. Meine Wohnung hat nur ein Zimmer, eine kleine Küche und ein Bad. Zum Glück ist sie nicht so teuer. Meine Eltern wollten eigentlich nicht, dass ich ausziehe und sie sagten ich solle erst meine Ausbildung beenden, aber ich habe sie überzeugt, dass ich meine Freiheit brauche. Ich möchte endlich auf eigenen Beinen stehen. Jetzt geben sie mir sogar ein bisschen Geld für die Miete.',
+              author: 'Carsten Daubner, 18 Jahre Auszubildender:',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Ausziehen und alleine wohnen',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Meine Eltern hätten nichts dagegen, dass ich ausziehe. Sie würden mir sogar das Geld für die Miete geben. Aber was soll ich alleine in einer kleinen Wohnung? Im Hause meiner Eltern habe ich doch viel mehr Platz. Hier habe ich nicht nur mein eigenes Zimmer, sondern auch den Garten und die anderen Räume. Das ist doch viel bequemer. Klar, bis zur Uni bin ich lange unterwegs. Aber meine Mutter leiht mir Ihr Auto.',
+              author: 'Jenny Groh, 21 Jahre, Studentin:',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
+          ],
+        ),
+        SprechenTest(
+          thema: 'Reise',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Reise',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'In meinem Job muss ich viel reisen. Ich schätze, dass ich fast 100000 km jedes Jahr unterwegs bin. Das meiste mit dem Firmenwagen manchmal aber auch mit dem Flugzeug. Als ich diesen Job anfing, fand ich reisen ganz toll, aber inzwischen ist es langweilig, immer nur von einem Hotelzimmer zum nächsten unterwegs zu sein.',
+              author: 'Klaus Schmidt 31 Jahre Kundenberater',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Reise',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Reisen macht mir wahnsinnig Spaß. Immer wenn ich frei habe fahre ich weg. Da ich einige Freunde im Ausland habe, komme ich sehr viel herum. Wir besuchen uns gegenseitig, d.h. ich kann bei ihnen wohnen und musst nur die Reise bezahlen. Und Zugfahrten ist für Studenten gar nicht so teuer.',
+              author: 'Stefanie Berger, 24 Jahre, Studentin',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
+          ],
+        ),
+        SprechenTest(
+          thema: 'Familie',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Familie',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich bin ein echter Familienmensch. Ich lebe mit meinem Mann und meinen Kindern in einem kleinen Dorf. Wir verbringen sehr viel Zeit mit meinen Eltern und der Familie meiner Schwester. Meine Schwester ist auch verheiratet und hat zwei Söhne. Ich selbst habe einen Sohn und eine Tochter möchte aber noch ein drittes Kind haben.',
+              author: 'Nadja Beckmann 36 Jahre, Angestellte',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Familie',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich lebe allein und genieße diese Freiheit. Im Moment denke ich nicht über eine eigene Familie. Naja, ich habe die ideale Partnerin auch noch nicht gefunden. Ich brauche einfach meine ganze Energie für meinen Beruf. Aber vielleicht wird sich das ja später einmal ändern, wenn ich etwas älter bin.',
+              author: 'Anton Meyer 34 Jahre, Manager',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
+          ],
+        ),
+        SprechenTest(
+          thema: 'Wohnen in der Großstadt',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Wohnen in der Großstadt',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Also ich liebe es in einer Großstadt zu leben. Deshalb bin ich nach Berlin gezogen. Viele Menschen unterschiedliche Kulturen rund um die Uhr Veranstaltungen. Hier ist was los, hier fühle ich mich wohl. Außerdem gibt es für mich nur in einer Großstadt wie Berlin Arbeit.',
+              author: 'Anna Schudt 32 Jahre, Musikerin',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Wohnen in der Großstadt',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich wohne gern auf dem Land und verbringe viel Zeit im Garten und an der frischen Luft. Das Stadtleben ist mir ganz einfach zu laut und zu hektisch. Zum Ausgehen oder einkaufen fahre ich schon mal in die nächste Stadt. Danach bin ich aber meistens froh, wenn ich wieder zu Hause sein kann.',
+              author: 'Uwe Meister 36 Jahre, Beamter',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
+          ],
+        ),
+        SprechenTest(
+          thema: 'Großeltern',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Großeltern',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich habe meine Großeltern leider nie kennen gelernt. Gern hätte ich mit ihnen über ihre Kindheit und unsere Familiengeschichte gesprochen. Ich hätte ihnen auch viele Fragen gestellt.',
+              author: 'Katja Jantos, 29 Jahre, Fotografin',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Großeltern',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich sehe meine Großeltern nur selten. Sie sind schon älter und erzählen immer die gleichen Geschichten von früheren Zeiten. Das finde ich langweilig. Aber so ist das eben. Manche Menschen in diesem Alter leben einfach in einer anderen Welt.',
+              author: 'Michael Schmidt, 32 Jahre, Manager',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
+          ],
+        ),
+        SprechenTest(
+          thema: 'Verkehrsmittel',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Verkehrsmittel',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Im Sommer fahre ich immer mit dem Fahrrad zur Arbeit. Dann komme ich morgens schon munter ins Büro und abends kann ich mich beim Fahren wunderbar entspannen. Nur wenn es regnet, nehme ich den Bus. Im Winter fahre ich immer mit einer Kollegin im Auto. Dafür gebe ich ihr etwas Benzingeld, so sparen wir beide und tun außerdem noch etwas für den Umweltschutz.',
+              author: 'Carola Ahrenholz, 25 Jahre, Sekretärin',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Verkehrsmittel',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Mein Auto brauche ich am meisten für meine Freizeitaktivitäten: Am Wochenende machen wir Ausflüge, unter der Woche fahre ich in die Stadt, ins Kino oder zum Sport. Um zur Arbeit zu kommen, benutze ich auch das Auto. Und weil wir auf dem Land wohnen, muss ich ziemlich oft auch die Kinder irgendwohin bringen.',
+              author: 'Bernd Kleinefeld, 45 Jahre, Elektrotechniker',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
+          ],
+        ),
+        SprechenTest(
+          thema: 'Wohnen',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Wohnen',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Wir wohnen in einer 3-Zimmer-Wohnung in der Stadt. Zwar haben die Kinder nicht genug Platz zum Spielen, aber zentral zu wohnen, hat auch Vorteile: Wir brauchen nicht lange zur Arbeit und Geschäfte und Behörden liegen ganz in der Nähe.',
+              author: 'Rainer Jobke, 42 Jahre',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Wohnen',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Im Moment sind wir auf Wohnungssuche. Ein kleines Haus mit Garten in einem Vorort wäre für uns ideal. Dann könnten wir für die Kinder endlich einen Hund kaufen. Wichtig ist natürlich ein S-Bahn-Anschluss in der Nähe, denn ich muss jeden Tag in die Stadt. Und natürlich darf die Miete nicht zu hoch sein.',
+              author: 'Volker Kühlheim, 36 Jahre',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
+          ],
+        ),
+        SprechenTest(
+          thema: 'Einkäufe',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Einkäufe',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich bin noch in der Ausbildung und verdiene nicht viel. Das Geld reicht meistens nicht mal bis Monatsende. Gott sei Dank wohne ich noch bei meinen Eltern und muss nur für meine persönlichen Ausgaben aufkommen: Kleidung, Kosmetik, Zeitschriften, mein Fahrgeld und ab und zu Schmuck.',
+              author: 'Juliane Teubert, 18 Jahre',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Einkäufe',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich fahre einmal in der Woche in einen Großmarkt einkaufen. Dann packe ich immer den ganzen Kofferraum voll mit den Sachen für die ganze Woche. Im Großmarkt sind die Preise besser. Was ich nicht vergessen darf, ist die Einkaufsliste von meiner Frau. Sonst gebe ich zu viel Geld aus, kaufe lauter unnötige Sachen und vergesse das Wichtigste.',
+              author: 'Paul Krügel, 27 Jahre',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
+          ],
+        ),
+        SprechenTest(
+          thema: 'Mensch und Tier',
+          aufgaben: [
+            SprechenAufgabe(
+              partner: 'A',
+              title: 'Mensch und Tier',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Endlich habe ich den Hund bekommen, den ich mir schon so lange gewünscht habe. Seit Jahren bitte ich meine Eltern darum. Aber sie wollten die Verantwortung für ein Tier nicht übernehmen. Ich musste versprechen, dass ich mich allein um Rudi kümmere, sonst muss er zurück ins Tierheim.',
+              author: 'Darnai Müller, 13 Jahre',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person findet ..., weil …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Ich persönlich habe die Erfahrung gemacht, dass …',
+                'Wie ist das bei dir?',
+              ],
+            ),
+            SprechenAufgabe(
+              partner: 'B',
+              title: 'Mensch und Tier',
+              instruction:
+                  'Sie lesen eine Meinung zu einem Thema. Berichten Sie Ihrer '
+                  'Gesprächspartnerin/Ihrem Gesprächspartner davon. Sie/Er hat eine '
+                  'andere Meinung zum selben Thema gelesen. Tauschen Sie sich zum '
+                  'Thema aus und sprechen Sie dabei über Ihre persönlichen '
+                  'Meinungen und Erfahrungen.',
+              meinung:
+                  'Ich habe zwar kein Haustier, aber trotzdem habe ich ein Herz für Tiere. Nur bin ich der Meinung, dass Tiere in ihre natürliche Umgebung gehören. Deshalb bin ich auch aktives Mitglied in einem Tierschutzverein. Unser Verein setzt sich für bedrohte Tiere ein, wie zum Beispiel die Braunbären.',
+              author: 'Vanessa Dannewald, 24 Jahre',
+              examples: [
+                'In meiner Meinung geht es um …',
+                'Die Person sieht das so, dass …',
+                'Ich sehe das ähnlich / anders, weil …',
+                'Aus eigener Erfahrung kann ich sagen, dass …',
+                'Und wie denkst du darüber?',
+              ],
+            ),
           ],
         ),
       ],
@@ -819,8 +1273,7 @@ const sprechenB2 = SprechenLevel(
       aufgaben: [
         SprechenAufgabe(
           title: 'Thema: Umweltschutz im Alltag',
-          instruction:
-              'Diskutieren Sie mit Ihrem Partner. Vertreten Sie Ihren '
+          instruction: 'Diskutieren Sie mit Ihrem Partner. Vertreten Sie Ihren '
               'Standpunkt mit Argumenten und reagieren Sie auf Gegenargumente.',
           keywords: [
             'Standpunkt',
