@@ -12,6 +12,7 @@ import '../../l10n/app_localizations.dart';
 import '../../l10n/locale_manager.dart';
 import '../../services/gemini_live_service.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/theme_manager.dart';
 import '../../widgets/ai_voice_face.dart';
 
 class VoiceAiScreen extends StatefulWidget {
@@ -89,46 +90,64 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
 
   void _showPersonalityDialog() {
     _personalityCtrl.text = _customPersonality;
+    final isUz = LocaleManager.code == 'uz';
+    final title = isUz ? 'Ovozli botni sozlash' : 'AI-Bot anpassen';
+    final hint = isUz
+        ? 'Masalan: "Sen xatolarni doim kulgili ohangda tushuntiradigan hazilkashsan..."'
+        : 'z.B.: "Du bist ein lustiger Typ..."';
+    final cancel = isUz ? 'Bekor' : 'Abbrechen';
+    final save = isUz ? 'Saqlash' : 'Speichern';
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A2B50),
-        title: const Text('AI shaxsiyatini sozlash',
-            style: TextStyle(color: Colors.white, fontSize: 16)),
-        content: TextField(
-          controller: _personalityCtrl,
-          maxLines: 6,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
-          decoration: InputDecoration(
-            hintText: 'Masalan: "Sen xatolarni doim kulgili ohangda '
-                'tushuntiradigan hazilkashsan..."',
-            hintStyle: TextStyle(color: Colors.white38, fontSize: 13),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.white24),
+      builder: (ctx) {
+        final isDark = ThemeManager.isDark;
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF131F24) : Colors.white,
+          title: Text(title,
+              style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.duoTextDark, 
+                  fontSize: 16)),
+          content: TextField(
+            controller: _personalityCtrl,
+            maxLines: 6,
+            style: TextStyle(
+                color: isDark ? Colors.white : AppColors.duoTextDark, 
+                fontSize: 14),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(
+                  color: isDark ? Colors.white38 : AppColors.duoTextLight, 
+                  fontSize: 13),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                    color: isDark ? Colors.white24 : AppColors.duoCardGrayShadow),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.duoBlue),
+              ),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.duoBlue),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(cancel, 
+                  style: TextStyle(
+                      color: isDark ? Colors.white54 : AppColors.duoTextLight)),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Bekor', style: TextStyle(color: Colors.white54)),
-          ),
-          TextButton(
-            onPressed: () {
-              _savePersonality(_personalityCtrl.text.trim());
-              Navigator.pop(ctx);
-            },
-            child: const Text('Saqlash',
-                style: TextStyle(color: AppColors.duoBlue)),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () {
+                _savePersonality(_personalityCtrl.text.trim());
+                Navigator.pop(ctx);
+              },
+              child: Text(save, style: const TextStyle(color: AppColors.duoBlue)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -136,88 +155,84 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0E1830),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF16244A), Color(0xFF0B1226)],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Yuqori panel.
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon:
-                          const Icon(Icons.close_rounded, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    Expanded(
-                      child: Text(
-                        l.voiceAiTitle,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
+    return ValueListenableBuilder<AccentPreset>(
+      valueListenable: ThemeManager.accentNotifier,
+      builder: (context, _, __) {
+        final isDark = ThemeManager.isDark;
+        return Scaffold(
+          backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Yuqori panel.
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.close_rounded,
+                            color: isDark ? Colors.white : AppColors.duoTextDark),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      Expanded(
+                        child: Text(
+                          l.voiceAiTitle,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : AppColors.duoTextDark,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon:
-                          const Icon(Icons.tune_rounded, color: Colors.white70),
-                      onPressed: _active ? null : _showPersonalityDialog,
-                    ),
-                  ],
+                      IconButton(
+                        icon: Icon(Icons.tune_rounded,
+                            color: isDark ? Colors.white70 : AppColors.duoTextLight),
+                        onPressed: _active ? null : _showPersonalityDialog,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-
-              const Spacer(),
-
-              // Markazdagi yuz.
-              ValueListenableBuilder<AiFaceState>(
-                valueListenable: _service.state,
-                builder: (context, faceState, _) {
-                  final s = _active ? faceState : AiFaceState.idle;
-                  return ValueListenableBuilder<AiFaceEmotion>(
-                    valueListenable: _service.emotion,
-                    builder: (context, emo, _) {
-                      return ValueListenableBuilder<double>(
-                        valueListenable: _service.mouthLevel,
-                        builder: (context, level, _) {
-                          return Column(
-                            children: [
-                              AiVoiceFace(
-                                state: s,
-                                emotion: emo,
-                                size: 240,
-                                level: s == AiFaceState.speaking ? level : null,
-                              ),
-                              const SizedBox(height: 32),
-                              Text(
-                                _statusText(l, s),
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.9),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
+                const Spacer(),
+                // Markazdagi yuz.
+                ValueListenableBuilder<AiFaceState>(
+                  valueListenable: _service.state,
+                  builder: (context, faceState, _) {
+                    final s = _active ? faceState : AiFaceState.idle;
+                    return ValueListenableBuilder<AiFaceEmotion>(
+                      valueListenable: _service.emotion,
+                      builder: (context, emo, _) {
+                        return ValueListenableBuilder<double>(
+                          valueListenable: _service.mouthLevel,
+                          builder: (context, level, _) {
+                            return Column(
+                              children: [
+                                AiVoiceFace(
+                                  state: s,
+                                  emotion: emo,
+                                  size: 240,
+                                  level: s == AiFaceState.speaking ? level : null,
                                 ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
+                                const SizedBox(height: 32),
+                                Text(
+                                  _statusText(l, s),
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.9)
+                                        : AppColors.duoTextDark.withValues(alpha: 0.9),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
 
               const SizedBox(height: 10),
 
@@ -249,10 +264,11 @@ class _VoiceAiScreenState extends State<VoiceAiScreen> {
                 padding: const EdgeInsets.only(bottom: 40),
                 child: _active ? _buildActiveControls() : _buildStartButton(),
               ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
