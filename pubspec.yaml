@@ -48,6 +48,8 @@ dependencies:
   record: ^5.2.0
   path_provider: ^2.1.4
   web_socket_channel: ^3.0.1
+  sound_stream: ^0.4.2
+  flutter_3d_controller: any
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +60,7 @@ dev_dependencies:
 
 dependency_overrides:
   record_linux: ^1.0.0
+  path_provider_foundation: 2.4.0
 
 flutter_launcher_icons:
   android: true
@@ -76,4 +79,7 @@ flutter:
     - assets/icons/
     - assets/sounds/
     - assets/games/
+    - assets/ruqq/sozlik_clean.txt
     - env.txt
+    - assets/models/classroom.glb
+    - assets/3D-fayl/classroom.glb

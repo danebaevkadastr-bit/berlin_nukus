@@ -44,7 +44,8 @@ class TTSService {
 
   Future<void> _ensureFlutterTtsReady() async {
     if (_flutterTtsReady) return;
-    await _flutterTts.setLanguage('de-DE');
+    // Note: TTS language is set dynamically per voiceId in _playWithFlutterTts
+    await _flutterTts.setLanguage('de-DE'); // Default
     await _flutterTts.setVolume(1.0);
     _flutterTts.setCompletionHandler(() {
       isPlaying = false;

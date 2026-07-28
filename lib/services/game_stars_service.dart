@@ -120,4 +120,29 @@ class GameStarsService {
     }
     return 0;
   }
+
+  /// Firestore'dan yulduzlarni SharedPreferences'ga yuklab olish
+  /// Ilovani ochishda chaqiriladi - deploy qilinganda yoki cache tozalanganda
+  /// yulduzlar Firestore'dan tiklanadi.
+  static Future<void> loadStarsFromFirestore(String uid) async {
+    try {
+      final firestoreTotal = await getStarsFromFirestore(uid);
+      if (firestoreTotal > 0) {
+        final prefs = await SharedPreferences.getInstance();
+        final localTotal = await getTotalStars(uid);
+        
+        // Agar Firestore'dagi ko'proq bo'lsa, uni ishlatamiz
+        if (firestoreTotal > localTotal) {
+          // Firestore'dagi qiymatni local'ga yozamiz
+          // Proporsional ravishda taqsimlaymiz (oddiy yondashuv)
+          await prefs.setInt(_derDieDasKey(uid), (firestoreTotal * 0.25).round());
+          await prefs.setInt(_strangeSentencesKey(uid), (firestoreTotal * 0.25).round());
+          await prefs.setInt(_grammarGameKey(uid), (firestoreTotal * 0.25).round());
+          await prefs.setInt(_synonymBattleKey(uid), (firestoreTotal * 0.25).round());
+        }
+      }
+    } catch (e) {
+      // Xatolarni ignore qilish
+    }
+  }
 }

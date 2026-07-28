@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/gamified_card.dart';
 import '../../widgets/user_avatar.dart';
 import '../../utils/user_profile_utils.dart';
@@ -74,105 +75,134 @@ class _AdminSelectStudentScreenState extends State<AdminSelectStudentScreen> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: FirebaseService().getStudentsStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('groups').snapshots(),
+              builder: (context, groupsSnapshot) {
+                if (groupsSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator(color: AppColors.duoBlue));
                 }
 
-                var students = snapshot.data ?? [];
-                if (_query.isNotEmpty) {
-                  students = students.where((data) {
-                    final name = (data['fullName'] ?? '').toLowerCase();
-                    final email = (data['email'] ?? '').toLowerCase();
-                    return name.contains(_query.toLowerCase()) || email.contains(_query.toLowerCase());
-                  }).toList();
+                // Collect all student IDs already in any group
+                final enrolledStudentIds = <String>{};
+                final groupDocs = groupsSnapshot.data?.docs ?? [];
+                for (final doc in groupDocs) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final studentList = data['students'] as List<dynamic>? ?? [];
+                  for (final id in studentList) {
+                    if (id is String) {
+                      enrolledStudentIds.add(id);
+                    }
+                  }
                 }
 
-                if (students.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('🧑‍🎓', style: TextStyle(fontSize: 64)),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Studentlar topilmadi',
-                          style: TextStyle(
-                            color: isDark ? Colors.white70 : AppColors.duoTextLight,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+                return StreamBuilder<List<Map<String, dynamic>>>(
+                  stream: FirebaseService().getStudentsStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator(color: AppColors.duoBlue));
+                    }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-                  itemCount: students.length,
-                  itemBuilder: (context, index) {
-                    final data = students[index];
+                    var students = snapshot.data ?? [];
+                    
+                    // Filter out students already in a group
+                    students = students.where((student) {
+                      final studentId = student['id'] ?? student['uid'] ?? '';
+                      return !enrolledStudentIds.contains(studentId);
+                    }).toList();
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: GamifiedCard(
-                        padding: const EdgeInsets.all(16),
-                        color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
-                        shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                        onTap: () {
-                          Navigator.pop(context, {
-                            'id': data['id'] ?? data['uid'],
-                            'name': data['fullName'],
-                          });
-                        },
-                        child: Row(
+                    if (_query.isNotEmpty) {
+                      students = students.where((data) {
+                        final name = (data['fullName'] ?? '').toLowerCase();
+                        final email = (data['email'] ?? '').toLowerCase();
+                        return name.contains(_query.toLowerCase()) || email.contains(_query.toLowerCase());
+                      }).toList();
+                    }
+
+                    if (students.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            UserAvatar(
-                              imageUrl: UserProfileUtils.avatarUrl(data),
-                              size: 48,
-                              fallbackEmoji: '🧑‍🎓',
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    UserProfileUtils.displayName(data),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w900,
-                                      color: isDark ? Colors.white : AppColors.duoTextDark,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    data['email'] ?? '',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark ? Colors.white70 : AppColors.duoTextLight,
-                                    ),
-                                  ),
-                                  if ((data['phone'] ?? '').isNotEmpty)
-                                    Text(
-                                      data['phone'],
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white70 : AppColors.duoTextLight,
-                                      ),
-                                    ),
-                                ],
+                            const Text('🧑‍🎓', style: TextStyle(fontSize: 64)),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Guruhsiz studentlar topilmadi',
+                              style: TextStyle(
+                                color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            Icon(Icons.chevron_right_rounded,
-                                color: isDark ? Colors.white54 : AppColors.duoTextLight),
                           ],
                         ),
-                      ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                      itemCount: students.length,
+                      itemBuilder: (context, index) {
+                        final data = students[index];
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: GamifiedCard(
+                            padding: const EdgeInsets.all(16),
+                            color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                            shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                            onTap: () {
+                              Navigator.pop(context, {
+                                'id': data['id'] ?? data['uid'],
+                                'name': data['fullName'],
+                              });
+                            },
+                            child: Row(
+                              children: [
+                                UserAvatar(
+                                  imageUrl: UserProfileUtils.avatarUrl(data),
+                                  size: 48,
+                                  fallbackEmoji: '🧑‍🎓',
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        UserProfileUtils.displayName(data),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900,
+                                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        data['email'] ?? '',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                                        ),
+                                      ),
+                                      if ((data['phone'] ?? '').isNotEmpty)
+                                        Text(
+                                          data['phone'],
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(Icons.chevron_right_rounded,
+                                    color: isDark ? Colors.white54 : AppColors.duoTextLight),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );

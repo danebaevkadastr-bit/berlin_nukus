@@ -31,34 +31,39 @@ class _LesenScreenState extends State<LesenScreen> {
   }
 
   Future<void> _loadStats() async {
-    final prefs = await SharedPreferences.getInstance();
-    final Map<int, int> correct = {};
-    final Map<int, int> wrong = {};
+    try {
+      
+      final prefs = await SharedPreferences.getInstance();
+      final Map<int, int> correct = {};
+      final Map<int, int> wrong = {};
 
-    // Hozircha faqat B1 ma'lumotlari mavjud.
-    if (_selectedLevel == 'B1') {
-      for (final teil in lesenB1.teile) {
-        int c = 0, w = 0;
-        for (int i = 0; i < teil.questions.length; i++) {
-          final val = prefs.getString(
-              'lesen_${_selectedLevel}_teil${teil.teilNumber}_q$i');
-          if (val == 'true') c++;
-          if (val == 'false') w++;
+      // Hozircha faqat B1 ma'lumotlari mavjud.
+      if (_selectedLevel == 'B1') {
+        for (final teil in lesenB1.teile) {
+          int c = 0, w = 0;
+          for (int i = 0; i < teil.questions.length; i++) {
+            final val = prefs.getString(
+                'lesen_${_selectedLevel}_teil${teil.teilNumber}_q$i');
+            if (val == 'true') c++;
+            if (val == 'false') w++;
+          }
+          correct[teil.teilNumber] = c;
+          wrong[teil.teilNumber] = w;
         }
-        correct[teil.teilNumber] = c;
-        wrong[teil.teilNumber] = w;
       }
-    }
 
-    if (mounted) {
-      setState(() {
-        _correctMap
-          ..clear()
-          ..addAll(correct);
-        _wrongMap
-          ..clear()
-          ..addAll(wrong);
-      });
+      if (mounted) {
+        setState(() {
+          _correctMap
+            ..clear()
+            ..addAll(correct);
+          _wrongMap
+            ..clear()
+            ..addAll(wrong);
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Lesen loadStats error: $e');
     }
   }
 

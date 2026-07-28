@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'conversation_topics_l10n.dart';
 import 'locale_manager.dart';
@@ -158,10 +158,10 @@ class AppLocalizations {
     'de': "Über die App",
   });
   String get versionInfo => _t({
-    'uz': "Versiya 1.0.0 • Berlin-Nukus",
-    'kaa': "Versiya 1.0.0 • Berlin-Nukus",
-    'ru': "Версия 1.0.0 • Berlin-Nukus",
-    'de': "Version 1.0.0 • Berlin-Nukus",
+    'uz': "Versiya 1.0.0 • AwaDe",
+    'kaa': "Versiya 1.0.0 • AwaDe",
+    'ru': "Версия 1.0.0 • AwaDe",
+    'de': "Version 1.0.0 • AwaDe",
   });
   String get darkModeOn => _t({
     'uz': "Dark mode yoqildi",
@@ -189,10 +189,10 @@ class AppLocalizations {
     'de': "Letztes Update: 2026.07.01",
   });
   String get developer => _t({
-    'uz': "Dasturchi: Berlin-Nukus, Musa",
-    'kaa': "Programmer: Berlin-Nukus, Musa",
-    'ru': "Разработчик: Berlin-Nukus, Musa",
-    'de': "Entwickler: Berlin-Nukus, Musa",
+    'uz': "Dasturchi: AwaDe, Musa",
+    'kaa': "Programmer: AwaDe, Musa",
+    'ru': "Разработчик: AwaDe, Musa",
+    'de': "Entwickler: AwaDe, Musa",
   });
 
   // ── Home (Student) ─────────────────────────────────────────────────────────
@@ -3639,6 +3639,34 @@ class AppLocalizations {
   });
 
   // ── Leaderboard ────────────────────────────────────────────────────────────
+  String get bnTiyin => _t({
+    'uz': "BN-Tiyin",
+    'kaa': "BN-Tiyin",
+    'ru': "BN-Tiyin",
+    'de': "BN-Tiyin",
+  });
+
+  String get lesen => _t({
+    'uz': "Lesen",
+    'kaa': "Lesen",
+    'ru': "Lesen",
+    'de': "Lesen",
+  });
+
+  String get horen => _t({
+    'uz': "Hören",
+    'kaa': "Hören",
+    'ru': "Hören",
+    'de': "Hören",
+  });
+
+  String get mockTest => _t({
+    'uz': "Mock Test",
+    'kaa': "Mock Test",
+    'ru': "Mock Test",
+    'de': "Mock Test",
+  });
+
   String get stars => _t({
     'uz': "Yulduzlar",
     'kaa': "Juldızlar",

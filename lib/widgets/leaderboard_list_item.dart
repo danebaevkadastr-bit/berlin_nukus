@@ -157,16 +157,18 @@ class LeaderboardListItem extends StatelessWidget {
   }
 
   /// Kategoriyaga qarab qiymat widgetini qaytaradi
-  /// - stars: yulduzlar soni (⭐ 150)
-  /// - attendance: foiz (📅 95%)
-  /// - averageScore: ball (📊 87)
+  /// - bnTiyin: BN-Tiyin soni
+  /// - lesen: Lesen testlari (%)
+  /// - horen: Hören testlari (%)
+  /// - mockTest: Mock test o'rtacha ball
+  /// - attendance: Davomat (%)
   Widget _buildValueWidget(LeaderboardCategory category, bool isDark) {
     final valueColor = isCurrentUser
         ? AppColors.duoOrange
         : (isDark ? Colors.white70 : AppColors.duoTextLight);
 
     switch (category) {
-      case LeaderboardCategory.stars:
+      case LeaderboardCategory.bnTiyin:
         final stars = user['totalStars'] ?? 0;
         return Row(
           children: [
@@ -183,39 +185,52 @@ class LeaderboardListItem extends StatelessWidget {
           ],
         );
 
+      case LeaderboardCategory.lesen:
+        final lesenPercentage = (user['lesenPercentage'] ?? 0.0).toDouble();
+        final lesenFormatted = lesenPercentage.toStringAsFixed(0);
+        return Text(
+          '$lesenFormatted%',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: valueColor,
+          ),
+        );
+
+      case LeaderboardCategory.horen:
+        final horenPercentage = (user['horenPercentage'] ?? 0.0).toDouble();
+        final horenFormatted = horenPercentage.toStringAsFixed(0);
+        return Text(
+          '$horenFormatted%',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: valueColor,
+          ),
+        );
+
+      case LeaderboardCategory.mockTest:
+        final mockTestAvg = (user['mockTestAverage'] ?? 0.0).toDouble();
+        final mockTestFormatted = mockTestAvg.toStringAsFixed(1);
+        return Text(
+          mockTestFormatted,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: valueColor,
+          ),
+        );
+
       case LeaderboardCategory.attendance:
         final attendance = (user['attendancePercentage'] ?? 0.0).toDouble();
         final attendanceFormatted = attendance.toStringAsFixed(0);
-        return Row(
-          children: [
-            const Text('📅', style: TextStyle(fontSize: 16)),
-            const SizedBox(width: 4),
-            Text(
-              '$attendanceFormatted%',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: valueColor,
-              ),
-            ),
-          ],
-        );
-
-      case LeaderboardCategory.averageScore:
-        final avgScore = user['averageScore'] ?? 0;
-        return Row(
-          children: [
-            const Text('📊', style: TextStyle(fontSize: 16)),
-            const SizedBox(width: 4),
-            Text(
-              '$avgScore',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: valueColor,
-              ),
-            ),
-          ],
+        return Text(
+          '$attendanceFormatted%',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: valueColor,
+          ),
         );
     }
   }

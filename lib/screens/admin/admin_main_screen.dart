@@ -21,15 +21,26 @@ class AdminMainScreen extends StatefulWidget {
 
 class _AdminMainScreenState extends State<AdminMainScreen> {
   int _currentIndex = 0;
+  late final List<Widget> _pages;
 
-  final List<Widget> _pages = [
-    const AdminHomeScreen(),
-    const AdminStudentsScreen(),
-    const AdminTeachersScreen(),
-    const AdminCoursesScreen(),
-    const AdminPaymentsScreen(),
-    const AdminProfileScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      AdminHomeScreen(
+        onTabChange: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+      const AdminStudentsScreen(),
+      const AdminTeachersScreen(),
+      const AdminCoursesScreen(),
+      const AdminPaymentsScreen(),
+      const AdminProfileScreen(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

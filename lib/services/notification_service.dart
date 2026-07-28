@@ -62,22 +62,44 @@ class NotificationService {
   }
 
   Future<void> _sendOneSignalPush(AppNotification notification) async {
+    debugPrint('📤 OneSignal Push yuborish boshlandi...');
+    debugPrint('   UserId: ${notification.userId}');
+    debugPrint('   Title: ${notification.title}');
+    debugPrint('   Body: ${notification.body}');
+    
     final appId = dotenv.env['ONESIGNAL_APP_ID'] ?? '';
     final proxyUrl =
         (dotenv.env['CF_WORKER_URL'] ?? '').trim().replaceAll(RegExp(r'/+$'), '');
 
+    debugPrint('   AppId: ${appId.isNotEmpty ? appId : "YO'Q"}');
+    debugPrint('   ProxyUrl: ${proxyUrl.isNotEmpty ? proxyUrl : "YO'Q"}');
+
     if (appId.isEmpty || appId == 'YOUR_APP_ID_HERE') {
-      debugPrint('OneSignal APP ID not set. Skipping push notification.');
+      debugPrint('❌ OneSignal APP ID not set. Skipping push notification.');
       return;
     }
     if (proxyUrl.isEmpty) {
-      debugPrint('CF_WORKER_URL not set. Skipping push notification.');
+      debugPrint('❌ CF_WORKER_URL not set. Skipping push notification.');
       return;
     }
 
     try {
       // Maxfiy REST kalit ilovada saqlanmaydi — proksi (worker) o'zi qo'shadi.
       final appToken = dotenv.env['APP_TOKEN']?.trim() ?? '';
+      
+      final requestBody = {
+        'app_id': appId,
+        'target_channel': 'push',
+        'include_aliases': {
+          'external_id': [notification.userId]
+        },
+        'headings': {'en': notification.title, 'uz': notification.title},
+        'contents': {'en': notification.body, 'uz': notification.body},
+        'data': notification.data,
+      };
+      
+      debugPrint('📡 Request body: ${jsonEncode(requestBody)}');
+      
       final response = await http.post(
         Uri.parse(proxyUrl),
         headers: {
@@ -86,24 +108,19 @@ class NotificationService {
           'accept': 'application/json',
           if (appToken.isNotEmpty) 'X-App-Token': appToken,
         },
-        body: jsonEncode({
-          'app_id': appId,
-          'target_channel': 'push',
-          'include_aliases': {
-            'external_id': [notification.userId]
-          },
-          'headings': {'en': notification.title, 'uz': notification.title},
-          'contents': {'en': notification.body, 'uz': notification.body},
-          'data': notification.data,
-        }),
+        body: jsonEncode(requestBody),
       );
+      
+      debugPrint('📥 Response status: ${response.statusCode}');
+      debugPrint('📥 Response body: ${response.body}');
+      
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        debugPrint('OneSignal push sent successfully');
+        debugPrint('✅ OneSignal push sent successfully');
       } else {
-        debugPrint('Failed to send OneSignal push: ${response.body}');
+        debugPrint('❌ Failed to send OneSignal push: ${response.body}');
       }
     } catch (e) {
-      debugPrint('Error sending OneSignal push: $e');
+      debugPrint('❌ Error sending OneSignal push: $e');
     }
   }
 

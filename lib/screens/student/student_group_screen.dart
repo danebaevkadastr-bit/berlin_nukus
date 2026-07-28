@@ -605,107 +605,107 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-              Center(
-                child: Container(
-                  width: 50, height: 6,
-                  decoration: BoxDecoration(
-                      color: AppColors.duoCardGrayShadow,
-                      borderRadius: BorderRadius.circular(20)),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  const SizedBox(width: 10),
-                  Text(day.lessonType.toUpperCase(),
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: titleColor,
-                          letterSpacing: 1.0)),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(AppLocalizations.of(ctx).materials,
-                  style: TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w700, color: subColor)),
-              const SizedBox(height: 20),
-
-              if (day.materials.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
-                  child: Center(
-                    child: Text(
-                      AppLocalizations.of(ctx).noMaterialsYet,
-                      style: TextStyle(fontWeight: FontWeight.w700, color: subColor),
-                    ),
-                  ),
-                )
-              else
-                ...day.materials.map((item) {
-                  final mat = item as Map<String, dynamic>? ?? {};
-                  final type = mat['type'] ?? 'link';
-                  final content = mat['content'] ?? '';
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                Center(
+                  child: Container(
+                    width: 50, height: 6,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: isDark
-                          ? AppColors.duoCardGray.withValues(alpha: 0.1)
-                          : AppColors.duoBackground,
-                      border: Border.all(
-                          color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
-                          width: 2),
+                        color: AppColors.duoCardGrayShadow,
+                        borderRadius: BorderRadius.circular(20)),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    Text(day.lessonType.toUpperCase(),
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: titleColor,
+                            letterSpacing: 1.0)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(AppLocalizations.of(ctx).materials,
+                    style: TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w700, color: subColor)),
+                const SizedBox(height: 20),
+
+                if (day.materials.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    child: Center(
+                      child: Text(
+                        AppLocalizations.of(ctx).noMaterialsYet,
+                        style: TextStyle(fontWeight: FontWeight.w700, color: subColor),
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                              color: currentGroupColor().withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(12)),
-                          child: Center(
-                            child: Icon(
-                              type == 'link' ? Icons.link_rounded : Icons.description_rounded,
-                              size: 22,
-                              color: currentGroupColor(),
+                  )
+                else
+                  ...day.materials.map((item) {
+                    final mat = item as Map<String, dynamic>? ?? {};
+                    final type = mat['type'] ?? 'link';
+                    final content = mat['content'] ?? '';
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: isDark
+                            ? AppColors.duoCardGray.withValues(alpha: 0.1)
+                            : AppColors.duoBackground,
+                        border: Border.all(
+                            color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+                            width: 2),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                                color: currentGroupColor().withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12)),
+                            child: Center(
+                              child: Icon(
+                                type == 'link' ? Icons.link_rounded : Icons.description_rounded,
+                                size: 22,
+                                color: currentGroupColor(),
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                type == 'link' ? 'Havola' : 'Matn',
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: subColor),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                content,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: titleColor),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  type == 'link' ? 'Havola' : 'Matn',
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: subColor),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  content,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: titleColor),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-            ],
+                        ],
+                      ),
+                    );
+                  }),
+              ],
+            ),
           ),
-        ),
         );
       },
     );
@@ -716,7 +716,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
     String studentId,
     String dateKey,
   ) async {
-    // Context'ni async gap'dan oldin olamiz
     final l = AppLocalizations.of(context);
     try {
       final groupDoc = await FirebaseFirestore.instance.collection('groups').doc(groupId).get();
@@ -730,7 +729,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
 
       final notificationService = NotificationService();
 
-      // Get student name
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(studentId).get();
       final studentName = userDoc.data()?['fullName'] as String? ?? 'Talaba';
 
@@ -761,7 +759,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
     final mySubmission = Map<String, dynamic>.from(day.submissions[uid] ?? {});
     final alreadySubmitted = mySubmission['submitted'] == true;
 
-    // Per-homework test answers student fills
     final List<TextEditingController> testControllers = List.generate(
       day.homeworks.length,
       (i) => TextEditingController(),
@@ -855,7 +852,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Numbering badge + title
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -892,7 +888,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                                       height: 1.5)),
                             ],
 
-                            // Test section
                             if (hasTest) ...[
                               const SizedBox(height: 14),
                               Container(
@@ -918,7 +913,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 8),
-                                    // Show question numbers parsed from test string
                                     _buildStudentTestView(
                                       hwIndex: idx,
                                       testAnswers: testAnswers,
@@ -938,7 +932,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                   ),
                 ),
 
-                // Note field + submit button
                 if (!alreadySubmitted) ...[
                   const SizedBox(height: 8),
                   TextField(
@@ -970,7 +963,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                       shadowColor: shadowColor,
                       onTap: () async {
                         final dateKey = _formatDateKey(day.date);
-                        // Collect test answers per homework and grade them
                         final Map<String, dynamic> testResults = {};
                         int totalCorrect = 0;
                         int totalQuestions = 0;
@@ -990,7 +982,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                                 final qNum = match.group(1)!;
                                 final expAns = match.group(2)!.toLowerCase();
 
-                                // Find student answer for this qNum
                                 String stuAns = '';
                                 for (var stu in studentParts) {
                                   final stuMatch = RegExp(r'^(\d+)([a-eA-E])$').firstMatch(stu.trim());
@@ -1038,7 +1029,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                           },
                         );
 
-                        // Send notification to teacher
                         await _sendHomeworkSubmissionNotificationToTeacher(
                           groupId,
                           uid,
@@ -1060,7 +1050,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
                     ),
                   ),
                 ] else ...[
-                  // Already submitted note display
                   if ((mySubmission['note'] as String? ?? '').isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Container(
@@ -1198,8 +1187,6 @@ class _StudentGroupScreenState extends State<StudentGroupScreen> {
     );
   }
 }
-
-// ==================== MODELS ====================
 
 class _WeekRange {
   final DateTime start;

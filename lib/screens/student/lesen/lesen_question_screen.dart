@@ -199,6 +199,24 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
       if (uid == null) return;
       final correct = _results.where((r) => r == true).length;
       final total = _questions.length;
+      
+      // Har bir savol uchun batafsil ma'lumot
+      final questionDetails = <Map<String, dynamic>>[];
+      for (int i = 0; i < _questions.length; i++) {
+        final q = _questions[i];
+        final isCorrect = _results[i];
+        final userAnswer = _selectedAnswers[i] ?? '';
+        
+        questionDetails.add({
+          'questionNumber': i + 1,
+          'questionText': q.prompt, // LesenQuestion da prompt bor
+          'userAnswer': userAnswer,
+          'correctAnswer': q.correctAnswer,
+          'isCorrect': isCorrect,
+          'options': q.options,
+        });
+      }
+      
       await StudentResultsService.saveResult(
         uid: uid,
         type: 'lesen',
@@ -206,6 +224,10 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
         level: widget.level,
         score: correct,
         total: total,
+        details: {
+          'questions': questionDetails,
+          'teilNumber': widget.teil.teilNumber,
+        },
       );
     } catch (e) {
       debugPrint('Lesen save error: $e');

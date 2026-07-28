@@ -265,6 +265,26 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
       if (uid == null) return;
       final correct = _results.where((r) => r == true).length;
       final total = _questions.length;
+      
+      // Har bir savol uchun batafsil ma'lumot
+      // SharedPreferences dan tanlangan javoblarni olish
+      final prefs = await SharedPreferences.getInstance();
+      final questionDetails = <Map<String, dynamic>>[];
+      for (int i = 0; i < _questions.length; i++) {
+        final q = _questions[i];
+        final isCorrect = _results[i];
+        final userAnswer = prefs.getString(_prefAnswerKey(i)) ?? '';
+        
+        questionDetails.add({
+          'questionNumber': i + 1,
+          'questionText': q.question,
+          'userAnswer': userAnswer,
+          'correctAnswer': q.correctAnswer,
+          'isCorrect': isCorrect,
+          'options': q.options,
+        });
+      }
+      
       await StudentResultsService.saveResult(
         uid: uid,
         type: 'horen',
@@ -272,6 +292,10 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
         level: widget.level,
         score: correct,
         total: total,
+        details: {
+          'questions': questionDetails,
+          'teilNumber': widget.teil.teilNumber,
+        },
       );
     } catch (e) {
       debugPrint('Horen save error: $e');

@@ -46,7 +46,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider.value(value: LocaleManager.currentLocale),
       ],
-      child: const BerlinNukusApp(),
+      child: const AwaDeApp(),
     ),
   );
 }
@@ -70,8 +70,8 @@ Future<void> setupOneSignal() async {
   }
 }
 
-class BerlinNukusApp extends StatelessWidget {
-  const BerlinNukusApp({super.key});
+class AwaDeApp extends StatelessWidget {
+  const AwaDeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +85,7 @@ class BerlinNukusApp extends StatelessWidget {
               : ThemeManager.lightTheme,
           builder: (context, theme) {
             return MaterialApp(
-              title: 'Berlin-Nukus',
+              title: 'AwaDe',
               debugShowCheckedModeBanner: false,
               theme: theme,
               builder: (context, child) {

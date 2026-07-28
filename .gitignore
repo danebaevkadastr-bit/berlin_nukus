@@ -48,6 +48,10 @@ app.*.map.json
 .env
 env.txt
 
+# Firebase Admin Scripts - Service Account Keys (MAXFIY!)
+scripts/serviceAccountKey.json
+scripts/node_modules/
+scripts/*.log
 # Schreiben tasks
 schreiben_aufgabe
 

@@ -9,15 +9,264 @@ import '../../l10n/app_localizations.dart';
 import '../../services/notification_service.dart';
 import '../notification_screen.dart';
 import '../../widgets/user_avatar.dart';
+import '../../services/firebase_service.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class AdminHomeScreen extends StatefulWidget {
-  const AdminHomeScreen({super.key});
+  final ValueChanged<int>? onTabChange;
+  const AdminHomeScreen({super.key, this.onTabChange});
 
   @override
   State<AdminHomeScreen> createState() => _AdminHomeScreenState();
 }
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  void _showAddStudentDialog() {
+    final l = AppLocalizations.of(context);
+    final isDark = ThemeManager.isDark;
+    final nameCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final phoneFormatter = MaskTextInputFormatter(
+      mask: '+998 (##) ### ## ##',
+      filter: { "#": RegExp(r'[0-9]') },
+    );
+    phoneCtrl.text = '+998 ';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: isDark ? AppColors.duoCardGray : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Text(
+            l.addStudent.toUpperCase(),
+            style: TextStyle(
+              color: isDark ? Colors.white : AppColors.duoTextDark,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    labelText: l.fullNameLabel,
+                    labelStyle: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    labelText: l.email,
+                    labelStyle: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [phoneFormatter],
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    labelText: l.phone,
+                    labelStyle: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                l.cancel.toUpperCase(),
+                style: const TextStyle(color: AppColors.duoBlue, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final name = nameCtrl.text.trim();
+                final email = emailCtrl.text.trim();
+                final phone = phoneCtrl.text.trim();
+
+                if (name.isEmpty || email.isEmpty || phone.isEmpty) {
+                  return;
+                }
+
+                Navigator.pop(context);
+                try {
+                  await FirebaseService().addStudent(
+                    fullName: name,
+                    email: email,
+                    phone: phone,
+                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      SnackBar(
+                        content: Text(l.registerSuccess),
+                        backgroundColor: AppColors.duoGreen,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: AppColors.duoRed,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.duoGreen,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text(
+                l.submit.toUpperCase(),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAddTeacherDialog() {
+    final l = AppLocalizations.of(context);
+    final isDark = ThemeManager.isDark;
+    final nameCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final phoneFormatter = MaskTextInputFormatter(
+      mask: '+998 (##) ### ## ##',
+      filter: { "#": RegExp(r'[0-9]') },
+    );
+    phoneCtrl.text = '+998 ';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: isDark ? AppColors.duoCardGray : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Text(
+            l.addTeacher.toUpperCase(),
+            style: TextStyle(
+              color: isDark ? Colors.white : AppColors.duoTextDark,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.5,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    labelText: l.fullNameLabel,
+                    labelStyle: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    labelText: l.email,
+                    labelStyle: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [phoneFormatter],
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.duoTextDark, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    labelText: l.phone,
+                    labelStyle: TextStyle(color: isDark ? Colors.white54 : AppColors.duoTextLight),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                l.cancel.toUpperCase(),
+                style: const TextStyle(color: AppColors.duoBlue, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final name = nameCtrl.text.trim();
+                final email = emailCtrl.text.trim();
+                final phone = phoneCtrl.text.trim();
+
+                if (name.isEmpty || email.isEmpty || phone.isEmpty) {
+                  return;
+                }
+
+                Navigator.pop(context);
+                try {
+                  await FirebaseService().addTeacher(
+                    fullName: name,
+                    email: email,
+                    phone: phone,
+                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      SnackBar(
+                        content: Text(l.registerSuccess),
+                        backgroundColor: AppColors.duoGreen,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: AppColors.duoRed,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.duoGreen,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text(
+                l.submit.toUpperCase(),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = ThemeManager.isDark;
@@ -255,6 +504,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                           title: l.addStudent,
                                           color: AppColors.duoBlue,
                                           shadow: AppColors.duoBlueShadow,
+                                          onTap: _showAddStudentDialog,
                                         ),
                                       ),
                                       const SizedBox(width: 12),
@@ -264,6 +514,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                           title: l.addTeacher,
                                           color: AppColors.duoGreen,
                                           shadow: AppColors.duoGreenShadow,
+                                          onTap: _showAddTeacherDialog,
                                         ),
                                       ),
                                     ],
@@ -277,6 +528,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                           title: l.courses,
                                           color: AppColors.duoOrange,
                                           shadow: AppColors.duoOrangeShadow,
+                                          onTap: () => widget.onTabChange?.call(3),
                                         ),
                                       ),
                                       const SizedBox(width: 12),
@@ -286,6 +538,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                           title: l.groups,
                                           color: AppColors.duoPurple,
                                           shadow: AppColors.duoPurpleShadow,
+                                          onTap: () => widget.onTabChange?.call(3),
                                         ),
                                       ),
                                     ],
@@ -310,6 +563,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                     subtitle: AppLocalizations.of(context).activeGroupsCountText(groupsCount),
                                     color: AppColors.duoBlue,
                                     isDark: isDark,
+                                    onTap: () => widget.onTabChange?.call(3),
                                   ),
                                   const SizedBox(height: 10),
                                   _buildActivityCard(
@@ -318,6 +572,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                     subtitle: AppLocalizations.of(context).noNewTestsLabel,
                                     color: AppColors.duoGreen,
                                     isDark: isDark,
+                                    onTap: () {},
                                   ),
                                   const SizedBox(height: 10),
                                   _buildActivityCard(
@@ -328,6 +583,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                         : AppLocalizations.of(context).allPaymentsConfirmed,
                                     color: AppColors.duoOrange,
                                     isDark: isDark,
+                                    onTap: () => widget.onTabChange?.call(4),
                                   ),
 
                                   const SizedBox(height: 120),
@@ -393,12 +649,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     required String title,
     required Color color,
     required Color shadow,
+    required VoidCallback onTap,
   }) {
     return GamifiedCard(
       color: color,
       shadowColor: shadow,
       shadowDepth: 5,
       borderRadius: 16,
+      onTap: onTap,
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         children: [
@@ -423,11 +681,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     required String subtitle,
     required Color color,
     required bool isDark,
+    required VoidCallback onTap,
   }) {
     return GamifiedCard(
       padding: const EdgeInsets.all(16),
       color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
       shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+      onTap: onTap,
       child: Row(
         children: [
           Container(

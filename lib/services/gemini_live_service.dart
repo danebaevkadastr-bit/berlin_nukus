@@ -1,10 +1,11 @@
 // Gemini Live (real-time ovozli AI) xizmati.
 //
-// Oqim: Worker'dan ephemeral token → to'g'ridan-to'g'ri Gemini Live WS → setup
-// (AUDIO, de-DE, system prompt) → mikrofon PCM (16kHz) oqimini yuborish →
-// javob audiosini (PCM 24kHz) yig'ib, WAV qilib ijro etish.
+// Oqim: Worker proksi (Durable Object) → Gemini Live WS → setup (AUDIO,
+// de-DE, system prompt) → mikrofon PCM (16kHz) oqimini yuborish → javob
+// audiosini (PCM 24kHz) yig'ib, WAV qilib ijro etish.
 //
-// Worker faqat token beradi; audio oqimi CF proksi orqali EMAS (1006 xatosi).
+// Worker Durable Object (DO) proksi ishlatadi — uzoq muddatli audio oqimi
+// barqaror (1006/1011 xatolari yo'q). API kalit Worker'da saqlanadi.
 //
 // DIQQAT: Bu real-time audio oqimi platformaga bog'liq (ayniqsa web) —
 // qurilmada/brauzerda test qilib, loglar bo'yicha to'g'irlash kerak.
@@ -15,35 +16,31 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'pcm_player/pcm_player.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:record/record.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../widgets/ai_voice_face.dart';
 import 'ai_service.dart';
 import 'gemini_live_prompt.dart';
+import 'dictionary_service.dart';
 
 class GeminiLiveService {
-  static const String _model = 'models/gemini-2.0-flash-exp';
+  static const String _model = 'models/gemini-3.1-flash-live-preview';
 
   final AudioRecorder _recorder = AudioRecorder();
-  final AudioPlayer _player = AudioPlayer();
+  final PcmPlayer _playerStream = getPcmPlayer();
   // Aksirish/yo'talish tovush effektlari uchun alohida player.
   final AudioPlayer _sfxPlayer = AudioPlayer();
 
   WebSocketChannel? _channel;
   StreamSubscription? _wsSub;
   StreamSubscription<Uint8List>? _micSub;
-  StreamSubscription<void>? _playerCompleteSub;
 
-  // Turn audiosini yig'amiz, turnComplete da bitta WAV qilib ijro etamiz.
-  // Birinchi audio kelganida darhol "speaking" animatsiyasiga o'tamiz
-  // (og'iz qimirlaydi) — foydalanuvchi kutmaydi deb sezadi.
-  final BytesBuilder _turnAudio = BytesBuilder();
-
-  // Amplitude tracking uchun: ijro paytida raw PCM saqlash va timer.
-  Uint8List? _playingPcm;
-  Timer? _ampTimer;
+  // Audio oqimi holati:
+  DateTime? _expectedPlaybackEnd;
 
   // Mikrofon chunklarini 100ms da bir marta yuboramiz — WS xabarlar sonini
   // kamaytirish (Worker proksi va Gemini uchun barqarorroq).
@@ -53,14 +50,24 @@ class GeminiLiveService {
 
   bool _connected = false;
   bool _closed = false;
+  bool _connecting = false;
 
   // Dastur tili — botning kirish so'zi va tushuntirishlari uchun.
   String _uiLangCode = 'uz';
   String? _customPersonality;
   String? _userName;
+  VoiceAiMode _currentMode = VoiceAiMode.telc;
   int _reconnectAttempts = 0;
-  static const int _maxReconnectAttempts = 3;
+  static const int _maxReconnectAttempts = 5; // 3 dan 5 ga oshirdik
   Timer? _reconnectTimer;
+  Timer? _keepAliveTimer;
+  static const Duration _keepAliveInterval = Duration(minutes: 5); // Har 5 daqiqada ping
+
+  Timer? _usageTimer;
+  int _usageTicks = 0; // For saving every 5 seconds
+  static const int _dailyLimitSeconds = 1200; // 20 minutes
+  /// Kunlik qolgan vaqt (soniyalarda).
+  final ValueNotifier<int> remainingSeconds = ValueNotifier<int>(_dailyLimitSeconds);
 
   /// Ekran kuzatadigan holat (yuz animatsiyasi uchun).
   final ValueNotifier<AiFaceState> state =
@@ -79,94 +86,138 @@ class GeminiLiveService {
   /// Xato xabari (ekranda ko'rsatish uchun).
   final ValueNotifier<String?> error = ValueNotifier<String?>(null);
 
+  String? _dynamicTaskInstruction;
+
   /// Ulanadi va suhbatni boshlaydi.
   Future<void> connect({
     required String uiLangCode,
+    required VoiceAiMode mode,
     String? customPersonality,
     String? userName,
+    String? dynamicTaskInstruction,
   }) async {
-    if (_connected) return;
-    if (_channel != null) await disconnect();
-    _uiLangCode = uiLangCode;
-    _customPersonality = customPersonality;
-    _userName = userName;
-    _closed = false;
-    state.value = AiFaceState.thinking; // "connecting"
-    error.value = null;
+    if (_connected || _connecting) return;
+    _connecting = true;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
 
     try {
-      // Worker'dan qisqa muddatli token olamiz, keyin to'g'ridan-to'g'ri
-      // Gemini Live'ga ulanamiz (CF Worker WS proksi audio oqimida yiqiladi).
-      debugPrint('GeminiLive: token olinmoqda...');
-      final token = await AIService.fetchGeminiLiveToken();
-      final wsUrl = AIService.liveDirectWebSocketUrl(token: token);
-      debugPrint('GeminiLive: to\'g\'ridan-to\'g\'ri ulanmoqda...');
-      _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
+      if (_channel != null) await disconnect();
+      _uiLangCode = uiLangCode;
+      _customPersonality = customPersonality;
+      _userName = userName;
+      _currentMode = mode;
+      _dynamicTaskInstruction = dynamicTaskInstruction;
+      _closed = false;
+      state.value = AiFaceState.thinking; // "connecting"
+      error.value = null;
 
-      _wsSub = _channel!.stream.listen(
-        _onMessage,
-        onError: (e) {
-          debugPrint('GeminiLive WS error: $e');
-          if (!_closed) _scheduleReconnect();
-        },
-        onDone: () {
-          final code = _channel?.closeCode;
-          final reason = _channel?.closeReason;
-          debugPrint('GeminiLive WS closed (code=$code, reason=$reason)');
-          _connected = false;
-          if (!_closed) {
-            // 1011 = server internal error, 1006 = abnormal closure — qayta ulanish
-            if (code == 1011 || code == 1006 || code == null) {
-              debugPrint(
-                  'GeminiLive: $code xatosi — qayta ulanish urinilmoqda...');
-              _scheduleReconnect();
-            } else {
-              error.value = 'Ulanish yopildi (code=$code)';
-              state.value = AiFaceState.idle;
+      // Kunlik vaqtni tekshiramiz
+      final today = DateTime.now().toIso8601String().substring(0, 10);
+      final prefs = await SharedPreferences.getInstance();
+      final usedSeconds = prefs.getInt('voice_ai_usage_$today') ?? 0;
+      
+      if (usedSeconds >= _dailyLimitSeconds) {
+        remainingSeconds.value = 0;
+        error.value = "Bugungi 20 daqiqalik limitingiz tugadi. Ertaga yana urinib ko'ring!";
+        state.value = AiFaceState.idle;
+        return;
+      }
+      
+      remainingSeconds.value = _dailyLimitSeconds - usedSeconds;
+
+      try {
+        await _playerStream.initialize(sampleRate: 24000);
+        await _playerStream.start();
+        
+        // 1. Ephemeral token olamiz (API kalit xavfsizligi uchun)
+        debugPrint('GeminiLive: Token olish so\'rovi yuborilmoqda...');
+        final token = await AIService.fetchGeminiLiveToken();
+        
+        if (_closed) return;
+        
+        // 2. To'g'ridan-to'g'ri Google'ga ulanamiz (Worker proksi orqali emas,
+        // chunki proksi ba'zan binary audio paketlarini o'tkazmaydi yoki kechiktiradi).
+        debugPrint('GeminiLive: Google Live API\'ga to\'g\'ridan-to\'g\'ri ulanmoqda...');
+        final wsUrl = AIService.liveDirectWebSocketUrl(token: token);
+        _channel = WebSocketChannel.connect(Uri.parse(wsUrl));
+
+        _wsSub = _channel!.stream.listen(
+          _onMessage,
+          onError: (e) {
+            debugPrint('GeminiLive WS error: $e');
+            if (!_closed) _scheduleReconnect();
+          },
+          onDone: () {
+            final code = _channel?.closeCode;
+            final reason = _channel?.closeReason;
+            debugPrint('GeminiLive WS closed (code=$code, reason=$reason)');
+            _connected = false;
+            if (!_closed) {
+              // Avtomatik qayta ulanish kodlari:
+              // 1006 = abnormal closure (tarmoq uzildi)
+              // 1008 = policy violation / sessiya timeout (~10 daqiqa)
+              // 1011 = server internal error
+              // null = noma'lum (xavfsizlik uchun qayta ulanish)
+              if (code == 1006 || code == 1008 || code == 1011 || code == null) {
+                debugPrint(
+                    'GeminiLive: $code xatosi — qayta ulanish urinilmoqda...');
+                _scheduleReconnect(closeCode: code);
+              } else {
+                error.value = 'Ulanish yopildi (code=$code)';
+                state.value = AiFaceState.idle;
+              }
             }
-          }
-        },
-      );
+          },
+        );
 
-      // Setup xabari.
-      final setup = {
-        'setup': {
-          'model': _model,
-          'generationConfig': {
-            'responseModalities': ['AUDIO'],
-            'thinkingConfig': {
-              'thinkingLevel': 'minimal',
-            },
-            'speechConfig': {
-              'languageCode': 'de-DE',
-              'voiceConfig': {
-                'prebuiltVoiceConfig': {'voiceName': 'Puck'},
+        // Fetch dynamic glossary asynchronously from local dictionary
+        final glossary = await KarakalpakDictionaryService().getGlossaryForMode(mode);
+
+        const voiceName = 'Puck';
+
+        final setup = {
+          'setup': {
+            'model': _model,
+            'generationConfig': {
+              'responseModalities': ['AUDIO'],
+              'speechConfig': {
+                'voiceConfig': {
+                  'prebuiltVoiceConfig': {'voiceName': voiceName},
+                },
               },
             },
-          },
-          'realtimeInputConfig': {
-            'automaticActivityDetection': {'disabled': false},
-          },
-          'systemInstruction': {
-            'parts': [
-              {
-                'text': buildGeminiLivePrompt(
-                  uiLangCode: uiLangCode,
-                  customPersonality: customPersonality,
-                  userName: _userName,
-                )
+            'realtimeInputConfig': {
+              'automaticActivityDetection': {
+                'disabled': false,
               },
-            ],
+            },
+            'systemInstruction': {
+              'parts': [
+                {
+                  'text': buildGeminiLivePrompt(
+                    uiLangCode: uiLangCode,
+                    mode: mode,
+                    customPersonality: customPersonality,
+                    userName: _userName,
+                    dynamicGlossary: glossary,
+                    dynamicTaskInstruction: _dynamicTaskInstruction,
+                  )
+                },
+              ],
+            },
+            'inputAudioTranscription': <String, dynamic>{},
+            'outputAudioTranscription': <String, dynamic>{},
           },
-          'inputAudioTranscription': <String, dynamic>{},
-          'outputAudioTranscription': <String, dynamic>{},
-        },
-      };
-      _channel!.sink.add(jsonEncode(setup));
-    } catch (e) {
-      debugPrint('GeminiLive connect error: $e');
-      error.value = 'Ulanib bo\'lmadi';
-      state.value = AiFaceState.idle;
+        };
+        _channel!.sink.add(jsonEncode(setup));
+      } catch (e) {
+        debugPrint('GeminiLive connect error: $e');
+        error.value = 'Ulanib bo\'lmadi';
+        state.value = AiFaceState.idle;
+      }
+    } finally {
+      _connecting = false;
     }
   }
 
@@ -188,9 +239,39 @@ class GeminiLiveService {
       // bosilganda yuboriladi), so'ng botni birinchi bo'lib gapirtiramiz.
       if (msg.containsKey('setupComplete')) {
         _connected = true;
+        
+        // Timer'ni boshlash
+        _usageTimer?.cancel();
+        _usageTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+          if (!_connected) return;
+          
+          remainingSeconds.value--;
+          _usageTicks++;
+          
+          if (remainingSeconds.value <= 0) {
+            remainingSeconds.value = 0;
+            final dateKey = DateTime.now().toIso8601String().substring(0, 10);
+            final p = await SharedPreferences.getInstance();
+            await p.setInt('voice_ai_usage_$dateKey', _dailyLimitSeconds);
+            
+            error.value = "Bugungi 20 daqiqalik limitingiz tugadi. Ertaga yana urinib ko'ring!";
+            await disconnect();
+            return;
+          }
+
+          // Har 5 soniyada xotiraga yozamiz
+          if (_usageTicks >= 5) {
+            _usageTicks = 0;
+            final dateKey = DateTime.now().toIso8601String().substring(0, 10);
+            final p = await SharedPreferences.getInstance();
+            await p.setInt('voice_ai_usage_$dateKey', _dailyLimitSeconds - remainingSeconds.value);
+          }
+        });
+
         _startMic(); // mikrofon doim ochiq
         state.value = AiFaceState.thinking; // bot kirish so'zini tayyorlaydi
         _sendOpeningTrigger();
+        _startKeepAlive(); // Keep-alive timerni ishga tushirish
         return;
       }
 
@@ -203,47 +284,70 @@ class GeminiLiveService {
           debugPrint('GeminiLive: USER dedi => "${inT['text']}"');
         }
 
-        // AI javob matnini yig'amiz va emotsiyani JONLI aniqlaymiz.
+        // AI javob matnini yig'amiz va emotsiyani JONLI (real-time) aniqlaymiz.
+        // Emotsiya faqat oxirgi kelgan transkripsiya bo'lagi asosida aniqlanadi —
+        // shu tarzda gap davomida emotsiya o'z vaqtida o'zgaradi (masalan,
+        // "haha" paytida kuladi, keyin oddiy gapga o'tsa neutral'ga qaytadi).
         final outT =
             serverContent['outputTranscription'] as Map<String, dynamic>?;
         if (outT != null && outT['text'] != null) {
-          _turnText.write(outT['text']);
-          final e = _inferEmotion(_turnText.toString());
-          if (e != AiFaceEmotion.neutral) emotion.value = e;
+          String t = outT['text'] as String;
+          _turnText.write(t);
+          // Emotsiyani oxirgi 60 ta belgi (sliding window) asosida aniqlaymiz.
+          // Shunda parchalangan so'zlar (masalan "ha" va "haha") to'g'ri o'qiladi, 
+          // va ma'lum vaqt o'tgach yana neutral holatga qaytadi.
+          if (state.value == AiFaceState.speaking) {
+            final fullStr = _turnText.toString().toLowerCase();
+            final window = fullStr.length > 60 ? fullStr.substring(fullStr.length - 60) : fullStr;
+            emotion.value = _inferEmotion(window);
+          }
         }
 
         // Model audio qismlarini yig'amiz.
         final modelTurn = serverContent['modelTurn'] as Map<String, dynamic>?;
         if (modelTurn != null) {
-          if (!_closed && state.value != AiFaceState.speaking) {
-            state.value = AiFaceState.thinking; // Audio yig'ilmoqda
-          }
           final parts = modelTurn['parts'] as List<dynamic>? ?? [];
           for (final p in parts) {
             final inline = (p as Map<String, dynamic>)['inlineData']
                 as Map<String, dynamic>?;
             if (inline != null && inline['data'] != null) {
-              // Audio yig'ilmoqda — "speaking" HOLATI faqat _playTurn'da
-              // (haqiqiy ijro boshlanganda) qo'yiladi, shunda og'iz audio
-              // bilan sinxron qimirlaydi.
-              _turnAudio.add(base64Decode(inline['data'] as String));
+              final pcm = base64Decode(inline['data'] as String);
+              _feedAudioChunk(pcm);
             }
           }
         }
 
         // Foydalanuvchi botni to'xtatdi (barge-in).
         if (serverContent['interrupted'] == true) {
-          _player.stop();
-          _stopAmpTimer();
-          _turnAudio.clear();
+          _playerStream.stop();
+          _playerStream.initialize(sampleRate: 24000);
+          _playerStream.start();
+          _expectedPlaybackEnd = null;
           if (!_closed) state.value = AiFaceState.listening;
         }
 
-        // Navbat tugadi — yig'ilgan audioni bitta WAV qilib ijro etamiz.
+        // Navbat tugadi.
         if (serverContent['turnComplete'] == true) {
-          emotion.value = _inferEmotion(_turnText.toString());
+          final fullText = _turnText.toString();
+          final finalEmotion = _inferEmotion(fullText);
           _turnText.clear();
-          _playTurn();
+          
+          final remaining = _expectedPlaybackEnd?.difference(DateTime.now()) ?? Duration.zero;
+          
+          void setDone() {
+             if (_closed) return;
+             if (_expectedPlaybackEnd != null && _expectedPlaybackEnd!.isAfter(DateTime.now())) return;
+             state.value = AiFaceState.listening;
+             emotion.value = AiFaceEmotion.neutral;
+             mouthLevel.value = 0.0;
+          }
+          
+          if (remaining.isNegative) {
+            setDone();
+          } else {
+            emotion.value = finalEmotion;
+            Timer(remaining, setDone);
+          }
         }
       }
 
@@ -272,8 +376,14 @@ class GeminiLiveService {
         numChannels: 1,
       ));
       _micSub = stream.listen((chunk) {
-        // Mikrofonni doim ochiq qoldiramiz (barge-in uchun).
         if (!_connected || _closed) return;
+        // Faqat AI gapirayotganda mikrofon ovozini yubormaymiz —
+        // o'z ovozini qaytadan eshitib (echo), o'zini to'xtatib qo'yishini oldini oladi.
+        // "thinking" paytida audio yuborishni davom ettiramiz — aks holda Gemini VAD
+        // foydalanuvchining gapirib bo'lganini aniqlay olmaydi.
+        if (state.value == AiFaceState.speaking) {
+          return;
+        }
         _queueAudioChunk(chunk);
       });
     } catch (e) {
@@ -303,20 +413,60 @@ class GeminiLiveService {
     }));
   }
 
+  /// Keep-alive mexanizmi — har 5 daqiqada sessiyani faol saqlab turish uchun
+  /// bo'sh xabar yuboradi (1008 timeout oldini olish).
+  void _startKeepAlive() {
+    _keepAliveTimer?.cancel();
+    _keepAliveTimer = Timer.periodic(_keepAliveInterval, (_) {
+      if (!_connected || _closed) {
+        _keepAliveTimer?.cancel();
+        return;
+      }
+      final ch = _channel;
+      if (ch != null) {
+        try {
+          // Bo'sh clientContent yuborish — sessiyani faol tutadi
+          ch.sink.add(jsonEncode({
+            'clientContent': {
+              'turns': [],
+              'turnComplete': false,
+            },
+          }));
+          debugPrint('GeminiLive: keep-alive ping yuborildi');
+        } catch (e) {
+          debugPrint('GeminiLive: keep-alive xatosi: $e');
+        }
+      }
+    });
+  }
+
   /// Bot gapirayotganda uni to'xtatish (barge-in) — foydalanuvchi tugmani
   /// bossa chaqiriladi. Mikrofon doim ochiq bo'lgani uchun ixtiyoriy.
   void interrupt() {
     if (!_connected || _closed) return;
-    _player.stop();
-    _stopAmpTimer();
-    _turnAudio.clear();
+    _playerStream.stop();
+    _playerStream.initialize(sampleRate: 24000);
+    _playerStream.start();
+    _expectedPlaybackEnd = null;
     state.value = AiFaceState.listening;
   }
 
-  /// 1011/1006 xatolarida avtomatik qayta ulanish (exponential backoff).
-  /// 3 ta urinishdan keyin muvaffaqiyatsiz bo'lsa xato ko'rsatadi.
-  void _scheduleReconnect() {
+
+
+  /// 1006/1008/1011 xatolarida avtomatik qayta ulanish.
+  /// 1008 (sessiya timeout) — darhol qayta ulanish (oddiy timeout).
+  /// 1006/1011 — exponential backoff (2s, 4s, 6s).
+  /// 5 ta urinishdan keyin muvaffaqiyatsiz bo'lsa xato ko'rsatadi.
+  void _scheduleReconnect({int? closeCode}) {
     if (_closed) return;
+    
+    // 1008 uchun alohida hisoblagich — cheksiz qayta ulanish
+    final isTimeout = closeCode == 1008;
+    if (isTimeout) {
+      // 1008 timeout uchun hisoblagichni nollaymiz
+      _reconnectAttempts = 0;
+    }
+    
     if (_reconnectAttempts >= _maxReconnectAttempts) {
       debugPrint('GeminiLive: qayta ulanish urinishlari tugadi.');
       error.value = 'Ulanish uzildi. Sahifani yangilang.';
@@ -325,9 +475,13 @@ class GeminiLiveService {
       return;
     }
     _reconnectAttempts++;
-    final delay = Duration(seconds: _reconnectAttempts * 2); // 2s, 4s, 6s
+    // 1008 (sessiya timeout ~10 daqiqa) — oddiy timeout, darhol qayta ulanish.
+    // 1006/1011 — xato, kechiktirish bilan qayta ulanish.
+    final delay = isTimeout 
+        ? const Duration(milliseconds: 500) // 0.5s — foydalanuvchi sezmaydi
+        : Duration(seconds: _reconnectAttempts * 2); // 2s, 4s, 6s
     debugPrint(
-        'GeminiLive: ${delay.inSeconds}s dan keyin qayta ulanish (#$_reconnectAttempts)...');
+        'GeminiLive: ${delay.inMilliseconds}ms dan keyin qayta ulanish (#$_reconnectAttempts, code=$closeCode)...');
     state.value = AiFaceState.thinking; // "qayta ulanmoqda..."
     error.value = null;
     _reconnectTimer?.cancel();
@@ -335,8 +489,7 @@ class GeminiLiveService {
       if (_closed) return;
       // Eski kanallarni tozalaymiz, lekin _closed = false saqlaymiz.
       _connected = false;
-      _turnAudio.clear();
-      _pendingMic.clear();
+      _expectedPlaybackEnd = null;
       _micFlushTimer?.cancel();
       _micFlushTimer = null;
       await _micSub?.cancel();
@@ -346,22 +499,62 @@ class GeminiLiveService {
       } catch (_) {}
       await _wsSub?.cancel();
       _wsSub = null;
+      _keepAliveTimer?.cancel();
+      _keepAliveTimer = null;
       try {
         await _channel?.sink.close();
       } catch (_) {}
       _channel = null;
       try {
-        await _player.stop();
+        await _playerStream.stop();
       } catch (_) {}
       // Qayta ulanish — connect() ni chaqiramiz.
-      await connect(
-        uiLangCode: _uiLangCode,
-        customPersonality: _customPersonality,
-      );
+      // _connecting bayrog'ini tozalaymiz, aks holda connect() darhol qaytib ketadi.
+      _connecting = false;
+      try {
+        await connect(
+          uiLangCode: _uiLangCode,
+          mode: _currentMode,
+          customPersonality: _customPersonality,
+          userName: _userName,
+        );
+        // Muvaffaqiyatli ulangan bo'lsa hisoblagichni nollaymiz
+        if (_connected) {
+          _reconnectAttempts = 0;
+        }
+      } catch (e) {
+        debugPrint('GeminiLive: qayta ulanish xatosi: $e');
+        // Agar ulanish xato bo'lsa, yana bir bor harakat qilish
+        if (!_closed && _reconnectAttempts < _maxReconnectAttempts) {
+          _scheduleReconnect(closeCode: closeCode);
+        }
+      }
     });
   }
 
+  bool _isAudioAboveThreshold(Uint8List chunk, int threshold) {
+    // PCM 16-bit Mono: 2 bytes per sample.
+    for (int i = 0; i < chunk.length - 1; i += 2) {
+      int val = chunk[i] | (chunk[i + 1] << 8);
+      if (val & 0x8000 != 0) {
+        val -= 0x10000;
+      }
+      if (val.abs() > threshold) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void _queueAudioChunk(Uint8List chunk) {
+    if (state.value == AiFaceState.speaking) {
+      _pendingMic.clear();
+      return;
+    }
+    // Shovqin filtrini olib tashladik — Gemini'ning o'z VAD (automaticActivityDetection)
+    // mexanizmi audio ichidagi nutqni va pauzalarni aniq aniqlaydi.
+    // Client tarafda filtrlaganda Gemini serveriga yetarli audio yetib bormay,
+    // nutq tugashini sezmay qolayotgan edi.
     _pendingMic.add(chunk);
     _micFlushTimer ??= Timer(_micFlushInterval, _flushMicBuffer);
   }
@@ -401,78 +594,46 @@ class GeminiLiveService {
     }
   }
 
-  /// Yig'ilgan PCM'ni bitta WAV qilib ijro etadi (uzluksiz, bo'lib-bo'lib emas).
-  /// Og'iz amplitudasi timer orqali real-time yangilanadi.
-  Future<void> _playTurn() async {
-    final pcm = _turnAudio.takeBytes();
-    if (pcm.isEmpty) {
-      if (!_closed) state.value = AiFaceState.listening;
-      return;
-    }
-
-    try {
-      final wav = _pcm16ToWav(pcm, sampleRate: 24000, channels: 1);
+  void _feedAudioChunk(Uint8List pcm) {
+    if (state.value != AiFaceState.speaking) {
       state.value = AiFaceState.speaking;
-
-      // Amplitude tracking boshlash.
-      _playingPcm = Uint8List.fromList(pcm);
-      _startAmpTimer();
-
-      _playerCompleteSub?.cancel();
-      _playerCompleteSub = _player.onPlayerComplete.listen((_) {
-        _stopAmpTimer();
-        if (!_closed) {
-          state.value = AiFaceState.listening;
-          emotion.value = AiFaceEmotion.neutral;
-          mouthLevel.value = 0.0;
-        }
-      });
-      await _player.stop();
-      await _player.play(BytesSource(wav));
-    } catch (e) {
-      debugPrint('GeminiLive play error: $e');
-      _stopAmpTimer();
-      if (!_closed) state.value = AiFaceState.listening;
+      _pendingMic.clear(); // Residul audio tozalash
+      // UI darhol yangilanishi uchun qo'shimcha xabar
+      debugPrint("GeminiLive: Ovoz kelishni boshladi, state -> speaking");
     }
-  }
+    _playerStream.writeChunk(pcm);
 
-  /// Har 50ms PCM'dagi joriy pozitsiya amplitudasini o'lchab mouthLevel'ni
-  /// yangilaydi — og'iz real audio balandligiga mos qimirlaydi.
-  void _startAmpTimer() {
-    _ampTimer?.cancel();
-    _ampTimer = Timer.periodic(const Duration(milliseconds: 50), (_) async {
-      final pcm = _playingPcm;
-      if (pcm == null || pcm.isEmpty) return;
-      final pos = await _player.getCurrentPosition();
-      final elapsed = pos?.inMilliseconds ?? 0;
-      // 24kHz, 16-bit mono: har millisekunda 24 * 2 = 48 bayt.
-      final bytePos = (elapsed * 48).clamp(0, pcm.length - 2);
-      // 512 sample oynada RMS hisoblaymiz.
-      const window = 512 * 2; // baytlarda
-      final end = (bytePos + window).clamp(0, pcm.length);
-      double sum = 0;
-      int count = 0;
-      for (int i = bytePos; i < end - 1; i += 2) {
-        final sample = (pcm[i] | (pcm[i + 1] << 8)).toSigned(16);
-        sum += sample * sample;
-        count++;
-      }
-      if (count == 0) return;
-      final rms = math.sqrt(sum / count);
-      // Normalize: 16-bit max ~32768, lekin odatiy gap ~3000-8000.
-      final level = (rms / 8000.0).clamp(0.0, 1.0);
-      mouthLevel.value = level;
-    });
-  }
+    final durationMs = (pcm.length / 48000 * 1000).toInt();
+    final now = DateTime.now();
+    final startPlayTime = _expectedPlaybackEnd != null && _expectedPlaybackEnd!.isAfter(now)
+        ? _expectedPlaybackEnd!
+        : now;
+    
+    _expectedPlaybackEnd = startPlayTime.add(Duration(milliseconds: durationMs));
 
-  void _stopAmpTimer() {
-    _ampTimer?.cancel();
-    _ampTimer = null;
-    _playingPcm = null;
-    mouthLevel.value = 0.0;
+    double sum = 0;
+    int count = 0;
+    for (int i = 0; i < pcm.length - 1; i += 2) {
+      final sample = (pcm[i] | (pcm[i + 1] << 8)).toSigned(16);
+      sum += sample * sample;
+      count++;
+    }
+    final rms = count > 0 ? math.sqrt(sum / count) : 0;
+    final level = (rms / 8000.0).clamp(0.0, 1.0);
+
+    final delay = startPlayTime.difference(DateTime.now());
+    if (delay.isNegative) {
+      if (!_closed) mouthLevel.value = level;
+    } else {
+      Timer(delay, () {
+        if (!_closed) mouthLevel.value = level;
+      });
+    }
   }
 
   /// Tovush effektini (aksirish/yo'talish) ijro etib, tugashini kutadi.
+  /* 
+  // Hozircha ishlatilmaydi — kelajakda reaktsiya uchun
   Future<void> _playSfx(String assetPath) async {
     try {
       final done = _sfxPlayer.onPlayerComplete.first;
@@ -483,7 +644,9 @@ class GeminiLiveService {
       debugPrint('GeminiLive sfx error: $e');
     }
   }
+  */
 
+  /* Eski fart trigger funksiyasi — hozircha ishlatilmaydi.
   /// Fart effektini gapirish TUGAGANDAN KEYIN (gapning oxirida) ishga tushiradi.
   Future<void> _triggerFartAfterSpeech() async {
     if (_closed) return;
@@ -535,9 +698,10 @@ class GeminiLiveService {
       }));
     }
   }
+  */
 
   /// AI javob matnidan his-tuyg'uni taxminlaydi (kalit so'zlar bo'yicha).
-  /// Faqat speaking holatida ishlatiladi — listening/thinking da neutral qoladi.
+  /// Faqat speaking holatida ko'rinadi — listening/thinking da neutral qoladi.
   AiFaceEmotion _inferEmotion(String text) {
     final t = text.toLowerCase();
     bool has(List<String> keys) => keys.any(t.contains);
@@ -568,24 +732,25 @@ class GeminiLiveService {
       return AiFaceEmotion.coughing;
     }
     // Kulish.
-    if (has(['haha', 'hah', 'lol', 'hehe', 'hihi', 'hehe'])) {
+    if (has(['haha', 'hah', 'lol', 'hehe', 'hihi'])) {
       return AiFaceEmotion.laughing;
     }
-    // G'azab / siljish — keng kalit so'zlar to'plami.
+    // G'azab / baqirish — ANIQROQ va ko'proq kalit so'zlar.
+    // Bot chindan ham asabiy, siljigan, baqiryotgan paytda.
     if (has([
-      // Deutsch
-      'scheiße', 'quatsch', 'mein gott', 'dumm', 'nein, nein',
+      // Deutsch — qattiq/asabiy so'zlar
+      'scheiße', 'scheisse', 'quatsch', 'mein gott', 'verdammt',
       'kindergarten', 'null punkte', '0 punkte', 'katastrophe',
-      'schwachsinn', 'was soll das', 'unmöglich', 'streng dich an',
-      'komm schon', 'wie willst du', 'gib dir mehr', 'unglaublich',
-      'schrecklich', 'erbärmlich', 'peinlich', 'so ein chaos',
-      // Русский
-      'как ты так', 'соберись', 'нет-нет-нет', 'что за бред',
-      'детский сад', 'ужас', 'позор', 'невозможно', 'бестолочь',
-      // O'zbekcha
-      "o'zingni bos", "yo'q-yo'q-yo'q", 'kalla bormi',
-      "to'nka", "bog'cha", '0 ball', 'sharmanda', 'bilishing kerak',
-      'qanaqasiga', 'imkonsiz', 'dahshat', 'uyat',
+      'schwachsinn', 'was soll das', 'unmöglich', 'peinlich',
+      'schrecklich', 'erbärmlich', 'so ein chaos', 'das kann nicht',
+      'nein nein nein', 'wie oft', 'zum letzten mal',
+      // Русский — asabiy/siljigan
+      'нет-нет-нет', 'что за бред', 'детский сад', 'позор',
+      'сколько раз', 'до каких пор', 'блин', 'черт',
+      // O'zbekcha — siljigan/asabiy
+      "yo'q-yo'q-yo'q", 'kalla bormi', "to'nka", "bog'cha darajasi",
+      'sharmanda', 'dahshat', 'uyat', 'qanaqasiga', 'necha marta',
+      'qachongacha', 'miyangni ishlat', 'oyoqni qo\'y',
     ])) {
       return AiFaceEmotion.angry;
     }
@@ -616,22 +781,6 @@ class GeminiLiveService {
     ])) {
       return AiFaceEmotion.happy;
     }
-    // Xafa / noto'g'ri.
-    if (has([
-      'leider',
-      'schade',
-      'nicht ganz',
-      'nicht richtig',
-      'falsch',
-      'к сожалению',
-      'неправильно',
-      'не совсем',
-      'afsuski',
-      "to'g'ri emas",
-      'noto\'g\'ri',
-    ])) {
-      return AiFaceEmotion.sad;
-    }
     // Hayrat.
     if (has([
       'wow',
@@ -648,45 +797,24 @@ class GeminiLiveService {
     ])) {
       return AiFaceEmotion.surprised;
     }
+    // Sad (xafa) emotsiyasi olib tashlandi — neutral qaytadi.
+    // Sabab: "leider", "falsch", "nicht ganz" kabi so'zlar bot gapida
+    // ko'p uchraydi, lekin bu xafa bo'lish emas — oddiy tuzatish.
     return AiFaceEmotion.neutral;
   }
 
-  /// PCM16 (mono) baytlarini ijro etiladigan WAV formatiga o'raydi.
-  Uint8List _pcm16ToWav(Uint8List pcm,
-      {int sampleRate = 24000, int channels = 1}) {
-    final byteRate = sampleRate * channels * 2;
-    final blockAlign = channels * 2;
-    final dataLen = pcm.length;
-    final b = BytesBuilder();
-    void writeStr(String s) => b.add(s.codeUnits);
-    void writeU32(int v) =>
-        b.add([v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff, (v >> 24) & 0xff]);
-    void writeU16(int v) => b.add([v & 0xff, (v >> 8) & 0xff]);
 
-    writeStr('RIFF');
-    writeU32(36 + dataLen);
-    writeStr('WAVE');
-    writeStr('fmt ');
-    writeU32(16);
-    writeU16(1); // PCM
-    writeU16(channels);
-    writeU32(sampleRate);
-    writeU32(byteRate);
-    writeU16(blockAlign);
-    writeU16(16); // bits per sample
-    writeStr('data');
-    writeU32(dataLen);
-    b.add(pcm);
-    return b.toBytes();
-  }
 
   /// Suhbatni to'xtatadi va resurslarni tozalaydi.
   Future<void> disconnect() async {
     _closed = true;
     _connected = false;
+    _connecting = false;
     _reconnectAttempts = 0;
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
+    _keepAliveTimer?.cancel();
+    _keepAliveTimer = null;
     state.value = AiFaceState.idle;
     emotion.value = AiFaceEmotion.neutral;
     _micFlushTimer?.cancel();
@@ -705,9 +833,10 @@ class GeminiLiveService {
       await _channel?.sink.close();
     } catch (_) {}
     _channel = null;
-    _turnAudio.clear();
+    _expectedPlaybackEnd = null;
     try {
-      await _player.stop();
+      await _playerStream.stop();
+      _playerStream.dispose();
     } catch (_) {}
     try {
       await _sfxPlayer.stop();
@@ -715,15 +844,14 @@ class GeminiLiveService {
   }
 
   void dispose() {
+    _usageTimer?.cancel();
     disconnect();
-    _stopAmpTimer();
-    _playerCompleteSub?.cancel();
     _recorder.dispose();
-    _player.dispose();
     _sfxPlayer.dispose();
     state.dispose();
     emotion.dispose();
     mouthLevel.dispose();
     error.dispose();
+    remainingSeconds.dispose();
   }
 }

@@ -49,6 +49,10 @@ class _StudentGamesScreenState extends State<StudentGamesScreen> {
 
   Future<void> _loadStars() async {
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'guest';
+    
+    // Firestore'dan yuklab olish (deploy qilinganda yoki cache tozalanganda)
+    await GameStarsService.loadStarsFromFirestore(uid);
+    
     final total = await GameStarsService.getTotalStars(uid);
     if (!mounted) return;
     setState(() {

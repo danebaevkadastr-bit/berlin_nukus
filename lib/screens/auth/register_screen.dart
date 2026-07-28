@@ -200,7 +200,11 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: const Center(
-                      child: Text('🚀', style: TextStyle(fontSize: 48)),
+                      child: Icon(
+                        Icons.rocket_launch_rounded,
+                        size: 48,
+                        color: AppColors.duoGreen,
+                      ),
                     ),
                   ),
                 ),
@@ -243,14 +247,14 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         _buildTextField(
                           controller: _nameController,
                           label: l.fullNameLabel,
-                          icon: '🧑',
+                          icon: Icons.person_rounded,
                           isDark: isDark,
                         ),
                         const SizedBox(height: 14),
                         _buildTextField(
                           controller: _emailController,
                           label: l.email,
-                          icon: '📧',
+                          icon: Icons.email_rounded,
                           isDark: isDark,
                           keyboardType: TextInputType.emailAddress,
                         ),
@@ -258,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         _buildTextField(
                           controller: _phoneController,
                           label: l.phone,
-                          icon: '📱',
+                          icon: Icons.phone_iphone_rounded,
                           isDark: isDark,
                           keyboardType: TextInputType.phone,
                           inputFormatters: [_phoneFormatter],
@@ -267,7 +271,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         _buildTextField(
                           controller: _passwordController,
                           label: l.password,
-                          icon: '🔒',
+                          icon: Icons.lock_rounded,
                           isDark: isDark,
                           obscureText: _obscurePassword,
                           suffixIcon: IconButton(
@@ -282,7 +286,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                         _buildTextField(
                           controller: _confirmPasswordController,
                           label: l.confirmPassword,
-                          icon: '🔐',
+                          icon: Icons.lock_outline_rounded,
                           isDark: isDark,
                           obscureText: _obscureConfirm,
                           suffixIcon: IconButton(
@@ -348,7 +352,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
-    required String icon,
+    required IconData icon,
     required bool isDark,
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
@@ -380,8 +384,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
             color: isDark ? Colors.white54 : AppColors.duoTextLight,
           ),
           prefixIcon: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Text(icon, style: const TextStyle(fontSize: 20)),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isDark ? Colors.white54 : AppColors.duoTextLight,
+            ),
           ),
           prefixIconConstraints: const BoxConstraints(minWidth: 40),
           suffixIcon: suffixIcon,

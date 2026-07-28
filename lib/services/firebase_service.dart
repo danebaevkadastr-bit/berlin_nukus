@@ -443,34 +443,74 @@ class FirebaseService {
             return aName.compareTo(bName);
           });
 
-          // Limit to top 10
-          return students.take(10).toList();
+          // Barcha talabalarni qaytarish (limit yo'q)
+          return students;
         });
   }
 
-  /// Stream of leaderboard for a specific group (top students by total stars)
+  /// Stream of leaderboard for a specific group (all students by total stars)
   Stream<List<Map<String, dynamic>>> getGroupLeaderboardStream(String groupId) {
     return _firestore.collection('groups').doc(groupId).snapshots().asyncMap((groupDoc) async {
+      if (kDebugMode) {
+      }
+      
       if (!groupDoc.exists) return [];
 
       final groupData = groupDoc.data();
       final studentIds = List<String>.from(groupData?['students'] ?? []);
 
+      if (kDebugMode) {
+      }
+
       if (studentIds.isEmpty) return [];
 
-      final usersSnapshot = await _firestore
-          .collection('users')
-          .where('role', isEqualTo: 'student')
-          .where(FieldPath.documentId, whereIn: studentIds)
-          .orderBy('totalStars', descending: true)
-          .limit(10)
-          .get();
+      // Firestore whereIn maksimum 30 ta element qabul qiladi
+      // Agar ko'proq bo'lsa, bo'lib-bo'lib query qilamiz
+      final allStudents = <Map<String, dynamic>>[];
+      
+      // 30 tadan bo'lib query qilish
+      for (int i = 0; i < studentIds.length; i += 30) {
+        final batch = studentIds.sublist(
+          i,
+          (i + 30 < studentIds.length) ? i + 30 : studentIds.length,
+        );
 
-      return usersSnapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList();
+        if (kDebugMode) {
+        }
+
+        final usersSnapshot = await _firestore
+            .collection('users')
+            .where('role', isEqualTo: 'student')
+            .where(FieldPath.documentId, whereIn: batch)
+            .get();
+
+        for (final doc in usersSnapshot.docs) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          // totalStars uchun default 0 qiymat
+          data['totalStars'] = (data['totalStars'] as num?)?.toInt() ?? 0;
+          
+          if (kDebugMode) {
+          }
+          
+          allStudents.add(data);
+        }
+      }
+
+      if (kDebugMode) {
+      }
+
+      // totalStars bo'yicha saralash
+      allStudents.sort((a, b) {
+        final aStars = a['totalStars'] as int;
+        final bStars = b['totalStars'] as int;
+        return bStars.compareTo(aStars);
+      });
+
+      if (kDebugMode) {
+      }
+
+      return allStudents;
     });
   }
 
@@ -595,5 +635,216 @@ class FirebaseService {
 
           return students;
         });
+  }
+
+  /// Stream of leaderboard sorted by Lesen percentage (descending)
+  /// Faqat B1 level Lesen teillarini hisoblaydi
+  Stream<List<Map<String, dynamic>>> getLesenLeaderboardStream(String uid) {
+    return _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'student')
+        .snapshots()
+        .asyncMap((usersSnapshot) async {
+      if (usersSnapshot.docs.isEmpty) return [];
+
+      final memberIds = await _coGroupStudentIds(uid);
+      if (memberIds.isEmpty) return <Map<String, dynamic>>[];
+
+      // Har bir talaba uchun Lesen natijalarini hisoblaymiz
+      final students = <Map<String, dynamic>>[];
+
+      for (final userDoc in usersSnapshot.docs) {
+        if (!memberIds.contains(userDoc.id)) continue;
+
+        final userData = userDoc.data();
+        userData['id'] = userDoc.id;
+
+        // Faqat B1 level Lesen natijalarini olish
+        final resultsSnap = await _firestore
+            .collection('users')
+            .doc(userDoc.id)
+            .collection('results')
+            .where('type', isEqualTo: 'lesen')
+            .where('level', isEqualTo: 'B1')
+            .get();
+
+        if (resultsSnap.docs.isEmpty) {
+          userData['lesenPercentage'] = 0.0;
+        } else {
+          int totalScore = 0;
+          int totalMax = 0;
+
+          for (final resultDoc in resultsSnap.docs) {
+            final resultData = resultDoc.data();
+            totalScore += (resultData['score'] as num?)?.toInt() ?? 0;
+            totalMax += (resultData['total'] as num?)?.toInt() ?? 0;
+          }
+
+          if (totalMax > 0) {
+            userData['lesenPercentage'] = (totalScore / totalMax) * 100;
+          } else {
+            userData['lesenPercentage'] = 0.0;
+          }
+        }
+
+        students.add(userData);
+      }
+
+      // Sort by lesenPercentage (descending)
+      students.sort((a, b) {
+        final aPercentage = (a['lesenPercentage'] as num?) ?? 0.0;
+        final bPercentage = (b['lesenPercentage'] as num?) ?? 0.0;
+
+        final percentageCompare = bPercentage.compareTo(aPercentage);
+        if (percentageCompare != 0) return percentageCompare;
+
+        final aName = (a['fullName'] as String?) ?? '';
+        final bName = (b['fullName'] as String?) ?? '';
+        return aName.compareTo(bName);
+      });
+
+      return students;
+    });
+  }
+
+  /// Stream of leaderboard sorted by Hören percentage (descending)
+  /// Faqat B1 level Hören teillarini hisoblaydi
+  Stream<List<Map<String, dynamic>>> getHorenLeaderboardStream(String uid) {
+    return _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'student')
+        .snapshots()
+        .asyncMap((usersSnapshot) async {
+      if (usersSnapshot.docs.isEmpty) return [];
+
+      final memberIds = await _coGroupStudentIds(uid);
+      if (memberIds.isEmpty) return <Map<String, dynamic>>[];
+
+      // Har bir talaba uchun Hören natijalarini hisoblaymiz
+      final students = <Map<String, dynamic>>[];
+
+      for (final userDoc in usersSnapshot.docs) {
+        if (!memberIds.contains(userDoc.id)) continue;
+
+        final userData = userDoc.data();
+        userData['id'] = userDoc.id;
+
+        // Faqat B1 level Hören natijalarini olish
+        final resultsSnap = await _firestore
+            .collection('users')
+            .doc(userDoc.id)
+            .collection('results')
+            .where('type', isEqualTo: 'horen')
+            .where('level', isEqualTo: 'B1')
+            .get();
+
+        if (resultsSnap.docs.isEmpty) {
+          userData['horenPercentage'] = 0.0;
+        } else {
+          int totalScore = 0;
+          int totalMax = 0;
+
+          for (final resultDoc in resultsSnap.docs) {
+            final resultData = resultDoc.data();
+            totalScore += (resultData['score'] as num?)?.toInt() ?? 0;
+            totalMax += (resultData['total'] as num?)?.toInt() ?? 0;
+          }
+
+          if (totalMax > 0) {
+            userData['horenPercentage'] = (totalScore / totalMax) * 100;
+          } else {
+            userData['horenPercentage'] = 0.0;
+          }
+        }
+
+        students.add(userData);
+      }
+
+      // Sort by horenPercentage (descending)
+      students.sort((a, b) {
+        final aPercentage = (a['horenPercentage'] as num?) ?? 0.0;
+        final bPercentage = (b['horenPercentage'] as num?) ?? 0.0;
+
+        final percentageCompare = bPercentage.compareTo(aPercentage);
+        if (percentageCompare != 0) return percentageCompare;
+
+        final aName = (a['fullName'] as String?) ?? '';
+        final bName = (b['fullName'] as String?) ?? '';
+        return aName.compareTo(bName);
+      });
+
+      return students;
+    });
+  }
+
+  /// Stream of leaderboard sorted by Mock Test average (descending)
+  /// Mock test'larning o'rtacha ballini hisoblaydi
+  Stream<List<Map<String, dynamic>>> getMockTestLeaderboardStream(String uid) {
+    return _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'student')
+        .snapshots()
+        .asyncMap((usersSnapshot) async {
+      if (usersSnapshot.docs.isEmpty) return [];
+
+      final memberIds = await _coGroupStudentIds(uid);
+      if (memberIds.isEmpty) return <Map<String, dynamic>>[];
+
+      // Har bir talaba uchun Mock Test natijalarini hisoblaymiz
+      final students = <Map<String, dynamic>>[];
+
+      for (final userDoc in usersSnapshot.docs) {
+        if (!memberIds.contains(userDoc.id)) continue;
+
+        final userData = userDoc.data();
+        userData['id'] = userDoc.id;
+
+        // Mock test natijalarini olish (mock_test_history collection'dan)
+        final mockTestSnap = await _firestore
+            .collection('users')
+            .doc(userDoc.id)
+            .collection('mock_test_history')
+            .get();
+
+        if (mockTestSnap.docs.isEmpty) {
+          userData['mockTestAverage'] = 0.0;
+        } else {
+          double totalPoints = 0;
+          int count = 0;
+
+          for (final mockDoc in mockTestSnap.docs) {
+            final mockData = mockDoc.data();
+            final points = (mockData['totalPoints'] as num?)?.toDouble() ?? 0.0;
+            if (points > 0) {
+              totalPoints += points;
+              count++;
+            }
+          }
+
+          if (count > 0) {
+            userData['mockTestAverage'] = totalPoints / count;
+          } else {
+            userData['mockTestAverage'] = 0.0;
+          }
+        }
+
+        students.add(userData);
+      }
+
+      // Sort by mockTestAverage (descending)
+      students.sort((a, b) {
+        final aAvg = (a['mockTestAverage'] as num?) ?? 0.0;
+        final bAvg = (b['mockTestAverage'] as num?) ?? 0.0;
+
+        final avgCompare = bAvg.compareTo(aAvg);
+        if (avgCompare != 0) return avgCompare;
+
+        final aName = (a['fullName'] as String?) ?? '';
+        final bName = (b['fullName'] as String?) ?? '';
+        return aName.compareTo(bName);
+      });
+
+      return students;
+    });
   }
 }

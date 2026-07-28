@@ -1,0 +1,12 @@
+{
+  "name": "firebase-scripts",
+  "version": "1.0.0",
+  "description": "Firebase admin scripts for Berlin-Nukus",
+  "main": "reset_user_results.js",
+  "scripts": {
+    "reset": "node reset_user_results.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}

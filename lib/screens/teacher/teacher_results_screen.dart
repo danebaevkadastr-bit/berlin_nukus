@@ -685,11 +685,38 @@ class _ResultsFromFirebase extends StatelessWidget {
     }
   }
 
-  String _fmtTimestamp(dynamic ts) {    if (ts is Timestamp) {
+  String _fmtTimestamp(dynamic ts) {
+    if (ts is Timestamp) {
       final d = ts.toDate();
       return '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
     }
     return '';
+  }
+
+  /// Teil bo'yicha natijalarni guruhlaymiz (Lesen/Hören uchun)
+  Map<String, List<Map<String, dynamic>>> _groupByTeil(List<Map<String, dynamic>> results) {
+    final grouped = <String, List<Map<String, dynamic>>>{};
+    
+    for (final r in results) {
+      final title = r['title'] as String? ?? '';
+      
+      // Teil'ni aniqlash: "Teil 1", "Teil 2" va h.k.
+      String teil = 'Boshqa'; // Default
+      
+      // Regex bilan Teil'ni topish
+      final teilMatch = RegExp(r'Teil\s*(\d+)', caseSensitive: false).firstMatch(title);
+      if (teilMatch != null) {
+        teil = 'Teil ${teilMatch.group(1)}';
+      } else if (title.toLowerCase().contains('lesen') || title.toLowerCase().contains('hören')) {
+        // Agar Teil yo'q bo'lsa, lekin Lesen/Hören mavjud bo'lsa
+        teil = 'Umumiy';
+      }
+      
+      grouped.putIfAbsent(teil, () => []);
+      grouped[teil]!.add(r);
+    }
+    
+    return grouped;
   }
 
   @override
@@ -720,91 +747,193 @@ class _ResultsFromFirebase extends StatelessWidget {
           );
         }
 
+        // Mock test uchun Teil guruhlamaslik
+        if (type == 'mock_test') {
+          return _buildRegularList(results);
+        }
+
+        // Lesen/Hören uchun Teil bo'yicha guruhlash
+        final grouped = _groupByTeil(results);
+        final sortedTeils = grouped.keys.toList()..sort((a, b) {
+          // Teil raqami bo'yicha saralash: Teil 1, Teil 2, ...
+          final aMatch = RegExp(r'(\d+)').firstMatch(a);
+          final bMatch = RegExp(r'(\d+)').firstMatch(b);
+          if (aMatch != null && bMatch != null) {
+            return int.parse(aMatch.group(1)!).compareTo(int.parse(bMatch.group(1)!));
+          }
+          return a.compareTo(b);
+        });
+
         return ListView.builder(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-          itemCount: results.length,
+          itemCount: sortedTeils.length,
           itemBuilder: (context, i) {
-            final r = results[i];
-            final title = r['title'] as String? ?? (type == 'mock_test' ? 'Mock Test B1' : '');
-            final level = r['level'] as String? ?? '';
-            // Mock test history'da field nomlari boshqacha
-            final score = (r['score'] as num?)?.toInt()
-                ?? (r['totalPoints'] as num?)?.toInt() ?? 0;
-            final total = (r['total'] as num?)?.toInt()
-                ?? (r['totalMax'] as num?)?.toInt() ?? 0;
-            final percentage = (r['percentage'] as num?)?.toInt()
-                ?? (total > 0 ? (score / total * 100).round() : 0);
-            final date = _fmtTimestamp(r['date']);
-
-            Color scoreColor;
-            if (percentage >= 80) {
-              scoreColor = AppColors.duoGreen;
-            } else if (percentage >= 60) {
-              scoreColor = AppColors.duoOrange;
-            } else {
-              scoreColor = AppColors.duoRed;
-            }
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+            final teil = sortedTeils[i];
+            final teilResults = grouped[teil]!;
+            final topPadding = i > 0 ? 20.0 : 0.0;
+            
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Teil header
+                Padding(
+                  padding: EdgeInsets.only(left: 4, bottom: 12, top: topPadding),
+                  child: Text(
+                    teil.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? AppColors.duoBlue : AppColors.duoBlue.withValues(alpha: 0.8),
+                      letterSpacing: 0.8,
+                    ),
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  // Score circle
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: scoreColor.withValues(alpha: 0.15),
-                      border: Border.all(color: scoreColor, width: 2.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '$percentage%',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w900,
-                        color: scoreColor,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '$title${level.isNotEmpty ? ' ($level)' : ''}',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white : AppColors.duoTextDark,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '$score / $total${date.isNotEmpty ? '  ·  $date' : ''}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white54 : AppColors.duoTextLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                // Natijalar
+                ...teilResults.map((r) => _buildResultCard(r)),
+              ],
             );
           },
+        );
+      },
+    );
+  }
+
+  Widget _buildRegularList(List<Map<String, dynamic>> results) {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+      itemCount: results.length,
+      itemBuilder: (context, i) => _buildResultCard(results[i]),
+    );
+  }
+
+  Widget _buildResultCard(Map<String, dynamic> r) {
+    final title = r['title'] as String? ?? (type == 'mock_test' ? 'Mock Test B1' : '');
+    final level = r['level'] as String? ?? '';
+    // Mock test history'da field nomlari boshqacha
+    final score = (r['score'] as num?)?.toInt()
+        ?? (r['totalPoints'] as num?)?.toInt() ?? 0;
+    final total = (r['total'] as num?)?.toInt()
+        ?? (r['totalMax'] as num?)?.toInt() ?? 0;
+    final percentage = (r['percentage'] as num?)?.toInt()
+        ?? (total > 0 ? (score / total * 100).round() : 0);
+    final date = _fmtTimestamp(r['date']);
+    final details = r['details'] as Map<String, dynamic>?;
+    final hasQuestionDetails = details != null && details['questions'] != null;
+
+    Color scoreColor;
+    if (percentage >= 80) {
+      scoreColor = AppColors.duoGreen;
+    } else if (percentage >= 60) {
+      scoreColor = AppColors.duoOrange;
+    } else {
+      scoreColor = AppColors.duoRed;
+    }
+
+    return Builder(
+      builder: (builderContext) {
+        return GestureDetector(
+          onTap: hasQuestionDetails
+              ? () {
+                  Navigator.push(
+                    builderContext,
+                    MaterialPageRoute(
+                      builder: (_) => _QuestionDetailsScreen(
+                        title: '$title${level.isNotEmpty ? ' ($level)' : ''}',
+                        score: score,
+                        total: total,
+                        percentage: percentage,
+                        questions: List<Map<String, dynamic>>.from(details['questions']),
+                        isDark: isDark,
+                      ),
+                    ),
+                  );
+                }
+              : null,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+              ),
+            ),
+            child: Row(
+              children: [
+                // Score circle
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: scoreColor.withValues(alpha: 0.15),
+                    border: Border.all(color: scoreColor, width: 2.5),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '$percentage%',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: scoreColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$title${level.isNotEmpty ? ' ($level)' : ''}',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Text(
+                            '$score / $total  ',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white70 : AppColors.duoTextDark,
+                            ),
+                          ),
+                          if (date.isNotEmpty) ...[
+                            Text(
+                              '·  ',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? Colors.white38 : AppColors.duoTextLight,
+                              ),
+                            ),
+                            Text(
+                              date,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (hasQuestionDetails)
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: isDark ? Colors.white38 : AppColors.duoTextLight,
+                  ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -920,6 +1049,277 @@ class _SubmissionTile extends StatelessWidget {
             submission: entry.submission,
             homeworks: entry.homeworks,
             isDark: isDark,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Savol batafsil ekrani - Teacher har savol bo'yicha natijalarni ko'radi
+// ─────────────────────────────────────────────────────────────────────────────
+class _QuestionDetailsScreen extends StatelessWidget {
+  final String title;
+  final int score;
+  final int total;
+  final int percentage;
+  final List<Map<String, dynamic>> questions;
+  final bool isDark;
+
+  const _QuestionDetailsScreen({
+    required this.title,
+    required this.score,
+    required this.total,
+    required this.percentage,
+    required this.questions,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Color scoreColor;
+    if (percentage >= 80) {
+      scoreColor = AppColors.duoGreen;
+    } else if (percentage >= 60) {
+      scoreColor = AppColors.duoOrange;
+    } else {
+      scoreColor = AppColors.duoRed;
+    }
+
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_rounded,
+              color: isDark ? Colors.white : AppColors.duoTextDark, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Savollar Batafsil',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w900,
+            color: isDark ? Colors.white : AppColors.duoTextDark,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          // Header - umumiy natija
+          Container(
+            margin: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: scoreColor.withValues(alpha: 0.3),
+                width: 2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: scoreColor.withValues(alpha: 0.15),
+                    border: Border.all(color: scoreColor, width: 3),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '$percentage%',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: scoreColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '$score / $total to\'g\'ri javob',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white70 : AppColors.duoTextLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Savollar ro'yxati
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+              itemCount: questions.length,
+              itemBuilder: (context, i) {
+                final q = questions[i];
+                final qNum = q['questionNumber'] as int? ?? (i + 1);
+                final qText = q['questionText'] as String? ?? '';
+                final userAnswer = q['userAnswer'] as String? ?? '';
+                final correctAnswer = q['correctAnswer'] as String? ?? '';
+                final isCorrect = q['isCorrect'] == true;
+                
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isCorrect 
+                          ? AppColors.duoGreen.withValues(alpha: 0.3)
+                          : AppColors.duoRed.withValues(alpha: 0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Savol raqami va status
+                      Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isCorrect
+                                  ? AppColors.duoGreen.withValues(alpha: 0.15)
+                                  : AppColors.duoRed.withValues(alpha: 0.15),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '$qNum',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                                color: isCorrect ? AppColors.duoGreen : AppColors.duoRed,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              isCorrect ? '✅ To\'g\'ri' : '❌ Xato',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                                color: isCorrect ? AppColors.duoGreen : AppColors.duoRed,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      
+                      // Savol matni
+                      Text(
+                        qText,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : AppColors.duoTextDark,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      
+                      // Talaba javobi
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isCorrect
+                              ? AppColors.duoGreen.withValues(alpha: 0.08)
+                              : AppColors.duoRed.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Talaba javobi:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              userAnswer.isNotEmpty ? userAnswer : '(Javob berilmagan)',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white : AppColors.duoTextDark,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      // To'g'ri javob (agar xato bo'lsa)
+                      if (!isCorrect) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.duoGreen.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'To\'g\'ri javob:',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.duoGreen.withValues(alpha: 0.7),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                correctAnswer,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.duoGreen,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),

@@ -110,27 +110,24 @@ class _SplashScreenState extends State<SplashScreen>
                           ],
                         ),
                         child: Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(40),
-                            child: Image.asset(
-                              'assets/icons/logo.png',
-                              width: 150,
-                              height: 150,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.account_balance_rounded,
-                                  size: 80,
-                                  color: Color(0xFF5C6BC0),
-                                );
-                              },
-                            ),
+                          child: Image.asset(
+                            'assets/icons/logo.png',
+                            width: 110,
+                            height: 110,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.account_balance_rounded,
+                                size: 80,
+                                color: Color(0xFF5C6BC0),
+                              );
+                            },
                           ),
                         ),
                       ),
                       const SizedBox(height: 30),
                       const Text(
-                        'Berlin-Nukus',
+                        'AwaDe',
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,

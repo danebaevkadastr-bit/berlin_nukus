@@ -110,7 +110,7 @@ QOIDALAR (qat'iy):
 - Javob qisqa bo'lsin: 2-4 gap.
 - Faqat berilgan mavzu bo'yicha gapir. Mavzudan tashqari chiqma. Agar foydalanuvchi mavzudan tashqari savol bersa, uni mavzuga qaytaring.
 - Avvalgi savollarga qaytma, takrorlanma.
-- Asosan nemis tilida yoz; kerak bo'lsa 1 qator o'zbekcha yordam.
+- FAQAT nemis tilida yoz. Gaplaringga o'zbekcha yoki ruscha tarjimalarni (ayniqsa qavslar ichida) qo'shish mutlaqo man etiladi! O'quvchi xohlasa o'zi tarjima tugmasini bosadi.
 - Har bir javobda faqat bitta konkret savol ber, keyin to'xta.
 - MUHIM: Hech qachon yordamchi javob variantlarini o'zingdan berma. Faqat savol ber.
 ''';
@@ -123,7 +123,7 @@ QOIDALAR (qat'iy):
 - Bu erkin suhbat: foydalanuvchi xohlagan mavzuda gaplash, uni biror mavzuga majburlama.
 - Foydalanuvchi mavzuni o'zgartirsa, tabiiy ravishda yangi mavzuga o't.
 - Avvalgi savollarga qaytma, takrorlanma.
-- Asosan nemis tilida yoz; kerak bo'lsa 1 qator o'zbekcha yordam.
+- FAQAT nemis tilida yoz. Gaplaringga o'zbekcha yoki ruscha tarjimalarni (ayniqsa qavslar ichida) qo'shish mutlaqo man etiladi! O'quvchi xohlasa o'zi tarjima tugmasini bosadi.
 - Tabiiy va samimiy suhbat qil; agar xato bo'lsa, yumshoq tuzat.
 - MUHIM: Hech qachon yordamchi javob variantlarini o'zingdan berma. Faqat savol ber.
 ''';
@@ -218,7 +218,7 @@ QOIDALAR (qat'iy):
 - JAVOBDA UMUMAN SAVOL BERMA. Savol berish qat'iyan man etiladi.
 - Javob qisqa bo'lsin: 2-4 gap.
 - Faqat berilgan mavzuni yakunlash va tugatish haqida yoz.
-- Asosan nemis tilida yoz; kerak bo'lsa 1 qator o'zbekcha yordam.
+- FAQAT nemis tilida yoz. Gaplaringga o'zbekcha yoki ruscha tarjimalarni (ayniqsa qavslar ichida) qo'shish mutlaqo man etiladi! O'quvchi xohlasa o'zi tarjima tugmasini bosadi.
 - MUHIM: Mavzuni yakunla, o'quvchini maqta, qisqacha xulosa chiqar va "Lektion beendet" deb yoz.
 ''';
     }
@@ -574,7 +574,8 @@ ${isLastMessage ? 'MUHIM: Bu eng oxirgi xabar. Suhbatni butunlay yakunla, o\'quv
   String get _targetLang {
     final code = LocaleManager.currentLocale.value.code;
     if (code == 'ru') return 'ru';
-    return 'uz'; // uz, kaa, de hammasi uchun o'zbek
+    if (code == 'kaa') return 'kaa';
+    return 'uz'; // uz, de hammasi uchun o'zbek
   }
 
   Future<void> _runCorrection(String messageId) async {

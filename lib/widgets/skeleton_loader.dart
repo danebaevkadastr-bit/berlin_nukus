@@ -50,7 +50,7 @@ class SkeletonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width ?? double.infinity,
-      height: height,
+      constraints: BoxConstraints(minHeight: height),
       padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: ThemeManager.isDark 

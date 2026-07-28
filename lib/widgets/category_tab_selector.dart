@@ -3,24 +3,23 @@ import '../l10n/app_localizations.dart';
 import '../models/leaderboard_category.dart';
 import '../utils/app_colors.dart';
 import '../utils/theme_manager.dart';
+import '../services/haptic_service.dart';
 
 /// Peshqadamlar (Leaderboard) ekrani uchun kategoriya tanlash komponenti.
 ///
-/// TabBar yordamida uchta kategoriya o'rtasida almashish imkonini beradi:
-/// - [LeaderboardCategory.stars] - Yulduzlar bo'yicha reyting
-/// - [LeaderboardCategory.attendance] - Davomat bo'yicha reyting
-/// - [LeaderboardCategory.averageScore] - O'rtacha ball bo'yicha reyting
+/// Gamified 3D chip uslubidagi gorizontal scroll tab selector.
+/// Har bir kategoriyaning o'z rangi, emojisi va 3D bosilish effekti bor.
 ///
 /// Foydalanish:
 /// ```dart
 /// CategoryTabSelector(
-///   selectedCategory: LeaderboardCategory.stars,
+///   selectedCategory: LeaderboardCategory.bnTiyin,
 ///   onCategoryChanged: (category) {
 ///     // Kategoriya o'zgarganda
 ///   },
 /// )
 /// ```
-class CategoryTabSelector extends StatefulWidget {
+class CategoryTabSelector extends StatelessWidget {
   /// Hozirgi tanlangan kategoriya
   final LeaderboardCategory selectedCategory;
 
@@ -34,132 +33,206 @@ class CategoryTabSelector extends StatefulWidget {
   });
 
   @override
-  State<CategoryTabSelector> createState() => _CategoryTabSelectorState();
-}
-
-class _CategoryTabSelectorState extends State<CategoryTabSelector>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(
-      length: LeaderboardCategory.values.length,
-      vsync: this,
-      initialIndex: widget.selectedCategory.index,
-    );
-    _tabController.addListener(_handleTabChange);
-  }
-
-  @override
-  void didUpdateWidget(CategoryTabSelector oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Tashqaridan kategoriya o'zgarsa, tab controllerini yangilash
-    if (oldWidget.selectedCategory != widget.selectedCategory) {
-      _tabController.animateTo(widget.selectedCategory.index);
-    }
-  }
-
-  @override
-  void dispose() {
-    _tabController.removeListener(_handleTabChange);
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void _handleTabChange() {
-    if (_tabController.indexIsChanging) return;
-    final newCategory = LeaderboardCategory.values[_tabController.index];
-    if (newCategory != widget.selectedCategory) {
-      widget.onCategoryChanged(newCategory);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final isDark = ThemeManager.isDark;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: ThemeManager.cardShadow(context),
+    final categories = [
+      _CategoryData(
+        category: LeaderboardCategory.bnTiyin,
+        label: l.bnTiyin,
+        emoji: '⭐',
+        color: AppColors.duoOrange,
+        shadowColor: AppColors.duoOrangeShadow,
       ),
-      child: TabBar(
-        controller: _tabController,
-        indicator: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.duoBlue, AppColors.duoPurple],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        indicatorPadding: const EdgeInsets.all(4),
-        dividerColor: Colors.transparent,
-        labelColor: Colors.white,
-        unselectedLabelColor: isDark
-            ? const Color(0xFF94A3B8)
-            : AppColors.duoTextDark,
-        labelStyle: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-        ),
-        tabs: [
-          Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('⭐'),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    l.stars,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+      _CategoryData(
+        category: LeaderboardCategory.lesen,
+        label: l.lesen,
+        emoji: '📖',
+        color: AppColors.duoGreen,
+        shadowColor: AppColors.duoGreenShadow,
+      ),
+      _CategoryData(
+        category: LeaderboardCategory.horen,
+        label: l.horen,
+        emoji: '🎧',
+        color: AppColors.duoBlue,
+        shadowColor: AppColors.duoBlueShadow,
+      ),
+      _CategoryData(
+        category: LeaderboardCategory.mockTest,
+        label: l.mockTest,
+        emoji: '📝',
+        color: AppColors.duoPurple,
+        shadowColor: AppColors.duoPurpleShadow,
+      ),
+      _CategoryData(
+        category: LeaderboardCategory.attendance,
+        label: l.attendance,
+        emoji: '📅',
+        color: AppColors.duoRed,
+        shadowColor: AppColors.duoRedShadow,
+      ),
+    ];
+
+    return SizedBox(
+      height: 56,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final data = categories[index];
+          final isSelected = selectedCategory == data.category;
+
+          return Padding(
+            padding: EdgeInsets.only(right: index < categories.length - 1 ? 8 : 0),
+            child: _CategoryChip(
+              data: data,
+              isSelected: isSelected,
+              isDark: isDark,
+              onTap: () => onCategoryChanged(data.category),
             ),
-          ),
-          Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('📅'),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    l.attendance,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _CategoryData {
+  final LeaderboardCategory category;
+  final String label;
+  final String emoji;
+  final Color color;
+  final Color shadowColor;
+
+  const _CategoryData({
+    required this.category,
+    required this.label,
+    required this.emoji,
+    required this.color,
+    required this.shadowColor,
+  });
+}
+
+class _CategoryChip extends StatefulWidget {
+  final _CategoryData data;
+  final bool isSelected;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _CategoryChip({
+    required this.data,
+    required this.isSelected,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  State<_CategoryChip> createState() => _CategoryChipState();
+}
+
+class _CategoryChipState extends State<_CategoryChip>
+    with SingleTickerProviderStateMixin {
+  bool _isPressed = false;
+  late final AnimationController _scaleCtrl;
+  late final Animation<double> _scaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnim = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _scaleCtrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scaleCtrl.dispose();
+    super.dispose();
+  }
+
+  static const double _shadowDepth = 3.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final data = widget.data;
+    final isSelected = widget.isSelected;
+    final isDark = widget.isDark;
+
+    return ScaleTransition(
+      scale: _scaleAnim,
+      child: GestureDetector(
+        onTapDown: (_) {
+          setState(() => _isPressed = true);
+          _scaleCtrl.forward();
+        },
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          _scaleCtrl.reverse();
+          HapticService.lightImpact();
+          widget.onTap();
+        },
+        onTapCancel: () {
+          setState(() => _isPressed = false);
+          _scaleCtrl.reverse();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          margin: EdgeInsets.only(top: _isPressed ? _shadowDepth : 0),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? data.color
+                : (isDark ? const Color(0xFF1E293B) : Colors.white),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected
+                  ? data.shadowColor
+                  : (isDark ? Colors.white12 : AppColors.duoCardGrayShadow),
+              width: 2,
             ),
+            boxShadow: _isPressed
+                ? []
+                : [
+                    BoxShadow(
+                      color: isSelected
+                          ? data.shadowColor
+                          : (isDark
+                              ? Colors.black38
+                              : AppColors.duoCardGrayShadow),
+                      offset: const Offset(0, _shadowDepth),
+                      blurRadius: 0,
+                    ),
+                  ],
           ),
-          Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('📊'),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    l.averageScore,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                data.emoji,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                data.label.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: isSelected
+                      ? Colors.white
+                      : (isDark ? Colors.white70 : AppColors.duoTextDark),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

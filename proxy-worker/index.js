@@ -126,12 +126,13 @@ export default {
           return await handlePolly(request, env, cors);
         case "gemini-audio":
           return await handleGeminiAudio(request, env, cors);
-        case "stt":
-          return await handleStt(request, env, cors);
+        // Pipeline qo'llab-quvvatlanmaydi — Gemini Live native audio ishlatiladi
+        // case "stt":
+        //   return await handleStt(request, env, cors);
         case "gemini-live-token":
           return await handleGeminiLiveToken(request, env, cors);
-        case "elevenlabs-tts":
-          return await handleElevenLabsTts(request, env, cors);
+        // case "elevenlabs-tts":
+        //   return await handleElevenLabsTts(request, env, cors);
         default:
           return json({ error: `Noma'lum X-Proxy-Target: ${target}` }, 400, cors);
       }
@@ -468,11 +469,9 @@ async function handleLiveWebSocket(request, env, ctx) {
   return new Response(null, { status: 101, webSocket: client });
 }
 
-// ─── STT (Groq Whisper) — audioni matnga aylantiradi ─────────────────────────
-// Ilova yozilgan audioni base64 sifatida yuboradi; Groq Whisper (whisper-large-v3)
-// orqali matnga o'giramiz va {text} qaytaramiz. "AI bilan mashq" chat mikrofoni
-// shu endpointdan foydalanadi (brauzer STT'siga bog'liq emas).
-// So'rov: {audioBase64, mimeType, language?}  →  Javob: {text}
+// ─── STT (Groq Whisper) — HOZIRCHA O'CHIRILGAN ──────────────────────────────
+// Pipeline qo'llab-quvvatlanmaydi — Gemini Live native audio ishlatiladi.
+/*
 async function handleStt(request, env, cors) {
   const groqKey = env.GROQ_API_KEY;
   if (!groqKey) {
@@ -524,6 +523,7 @@ async function handleStt(request, env, cors) {
     return json({ error: (e && e.message) || String(e) }, 500, cors);
   }
 }
+*/
 
 // ─── Gemini audio baholash (Sprechen) ─────────────────────────────────────────
 // Ilova yozilgan audioni base64 sifatida yuboradi; bu yerda Gemini'ning
@@ -760,9 +760,9 @@ async function handlePolly(request, env, cors) {
   });
 }
 
-// ─── ElevenLabs TTS — matnni audio'ga aylantiradi ────────────────────────────
-// So'rov: {text, voiceId?, modelId?}  →  Javob: audio/mpeg baytlar.
-// Standart ovoz: "Daniel" (nemis erkak, tabiiy), model: eleven_multilingual_v2.
+// ─── ElevenLabs TTS — HOZIRCHA O'CHIRILGAN ──────────────────────────────────
+// Pipeline qo'llab-quvvatlanmaydi — Gemini Live native audio ishlatiladi.
+/*
 async function handleElevenLabsTts(request, env, cors) {
   const apiKey = env.ELEVENLABS_API_KEY;
   if (!apiKey) {
@@ -837,3 +837,4 @@ async function handleElevenLabsTts(request, env, cors) {
     headers: { ...cors, "Content-Type": "audio/mpeg" },
   });
 }
+*/

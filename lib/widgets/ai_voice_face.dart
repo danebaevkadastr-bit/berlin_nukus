@@ -207,14 +207,21 @@ class _FacePainter extends CustomPainter {
     final c = Offset(size.width / 2, size.height / 2);
     final r = size.width / 2;
 
-    // Porlash.
-    canvas.drawCircle(
-      c,
-      r * 0.98,
-      Paint()
-        ..color = color.withValues(alpha: 0.25 * glow)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 24),
-    );
+    // Porlash (Glow) - RadialGradient orqali tezkor va silliq (MaskFilter.blur telefonni qotirishi oldi olindi).
+    if (glow > 0.05) {
+      canvas.drawCircle(
+        c,
+        r * 1.05,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [
+              color.withValues(alpha: 0.35 * glow),
+              color.withValues(alpha: 0.0),
+            ],
+            stops: const [0.7, 1.0],
+          ).createShader(Rect.fromCircle(center: c, radius: r * 1.05)),
+      );
+    }
 
     // Yuz doirasi.
     canvas.drawCircle(
@@ -262,21 +269,23 @@ class _FacePainter extends CustomPainter {
         return;
 
       case AiFaceEmotion.angry:
-        // Jahl — qiyshiq, ichki tomoni yuqoriroq o'tkir ko'z.
+        // Jahl — tashqi tomon YUQORI, ichki tomon PAST (\  / shakli) — haqiqiy qosh chytishi.
         final hw = w * 0.62;
-        final hh = (r * 0.34 * eyeOpen);
+        final hh = r * 0.34 * eyeOpen;
         final innerSign = isLeft ? 1.0 : -1.0; // ichki tomon markazga
+        final outerX = center.dx - innerSign * hw; // tashqi chegara
+        final innerX = center.dx + innerSign * hw; // ichki chegara (markaz tomoni)
         final path = Path();
-        final outerX = center.dx - innerSign * hw;
-        final innerX = center.dx + innerSign * hw;
-        path.moveTo(outerX, center.dy + hh * 0.15); // tashqi-yuqori (pastroq)
-        path.lineTo(innerX, center.dy - hh * 0.7); // ichki-yuqori (baland, o'tkir)
-        path.lineTo(innerX, center.dy + hh * 0.25);
+        // Tashqi burchak: YUQORI (bu jahl qiyofasi)
+        path.moveTo(outerX, center.dy - hh * 0.65);
+        // Ichki burchak: PAST (markaz tomoni pastga tushadi)
+        path.lineTo(innerX, center.dy + hh * 0.05);
+        path.lineTo(innerX, center.dy + hh * 0.45);
         path.quadraticBezierTo(
           center.dx,
-          center.dy + hh * 0.9,
+          center.dy + hh * 0.95,
           outerX,
-          center.dy + hh * 0.15,
+          center.dy - hh * 0.2,
         );
         path.close();
         canvas.drawPath(path, p);

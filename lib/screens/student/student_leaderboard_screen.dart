@@ -27,9 +27,9 @@ class StudentLeaderboardScreen extends StatefulWidget {
 }
 
 class _StudentLeaderboardScreenState extends State<StudentLeaderboardScreen> {
-  /// Tanlangan kategoriya (sukut bo'yicha Yulduzlar)
+  /// Tanlangan kategoriya (sukut bo'yicha BN-Tiyin)
   /// Requirements: 1.4
-  LeaderboardCategory _selectedCategory = LeaderboardCategory.stars;
+  LeaderboardCategory _selectedCategory = LeaderboardCategory.bnTiyin;
 
   /// Kategoriyaga qarab tegishli stream qaytaradi (foydalanuvchi guruhi bo'yicha)
   /// Requirements: 2.1, 3.1, 4.1
@@ -37,12 +37,16 @@ class _StudentLeaderboardScreenState extends State<StudentLeaderboardScreen> {
       LeaderboardCategory category, String uid) {
     final firebaseService = FirebaseService();
     switch (category) {
-      case LeaderboardCategory.stars:
+      case LeaderboardCategory.bnTiyin:
         return firebaseService.getLeaderboardStream(uid);
+      case LeaderboardCategory.lesen:
+        return firebaseService.getLesenLeaderboardStream(uid);
+      case LeaderboardCategory.horen:
+        return firebaseService.getHorenLeaderboardStream(uid);
+      case LeaderboardCategory.mockTest:
+        return firebaseService.getMockTestLeaderboardStream(uid);
       case LeaderboardCategory.attendance:
         return firebaseService.getAttendanceLeaderboardStream(uid);
-      case LeaderboardCategory.averageScore:
-        return firebaseService.getAverageScoreLeaderboardStream(uid);
     }
   }
 

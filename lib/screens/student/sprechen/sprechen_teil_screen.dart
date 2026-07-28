@@ -4,6 +4,8 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/theme_manager.dart';
 import '../../../widgets/gamified_card.dart';
 import '../chat_screen.dart';
+import '../voice_ai_screen.dart';
+import '../../../services/gemini_live_prompt.dart';
 import 'sprechen_data.dart';
 import 'sprechen_recording_control.dart';
 import 'sprechen_recording_models.dart';
@@ -495,10 +497,79 @@ class _SprechenTeilScreenState extends State<SprechenTeilScreen> {
               coordinator: _recordingCoordinator,
             ),
 
-          // "AI bilan mashq" tugmasi — faqat Teil 3 (Gemeinsam planen) uchun
+          const SizedBox(height: 14),
+          // Ovozli AI (Gemini Live) bilan jonli muloqot va mashq qilish
+          GamifiedCard(
+            color: AppColors.duoOrange,
+            shadowColor: AppColors.duoOrangeShadow,
+            shadowDepth: 4,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            onTap: () {
+              final formattedTask = _formatAufgabeInstruction(widget.teil.title, aufgabe);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => VoiceAiScreen(
+                    initialTaskTitle: aufgabe.title,
+                    initialTaskInstruction: formattedTask,
+                    initialMode: VoiceAiMode.telc,
+                  ),
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.mic_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Ovozli AI bilan jonli mashq 🎙️',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Shu mavzu va barcha punktlar bo\'yicha real vaqtda gaplashing',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white.withValues(alpha: 0.8),
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+
+          // Matnli "AI bilan mashq" tugmasi — faqat Teil 3 (Gemeinsam planen) uchun
           if (widget.teil.title.contains('planen') ||
               widget.teil.title.contains('Lösung')) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             GamifiedCard(
               color: AppColors.duoPurple,
               shadowColor: AppColors.duoPurple.withValues(alpha: 0.4),
@@ -570,6 +641,34 @@ class _SprechenTeilScreenState extends State<SprechenTeilScreen> {
         ],
       ),
     );
+  }
+
+  String _formatAufgabeInstruction(String teilTitle, SprechenAufgabe aufgabe) {
+    final buf = StringBuffer();
+    buf.writeln('Teil: $teilTitle');
+    buf.writeln('Mavzu sarlavhasi: ${aufgabe.title}');
+    if (aufgabe.instruction.isNotEmpty) {
+      buf.writeln('Ko\'rsatma: ${aufgabe.instruction}');
+    }
+    if (aufgabe.partner.isNotEmpty) {
+      buf.writeln('Nomzod (Teilnehmer): ${aufgabe.partner}');
+    }
+    if (aufgabe.meinung != null && aufgabe.meinung!.isNotEmpty) {
+      buf.writeln('Fikr kartasi (Meinung): "${aufgabe.meinung}" ${aufgabe.author != null ? '(${aufgabe.author})' : ''}');
+    }
+    if (aufgabe.keywords.isNotEmpty) {
+      buf.writeln('Stichpunkte (Punktlar / Kalit so\'zlar):');
+      for (var k in aufgabe.keywords) {
+        buf.writeln('- $k');
+      }
+    }
+    if (aufgabe.examples.isNotEmpty) {
+      buf.writeln('Redemittel (Misol iboralar):');
+      for (var e in aufgabe.examples.take(4)) {
+        buf.writeln('- $e');
+      }
+    }
+    return buf.toString();
   }
 }
 

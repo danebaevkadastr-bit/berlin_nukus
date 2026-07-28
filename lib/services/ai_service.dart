@@ -267,7 +267,7 @@ class AIService {
     const host = 'generativelanguage.googleapis.com';
     const path =
         '/ws/google.ai.generativelanguage.v1alpha.GenerativeService'
-        '.BidiGenerateContent';
+        '.BidiGenerateContentConstrained';
     return Uri(
       scheme: 'wss',
       host: host,
@@ -332,18 +332,45 @@ class AIService {
     required String text,
     String targetLang = 'uz',
   }) async {
-    final isRu = targetLang == 'ru';
-    final systemPrompt = isRu
-        ? '''Ты профессиональный переводчик с немецкого на русский язык.
+    final String systemPrompt;
+    if (targetLang == 'ru') {
+      systemPrompt = '''Ты профессиональный переводчик с немецкого на русский язык.
 Переведи текст естественно и грамотно, сохраняя смысл, тон и стиль оригинала.
 Не переводи дословно — передавай естественные формулировки русского языка.
 Имена собственные оставляй без изменений.
-Ответь ТОЛЬКО переводом, без пояснений, кавычек и дополнительного текста.'''
-        : '''Sen nemis tilidan o'zbek tiliga tarjima qiluvchi professional tarjimonsan.
+Ответь ТОЛЬКО переводом, без пояснений, кавычек и дополнительного текста.''';
+    } else if (targetLang == 'kaa') {
+      systemPrompt = '''Sen nemis tilinen qaraqalpaq tiline awdarıwshı professional awdarmashısań.
+Matndi tábiyiy hám durıs qaraqalpaq tilinde awdar, máni, hawaz hám usıldı saqla.
+Sózbe-sóz awdarma — qaraqalpaq tiliniń tábiyiy iboraların qollan.
+Atlıq atlardı (atı-jón, orın atları) ózgertpesten qaldır.
+FAQAT awdarmadı jaz, túsindirme, qoshtırnaq yaki qosımsha tekstsiz.
+
+QARAQALPAQ TILI GRAMMATIKASI QAǴIYDALARI (ÁLBETTE ÁMEL ET):
+- Dawıslılar harmoniyası: Juwan dawıslılar (a,o,u,ı) — juwan qosımta, jińishke dawıslılar (á,ó,ú,i,e) — jińishke qosımta. Mısalı: kitap-lar (durıs), dápter-ler (durıs), *dápter-lar (QÁTE!).
+- Házirgi davomli máhál: -ıp/-ip atır + betlik jalǵaw → oqıp atırman, jazıp atırsań, islep atır.
+- Ótken máhál: -dı/-di, -tı/-ti → bardım, keldim, oqıdı, ayttı.
+- Bolımsız túr: -ma/-me, -ba/-be, -pa/-pe → aytpa, kelme, sóylespe, barmadı.
+- Seplikler: Iyelik -nıń/-niń, Barıs -qa/-ke/-ǵa/-ge, Tabıs -nı/-ni/-dı/-di, Shıǵıs -nan/-nen/-dan/-den, Orın -da/-de/-ta/-te.
+- Tartım jalǵawları: I bet -m/-ım, II bet -ń/-ıń, III bet -ı/-sı. Kóplik: -mız, -ńız, -ları.
+- Dawıssız ózgeriw: p→b, q→ǵ, k→g dawıslı qosımta aldında. Mısalı: mektep→mektebi, qosıq→qosıǵı.
+- Buyrıq meyil: oqı!, jazıń!, kelińler!, barayıq!
+- Shárt meyil: -sa/-se → barsam, kelsek, oqısań.
+- Tilek meyil: -ayın/-eyin → jazayın, keteyin.
+- Qospa / Kómekshi feyiller: mánini anıq beriw ushın qollan (mısalı: oqıp shıqtı, alıp kel).
+- Kelbetlik hám Hal feyiller: -ǵan/-gen, -tuǵın (keler máhál), -ıp/-ip, -a/-e/-y.
+- Almasıq hám Sanlıqlar: meniki/seniki, birinshi, ekew.
+- Ráwishler: orın, waqıt, sın hám muǵdar (júdá, dım).
+- Kelbetlik dárejeleri: jay (aq, úlken), arttırıw (sup-sulıw, qıp-qızıl, oǵada), salıstırıw (-raq/-rek, uzaǵıraq).
+- Gáp qurılısı: SOV tártip (Iye + Tolıqlawısh + Bayanlawısh). Mısalı: Men kitaptı oqıdım.
+- ǵoy yuklamasi: urg'u hám tań qalıw ushın → "Bul durıs emes-ǵoy!", "Bileseń-ǵoy".''';
+    } else {
+      systemPrompt = '''Sen nemis tilidan o'zbek tiliga tarjima qiluvchi professional tarjimonsan.
 Matnni tabiiy va to'g'ri o'zbek tilida tarjima qil, ma'no, ohang va uslubni saqla.
 So'zma-so'z tarjima qilma — o'zbek tilining tabiiy iboralarini ishlat.
 Atoqli otlarni (ism, joy nomlari) o'zgartirmasdan qoldir.
 FAQAT tarjimani yoz, izoh, qo'shtirnoq yoki qo'shimcha matn yo'q.''';
+    }
 
     return _chatOrdered(
       order: _translationOrder(targetLang),
@@ -359,10 +386,9 @@ FAQAT tarjimani yoz, izoh, qo'shtirnoq yoki qo'shimcha matn yo'q.''';
     required String text,
     String targetLang = 'uz',
   }) async {
-    final isRu = targetLang == 'ru';
-
-    final systemPrompt = isRu
-        ? '''Ты немецко-русский лексикограф. Проанализируй немецкое слово или выражение и ответь в формате JSON.
+    final String systemPrompt;
+    if (targetLang == 'ru') {
+      systemPrompt = '''Ты немецко-русский лексикограф. Проанализируй немецкое слово или выражение и ответь в формате JSON.
 
 Правила качества:
 - Учитывай ВСЕ распространённые значения слова, каждое — отдельным элементом массива "meanings".
@@ -371,7 +397,7 @@ FAQAT tarjimani yoz, izoh, qo'shtirnoq yoki qo'shimcha matn yo'q.''';
 - Пример предложения должен быть простым (уровень A1–B1) и естественным.
 - "translation" — точный русский перевод значения.
 
-Ответь ТОЛЬКО валидным JSON, без markdown и пояснений. Формат:
+Ответь ТОЛЬКО валидным JSON, без markdown и пояснений. Format:
 {
   "original": "немецкое слово",
   "meanings": [
@@ -382,8 +408,44 @@ FAQAT tarjimani yoz, izoh, qo'shtirnoq yoki qo'shimcha matn yo'q.''';
       "exampleUzbek": "перевод примера на русский"
     }
   ]
-}'''
-        : '''Sen nemis-o'zbek lug'atshunosisan. Berilgan nemis so'z yoki iborani tahlil qilib, JSON formatida javob ber.
+}''';
+    } else if (targetLang == 'kaa') {
+      systemPrompt = '''Sen nemis-qaraqalpaq sózlikshisiseń. Berilgen nemis sózi yaki iborasın talqılap, JSON formatında juwap ber.
+
+Sapa qaǵıydaları:
+- Sózdiń BÁRLIQ keń tarqalǵan mánilerin esapqa al, hár birin "meanings" massivinde bólek element et.
+- Eger bul atlıq bolsa, "grammar" maydonida artikl hám kóplik túrin ÁLBETTE kórset (mısalı: "der Tisch, -e").
+- Eger bul feyil bolsa, "grammar"da basqarıwı hám Perfekt túrin kórset (mısalı: "kommen, kam, ist gekommen").
+- Misal gápi ápiwayı (A1–B1 dárejesi) hám tábiyiy bolsın.
+- "translation" — mániniń anıq qaraqalpaqsha awdarması.
+
+QARAQALPAQ TILI QAǴIYDALARI (awdarma hám misal gáplerinde álbette ámel et):
+- Dawıslılar harmoniyası: juwan (a,o,u,ı) → juwan qosımta, jińishke (á,ó,ú,i,e) → jińishke qosımta.
+- Seplikler: Iyelik -nıń/-niń, Barıs -qa/-ke/-ǵa/-ge, Tabıs -nı/-ni, Shıǵıs -nan/-nen/-dan/-den, Orın -da/-de/-ta/-te.
+- Feyil máhálları: házirgi davomli -ıp atır (oqıp atırman), ótken -dı/-di (bardım), bolımsız -ma/-me/-pa/-pe (aytpa, kelme).
+- Qospa / Kómekshi feyiller: mánini anıq beriw ushın qollan (mısalı: oqıp shıqtı, alıp kel).
+- Kelbetlik hám Hal feyiller: -ǵan/-gen, -tuǵın (keler máhál), -ıp/-ip, -a/-e/-y.
+- Tartım: I bet -m/-ım, II bet -ń/-ıń, III bet -ı/-sı.
+- Almasıq hám Sanlıqlar: meniki/seniki, birinshi, ekew.
+- Ráwishler: orın, waqıt, sın hám muǵdar (júdá, dım).
+- Dawıssız ózgeriw: p→b, q→ǵ, k→g dawıslı qosımta aldında (mektep→mektebi).
+- Gáp tártip: SOV (Men kitaptı oqıdım).
+- ǵoy yuklamasi: urg'u ushın ("Bul ápiwayı ǵoy!").
+
+Tek durıs JSON formatında juwap ber, markdown yaki túsindirmesiz. Format:
+{
+  "original": "nemischa so'z",
+  "meanings": [
+    {
+      "translation": "qaraqalpaqsha awdarma",
+      "grammar": "grammatikalıq maǵlıwmat (artikl/kóplik/basqarıw)",
+      "exampleGerman": "nemischa misol gap",
+      "exampleUzbek": "misolning qaraqalpaqsha awdarmasi"
+    }
+  ]
+}''';
+    } else {
+      systemPrompt = '''Sen nemis-o'zbek lug'atshunosisan. Berilgan nemis so'z yoki iborani tahlil qilib, JSON formatida javob ber.
 
 Sifat qoidalari:
 - So'zning BARCHA keng tarqalgan ma'nolarini hisobga ol, har birini "meanings" massivida alohida element qil.
@@ -404,6 +466,7 @@ FAQAT to'g'ri JSON qaytar, markdown yoki izohsiz. Format:
     }
   ]
 }''';
+    }
 
     final raw = await _chatOrdered(
       order: _translationOrder(targetLang),

@@ -1,2 +1,18 @@
 {
+  "git.path": "C:\\Program Files\\Git\\cmd\\git.exe",
+  "dart.flutterSdkPath": "C:\\src\\flutter",
+  "dart.analysisServerVmAdditionalArgs": [
+    "--max-old-space-size=2048"
+  ],
+  "terminal.integrated.profiles.windows": {
+    "Command Prompt": {
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
+      "args": [],
+      "icon": "terminal-cmd"
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "Command Prompt"
 }

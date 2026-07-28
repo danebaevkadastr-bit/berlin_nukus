@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,7 @@ import '../../utils/theme_manager.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/firebase_service.dart';
 import '../../services/streak_service.dart';
+import '../../widgets/streak_screen_overlay.dart';
 import '../../services/score_service.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/user_avatar.dart';
@@ -38,6 +40,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen>
     with WidgetsBindingObserver {
   int _currentIndex = 0;
   bool _showStreakAnimation = false;
+  int _streakDays = 1;
   DateTime? _sessionStart;
   String _uid = '';
 
@@ -99,29 +102,20 @@ class _StudentHomeScreenState extends State<StudentHomeScreen>
     final launchedBefore = prefs.getBool(launchedKey) ?? false;
     if (!launchedBefore) {
       await prefs.setBool(launchedKey, true);
-      // Birinchi kirishni belgilab qo'yamiz, lekin animatsiya ko'rsatilmaydi.
-      // recordActivity o'zi lastActive sanasini belgilab, streakni yangilaydi.
       await StreakService.recordActivity(userProvider.uid, minutes: 0);
       return;
     }
 
     final isFirstLogin = await StreakService.isFirstLoginToday(userProvider.uid);
     if (isFirstLogin) {
-      setState(() {
-        _showStreakAnimation = true;
-      });
-      // recordActivity lastActive'ni today qilib belgilaydi va streakni
-      // (kechagi faollikка qarab) to'g'ri yangilaydi. minutes dispose/lifecycle
-      // da saqlanadi.
+      final currentStreak = await StreakService.getCurrentStreak(userProvider.uid);
+      if (mounted) {
+        setState(() {
+          _streakDays = currentStreak > 0 ? currentStreak : 1;
+          _showStreakAnimation = true;
+        });
+      }
       await StreakService.recordActivity(userProvider.uid, minutes: 0);
-      // Zaxira: foydalanuvchi bosmasa, 5 soniyadan keyin avtomatik yopiladi
-      Future.delayed(const Duration(seconds: 5), () {
-        if (mounted && _showStreakAnimation) {
-          setState(() {
-            _showStreakAnimation = false;
-          });
-        }
-      });
     }
   }
 
@@ -170,49 +164,11 @@ class _StudentHomeScreenState extends State<StudentHomeScreen>
                   ),
                   // Streak animatsiyasi
                 if (_showStreakAnimation)
-                  Builder(
-                    builder: (context) {
-                      final streakL = AppLocalizations.of(context);
-                      return Positioned.fill(
-                        child: GestureDetector(
-                          onTap: _dismissStreakAnimation,
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.local_fire_department_rounded,
-                                  size: 100,
-                                  color: AppColors.duoOrange,
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  streakL.streakSavedTitle,
-                                  style: const TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  streakL.keepLearningDaily,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          ),
-                        ),
-                      );
-                    },
+                  Positioned.fill(
+                    child: StreakScreenOverlay(
+                      streakDays: _streakDays,
+                      onDismiss: _dismissStreakAnimation,
+                    ),
                   ),
               ],
             ),
@@ -237,49 +193,11 @@ class _StudentHomeScreenState extends State<StudentHomeScreen>
                 ),
                 // Streak animatsiyasi
                 if (_showStreakAnimation)
-                  Builder(
-                    builder: (context) {
-                      final streakL = AppLocalizations.of(context);
-                      return Positioned.fill(
-                        child: GestureDetector(
-                          onTap: _dismissStreakAnimation,
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.local_fire_department_rounded,
-                                  size: 100,
-                                  color: AppColors.duoOrange,
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  streakL.streakSavedTitle,
-                                  style: const TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  streakL.keepLearningDaily,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          ),
-                        ),
-                      );
-                    },
+                  Positioned.fill(
+                    child: StreakScreenOverlay(
+                      streakDays: _streakDays,
+                      onDismiss: _dismissStreakAnimation,
+                    ),
                   ),
               ],
             ),
@@ -1396,6 +1314,14 @@ class _StudentHomeContentState extends State<StudentHomeContent>
                           ? FirebaseService().getGroupLeaderboardStream(groups.first['id'])
                           : Stream.value([]),
                       builder: (context, leaderboardSnapshot) {
+                        // Debug: Ma'lumotlarni tekshirish
+                        if (kDebugMode) {
+                          if (groups.isNotEmpty) {
+                          }
+                          if (leaderboardSnapshot.hasError) {
+                          }
+                        }
+                        
                         final leaderboard = leaderboardSnapshot.data ?? [];
                         
                         return GamifiedCard(
@@ -1449,13 +1375,16 @@ class _StudentHomeContentState extends State<StudentHomeContent>
                               ),
                               const SizedBox(height: 16),
                               if (leaderboard.isEmpty)
-                                Center(
-                                  child: Text(
-                                    l.noDataYet,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  child: Center(
+                                    child: Text(
+                                      l.noDataYet,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                                      ),
                                     ),
                                   ),
                                 )
