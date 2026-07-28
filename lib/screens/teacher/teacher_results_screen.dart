@@ -810,15 +810,33 @@ class _ResultsFromFirebase extends StatelessWidget {
     final title = r['title'] as String? ?? (type == 'mock_test' ? 'Mock Test B1' : '');
     final level = r['level'] as String? ?? '';
     // Mock test history'da field nomlari boshqacha
-    final score = (r['score'] as num?)?.toInt()
+    final rawScore = (r['score'] as num?)?.toInt()
         ?? (r['totalPoints'] as num?)?.toInt() ?? 0;
-    final total = (r['total'] as num?)?.toInt()
+    final rawTotal = (r['total'] as num?)?.toInt()
         ?? (r['totalMax'] as num?)?.toInt() ?? 0;
-    final percentage = (r['percentage'] as num?)?.toInt()
-        ?? (total > 0 ? (score / total * 100).round() : 0);
     final date = _fmtTimestamp(r['date']);
     final details = r['details'] as Map<String, dynamic>?;
     final hasQuestionDetails = details != null && details['questions'] != null;
+
+    int score = rawScore;
+    int total = rawTotal;
+
+    // Eskiroq saqlangan natijalar uchun to'g'ri testlar va savollar sonini hisoblash
+    if (hasQuestionDetails) {
+      final qList = List<Map<String, dynamic>>.from(details['questions']);
+      if (qList.isNotEmpty) {
+        final attempted = qList.where((q) => q['isCorrect'] != null || (q['userAnswer'] as String? ?? '').isNotEmpty).toList();
+        if (attempted.isNotEmpty && attempted.length < total && total >= 15) {
+          total = attempted.length;
+          score = attempted.where((q) => q['isCorrect'] == true).length;
+        } else if (total > qList.length) {
+          total = qList.length;
+          score = qList.where((q) => q['isCorrect'] == true).length;
+        }
+      }
+    }
+
+    final percentage = total > 0 ? (score / total * 100).round() : 0;
 
     Color scoreColor;
     if (percentage >= 80) {
@@ -1079,10 +1097,23 @@ class _QuestionDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Eskiroq yozuvlar uchun faqat yechilgan/topshirilgan savollarni filtrlash
+    final attemptedQuestions = questions.where((q) => 
+      q['isCorrect'] != null || (q['userAnswer'] as String? ?? '').isNotEmpty
+    ).toList();
+
+    final displayQuestions = (questions.length >= 15 && attemptedQuestions.isNotEmpty && attemptedQuestions.length < questions.length)
+        ? attemptedQuestions
+        : questions;
+
+    final displayScore = displayQuestions.where((q) => q['isCorrect'] == true).length;
+    final displayTotal = displayQuestions.length;
+    final displayPercentage = displayTotal > 0 ? (displayScore / displayTotal * 100).round() : percentage;
+
     Color scoreColor;
-    if (percentage >= 80) {
+    if (displayPercentage >= 80) {
       scoreColor = AppColors.duoGreen;
-    } else if (percentage >= 60) {
+    } else if (displayPercentage >= 60) {
       scoreColor = AppColors.duoOrange;
     } else {
       scoreColor = AppColors.duoRed;
@@ -1134,7 +1165,7 @@ class _QuestionDetailsScreen extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    '$percentage%',
+                    '$displayPercentage%',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
@@ -1157,7 +1188,7 @@ class _QuestionDetailsScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '$score / $total to\'g\'ri javob',
+                        '$displayScore / $displayTotal to\'g\'ri javob',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -1175,9 +1206,9 @@ class _QuestionDetailsScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-              itemCount: questions.length,
+              itemCount: displayQuestions.length,
               itemBuilder: (context, i) {
-                final q = questions[i];
+                final q = displayQuestions[i];
                 final qNum = q['questionNumber'] as int? ?? (i + 1);
                 final qText = q['questionText'] as String? ?? '';
                 final userAnswer = q['userAnswer'] as String? ?? '';

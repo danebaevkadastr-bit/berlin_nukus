@@ -263,40 +263,61 @@ class _HorenQuestionScreenState extends State<HorenQuestionScreen> {
     try {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) return;
-      final correct = _results.where((r) => r == true).length;
-      final total = _questions.length;
-      
-      // Har bir savol uchun batafsil ma'lumot
-      // SharedPreferences dan tanlangan javoblarni olish
+
+      final isMulti = widget.teil.questionsPerTest > 0;
+      final qPerTest = isMulti ? widget.teil.questionsPerTest : _questions.length;
+      final numTests = isMulti ? (_questions.length / qPerTest).ceil() : 1;
+
       final prefs = await SharedPreferences.getInstance();
-      final questionDetails = <Map<String, dynamic>>[];
-      for (int i = 0; i < _questions.length; i++) {
-        final q = _questions[i];
-        final isCorrect = _results[i];
-        final userAnswer = prefs.getString(_prefAnswerKey(i)) ?? '';
-        
-        questionDetails.add({
-          'questionNumber': i + 1,
-          'questionText': q.question,
-          'userAnswer': userAnswer,
-          'correctAnswer': q.correctAnswer,
-          'isCorrect': isCorrect,
-          'options': q.options,
-        });
+
+      for (int t = 0; t < numTests; t++) {
+        final startIdx = isMulti ? t * qPerTest : 0;
+        final endIdx = isMulti ? (startIdx + qPerTest).clamp(0, _questions.length) : _questions.length;
+
+        final testQuestions = _questions.sublist(startIdx, endIdx);
+        final testResults = _results.sublist(startIdx, endIdx);
+
+        // Faqat kamida 1 ta savol yechilgan TEST guruhi uchun saqlaymiz
+        final answeredCount = testResults.where((r) => r != null).length;
+        if (answeredCount == 0) continue;
+
+        final correct = testResults.where((r) => r == true).length;
+        final total = testQuestions.length;
+
+        final questionDetails = <Map<String, dynamic>>[];
+        for (int i = 0; i < testQuestions.length; i++) {
+          final globalIdx = startIdx + i;
+          final q = testQuestions[i];
+          final isCorrect = testResults[i];
+          final userAnswer = prefs.getString(_prefAnswerKey(globalIdx)) ?? '';
+
+          questionDetails.add({
+            'questionNumber': i + 1,
+            'questionText': q.question,
+            'userAnswer': userAnswer,
+            'correctAnswer': q.correctAnswer,
+            'isCorrect': isCorrect,
+            'options': q.options,
+          });
+        }
+
+        final baseTitle = 'Teil ${widget.teil.teilNumber}';
+        final testTitle = isMulti ? '$baseTitle - Test ${t + 1}' : baseTitle;
+
+        await StudentResultsService.saveResult(
+          uid: uid,
+          type: 'horen',
+          title: testTitle,
+          level: widget.level,
+          score: correct,
+          total: total,
+          details: {
+            'questions': questionDetails,
+            'teilNumber': widget.teil.teilNumber,
+            'testIndex': t + 1,
+          },
+        );
       }
-      
-      await StudentResultsService.saveResult(
-        uid: uid,
-        type: 'horen',
-        title: 'Teil ${widget.teil.teilNumber}',
-        level: widget.level,
-        score: correct,
-        total: total,
-        details: {
-          'questions': questionDetails,
-          'teilNumber': widget.teil.teilNumber,
-        },
-      );
     } catch (e) {
       debugPrint('Horen save error: $e');
     }

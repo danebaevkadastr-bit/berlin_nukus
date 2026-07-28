@@ -55,10 +55,12 @@ class HorenQuestion {
 
 class HorenTeil {
   final int teilNumber;
+  final int questionsPerTest;
   final List<HorenQuestion> questions;
 
   const HorenTeil({
     required this.teilNumber,
+    this.questionsPerTest = 0,
     required this.questions,
   });
 }
@@ -520,6 +522,7 @@ final horenB1 = HorenLevel(
     // ── Teil 1 – Telefonansagen (10 TESTS × 5 savollar = 50 savol) ───────────
     HorenTeil(
       teilNumber: 1,
+      questionsPerTest: 5,
       questions: [
         // TEST 1: (1), (2), (3), (4), (5)
         const HorenQuestion(
@@ -771,6 +774,7 @@ final horenB1 = HorenLevel(
     // ── Teil 2 – Radiointerview (10 TESTS × 10 savollar = 100 savol) ─────────
     const HorenTeil(
       teilNumber: 2,
+      questionsPerTest: 10,
       questions: [
         // TEST 1 (1-10) - bitta audio
         HorenQuestion(
@@ -1497,6 +1501,7 @@ final horenB1 = HorenLevel(
     // ── Teil 3 – Alltagsgespräch (10 TESTS × 5 savollar = 50 savol) ──────────
     const HorenTeil(
       teilNumber: 3,
+      questionsPerTest: 5,
       questions: [
         // TEST 1 (1-5)
         HorenQuestion(

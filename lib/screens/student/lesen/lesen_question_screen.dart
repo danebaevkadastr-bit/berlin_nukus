@@ -197,38 +197,59 @@ class _LesenQuestionScreenState extends State<LesenQuestionScreen>
     try {
       final uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) return;
-      final correct = _results.where((r) => r == true).length;
-      final total = _questions.length;
-      
-      // Har bir savol uchun batafsil ma'lumot
-      final questionDetails = <Map<String, dynamic>>[];
-      for (int i = 0; i < _questions.length; i++) {
-        final q = _questions[i];
-        final isCorrect = _results[i];
-        final userAnswer = _selectedAnswers[i] ?? '';
-        
-        questionDetails.add({
-          'questionNumber': i + 1,
-          'questionText': q.prompt, // LesenQuestion da prompt bor
-          'userAnswer': userAnswer,
-          'correctAnswer': q.correctAnswer,
-          'isCorrect': isCorrect,
-          'options': q.options,
-        });
+
+      final isMulti = _isMultiTest && _questionsPerTest > 0;
+      final qPerTest = isMulti ? _questionsPerTest : _questions.length;
+      final numTests = isMulti ? (_questions.length / qPerTest).ceil() : 1;
+
+      for (int t = 0; t < numTests; t++) {
+        final startIdx = isMulti ? t * qPerTest : 0;
+        final endIdx = isMulti ? (startIdx + qPerTest).clamp(0, _questions.length) : _questions.length;
+
+        final testQuestions = _questions.sublist(startIdx, endIdx);
+        final testResults = _results.sublist(startIdx, endIdx);
+        final testAnswers = _selectedAnswers.sublist(startIdx, endIdx);
+
+        // Faqat kamida 1 ta savol yechilgan TEST guruhi uchun saqlaymiz
+        final answeredCount = testResults.where((r) => r != null).length;
+        if (answeredCount == 0) continue;
+
+        final correct = testResults.where((r) => r == true).length;
+        final total = testQuestions.length;
+
+        final questionDetails = <Map<String, dynamic>>[];
+        for (int i = 0; i < testQuestions.length; i++) {
+          final q = testQuestions[i];
+          final isCorrect = testResults[i];
+          final userAnswer = testAnswers[i] ?? '';
+
+          questionDetails.add({
+            'questionNumber': i + 1,
+            'questionText': q.prompt,
+            'userAnswer': userAnswer,
+            'correctAnswer': q.correctAnswer,
+            'isCorrect': isCorrect,
+            'options': q.options,
+          });
+        }
+
+        final baseTitle = widget.titleOverride ?? 'Teil ${widget.teil.teilNumber}';
+        final testTitle = isMulti ? '$baseTitle - Test ${t + 1}' : baseTitle;
+
+        await StudentResultsService.saveResult(
+          uid: uid,
+          type: 'lesen',
+          title: testTitle,
+          level: widget.level,
+          score: correct,
+          total: total,
+          details: {
+            'questions': questionDetails,
+            'teilNumber': widget.teil.teilNumber,
+            'testIndex': t + 1,
+          },
+        );
       }
-      
-      await StudentResultsService.saveResult(
-        uid: uid,
-        type: 'lesen',
-        title: widget.titleOverride ?? 'Teil ${widget.teil.teilNumber}',
-        level: widget.level,
-        score: correct,
-        total: total,
-        details: {
-          'questions': questionDetails,
-          'teilNumber': widget.teil.teilNumber,
-        },
-      );
     } catch (e) {
       debugPrint('Lesen save error: $e');
     }
