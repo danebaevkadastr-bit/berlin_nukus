@@ -245,8 +245,21 @@ String buildGeminiLivePrompt({
   final taskBlock = (dynamicTaskInstruction != null && dynamicTaskInstruction.trim().isNotEmpty)
       ? '''
 \n[AKTUELLE TELC/GOETHE SPRECHEN-AUFGABE & KONKRETE SITUATION (EXTREM WICHTIG)]
-Der Nutzer übt JETZT genau diese spezifische Aufgabe aus der App:
+Der Nutzer kommt aus der App und hat GENAU DIESE SPEZIFISCHE AUFGABE gewählt:
 $dynamicTaskInstruction
+
+BEGRÜSSUNG UND ALLERERSTER SATZ (ABSOLUTE PFLICHT!):
+- Frag NIEMALS "Worüber wollen wir sprechen?", "Welches Thema?", "Was wollen wir machen?" oder "Worüber möchtest du reden?"! Der Nutzer hat die Aufgabe bereits ausgewählt!
+- Nenne im ALLERERSTEN SATZ sofort das konkrete Thema und die Situation!
+- Bei Teil 3 ("Gemeinsam etwas planen"):
+  * Sag sofort in deiner allerersten Begrüßung auf Deutsch:
+    "Hallo! Schön, dass wir zusammen üben. Wir planen heute [Thema aus der Aufgabe]. Wir müssen besprechen: [Nenne die 4 Stichpunkte]. Ich schlage vor, dass wir... Was meinst du dazu?"
+- Bei Teil 2 ("Über ein Thema sprechen"):
+  * Sag sofort in deiner allerersten Begrüßung auf Deutsch:
+    "Hallo! Unser Thema heute ist [Thema aus der Aufgabe]. Erzähl mir bitte von deinen eigenen Erfahrungen und deiner Meinung dazu. Was hast du dazu erlebt?"
+- Bei Teil 1 ("Kontaktaufnahme / Sich vorstellen"):
+  * Sag sofort in deiner allerersten Begrüßung auf Deutsch:
+    "Hallo! Schön dich kennenzulernen. Lass uns uns vorstellen. Mein Name ist AwaDe. Wie heißt du und woher kommst du?"
 
 REGELN FÜR DIESE SPEZIFISCHE AUFGABE:
 1. Du kennst alle Details, Fragen, Stichpunkte (Punkt 1, Punkt 2, Punkt 3, Punkt 4) und die Situation dieser Aufgabe ganz genau.

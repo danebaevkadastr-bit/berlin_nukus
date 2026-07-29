@@ -17,9 +17,6 @@ import '../../services/gemini_live_prompt.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/ai_voice_face.dart';
-import '../../widgets/safe_bottom_sheet.dart';
-import '../../widgets/gamified_card.dart';
-import 'sprechen/sprechen_data.dart';
 
 class VoiceAiScreen extends StatefulWidget {
   final String? initialTaskInstruction;
@@ -538,242 +535,44 @@ class _VoiceAiScreenState extends State<VoiceAiScreen>
         Container(
           height: 48,
           margin: const EdgeInsets.symmetric(vertical: 8),
-          child: ListView(
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: [
-              // Topic selector button
-              Padding(
+            itemCount: modes.length,
+            itemBuilder: (context, index) {
+              final m = modes[index]['mode'] as VoiceAiMode;
+              final name = modes[index]['name'] as String;
+              final isSelected = _selectedMode == m;
+
+              return Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: ActionChip(
-                  avatar: const Icon(Icons.explore_rounded, color: Colors.white, size: 18),
-                  label: const Text(
-                    '🎯 Mavzu Tanlash',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
-                  ),
-                  backgroundColor: AppColors.duoOrange,
-                  onPressed: _showSprechenTopicPicker,
-                ),
-              ),
-
-              ...modes.map((mMap) {
-                final m = mMap['mode'] as VoiceAiMode;
-                final name = mMap['name'] as String;
-                final isSelected = _selectedMode == m;
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(
-                      name,
-                      style: TextStyle(
-                        color: isSelected
-                            ? Colors.white
-                            : (isDark ? Colors.white70 : AppColors.duoTextDark),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    selected: isSelected,
-                    selectedColor: AppColors.duoBlue,
-                    backgroundColor: isDark ? const Color(0xFF203038) : AppColors.duoCardGray,
-                    checkmarkColor: Colors.white,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() {
-                          _selectedMode = m;
-                        });
-                      }
-                    },
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _showSprechenTopicPicker() {
-    final isDark = ThemeManager.isDark;
-    final cardBg = isDark ? const Color(0xFF131F24) : Colors.white;
-    final titleColor = isDark ? Colors.white : AppColors.duoTextDark;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return SafeBottomSheet.scrollable(
-          context: ctx,
-          maxHeightFactor: 0.85,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            decoration: BoxDecoration(
-              color: cardBg,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: Container(
-                    width: 48,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white24 : Colors.black12,
-                      borderRadius: BorderRadius.circular(10),
+                child: ChoiceChip(
+                  label: Text(
+                    name,
+                    style: TextStyle(
+                      color: isSelected
+                          ? Colors.white
+                          : (isDark ? Colors.white70 : AppColors.duoTextDark),
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '🎯 Sprechen Imtihon Mavzusini Tanlang',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: titleColor,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Ovozli AI tanlangan mavzu va barcha punktlar bo\'yicha suhbatlashadi.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white60 : AppColors.duoTextLight,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      _buildLevelTopicGroup(ctx, 'B1', sprechenB1),
-                      const SizedBox(height: 16),
-                      _buildLevelTopicGroup(ctx, 'B2', sprechenB2),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildLevelTopicGroup(BuildContext ctx, String levelName, SprechenLevel levelData) {
-    final isDark = ThemeManager.isDark;
-    final titleColor = isDark ? Colors.white : AppColors.duoTextDark;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.duoOrange.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            'DARAJA: TELC / GOETHE $levelName',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              color: AppColors.duoOrange,
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        ...levelData.teile.map((teil) {
-          final tasks = teil.tests.isNotEmpty
-              ? teil.tests.expand((t) => t.aufgaben).toList()
-              : teil.aufgaben;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 6),
-                child: Text(
-                  'Teil ${teil.teilNumber}: ${teil.title}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: titleColor,
-                  ),
-                ),
-              ),
-              ...tasks.map((aufgabe) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: GamifiedCard(
-                    color: isDark ? const Color(0xFF1F2C33) : Colors.white,
-                    shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
-                    shadowDepth: 2,
-                    padding: const EdgeInsets.all(12),
-                    onTap: () {
-                      final formatted = _formatAufgabeInstruction(teil.title, aufgabe);
+                  selected: isSelected,
+                  selectedColor: AppColors.duoBlue,
+                  backgroundColor: isDark ? const Color(0xFF203038) : AppColors.duoCardGray,
+                  checkmarkColor: Colors.white,
+                  onSelected: (selected) {
+                    if (selected) {
                       setState(() {
-                        _selectedMode = VoiceAiMode.telc;
-                        _activeTaskTitle = aufgabe.title;
-                        _activeTaskInstruction = formatted;
+                        _selectedMode = m;
                       });
-                      Navigator.pop(ctx);
-                    },
-                    child: Row(
-                      children: [
-                        const Icon(Icons.record_voice_over_rounded, color: AppColors.duoBlue, size: 20),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            aufgabe.title,
-                            style: TextStyle(
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w800,
-                              color: titleColor,
-                            ),
-                          ),
-                        ),
-                        const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.duoBlue),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ],
-          );
-        }),
+                    }
+                  },
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
-  }
-
-  String _formatAufgabeInstruction(String teilTitle, SprechenAufgabe aufgabe) {
-    final buf = StringBuffer();
-    buf.writeln('Teil: $teilTitle');
-    buf.writeln('Mavzu sarlavhasi: ${aufgabe.title}');
-    if (aufgabe.instruction.isNotEmpty) {
-      buf.writeln('Ko\'rsatma: ${aufgabe.instruction}');
-    }
-    if (aufgabe.partner.isNotEmpty) {
-      buf.writeln('Nomzod (Teilnehmer): ${aufgabe.partner}');
-    }
-    if (aufgabe.meinung != null && aufgabe.meinung!.isNotEmpty) {
-      buf.writeln('Fikr kartasi (Meinung): "${aufgabe.meinung}" ${aufgabe.author != null ? '(${aufgabe.author})' : ''}');
-    }
-    if (aufgabe.keywords.isNotEmpty) {
-      buf.writeln('Stichpunkte (Punktlar / Kalit so\'zlar):');
-      for (var k in aufgabe.keywords) {
-        buf.writeln('- $k');
-      }
-    }
-    if (aufgabe.examples.isNotEmpty) {
-      buf.writeln('Redemittel (Misol iboralar):');
-      for (var e in aufgabe.examples.take(4)) {
-        buf.writeln('- $e');
-      }
-    }
-    return buf.toString();
   }
 }
