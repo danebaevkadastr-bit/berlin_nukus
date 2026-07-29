@@ -189,10 +189,10 @@ class AppLocalizations {
     'de': "Letztes Update: 2026.07.01",
   });
   String get developer => _t({
-    'uz': "Dasturchi: AwaDe, Musa",
-    'kaa': "Programmer: AwaDe, Musa",
-    'ru': "Разработчик: AwaDe, Musa",
-    'de': "Entwickler: AwaDe, Musa",
+    'uz': "Dasturchi: Musa",
+    'kaa': "Programmer: Musa",
+    'ru': "Разработчик: Musa",
+    'de': "Entwickler: Musa",
   });
 
   // ── Home (Student) ─────────────────────────────────────────────────────────

@@ -14,6 +14,7 @@ import 'mock_test_screen.dart';
 import 'horen/horen_screen.dart';
 import 'lesen/lesen_screen.dart';
 import 'sprechen/sprechen_screen.dart';
+import 'video_learning/video_catalog_screen.dart';
 
 class StudentLearningScreen extends StatelessWidget {
   const StudentLearningScreen({super.key});
@@ -84,6 +85,19 @@ class StudentLearningScreen extends StatelessWidget {
               onTap: () => _openWithGroupCheck(
                 context,
                 () => const ConversationsScreen(),
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            _buildLearningCard(
+              context,
+              icon: Icons.ondemand_video_rounded,
+              iconColor: AppColors.duoRed,
+              title: 'Video-Darslar',
+              subtitle: 'Nicos Weg, Easy German & Subtitrli videolar',
+              onTap: () => _openWithGroupCheck(
+                context,
+                () => const VideoCatalogScreen(),
               ),
             ),
             const SizedBox(height: 14),

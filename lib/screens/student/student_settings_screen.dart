@@ -709,7 +709,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
               const SizedBox(height: 8),
               const _AboutRow(icon: Icons.calendar_today_rounded, text: 'So\'ngi yangilanish: 2026.07.01'),
               const SizedBox(height: 8),
-              const _AboutRow(icon: Icons.person_rounded, text: 'Dasturchi: Berlin-Nukus Musa'),
+              _AboutRow(icon: Icons.person_rounded, text: l.developer),
               const SizedBox(height: 8),
               const _AboutRow(icon: Icons.email_rounded, text: 'Email: danebaevkadastr@gmail.com'),
               const SizedBox(height: 8),
@@ -723,7 +723,7 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                '© 2026 Berlin-Nukus. Barcha huquqlar himoyalangan.',
+                '© 2026 Musa. Barcha huquqlar himoyalangan.',
                 style: TextStyle(
                   fontSize: 11,
                   color: ThemeManager.subTextColor(context),

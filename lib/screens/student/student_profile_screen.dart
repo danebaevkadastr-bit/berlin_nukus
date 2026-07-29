@@ -194,7 +194,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Foydalanuvchi ismi va Daraja belgilari
+          // Foydalanuvchi ismi
           Text(
             userProvider.name,
             style: TextStyle(
@@ -204,34 +204,6 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               letterSpacing: 0.2,
             ),
             textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 6),
-
-          // Role / Level pill
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.duoBlue.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.school_rounded, size: 14, color: AppColors.duoBlue),
-                const SizedBox(width: 6),
-                Text(
-                  userProvider.role.toLowerCase() == 'teacher'
-                      ? 'O\'QITUVCHI'
-                      : 'TALABA · TELC B1',
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.duoBlue,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
           ),
           const SizedBox(height: 14),
 
