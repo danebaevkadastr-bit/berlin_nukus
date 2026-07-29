@@ -70,13 +70,31 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
 
   Widget _buildProfileCard(UserProvider userProvider) {
     final isDark = ThemeManager.isDark;
-    
-    return GamifiedCard(
-      padding: const EdgeInsets.all(24),
-      color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
-      shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+    final cardBg = isDark ? const Color(0xFF1F2C33) : Colors.white;
+    final textPrimary = isDark ? Colors.white : AppColors.duoTextDark;
+    final textSecondary = isDark ? Colors.white70 : AppColors.duoTextLight;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDark ? Colors.white12 : AppColors.duoCardGrayShadow,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         children: [
+          // Circular Avatar with Camera Badge
           GestureDetector(
             onTap: userProvider.isLoading
                 ? null
@@ -88,56 +106,76 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         SnackBar(
                           content: Text(AppLocalizations.of(context).profilePhotoUpdated),
                           backgroundColor: AppColors.duoGreen,
+                          behavior: SnackBarBehavior.floating,
                         ),
                       );
                     }
                   },
             child: Stack(
               clipBehavior: Clip.none,
+              alignment: Alignment.center,
               children: [
                 Container(
-                  width: 88,
-                  height: 88,
+                  width: 96,
+                  height: 96,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(28),
-                    color: AppColors.duoBlue,
-                    border: Border.all(color: AppColors.duoBlueShadow, width: 2),
-                    boxShadow: const [
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [AppColors.duoBlue, Color(0xFF1CB0F6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
                       BoxShadow(
-                        color: AppColors.duoBlueShadow,
-                        offset: Offset(0, 5),
+                        color: AppColors.duoBlue.withValues(alpha: 0.35),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
                       ),
                     ],
+                    border: Border.all(color: Colors.white, width: 3),
                   ),
                   child: userProvider.avatarUrl.isEmpty
                       ? const Center(
-                          child: Icon(Icons.person_rounded, size: 48, color: Colors.white),
+                          child: Icon(Icons.person_rounded, size: 54, color: Colors.white),
                         )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(26),
+                      : ClipOval(
                           child: CachedNetworkImage(
                             imageUrl: userProvider.avatarUrl,
                             fit: BoxFit.cover,
-                            width: 88,
-                            height: 88,
+                            width: 96,
+                            height: 96,
                             placeholder: (context, url) => const Center(
-                              child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                             errorWidget: (context, url, error) => const Center(
-                              child: Icon(Icons.person_rounded, size: 48, color: Colors.white),
+                              child: Icon(Icons.person_rounded, size: 54, color: Colors.white),
                             ),
                           ),
                         ),
                 ),
                 Positioned(
-                  right: -4,
-                  bottom: -4,
+                  right: 0,
+                  bottom: 2,
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(7),
                     decoration: BoxDecoration(
                       color: AppColors.duoGreen,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: isDark ? const Color(0xFF1F2C33) : Colors.white, width: 2.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.duoGreen.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: userProvider.isLoading
                         ? const SizedBox(
@@ -148,41 +186,106 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
+                        : const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 15),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
+
+          // Foydalanuvchi ismi va Daraja belgilari
           Text(
             userProvider.name,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
-              color: isDark ? Colors.white : AppColors.duoTextDark,
+              color: textPrimary,
+              letterSpacing: 0.2,
             ),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
-          Text(
-            userProvider.email,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: isDark ? Colors.white70 : AppColors.duoTextLight,
+
+          // Role / Level pill
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.duoBlue.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.school_rounded, size: 14, color: AppColors.duoBlue),
+                const SizedBox(width: 6),
+                Text(
+                  userProvider.role.toLowerCase() == 'teacher'
+                      ? 'O\'QITUVCHI'
+                      : 'TALABA · TELC B1',
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.duoBlue,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
           ),
-          if (userProvider.phone.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              userProvider.phone,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white70 : AppColors.duoTextLight,
-              ),
+          const SizedBox(height: 14),
+
+          // Email & Telefon ma'lumotlari kartochkalari
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF131F24) : AppColors.duoBackground,
+              borderRadius: BorderRadius.circular(16),
             ),
-          ],
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.email_outlined, size: 16, color: textSecondary),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        userProvider.email.isNotEmpty ? userProvider.email : '—',
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                if (userProvider.phone.isNotEmpty) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6),
+                    child: Divider(height: 1, thickness: 1),
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.phone_iphone_rounded, size: 16, color: textSecondary),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          userProvider.phone,
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
