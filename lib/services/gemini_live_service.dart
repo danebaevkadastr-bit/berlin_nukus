@@ -392,12 +392,16 @@ class GeminiLiveService {
     }
   }
 
-  /// Botni birinchi bo'lib gapirtiradi — salomlashib, bugun nima haqida
-  /// gaplashishni so'raydi.
+  /// Botni birinchi bo'lib gapirtiradi.
   void _sendOpeningTrigger() {
     final ch = _channel;
     if (ch == null) return;
-    final trigger = buildGeminiLiveOpeningTrigger(uiLangCode: _uiLangCode);
+    final String trigger;
+    if (_dynamicTaskInstruction != null && _dynamicTaskInstruction!.trim().isNotEmpty) {
+      trigger = 'Hallo! Ich bin bereit für die gewählte Telc/Goethe Sprechen-Aufgabe. Bitte starte SOFORT die Situation gemäß deiner System-Instruction und nenne das konkrete Thema sowie die Situation auf Deutsch!';
+    } else {
+      trigger = buildGeminiLiveOpeningTrigger(uiLangCode: _uiLangCode);
+    }
     ch.sink.add(jsonEncode({
       'clientContent': {
         'turns': [
@@ -530,20 +534,6 @@ class GeminiLiveService {
         }
       }
     });
-  }
-
-  bool _isAudioAboveThreshold(Uint8List chunk, int threshold) {
-    // PCM 16-bit Mono: 2 bytes per sample.
-    for (int i = 0; i < chunk.length - 1; i += 2) {
-      int val = chunk[i] | (chunk[i + 1] << 8);
-      if (val & 0x8000 != 0) {
-        val -= 0x10000;
-      }
-      if (val.abs() > threshold) {
-        return true;
-      }
-    }
-    return false;
   }
 
   void _queueAudioChunk(Uint8List chunk) {

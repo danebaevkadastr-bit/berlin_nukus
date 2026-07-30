@@ -60,33 +60,23 @@ service cloud.firestore {
     }
 
     // ── users ───────────────────────────────────────────────────────────────
-    // O'qish: tizimga kirgan har kim (leaderboard, o'qituvchi talabalar
-    // ro'yxati va h.k. uchun kerak). PII (email/telefon) shu hujjatda — buni
-    // launch'dan oldin alohida public/private collectionga ajratish tavsiya.
     match /users/{userId} {
       allow read: if isAuthenticated();
 
       // Yaratish: o'z hujjatini FAQAT 'student' roli bilan yaratadi
-      // (privilege escalation oldini olish). Admin esa istalganini yaratadi.
       allow create: if isAdmin() ||
         (isOwner(userId) && request.resource.data.role == 'student');
 
-      // Yangilash: egasi o'z hujjatini yangilashi mumkin, lekin ROLNI
-      // o'zgartira olmaydi (agar hujjatda role bo'lsa). Admin esa hamma narsani.
-      // Eski (role maydonisiz) hujjatlar uchun ham buzilmasligi kerak.
+      // Yangilash: egasi o'z hujjatini yangilay oladi, lekin ROLNI o'zgartira olmaydi
       allow update: if isAdmin() ||
         (isOwner(userId) &&
-         (!('role' in resource.data) ||
-          !('role' in request.resource.data) ||
-          request.resource.data.role == resource.data.role));
+         ((!('role' in resource.data) && request.resource.data.role == 'student') ||
+          (('role' in resource.data) && request.resource.data.role == resource.data.role)));
 
       // O'chirish: faqat admin
       allow delete: if isAdmin();
 
-      // Foydalanuvchi subkolleksiyalari: results (Lesen/Hören natijalari),
-      // mock_test_history (mock test tarixi) va boshqalar.
-      // O'qish: egasi o'zinikini; o'qituvchi/admin talaba natijalarini ko'radi.
-      // Yozish: faqat egasi.
+      // Subkolleksiyalar (results, mock_test_history, va b.)
       match /{subPath=**} {
         allow read: if isOwner(userId) || isTeacher() || isAdmin();
         allow write: if isOwner(userId);
@@ -94,17 +84,14 @@ service cloud.firestore {
     }
 
     // ── groups ────────────────────────────────────────────────────────────────
-    // O'qish: tizimga kirgan har kim (talaba o'z guruhini, o'qituvchi o'z
-    // guruhlarini ko'radi). Yozish: o'qituvchi yoki admin.
     match /groups/{groupId} {
       allow read: if isAuthenticated();
       allow create, update, delete: if isTeacher() || isAdmin();
 
-      // Guruh ichidagi xabarlar — a'zolar o'qiy/yoza oladi.
+      // Guruh ichidagi xabarlar
       match /messages/{messageId} {
         allow read: if isAuthenticated();
-        allow create: if isAuthenticated();
-        // O'zgartirish/o'chirish: faqat xabar muallifi yoki o'qituvchi/admin
+        allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
         allow update, delete: if isAuthenticated() &&
           (resource.data.senderId == request.auth.uid || isTeacher() || isAdmin());
       }
@@ -117,14 +104,16 @@ service cloud.firestore {
     }
 
     // ── darslar (lessons) ───────────────────────────────────────────────────
-    // O'qish: tizimga kirgan har kim. Yozish: o'qituvchi/admin, BIROQ talaba
-    // o'z uyga vazifa topshiriqlarini (homeworkSubmissions) yuborishi kerak,
-    // shuning uchun update'ni autentifikatsiyalangan foydalanuvchiga ochamiz.
-    // (Aniqroq cheklov launch'dan oldin qo'shilishi kerak.)
+    // O'qish: barcha a'zolar. Yozish: o'qituvchi/admin.
+    // Talabalar esa FAQAT o'zlarining uyga vazifa topshirig'ini (homeworkSubmissions.[myUid]) update qila oladi.
     match /darslar/{lessonId} {
       allow read: if isAuthenticated();
-      allow update: if isAuthenticated();
       allow create, delete: if isTeacher() || isAdmin();
+      allow update: if isTeacher() || isAdmin() ||
+        (isAuthenticated() &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['homeworkSubmissions']) &&
+         (!('homeworkSubmissions' in resource.data) ||
+          request.resource.data.homeworkSubmissions.diff(resource.data.homeworkSubmissions).affectedKeys().hasOnly([request.auth.uid])));
     }
 
     // ── payments ──────────────────────────────────────────────────────────────

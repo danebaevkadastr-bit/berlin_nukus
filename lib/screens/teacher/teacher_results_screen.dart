@@ -411,6 +411,23 @@ class _StudentsResultsList extends StatelessWidget {
     required this.isDark,
   });
 
+  Future<Map<String, Map<String, dynamic>>> _fetchStudentsMap(List<String> ids) async {
+    if (ids.isEmpty) return {};
+    final resultMap = <String, Map<String, dynamic>>{};
+    const chunkSize = 30;
+    for (var i = 0; i < ids.length; i += chunkSize) {
+      final chunk = ids.sublist(i, i + chunkSize > ids.length ? ids.length : i + chunkSize);
+      final snap = await FirebaseFirestore.instance
+          .collection('users')
+          .where(FieldPath.documentId, whereIn: chunk)
+          .get();
+      for (final doc in snap.docs) {
+        resultMap[doc.id] = doc.data();
+      }
+    }
+    return resultMap;
+  }
+
   @override
   Widget build(BuildContext context) {
     final studentIds = List<String>.from(groupData['students'] ?? []);
@@ -428,15 +445,22 @@ class _StudentsResultsList extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 110),
-      itemCount: studentIds.length,
-      itemBuilder: (context, index) {
-        final studentId = studentIds[index];
-        return FutureBuilder<DocumentSnapshot>(
-          future: FirebaseFirestore.instance.collection('users').doc(studentId).get(),
-          builder: (context, userSnap) {
-            final uData = userSnap.data?.data() as Map<String, dynamic>? ?? {};
+    return FutureBuilder<Map<String, Map<String, dynamic>>>(
+      future: _fetchStudentsMap(studentIds),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.duoOrange),
+          );
+        }
+        final usersMap = snapshot.data ?? {};
+
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 110),
+          itemCount: studentIds.length,
+          itemBuilder: (context, index) {
+            final studentId = studentIds[index];
+            final uData = usersMap[studentId] ?? {};
             final name = UserProfileUtils.displayName(uData, fallback: l.student);
             final avatar = UserProfileUtils.avatarUrl(uData);
 

@@ -26,8 +26,17 @@ class AuthNavigation {
       await userProvider.handleGoogleRedirectResult();
     }
 
-    await FirebaseAuth.instance.authStateChanges().first;
-    final user = FirebaseAuth.instance.currentUser;
+    var user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      try {
+        user = await FirebaseAuth.instance
+            .authStateChanges()
+            .firstWhere((u) => u != null)
+            .timeout(const Duration(milliseconds: 1200));
+      } catch (_) {
+        user = FirebaseAuth.instance.currentUser;
+      }
+    }
     if (user == null) return null;
 
     await userProvider.loadUserDataByUid(user.uid);

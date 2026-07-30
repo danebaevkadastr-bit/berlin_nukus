@@ -111,6 +111,20 @@ class SprechenEvaluationService {
   }) {
     final lang = _langName(uiLangCode);
 
+    final isB2 = level.toUpperCase().contains('B2');
+    final isTeil1B1 = aufgabe.title.toLowerCase().contains('vorstellen') ||
+        aufgabe.instruction.toLowerCase().contains('vorstellen') ||
+        aufgabe.title.toLowerCase().contains('kontaktaufnahme');
+
+    final int maxScore;
+    if (isB2) {
+      maxScore = 25; // TELC B2 Sprechen Teil max: 25 Points
+    } else if (isTeil1B1) {
+      maxScore = 15; // TELC B1 Sprechen Teil 1 max: 15 Points
+    } else {
+      maxScore = 30; // TELC B1 Sprechen Teil 2 & Teil 3 max: 30 Points
+    }
+
     final contextLines = <String>[
       'Niveau (TELC): $level',
       'Aufgabe: ${aufgabe.title}',
@@ -126,29 +140,28 @@ class SprechenEvaluationService {
     return '''
 Du bist ein erfahrener Prüfer für die mündliche TELC-Deutschprüfung ($level).
 Im Audio spricht ein Lernender Deutsch zu der unten beschriebenen Aufgabe.
-Höre das Audio an und bewerte die gesprochene Leistung.
+Höre das Audio an und bewerte die gesprochene Leistung fair und streng nach offiziellen TELC-Kriterien.
 
 KONTEXT:
 ${contextLines.join('\n')}
 
 BEWERTUNGSKRITERIEN (TELC $level mündliche Prüfung):
-
-1. Aussprache (0-5): Deutliche, verständliche Aussprache. Starker Akzent senkt die Punktzahl.
-2. Flüssigkeit (0-5): Natürliches Sprechtempo ohne lange Pausen. Zögern und Stocken senken die Punktzahl.
-3. Grammatik (0-5): Korrekte Satzstruktur, Verbkonjugation, Kasus. Häufige Fehler senken die Punktzahl.
-4. Inhalt (0-5): Relevanz zur Aufgabe. Wenn der Inhalt NICHT zum Thema passt → 0 Punkte. Leere oder zu kurze Antwort → 0 Punkte.
+1. Aussprache: Deutliche, verständliche Aussprache.
+2. Flüssigkeit: Natürliches Sprechtempo ohne übermäßige Pausen.
+3. Grammatik: Korrekte Satzstruktur, Verbkonjugation, Kasus.
+4. Inhalt: Relevanz zur Aufgabe. Wenn der Inhalt NICHT zum Thema passt → 0 Punkte.
 
 WICHTIG:
-- Wenn der Lernende NICHT Deutsch spricht (andere Sprache, Stille, Lärm) → score "0/20".
+- Wenn der Lernende NICHT Deutsch spricht (andere Sprache, Stille, Lärm) → score "0/$maxScore".
 - Wenn der Inhalt NICHT zum Thema passt → Inhalt = 0, Gesamtnote niedrig.
 - Sei ehrlich und fair. Überbewerte nicht.
-- score muss im Format "X/20" sein (Summe aller 4 Bereiche × Niveau-Faktor).
+- score muss im Format "X/$maxScore" sein (offizielles TELC $level System, Max: $maxScore Punkte).
 
 Antworte AUSSCHLIESSLICH in der Sprache "$lang" (für die Feedback-Texte)
 und gib NUR gültiges JSON zurück, ohne Markdown, ohne zusätzlichen Text.
 Struktur:
 {
-  "score": "X/20 — streng und fair bewerten",
+  "score": "X/$maxScore — streng und fair bewerten",
   "pronunciation": "Feedback zur Aussprache in $lang",
   "fluency": "Feedback zur Flüssigkeit in $lang",
   "grammar": "Feedback zur Grammatik in $lang",

@@ -9,7 +9,6 @@ import 'services/haptic_service.dart';
 import 'services/onesignal_helper.dart'
     if (dart.library.html) 'services/onesignal_helper_web.dart';
 import 'firebase_options.dart';
-import 'services/darslar_service.dart';
 import 'core/providers/user_provider.dart';
 import 'screens/splash_screen.dart';
 import 'utils/theme_manager.dart';
@@ -26,8 +25,6 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    // groups ichidagi eski darslarni darslar collectionga ko'chirish
-    await DarslarService().migrateLessonsIfNeeded();
 
     // OneSignal Setup
     await setupOneSignal();

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -22,6 +23,7 @@ class UserProvider extends ChangeNotifier {
   String _role = 'student';
   String _phone = '';
   bool _isLoading = false;
+  StreamSubscription<DocumentSnapshot>? _userDocSub;
 
   UserProvider() {
     // Listen to Firebase Authentication state changes
@@ -31,13 +33,23 @@ class UserProvider extends ChangeNotifier {
         _email = user.email ?? '';
         loadUserDataByUid(user.uid);
       } else {
+        _userDocSub?.cancel();
+        _userDocSub = null;
         _name = 'Mehmon';
         _email = '';
         _role = 'student';
         _phone = '';
+        _avatarUrl = '';
+        _isLoading = false;
         notifyListeners();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _userDocSub?.cancel();
+    super.dispose();
   }
 
   // Getters
@@ -52,26 +64,31 @@ class UserProvider extends ChangeNotifier {
   String get uid => _firebaseUser?.uid ?? '';
   String _avatarUrl = '';
 
-  /// Fetch user profile details from Cloud Firestore
+  /// Real-time stream orqali foydalanuvchi profilini va rolini yuklash hamda kuzatish
   Future<void> loadUserDataByUid(String uid) async {
     _isLoading = true;
-    try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    _userDocSub?.cancel();
+    _userDocSub = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((doc) {
       if (doc.exists) {
-        final data = doc.data()!;
-        _name = data['fullName'] ?? data['name'] ?? 'User';
+        final data = doc.data() ?? {};
+        _name = data['fullName'] ?? data['name'] ?? _firebaseUser?.displayName ?? 'User';
         _role = data['role'] ?? 'student';
         _phone = data['phone'] ?? '';
         _avatarUrl = data['avatarUrl'] ?? '';
       } else {
         _name = _firebaseUser?.displayName ?? 'Foydalanuvchi';
       }
-    } catch (e) {
-      debugPrint('Error loading user profile: $e');
-    } finally {
       _isLoading = false;
       notifyListeners();
-    }
+    }, onError: (e) {
+      debugPrint('Error listening to user profile: $e');
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   /// Profil rasmini Cloudinary ga yuklab Firestore va lokal holatni yangilaydi.
