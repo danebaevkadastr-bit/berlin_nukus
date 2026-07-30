@@ -33,6 +33,25 @@ class StudentResultsService {
     });
   }
 
+  /// Ovozli AI foydalanishini saqlash.
+  static Future<void> saveVoiceAiUsage({
+    required String uid,
+    String mode = 'telc',
+  }) async {
+    await _resultsRef(uid).add({
+      'type': 'voice_ai',
+      'title': 'Ovozli AI muloqot',
+      'level': mode,
+      'score': 1,
+      'total': 1,
+      'percentage': 100,
+      'date': FieldValue.serverTimestamp(),
+    });
+    await _firestore.collection('users').doc(uid).set({
+      'lastVoiceAiDate': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
   /// Talabaning barcha natijalarini turlar bo'yicha olish.
   static Future<List<Map<String, dynamic>>> getResults(
     String uid, {

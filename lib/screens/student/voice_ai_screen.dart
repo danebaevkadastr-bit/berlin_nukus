@@ -14,6 +14,7 @@ import '../../l10n/app_localizations.dart';
 import '../../l10n/locale_manager.dart';
 import '../../services/gemini_live_service.dart';
 import '../../services/gemini_live_prompt.dart';
+import '../../services/student_results_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/theme_manager.dart';
 import '../../widgets/ai_voice_face.dart';
@@ -107,8 +108,12 @@ class _VoiceAiScreenState extends State<VoiceAiScreen>
 
   Future<void> _connect() async {
     setState(() => _active = true);
-    final userName =
-        context.read<UserProvider>().name; // fullName dan birinchi so'z
+    final userProv = context.read<UserProvider>();
+    final userName = userProv.name; // fullName dan birinchi so'z
+    final uid = userProv.firebaseUser?.uid;
+    if (uid != null && uid.isNotEmpty) {
+      StudentResultsService.saveVoiceAiUsage(uid: uid, mode: _selectedMode.name);
+    }
     await _service.connect(
       uiLangCode: LocaleManager.code,
       mode: _selectedMode,

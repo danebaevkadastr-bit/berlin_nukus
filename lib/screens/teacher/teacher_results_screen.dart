@@ -559,6 +559,7 @@ class _StudentDetailResults extends StatelessWidget {
       _ResultTab(label: 'Lesen', icon: Icons.menu_book_rounded),
       _ResultTab(label: 'Hören', icon: Icons.headphones_rounded),
       _ResultTab(label: 'Mock Test', icon: Icons.fact_check_rounded),
+      _ResultTab(label: 'Ovozli AI', icon: Icons.graphic_eq_rounded),
     ];
 
     return DefaultTabController(
@@ -635,6 +636,8 @@ class _StudentDetailResults extends StatelessWidget {
             _ResultsFromFirebase(studentId: studentId, type: 'horen', isDark: isDark),
             // Mock Test
             _ResultsFromFirebase(studentId: studentId, type: 'mock_test', isDark: isDark),
+            // Ovozli AI
+            _VoiceAiResultsTab(studentId: studentId, isDark: isDark),
           ],
         ),
       ),
@@ -1354,6 +1357,193 @@ class _QuestionDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Firebase'dan Ovozli AI foydalanish ma'lumotlarini ko'rsatuvchi widget.
+class _VoiceAiResultsTab extends StatelessWidget {
+  final String studentId;
+  final bool isDark;
+
+  const _VoiceAiResultsTab({
+    required this.studentId,
+    required this.isDark,
+  });
+
+  bool _isToday(dynamic ts) {
+    if (ts is! Timestamp) return false;
+    final d = ts.toDate();
+    final now = DateTime.now();
+    return d.year == now.year && d.month == now.month && d.day == now.day;
+  }
+
+  String _fmtTime(dynamic ts) {
+    if (ts is! Timestamp) return '';
+    final d = ts.toDate();
+    final h = d.hour.toString().padLeft(2, '0');
+    final m = d.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  String _fmtDate(dynamic ts) {
+    if (ts is! Timestamp) return '';
+    final d = ts.toDate();
+    final day = d.day.toString().padLeft(2, '0');
+    final month = d.month.toString().padLeft(2, '0');
+    final hour = d.hour.toString().padLeft(2, '0');
+    final minute = d.minute.toString().padLeft(2, '0');
+    return '$day.$month.${d.year} $hour:$minute';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: StudentResultsService.resultsStream(studentId, type: 'voice_ai'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.duoGreen),
+          );
+        }
+
+        final results = snapshot.data ?? [];
+        final todayEntries = results.where((r) => _isToday(r['date'])).toList();
+        final usedToday = todayEntries.isNotEmpty;
+
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+          children: [
+            // Status Card (Bugun foydalanganlik darajasi)
+            GamifiedCard(
+              padding: const EdgeInsets.all(18),
+              color: usedToday
+                  ? (isDark ? const Color(0xFF143825) : const Color(0xFFE8F5E9))
+                  : (isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white),
+              shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+              child: Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: usedToday
+                          ? AppColors.duoGreen.withValues(alpha: 0.2)
+                          : (isDark ? Colors.white10 : Colors.grey.shade200),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      usedToday ? Icons.check_circle_rounded : Icons.record_voice_over_outlined,
+                      color: usedToday ? AppColors.duoGreen : (isDark ? Colors.white38 : AppColors.duoTextLight),
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          usedToday ? 'Bugun foydalandi' : 'Bugun foydalanmadi',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: usedToday
+                                ? AppColors.duoGreen
+                                : (isDark ? Colors.white70 : AppColors.duoTextDark),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          usedToday
+                              ? 'Oxirgi kirgan vaqti: ${_fmtTime(todayEntries.first['date'])} (${todayEntries.length} marta)'
+                              : 'Bugun hali Ovozli AI ga kirmagan',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            if (results.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 12),
+                child: Text(
+                  'FOYDALANISH TARIXI',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white38 : AppColors.duoTextLight,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ),
+              ...results.map((r) {
+                final dateStr = _fmtDate(r['date']);
+                final level = r['level'] as String? ?? 'telc';
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: GamifiedCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    color: isDark ? AppColors.duoCardGray.withValues(alpha: 0.1) : Colors.white,
+                    shadowColor: isDark ? Colors.black26 : AppColors.duoCardGrayShadow,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.graphic_eq_rounded, color: AppColors.duoBlue, size: 22),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Ovozli AI Muloqot (${level.toUpperCase()})',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDark ? Colors.white : AppColors.duoTextDark,
+                                ),
+                              ),
+                              if (dateStr.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  dateStr,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ] else if (!usedToday) ...[
+              const SizedBox(height: 40),
+              Center(
+                child: Text(
+                  'Bu talaba hali Ovozli AI dan foydalanmagan',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white54 : AppColors.duoTextLight,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }
