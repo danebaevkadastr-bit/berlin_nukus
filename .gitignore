@@ -30,8 +30,9 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-/coverage/
+**/build/
+**/coverage/
+
 
 # Symbolication related
 app.*.symbols
@@ -62,4 +63,6 @@ lib/screens/student/horen/horen_data.dart
 lib/screens/student/lesen/lesen_data.dart
 
 # Test files with secrets
-test_polly.dart
+# Firebase cache
+.firebase/
+

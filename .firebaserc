@@ -1,5 +1,21 @@
 {
   "projects": {
     "default": "berlin-nukus-n1"
-  }
+  },
+  "targets": {
+    "berlin-nukus-n1": {
+      "hosting": {
+        "student": [
+          "berlin-nukus-n1"
+        ],
+        "admin": [
+          "berlin-nukus-n1-admin"
+        ],
+        "teacher": [
+          "berlin-nukus-n1-teacher"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

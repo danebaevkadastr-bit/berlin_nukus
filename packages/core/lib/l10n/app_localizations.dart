@@ -1,0 +1,4333 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'conversation_topics_l10n.dart';
+import 'locale_manager.dart';
+
+class AppLocalizations {
+  final String _code;
+
+  AppLocalizations(this._code);
+
+  static AppLocalizations of(BuildContext context) {
+    try {
+      final locale = Provider.of<ValueNotifier<AppLocale>>(context).value;
+      return AppLocalizations(locale.code);
+    } catch (_) {
+      final locale = Provider.of<ValueNotifier<AppLocale>>(context, listen: false).value;
+      return AppLocalizations(locale.code);
+    }
+  }
+
+  String _t(Map<String, String> map) =>
+      map[_code] ?? map['uz'] ?? map.values.first;
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
+  String get navHome => _t({'uz': "Bosh", 'kaa': "Bas", 'ru': "Главная", 'de': "Start"});
+  String get navGroup => _t({'uz': "Guruh", 'kaa': "Topar", 'ru': "Группа", 'de': "Gruppe"});
+  String get navLearning => _t({'uz': "O'rganish", 'kaa': "Úyreniw", 'ru': "Учёба", 'de': "Lernen"});
+  String get navGames => _t({'uz': "O'yinlar", 'kaa': "Oyınlar", 'ru': "Игры", 'de': "Spiele"});
+  String get navProfile => _t({'uz': "Profil", 'kaa': "Profil", 'ru': "Профиль", 'de': "Profil"});
+  String get navPayment => _t({'uz': "To'lov", 'kaa': "Tólew", 'ru': "Оплата", 'de': "Zahlung"});
+
+  // ── Login ──────────────────────────────────────────────────────────────────
+  String get loginSubtitle => _t({
+    'uz': "Nemis tilini o'rganishni boshlang!",
+    'kaa': "Nemis tilin úyreniwdi baslań!",
+    'ru': "Начните изучать немецкий!",
+    'de': "Fangen Sie an, Deutsch zu lernen!",
+  });
+  String get email => _t({'uz': "Email", 'kaa': "Email", 'ru': "Почта", 'de': "E-Mail"});
+  String get password => _t({'uz': "Parol", 'kaa': "Parol", 'ru': "Пароль", 'de': "Passwort"});
+  String get login => _t({'uz': "Kirish", 'kaa': "Kiriw", 'ru': "Войти", 'de': "Anmelden"});
+  String get or => _t({'uz': "yoki", 'kaa': "yamasa", 'ru': "или", 'de': "oder"});
+  String get signInWithGoogle => _t({
+    'uz': "Google orqali kirish",
+    'kaa': "Google arqalı kiriw",
+    'ru': "Войти через Google",
+    'de': "Mit Google anmelden",
+  });
+  String get register => _t({
+    'uz': "Ro'yxatdan o'tish",
+    'kaa': "Dizimnen ótiw",
+    'ru': "Регистрация",
+    'de': "Registrieren",
+  });
+  String get fillAllFields => _t({
+    'uz': "Iltimos, barcha maydonlarni to'ldiring!",
+    'kaa': "Iltimas, hámme orınlardı toltırıń!",
+    'ru': "Пожалуйста, заполните все поля!",
+    'de': "Bitte füllen Sie alle Felder aus!",
+  });
+  String get wrongCredentials => _t({
+    'uz': "Email yoki parol noto'g'ri!",
+    'kaa': "Email yamasa parol nadurıs!",
+    'ru': "Неверный email или пароль!",
+    'de': "Falsche E-Mail oder Passwort!",
+  });
+
+  String get forgotPassword => _t({
+    'uz': "Parolni unutdingizmi?",
+    'kaa': "Paroldi umıttıńızba?",
+    'ru': "Забыли пароль?",
+    'de': "Passwort vergessen?",
+  });
+  String get forgotPasswordSubtitle => _t({
+    'uz': "Emailingizni kiriting va biz sizga tiklash havolasini yuboramiz!",
+    'kaa': "Emailıńızdı kiritiń hám biz sizge qayta tiklew siltemesin jiberemiz!",
+    'ru': "Введите email, и мы отправим вам ссылку для восстановления!",
+    'de': "Geben Sie Ihre E-Mail ein, und wir senden Ihnen einen Link zur Wiederherstellung!",
+  });
+  String get sendResetLink => _t({
+    'uz': "Tiklash havolasini yuborish",
+    'kaa': "Tiklew siltemesin jiberiw",
+    'ru': "Отправить ссылку",
+    'de': "Link senden",
+  });
+  String get resetLinkSent => _t({
+    'uz': "Tiklash havolasi emailingizga yuborildi! 📧",
+    'kaa': "Tiklew siltemesi emailıńızǵa jiberildi! 📧",
+    'ru': "Ссылка отправлена на ваш email! 📧",
+    'de': "Link an Ihre E-Mail gesendet! 📧",
+  });
+  String get enterValidEmail => _t({
+    'uz': "Iltimos, to'g'ri email kiriting!",
+    'kaa': "Iltimas, durıs email kiritiń!",
+    'ru': "Пожалуйста, введите корректный email!",
+    'de': "Bitte geben Sie eine gültige E-Mail-Adresse ein!",
+  });
+
+  // ── Settings ───────────────────────────────────────────────────────────────
+  String get settingsTitle => _t({
+    'uz': "Sozlamalar",
+    'kaa': "Sazlawlar",
+    'ru': "Настройки",
+    'de': "Einstellungen",
+  });
+  String get profileInfo => _t({
+    'uz': "Profil ma'lumotlari",
+    'kaa': "Profil maǵlıwmatları",
+    'ru': "Данные профиля",
+    'de': "Profilinformationen",
+  });
+  String get appLanguage => _t({
+    'uz': "Dastur tili",
+    'kaa': "Dástúr tili",
+    'ru': "Язык приложения",
+    'de': "App-Sprache",
+  });
+  String get currentLanguage => _t({
+    'uz': "Hozirgi til",
+    'kaa': "Házirgi til",
+    'ru': "Текущий язык",
+    'de': "Aktuelle Sprache",
+  });
+  String get darkMode => _t({
+    'uz': "Qorong'u rejim",
+    'kaa': "Qaranǵı rejim",
+    'ru': "Тёмный режим",
+    'de': "Dunkelmodus",
+  });
+  String get lightMode => _t({
+    'uz': "Yorug' rejim",
+    'kaa': "Jarıq rejim",
+    'ru': "Светлый режим",
+    'de': "Heller Modus",
+  });
+  String get changeTheme => _t({
+    'uz': "Ilova mavzusini o'zgartirish",
+    'kaa': "Dástúr temasın ózgertiriw",
+    'ru': "Изменить тему",
+    'de': "Thema ändern",
+  });
+  String get vibration => _t({
+    'uz': "Tebranishlar",
+    'kaa': "Tebreniwler",
+    'ru': "Вибрация",
+    'de': "Vibration",
+  });
+  String get vibrationDesc => _t({
+    'uz': "Bildirishnomalar va bosishlarda tebranish",
+    'kaa': "Xabarlamalar hám basıwlarda tebreniw",
+    'ru': "Вибрация при уведомлениях",
+    'de': "Vibration bei Benachrichtigungen",
+  });
+  String get about => _t({
+    'uz': "Ilova haqida",
+    'kaa': "Dástúr haqqında",
+    'ru': "О приложении",
+    'de': "Über die App",
+  });
+  String get versionInfo => _t({
+    'uz': "Versiya 1.0.0 • AwaDe",
+    'kaa': "Versiya 1.0.0 • AwaDe",
+    'ru': "Версия 1.0.0 • AwaDe",
+    'de': "Version 1.0.0 • AwaDe",
+  });
+  String get darkModeOn => _t({
+    'uz': "Dark mode yoqildi",
+    'kaa': "Qaranǵı rejim qosıldı",
+    'ru': "Тёмный режим включён",
+    'de': "Dunkelmodus aktiviert",
+  });
+  String get lightModeOn => _t({
+    'uz': "Light mode yoqildi",
+    'kaa': "Jaqtı rejim qosıldı",
+    'ru': "Светлый режим включён",
+    'de': "Hellmodus aktiviert",
+  });
+  String get editProfileComingSoon => _t({
+    'uz': "Profil tahrirlash tez orada qo'shiladi",
+    'kaa': "Profildi ózgertiriw tez qosıladı",
+    'ru': "Редактирование профиля скоро появится",
+    'de': "Bearbeitung kommt bald",
+  });
+  String get close => _t({'uz': "Yopish", 'kaa': "Jabıw", 'ru': "Закрыть", 'de': "Schließen"});
+  String get lastUpdate => _t({
+    'uz': "So'ngi yangilanish: 2026.07.01",
+    'kaa': "Aqırǵı jańalanıw: 2026.07.01",
+    'ru': "Последнее обновление: 2026.07.01",
+    'de': "Letztes Update: 2026.07.01",
+  });
+  String get developer => _t({
+    'uz': "Dasturchi: Musa",
+    'kaa': "Programmer: Musa",
+    'ru': "Разработчик: Musa",
+    'de': "Entwickler: Musa",
+  });
+
+  // ── Home (Student) ─────────────────────────────────────────────────────────
+  String get hello => _t({'uz': "Salom", 'kaa': "Sálem", 'ru': "Привет", 'de': "Hallo"});
+  String get todayLessons => _t({
+    'uz': "Bugungi darslar",
+    'kaa': "Búgingi sabaqlar",
+    'ru': "Сегодняшние уроки",
+    'de': "Heutige Stunden",
+  });
+  String get myProgress => _t({
+    'uz': "Mening taraqqiyotim",
+    'kaa': "Menin rawajlanıwım",
+    'ru': "Мой прогресс",
+    'de': "Mein Fortschritt",
+  });
+  String get words => _t({'uz': "So'zlar", 'kaa': "Sózler", 'ru': "Слова", 'de': "Wörter"});
+  String get tests => _t({'uz': "Testlar", 'kaa': "Testler", 'ru': "Тесты", 'de': "Tests"});
+  String get lessons => _t({'uz': "Darslar", 'kaa': "Sabaqlar", 'ru': "Уроки", 'de': "Stunden"});
+  String get viewAll => _t({
+    'uz': "Barchasini ko'rish",
+    'kaa': "Bárlıǵın kóriw",
+    'ru': "Посмотреть все",
+    'de': "Alle ansehen",
+  });
+  String get continueLesson => _t({
+    'uz': "Davom etish",
+    'kaa': "Dawam etiw",
+    'ru': "Продолжить",
+    'de': "Weiter",
+  });
+  String get noLessons => _t({
+    'uz': "Bugun dars yo'q",
+    'kaa': "Búgin sabaq joq",
+    'ru': "Сегодня уроков нет",
+    'de': "Heute keine Stunden",
+  });
+  String get dailyTask => _t({
+    'uz': "Kunlik topshiriq",
+    'kaa': "Kúnlik tapsırma",
+    'ru': "Ежедневное задание",
+    'de': "Tägliche Aufgabe",
+  });
+  String get streak => _t({
+    'uz': "kunlik seria",
+    'kaa': "kúnlik seria",
+    'ru': "дней подряд",
+    'de': "Tage am Stück",
+  });
+  String get quickActions => _t({
+    'uz': "Tezkor harakatlar",
+    'kaa': "Tez hareketler",
+    'ru': "Быстрые действия",
+    'de': "Schnellaktionen",
+  });
+  String get readyToLearn => _t({
+    'uz': "O'rganishga tayyormisan?",
+    'kaa': "Úyreniwge tayyarmısań?",
+    'ru': "Готов к учебе?",
+    'de': "Bereit zum Lernen?",
+  });
+  String get todayLesson => _t({
+    'uz': "Bugungi dars",
+    'kaa': "Búgingi sabaq",
+    'ru': "Сегодняшний урок",
+    'de': "Heutige Stunde",
+  });
+  String get translation => _t({
+    'uz': "Tarjima",
+    'kaa': "Awdarma",
+    'ru': "Перевод",
+    'de': "Übersetzung",
+  });
+  String get chat => _t({
+    'uz': "Chat",
+    'kaa': "Chat",
+    'ru': "Чат",
+    'de': "Chat",
+  });
+  String get chatComingSoon => _t({
+    'uz': "Chat bo'limi tez orada ishga tushadi!",
+    'kaa': "Chat bólimi jaqında iske túsedi!",
+    'ru': "Раздел чата скоро заработает!",
+    'de': "Der Chat-Bereich wird bald verfügbar sein!",
+  });
+  String get leaderboard => _t({
+    'uz': "Peshqadamlar",
+    'kaa': "Jetekshiler",
+    'ru': "Лидеры",
+    'de': "Bestenliste",
+  });
+  String get activity => _t({
+    'uz': "Faollik",
+    'kaa': "Iskerlik",
+    'ru': "Активность",
+    'de': "Aktivität",
+  });
+  String get fiveDayStreak => _t({
+    'uz': "5 kunlik seriya!",
+    'kaa': "5 kúnlik seriya!",
+    'ru': "Серия из 5 дней!",
+    'de': "5-Tage-Strähne!",
+  });
+  String get twoDaysLeft => _t({
+    'uz': "Yana 2 kun",
+    'kaa': "Jáne 2 kún",
+    'ru': "Еще 2 дня",
+    'de': "Noch 2 Tage",
+  });
+  String get pendingHomeworks => _t({
+    'uz': "2 ta vazifa bajarilmagan",
+    'kaa': "2 tapsırma tapsırılmaǵan",
+    'ru': "2 задания не выполнены",
+    'de': "2 Hausaufgaben ausstehend",
+  });
+  String get twoHomeworks => _t({
+    'uz': "2 ta",
+    'kaa': "2 dana",
+    'ru': "2 шт.",
+    'de': "2 Stk.",
+  });
+  String get monShort => _t({'uz': "D", 'kaa': "D", 'ru': "Пн", 'de': "Mo"});
+  String get tueShort => _t({'uz': "S", 'kaa': "S", 'ru': "Вт", 'de': "Di"});
+  String get wedShort => _t({'uz': "Ch", 'kaa': "Ch", 'ru': "Ср", 'de': "Mi"});
+  String get thuShort => _t({'uz': "P", 'kaa': "P", 'ru': "Чт", 'de': "Do"});
+  String get friShort => _t({'uz': "J", 'kaa': "J", 'ru': "Пт", 'de': "Fr"});
+  String get satShort => _t({'uz': "Sh", 'kaa': "Sh", 'ru': "Сб", 'de': "Sa"});
+  String get sunShort => _t({'uz': "Yak", 'kaa': "Yak", 'ru': "Вс", 'de': "So"});
+
+  // ── Profile ────────────────────────────────────────────────────────────────
+  String get editProfile => _t({
+    'uz': "Profilni tahrirlash",
+    'kaa': "Profildi ózgertiriw",
+    'ru': "Редактировать профиль",
+    'de': "Profil bearbeiten",
+  });
+  String get logout => _t({'uz': "Chiqish", 'kaa': "Shıǵıw", 'ru': "Выйти", 'de': "Abmelden"});
+  String get level => _t({'uz': "Daraja", 'kaa': "Dáreje", 'ru': "Уровень", 'de': "Niveau"});
+  String get achievements => _t({
+    'uz': "Yutuqlar",
+    'kaa': "Jetiskenliler",
+    'ru': "Достижения",
+    'de': "Errungenschaften",
+  });
+  String get paid => _t({
+    'uz': "To'langan",
+    'kaa': "Tólendi",
+    'ru': "Оплачено",
+    'de': "Bezahlt",
+  });
+  String get pending => _t({
+    'uz': "Kutilmoqda",
+    'kaa': "Kútilmekte",
+    'ru': "Ожидается",
+    'de': "Ausstehend",
+  });
+  String get myResults => _t({
+    'uz': "Natijalar",
+    'kaa': "Nátiyjeler",
+    'ru': "Мои результаты",
+    'de': "Meine Ergebnisse",
+  });
+  String get settingsDesc => _t({
+    'uz': "Til, qorong'u rejim va boshqa sozlamalar",
+    'kaa': "Til, qaranǵı rejim hám basqa sazlamalar",
+    'ru': "Язык, темный режим и другие настройки",
+    'de': "Sprache, Dunkelmodus und andere Einstellungen",
+  });
+
+  // ── Group ──────────────────────────────────────────────────────────────────
+  String get myGroup => _t({
+    'uz': "Mening guruhim",
+    'kaa': "Menin toparım",
+    'ru': "Моя группа",
+    'de': "Meine Gruppe",
+  });
+  String get schedule => _t({
+    'uz': "Jadval",
+    'kaa': "Keste",
+    'ru': "Расписание",
+    'de': "Stundenplan",
+  });
+  String get classmates => _t({
+    'uz': "Sinfdoshlar",
+    'kaa': "Toparlaslar",
+    'ru': "Одноклассники",
+    'de': "Klassenkameraden",
+  });
+  String get homework => _t({
+    'uz': "Uyga vazifa",
+    'kaa': "Úyge tapsırma",
+    'ru': "Домашнее задание",
+    'de': "Hausaufgaben",
+  });
+  String get notEnrolledInAnyCourse => _t({
+    'uz': "Siz hali hech qanday\nkursga yozilmagansiz",
+    'kaa': "Siz ele hesh qanday\nkursqa jazılmaǵansız",
+    'ru': "Вы еще не записаны\nни на один курс",
+    'de': "Sie sind noch in\nkeinem Kurs eingetragen",
+  });
+  String get studentsCountLabel => _t({
+    'uz': "ta",
+    'kaa': "dana",
+    'ru': "чел.",
+    'de': "Teilnehmer",
+  });
+  String get noLessonAddedYet => _t({
+    'uz': "Hali dars qo'shilmagan",
+    'kaa': "Ele sabaq qosılmaǵan",
+    'ru': "Урок еще не добавлен",
+    'de': "Noch keine Stunde hinzugefügt",
+  });
+  String get viewMaterials => _t({
+    'uz': "Materiallarni ko'rish",
+    'kaa': "Materiallardı kóriw",
+    'ru': "Посмотреть материалы",
+    'de': "Materialien ansehen",
+  });
+  String get noMaterialsYet => _t({
+    'uz': "Hozircha materiallar yo'q",
+    'kaa': "Házirshe materiallar joq",
+    'ru': "Материалов пока нет",
+    'de': "Noch keine Materialien",
+  });
+  String get materialComingSoon => _t({
+    'uz': "Material tez orada ochiladi",
+    'kaa': "Material tez arada ashıladı",
+    'ru': "Материал скоро откроется",
+    'de': "Material wird bald geöffnet",
+  });
+  String get monLong => _t({'uz': "Dushanba", 'kaa': "Dúyshembi", 'ru': "Понедельник", 'de': "Montag"});
+  String get tueLong => _t({'uz': "Seshanba", 'kaa': "Shiyshembi", 'ru': "Вторник", 'de': "Dienstag"});
+  String get wedLong => _t({'uz': "Chorshanba", 'kaa': "Sárshembi", 'ru': "Среда", 'de': "Mittwoch"});
+  String get thuLong => _t({'uz': "Payshanba", 'kaa': "Piyshembi", 'ru': "Четверг", 'de': "Donnerstag"});
+  String get friLong => _t({'uz': "Juma", 'kaa': "Juma", 'ru': "Пятница", 'de': "Freitag"});
+  String get satLong => _t({'uz': "Shanba", 'kaa': "Shembi", 'ru': "Суббота", 'de': "Samstag"});
+  String get sunLong => _t({'uz': "Yakshanba", 'kaa': "Ekshembi", 'ru': "Воскресенье", 'de': "Sonntag"});
+
+  String get jan => _t({'uz': "yan", 'kaa': "yan", 'ru': "янв", 'de': "Jan"});
+  String get feb => _t({'uz': "fev", 'kaa': "fev", 'ru': "фев", 'de': "Feb"});
+  String get mar => _t({'uz': "mar", 'kaa': "mar", 'ru': "мар", 'de': "Mär"});
+  String get apr => _t({'uz': "apr", 'kaa': "apr", 'ru': "апр", 'de': "Apr"});
+  String get may => _t({'uz': "may", 'kaa': "may", 'ru': "май", 'de': "Mai"});
+  String get iyn => _t({'uz': "iyn", 'kaa': "iyn", 'ru': "июн", 'de': "Jun"});
+  String get iyl => _t({'uz': "iyl", 'kaa': "iyl", 'ru': "июл", 'de': "Jul"});
+  String get avg => _t({'uz': "avg", 'kaa': "avg", 'ru': "авг", 'de': "Aug"});
+  String get sen => _t({'uz': "sen", 'kaa': "sen", 'ru': "сен", 'de': "Sep"});
+  String get okt => _t({'uz': "okt", 'kaa': "okt", 'ru': "окт", 'de': "Okt"});
+  String get noy => _t({'uz': "noy", 'kaa': "noy", 'ru': "ноя", 'de': "Nov"});
+  String get dek => _t({'uz': "dek", 'kaa': "dek", 'ru': "дек", 'de': "Dez"});
+
+  // ── Learning ───────────────────────────────────────────────────────────────
+  String get vocabulary => _t({
+    'uz': "Lug'at",
+    'kaa': "Sózlik",
+    'ru': "Словарь",
+    'de': "Vokabular",
+  });
+  String get grammar => _t({
+    'uz': "Grammatika",
+    'kaa': "Grammatika",
+    'ru': "Грамматика",
+    'de': "Grammatik",
+  });
+  String get listening => _t({
+    'uz': "Tinglash",
+    'kaa': "Tıńlaw",
+    'ru': "Аудирование",
+    'de': "Hören",
+  });
+  String get speaking => _t({
+    'uz': "Gapirish",
+    'kaa': "Sóylesиw",
+    'ru': "Говорение",
+    'de': "Sprechen",
+  });
+  String get learningProgress => _t({
+    'uz': "O'rganish progressi",
+    'kaa': "Úyreniw progressi",
+    'ru': "Прогресс обучения",
+    'de': "Lernfortschritt",
+  });
+  String get percentCompleted => _t({
+    'uz': "bajarilgan",
+    'kaa': "orınlanǵan",
+    'ru': "выполнено",
+    'de': "abgeschlossen",
+  });
+  String get categories => _t({
+    'uz': "Kategoriyalar",
+    'kaa': "Kategoriyalar",
+    'ru': "Категории",
+    'de': "Kategorien",
+  });
+  String get speakWithAi => _t({
+    'uz': "AI bilan gaplashish",
+    'kaa': "JI menen sóylesiw",
+    'ru': "Разговор с ИИ",
+    'de': "Sprechen mit KI",
+  });
+  String get learnArticles => _t({
+    'uz': "Artikllarni o'rganish",
+    'kaa': "Artikllerdi úyreniw",
+    'ru': "Изучение артиклей",
+    'de': "Artikel lernen",
+  });
+  String get writingExercises => _t({
+    'uz': "Yozish mashqlari",
+    'kaa': "Jazıw tapsırmaları",
+    'ru': "Упражнения на письмо",
+    'de': "Schreibübungen",
+  });
+  String get listeningExercises => _t({
+    'uz': "Tinglash mashqlari",
+    'kaa': "Tıńlaw tapsırmaları",
+    'ru': "Упражнения на аудирование",
+    'de': "Hörübungen",
+  });
+  String get readingExercises => _t({
+    'uz': "O'qish mashqlari",
+    'kaa': "Oqıw tapsırmaları",
+    'ru': "Упражнения на чтение",
+    'de': "Leseübungen",
+  });
+  String get vocabAndTranslation => _t({
+    'uz': "Lug'at va tarjima",
+    'kaa': "Lúǵat hám awdarma",
+    'ru': "Словарь и перевод",
+    'de': "Wortschatz & Übersetzung",
+  });
+  String get savedVocabulary => _t({
+    'uz': "Saqlangan so'zlar",
+    'kaa': "Saqlanǵan sózler",
+    'ru': "Сохраненные слова",
+    'de': "Gespeicherte Wörter",
+  });
+  String get addWord => _t({
+    'uz': "So'z qo'shish",
+    'kaa': "Sóz qosıw",
+    'ru': "Добавить слово",
+    'de': "Wort hinzufügen",
+  });
+  String get noSavedWords => _t({
+    'uz': "Saqlangan so'zlar yo'q",
+    'kaa': "Saqlanǵan sózler joq",
+    'ru': "Нет сохраненных слов",
+    'de': "Keine gespeicherten Wörter",
+  });
+  String get tapPlusToAdd => _t({
+    'uz': "+ tugmasini bosib so'z qo'shing",
+    'kaa': "+ túymesin basıp sóz qosıń",
+    'ru': "Нажмите +, чтобы добавить слово",
+    'de': "Tippen Sie auf +, um ein Wort hinzuzufügen",
+  });
+  String get wordAdded => _t({
+    'uz': "So'z qo'shildi",
+    'kaa': "Sóz qosıldı",
+    'ru': "Слово добавлено",
+    'de': "Wort hinzugefügt",
+  });
+  String get translationFailed => _t({
+    'uz': "Tarjima amalga oshmadi",
+    'kaa': "Awdarma ámelge asmadı",
+    'ru': "Перевод не удался",
+    'de': "Übersetzung fehlgeschlagen",
+  });
+  String get tapToSeeExamples => _t({
+    'uz': "Misollarni ko'rish uchun bosing",
+    'kaa': "Mısallar kóriw ushın basıń",
+    'ru': "Нажмите, чтобы увидеть примеры",
+    'de': "Tippen Sie, um Beispiele zu sehen",
+  });
+  String get error => _t({
+    'uz': "Xato",
+    'kaa': "Qáte",
+    'ru': "Ошибка",
+    'de': "Fehler",
+  });
+
+  // ── Games ──────────────────────────────────────────────────────────────────
+  String get wordGame => _t({
+    'uz': "So'z o'yini",
+    'kaa': "Sóz oyını",
+    'ru': "Игра слов",
+    'de': "Wortspiel",
+  });
+  String get quiz => _t({'uz': "Viktorina", 'kaa': "Viktorina", 'ru': "Викторина", 'de': "Quiz"});
+  String get flashcards => _t({
+    'uz': "Kartochkalar",
+    'kaa': "Kartoshkalar",
+    'ru': "Карточки",
+    'de': "Karteikarten",
+  });
+  String get myStars => _t({
+    'uz': "Mening yulduzlarim",
+    'kaa': "Meniń juldızlarım",
+    'ru': "Мои звезды",
+    'de': "Meine Sterne",
+  });
+  String get all => _t({
+    'uz': "Barchasi",
+    'kaa': "Barlıǵı",
+    'ru': "Все",
+    'de': "Alle",
+  });
+  String get allGames => _t({
+    'uz': "Barcha o'yinlar",
+    'kaa': "Barlıq oyınlar",
+    'ru': "Все игры",
+    'de': "Alle Spiele",
+  });
+  String get gameSynonymBattleTitle => _t({
+    'uz': "Sinonim jangi",
+    'kaa': "Sinonim gúresi",
+    'ru': "Битва синонимов",
+    'de': "Synonym-Kampf",
+  });
+  String get synonymBattle => _t({
+    'uz': "Sinonimlar jangi",
+    'kaa': "Sinonimler gúresi",
+    'ru': "Битва синонимов",
+    'de': "Synonym-Kampf",
+  });
+  String get gameGrammarTitle => _t({
+    'uz': "Grammatik o'yin",
+    'kaa': "Grammatika oyını",
+    'ru': "Грамматическая игра",
+    'de': "Grammatikspiel",
+  });
+  String get grammarQuiz => _t({
+    'uz': "Grammatika viktorinasi",
+    'kaa': "Grammatika viktorinası",
+    'ru': "Грамматическая викторина",
+    'de': "Grammatik-Quiz",
+  });
+  String get grammarGameSelectLevel => _t({
+    'uz': "Darajangizni tanlang va boshlang",
+    'kaa': "Dárejańizdi tańlań hám basłań",
+    'ru': "Выберите уровень и начните",
+    'de': "Wählen Sie Ihr Niveau und starten Sie",
+  });
+  String get grammarGameLoading => _t({
+    'uz': "Savollar tayyorlanmoqda...",
+    'kaa': "Sorawlar tayarlanmaqda...",
+    'ru': "Вопросы готовятся...",
+    'de': "Fragen werden vorbereitet...",
+  });
+  String get gameDerDieDasTitle => _t({
+    'uz': "Der, die, das",
+    'kaa': "Der, die, das",
+    'ru': "Der, die, das",
+    'de': "Der, die, das",
+  });
+  String get articleSpeedGame => _t({
+    'uz': "Artikllar tezkor o'yini",
+    'kaa': "Artikller tez oyını",
+    'ru': "Быстрая игра с артиклями",
+    'de': "Artikel-Schnellspiel",
+  });
+  String get gameVoiceTitle => _t({
+    'uz': "Ovozli o'yin",
+    'kaa': "Dawıslı oyın",
+    'ru': "Голосовая игра",
+    'de': "Sprachspiel",
+  });
+  String get pronunciationAndListening => _t({
+    'uz': "Talaffuz va tinglash",
+    'kaa': "Aytılıw hám tıńlaw",
+    'ru': "Произношение и слух",
+    'de': "Aussprache & Hören",
+  });
+  String get interactiveStory => _t({
+    'uz': "Interaktiv hikoya",
+    'kaa': "Interaktiv gúrriń",
+    'ru': "Интерактивная история",
+    'de': "Interaktive Geschichte",
+  });
+  String get gameTranslationBattleTitle => _t({
+    'uz': "Tarjima battle",
+    'kaa': "Awdarma jarısı",
+    'ru': "Битва переводов",
+    'de': "Übersetzungsduell",
+  });
+  String get translationBattle => _t({
+    'uz': "Bot bilan tarjima musobaqasi",
+    'kaa': "Bot penen awdarma jarısı",
+    'ru': "Битва переводов с ботом",
+    'de': "Übersetzungskampf mit Bot",
+  });
+  String get creativeSentenceMaking => _t({
+    'uz': "Kreativ gap tuzish",
+    'kaa': "Kreativ gáp dúziw",
+    'ru': "Креативное составление предложений",
+    'de': "Kreativer Satzbau",
+  });
+  String get strangeSentencesGame => _t({
+    'uz': "G'alati gaplar",
+    'kaa': "Ózgeshe gápler",
+    'ru': "Странные предложения",
+    'de': "Seltsame Sätze",
+  });
+  String get strangeSentencesDesc => _t({
+    'uz': "So'zlardan grammatik to'g'ri, lekin mantiqsiz gap tuzing",
+    'kaa': "Sózlerden grammatikalıq durıs, biraq ózgeshe gáp dúziń",
+    'ru': "Составьте грамматически верное, но абсурдное предложение",
+    'de': "Bilde grammatisch korrekte, aber unsinnige Sätze",
+  });
+  String get germanStoryGame => _t({
+    'uz': "Nemischa hikoya",
+    'kaa': "Nemisshe gúrriń",
+    'ru': "Немецкая история",
+    'de': "Deutsche Geschichte",
+  });
+  String get germanStoryDesc => _t({
+    'uz': "Berilgan gaplardan o'z hikoyangizni yarating",
+    'kaa': "Berilgen gáplerden óz gúrrińińizdi jasań",
+    'ru': "Создайте свою историю из данных предложений",
+    'de': "Erfinde deine Geschichte aus vorgegebenen Sätzen",
+  });
+  String get describePictureGame => _t({
+    'uz': "Rasmni tariflang",
+    'kaa': "Súwretti túsindiriń",
+    'ru': "Опишите картинку",
+    'de': "Bild beschreiben",
+  });
+  String get describePictureDesc => _t({
+    'uz': "Rasmda nima borligini nemis tilida yozing",
+    'kaa': "Súwrette ne bar ekenin nemis tilinde jazıń",
+    'ru': "Опишите на немецком, что изображено",
+    'de': "Beschreibe auf Deutsch, was du siehst",
+  });
+  String get gameComingSoonTitle => _t({
+    'uz': "Tez orada!",
+    'kaa': "Jaqında!",
+    'ru': "Скоро!",
+    'de': "Bald verfügbar!",
+  });
+  String get gameComingSoonMessage => _t({
+    'uz':
+        "Bu o'yin hozircha ishlab chiqilmoqda. Yangiliklar va yangi o'yinlar uchun ilovani yangilab boring — tez orada ochamiz!",
+    'kaa':
+        "Bul oyın házirshe islenip atır. Jańalıqlardı hám jańa oyınlardı biliw ushın qosımshanı jańalań — jaqında qosamız!",
+    'ru':
+        "Эта игра пока в разработке. Обновляйте приложение — скоро откроем новые игры и функции!",
+    'de':
+        "Dieses Spiel ist noch in Entwicklung. Halte die App aktuell — wir öffnen es bald!",
+  });
+  String get gameComingSoonButton => _t({
+    'uz': "Tushundim",
+    'kaa': "Túsidnim",
+    'ru': "Понятно",
+    'de': "Verstanden",
+  });
+  String get noGroupTitle => _t({
+    'uz': "Guruhga qo'shilmagansiz",
+    'kaa': "Toparga qosılmadıńız",
+    'ru': "Вы не в группе",
+    'de': "Keine Gruppe",
+  });
+  String get noGroupMessage => _t({
+    'uz': "Siz hali hech qanday guruhga qo'shilmagansiz. Iltimos, admin yoki ustozingizga xabar bering!",
+    'kaa': "Siz ele hesh qanday toparǵa qosılmaǵansız. Iltimas, admin yáki ustazıńızga xabar beriń!",
+    'ru': "Вы ещё не добавлены ни в одну группу. Пожалуйста, свяжитесь с администратором или преподавателем!",
+    'de': "Sie sind noch in keiner Gruppe. Bitte wenden Sie sich an Ihren Administrator oder Lehrer!",
+  });
+  String get noGroupButton => _t({
+    'uz': "Tushundim",
+    'kaa': "Túsindim",
+    'ru': "Понятно",
+    'de': "Verstanden",
+  });
+
+  String get strangeSentencesPickHint => _t({
+    'uz': "Grammatik jihatdan to'g'ri g'alati gapni tanlang",
+    'kaa': "Grammatikalıq durıs bir qızıqarlı gápti tańlań",
+    'ru': "Выберите грамматически верное абсурдное предложение",
+    'de': "Wähle den grammatisch korrekten absurden Satz",
+  });
+  String get strangeSentencesOrderHint => _t({
+    'uz': "So'zlarni to'g'ri tartibda joylashtiring",
+    'kaa': "Sózlerdi durıs tártipte qoyıń",
+    'ru': "Расставьте слова в правильном порядке",
+    'de': "Ordne die Wörter in die richtige Reihenfolge",
+  });
+  String get strangeSentencesLoading => _t({
+    'uz': "AI yangi savollar tayyorlayapti...",
+    'kaa': "JI jańa sorawlar tayarlap atır...",
+    'ru': "ИИ готовит новые вопросы...",
+    'de': "KI bereitet neue Fragen vor...",
+  });
+  String get strangeSentencesRulesHowTo => _t({
+    'uz': "O'yin qoidalari",
+    'kaa': "Oyın qaǵıydaları",
+    'ru': "Правила игры",
+    'de': "Spielregeln",
+  });
+  String get strangeSentencesStart => _t({
+    'uz': "Boshlash",
+    'kaa': "Baslaw",
+    'ru': "Начать",
+    'de': "Starten",
+  });
+  String get strangeSentencesYourSentence => _t({
+    'uz': "Sizning gapingiz",
+    'kaa': "Siziń gápińiz",
+    'ru': "Ваше предложение",
+    'de': "Dein Satz",
+  });
+  String get strangeSentencesTapWords => _t({
+    'uz': "So'zlarni bosing",
+    'kaa': "Sózlerdi basıń",
+    'ru': "Нажимайте на слова",
+    'de': "Tippe auf die Wörter",
+  });
+  String get strangeSentencesCheck => _t({
+    'uz': "Tekshirish",
+    'kaa': "Tekseriw",
+    'ru': "Проверить",
+    'de': "Prüfen",
+  });
+  String get strangeSentencesReset => _t({
+    'uz': "Qayta",
+    'kaa': "Qayta",
+    'ru': "Сброс",
+    'de': "Zurücksetzen",
+  });
+
+  // ── Teacher ────────────────────────────────────────────────────────────────
+  String get helloTeacher => _t({
+    'uz': "Salom, O'qituvchi 👋",
+    'kaa': "Sálem, Muǵallim 👋",
+    'ru': "Привет, Учитель 👋",
+    'de': "Hallo, Lehrer 👋",
+  });
+  String get groups => _t({'uz': "Guruhlar", 'kaa': "Toparlar", 'ru': "Группы", 'de': "Gruppen"});
+  String get students => _t({
+    'uz': "O'quvchilar",
+    'kaa': "Oqıwshılar",
+    'ru': "Учащиеся",
+    'de': "Schüler",
+  });
+  String get pendingWork => _t({
+    'uz': "Kutayotgan ishlar",
+    'kaa': "Kútilip atırǵan jumıslar",
+    'ru': "Ожидающие задания",
+    'de': "Ausstehende Aufgaben",
+  });
+  String get attendance => _t({
+    'uz': "Davomat",
+    'kaa': "Qatnas",
+    'ru': "Посещаемость",
+    'de': "Anwesenheit",
+  });
+  String get material => _t({
+    'uz': "Material",
+    'kaa': "Material",
+    'ru': "Материал",
+    'de': "Material",
+  });
+  String get check => _t({
+    'uz': "Tekshirish",
+    'kaa': "Tekseriw",
+    'ru': "Проверить",
+    'de': "Prüfen",
+  });
+  String get todayDashboard => _t({
+    'uz': "Bugungi Boshqaruv Paneli",
+    'kaa': "Búgingi Basqarıw Paneli",
+    'ru': "Панель управления",
+    'de': "Heutiges Dashboard",
+  });
+  String get remainingSubmissions => _t({
+    'uz': "ta qoldi",
+    'kaa': "dana qaldı",
+    'ru': "осталось",
+    'de': "verbleibend",
+  });
+  String get submittedOf => _t({
+    'uz': "topshirilgan",
+    'kaa': "tapsırılǵan",
+    'ru': "сдано",
+    'de': "eingereicht",
+  });
+  String get noTodayLessons => _t({
+    'uz': "Bugungi darslar yo'q",
+    'kaa': "Búgingi sabaqlar joq",
+    'ru': "Сегодня уроков нет",
+    'de': "Heute keine Stunden",
+  });
+  String get noPendingWork => _t({
+    'uz': "Kutayotgan ishlar yo'q",
+    'kaa': "Kútilip atırǵan jumıslar joq",
+    'ru': "Нет заданий",
+    'de': "Keine ausstehenden Aufgaben",
+  });
+
+  // ── Admin ──────────────────────────────────────────────────────────────────
+  String get adminDashboard => _t({
+    'uz': "Boshqaruv Paneli",
+    'kaa': "Basqarıw Paneli",
+    'ru': "Панель управления",
+    'de': "Verwaltungspanel",
+  });
+  String get totalStudents => _t({
+    'uz': "O'quvchilar",
+    'kaa': "Oqıwshılar",
+    'ru': "Учащиеся",
+    'de': "Schüler",
+  });
+  String get totalTeachers => _t({
+    'uz': "O'qituvchilar",
+    'kaa': "Muǵallimler",
+    'ru': "Учителя",
+    'de': "Lehrer",
+  });
+  String get totalGroups => _t({
+    'uz': "Guruhlar",
+    'kaa': "Toparlar",
+    'ru': "Группы",
+    'de': "Gruppen",
+  });
+  String get totalRevenue => _t({
+    'uz': "Daromad",
+    'kaa': "Dáramat",
+    'ru': "Доход",
+    'de': "Einnahmen",
+  });
+  String get addStudent => _t({
+    'uz': "O'quvchi qo'shish",
+    'kaa': "Oqıwshı qosıw",
+    'ru': "Добавить ученика",
+    'de': "Schüler hinzufügen",
+  });
+  String get addTeacher => _t({
+    'uz': "O'qituvchi qo'shish",
+    'kaa': "Muǵallim qosıw",
+    'ru': "Добавить учителя",
+    'de': "Lehrer hinzufügen",
+  });
+  String get courses => _t({'uz': "Kurslar", 'kaa': "Kurslar", 'ru': "Курсы", 'de': "Kurse"});
+  String get payments => _t({
+    'uz': "To'lovlar",
+    'kaa': "Tólemler",
+    'ru': "Платежи",
+    'de': "Zahlungen",
+  });
+  String get recentActivity => _t({
+    'uz': "So'nggi faollik",
+    'kaa': "Aqırǵı iskerlik",
+    'ru': "Последние активности",
+    'de': "Letzte Aktivitäten",
+  });
+  String get quickAction => _t({
+    'uz': "Tezkor amallar",
+    'kaa': "Tez ámeller",
+    'ru': "Быстрые действия",
+    'de': "Schnellaktionen",
+  });
+
+  // ── Splash ─────────────────────────────────────────────────────────────────
+  String get loading => _t({
+    'uz': "Yuklanmoqda...",
+    'kaa': "Júkleniwde...",
+    'ru': "Загрузка...",
+    'de': "Wird geladen...",
+  });
+
+  // ── Common ─────────────────────────────────────────────────────────────────
+  String get back => _t({'uz': "Orqaga", 'kaa': "Artqa", 'ru': "Назад", 'de': "Zurück"});
+  String get save => _t({'uz': "Saqlash", 'kaa': "Saqlaw", 'ru': "Сохранить", 'de': "Speichern"});
+  String get cancel => _t({'uz': "Bekor qilish", 'kaa': "Toqtatıw", 'ru': "Отмена", 'de': "Abbrechen"});
+  String get search => _t({'uz': "Qidirish", 'kaa': "Izdew", 'ru': "Поиск", 'de': "Suche"});
+  String get noData => _t({'uz': "Ma'lumot yo'q", 'kaa': "Maǵlıwmat joq", 'ru': "Нет данных", 'de': "Keine Daten"});
+  String get languageChanged => _t({
+    'uz': "Til muvaffaqiyatli o'zgartirildi",
+    'kaa': "Til sátli ózgertirildi",
+    'ru': "Язык успешно изменён",
+    'de': "Sprache erfolgreich geändert",
+  });
+  String get teacherProfile => _t({
+    'uz': "O'qituvchi Profili",
+    'kaa': "Muǵallim Profili",
+    'ru': "Профиль Учителя",
+    'de': "Lehrerprofil",
+  });
+  String get sections => _t({
+    'uz': "Bo'limlar",
+    'kaa': "Bólimler",
+    'ru': "Разделы",
+    'de': "Bereiche",
+  });
+  String get logoutLabel => _t({
+    'uz': "Tizimdan chiqish",
+    'kaa': "Tizimnen shıǵıw",
+    'ru': "Выйти из системы",
+    'de': "Ausloggen",
+  });
+  String get myGroups => _t({
+    'uz': "Mening Guruhlarim",
+    'kaa': "Mening Toparlarım",
+    'ru': "Мои Группы",
+    'de': "Meine Gruppen",
+  });
+  String get pleaseReLogin => _t({
+    'uz': "Iltimos, tizimga qaytadan kiring",
+    'kaa': "Iltimas, dástúrge qaytadan kiriń",
+    'ru': "Пожалуйста, войдите в систему заново",
+    'de': "Bitte melden Sie sich erneut an",
+  });
+  String get noGroupsAssigned => _t({
+    'uz': "Sizga hech qanday guruh biriktirilmagan",
+    'kaa': "Sizge hesh qanday topar biriktirilmegen",
+    'ru': "За вами не закреплено ни одной группы",
+    'de': "Ihnen sind keine Gruppen zugewiesen",
+  });
+  String get started => _t({
+    'uz': "Boshlangan",
+    'kaa': "Baslanǵan",
+    'ru': "Начато",
+    'de': "Gestartet",
+  });
+  String get edit => _t({
+    'uz': "Tahrirlash",
+    'kaa': "Ózgertiw",
+    'ru': "Редактировать",
+    'de': "Bearbeiten",
+  });
+  String get duration => _t({
+    'uz': "Davomiyligi",
+    'kaa': "Dawamlılıǵı",
+    'ru': "Продолжительность",
+    'de': "Dauer",
+  });
+  String get startDateLabel => _t({
+    'uz': "Boshlanish sanasi",
+    'kaa': "Baslanıw sánesi",
+    'ru': "Дата начала",
+    'de': "Startdatum",
+  });
+  String get courseName => _t({
+    'uz': "Kurs nomi",
+    'kaa': "Kurs atı",
+    'ru': "Название курса",
+    'de': "Kursname",
+  });
+  String get courseType => _t({
+    'uz': "Turi",
+    'kaa': "Túri",
+    'ru': "Тип",
+    'de': "Typ",
+  });
+  String get addCourse => _t({
+    'uz': "Yangi kurs qo'shish",
+    'kaa': "Taza kurs qosıw",
+    'ru': "Добавить новый курс",
+    'de': "Neuen Kurs hinzufügen",
+  });
+  String get noCoursesYet => _t({
+    'uz': "Hozircha kurslar yo'q",
+    'kaa': "Házirshe kurslar joq",
+    'ru': "Курсов пока нет",
+    'de': "Noch keine Kurse",
+  });
+  String get student => _t({
+    'uz': "Talaba",
+    'kaa': "Oqıwshı",
+    'ru': "Ученик",
+    'de': "Schüler",
+  });
+  String get studentsLabel => _t({
+    'uz': "Talabalar",
+    'kaa': "Oqıwshılar",
+    'ru': "Ученики",
+    'de': "Schüler",
+  });
+  String get task => _t({
+    'uz': "Topshiriq",
+    'kaa': "Tapsırma",
+    'ru': "Задание",
+    'de': "Aufgabe",
+  });
+  String get noStudentsInGroup => _t({
+    'uz': "Guruhda talabalar yo'q",
+    'kaa': "Toparda oqıwshılar joq",
+    'ru': "В группе нет учеников",
+    'de': "Keine Schüler in der Gruppe",
+  });
+  String get studentAlreadyInGroup => _t({
+    'uz': "Bu talaba allaqachon",
+    'kaa': "Bul oqıwshı álleqashan",
+    'ru': "Этот ученик уже",
+    'de': "Dieser Schüler ist bereits",
+  });
+  String get studyingInGroup => _t({
+    'uz': "guruhida o'qiydi!",
+    'kaa': "toparında oqıydı!",
+    'ru': "в группе учится!",
+    'de': "in der Gruppe lernt!",
+  });
+  String get willBeAddedSoon => _t({
+    'uz': "tez orada qo'shiladi",
+    'kaa': "tez arada qosıladı",
+    'ru': "скоро будет добавлено",
+    'de': "wird bald hinzugefügt",
+  });
+  String get noStudentsFound => _t({
+    'uz': "Studentlar topilmadi",
+    'kaa': "Studentler tabılmadı",
+    'ru': "Студенты не найдены",
+    'de': "Keine Schüler gefunden",
+  });
+  String get deleteStudentTitle => _t({
+    'uz': "Studentni o'chirish",
+    'kaa': "Studentti óshiriw",
+    'ru': "Удалить студента",
+    'de': "Schüler löschen",
+  });
+  String get deleteStudentConfirm => _t({
+    'uz': "Bu studentni o'chirmoqchimisiz?",
+    'kaa': "Bul studentti óshirmekshimisizba?",
+    'ru': "Вы действительно хотите удалить этого студента?",
+    'de': "Möchten Sie diesen Schüler wirklich löschen?",
+  });
+  String get delete => _t({
+    'uz': "O'chirish",
+    'kaa': "Óshiriw",
+    'ru': "Удалить",
+    'de': "Löschen",
+  });
+  String get studentDeleted => _t({
+    'uz': "Student o'chirildi",
+    'kaa': "Student óshirildi",
+    'ru': "Студент удален",
+    'de': "Schüler gelöscht",
+  });
+  String get phoneLabel => _t({
+    'uz': "Telefon",
+    'kaa': "Telefon",
+    'ru': "Телефон",
+    'de': "Telefon",
+  });
+  String get joinedDate => _t({
+    'uz': "Qo'shilgan sana",
+    'kaa': "Qosılǵan sáne",
+    'ru': "Дата регистрации",
+    'de': "Beitrittsdatum",
+  });
+  String get groupLabel => _t({
+    'uz': "Guruh",
+    'kaa': "Topar",
+    'ru': "Группа",
+    'de': "Gruppe",
+  });
+  String get notAssignedYet => _t({
+    'uz': "Hali biriktirilmagan",
+    'kaa': "Ele biriktirilmegen",
+    'ru': "Еще не назначен",
+    'de': "Noch nicht zugewiesen",
+  });
+  String get noTeachersFound => _t({
+    'uz': "O'qituvchilar topilmadi",
+    'kaa': "Muǵallimler tabılmadı",
+    'ru': "Учителя не найдены",
+    'de': "Keine Lehrer gefunden",
+  });
+  String get deleteTeacherTitle => _t({
+    'uz': "O'qituvchini o'chirish",
+    'kaa': "Muǵallimdi óshiriw",
+    'ru': "Удалить учителя",
+    'de': "Lehrer löschen",
+  });
+  String get deleteTeacherConfirm => _t({
+    'uz': "Bu o'qituvchini o'chirmoqchimisiz?",
+    'kaa': "Bul muǵallimdi óshirmekshimisizba?",
+    'ru': "Вы действительно хотите удалить этого учителя?",
+    'de': "Möchten Sie diesen Lehrer wirklich löschen?",
+  });
+  String get teacherDeleted => _t({
+    'uz': "O'qituvchi o'chirildi",
+    'kaa': "Muǵallim óshirildi",
+    'ru': "Учитель удален",
+    'de': "Lehrer gelöscht",
+  });
+  String get fullNameLabel => _t({
+    'uz': "To'liq ism",
+    'kaa': "Tolıq atı",
+    'ru': "Полное имя",
+    'de': "Vollständiger Name",
+  });
+  String get passwordLabel => _t({
+    'uz': "Parol",
+    'kaa': "Parol",
+    'ru': "Пароль",
+    'de': "Passwort",
+  });
+  String get assignedGroupsLabel => _t({
+    'uz': "Biriktirilgan guruhlar",
+    'kaa': "Biriktirilgen toparlar",
+    'ru': "Закрепленные группы",
+    'de': "Zugewiesene Gruppen",
+  });
+  String get add => _t({
+    'uz': "Qo'shish",
+    'kaa': "Qosıw",
+    'ru': "Добавить",
+    'de': "Hinzufügen",
+  });
+  String get materials => _t({
+    'uz': "Dars materiallari",
+    'kaa': "Sabaq materialları",
+    'ru': "Материалы урока",
+    'de': "Unterrichtsmaterialien",
+  });
+
+  // ── Schreiben ─────────────────────────────────────────────────────────────────
+  String get schreibenTitle => _t({
+    'uz': "SCHREIBEN",
+    'kaa': "SCHREIBEN",
+    'ru': "SCHREIBEN",
+    'de': "SCHREIBEN",
+  });
+  String get aufgabe => _t({
+    'uz': "AUFGABE",
+    'kaa': "AUFGABE",
+    'ru': "AUFGABE",
+    'de': "AUFGABE",
+  });
+  String get styleLabel => _t({
+    'uz': "Stil:",
+    'kaa': "Stil:",
+    'ru': "Стиль:",
+    'de': "Stil:",
+  });
+  String get showSampleAnswer => _t({
+    'uz': "Namuna javobni ko‘rsatish",
+    'kaa': "Úlgi juwaptı kórsetiw",
+    'ru': "Показать пример ответа",
+    'de': "Show sample answer",
+  });
+  String get sampleAnswerComingSoon => _t({
+    'uz': "Beispielantwort tez orada qo'shiladi.",
+    'kaa': "Beispielantwort tez arada qosıladı.",
+    'ru': "Beispielantwort скоро будет добавлена.",
+    'de': "Beispielantwort wird bald hinzugefügt.",
+  });
+  String get aiPoweredEvaluation => _t({
+    'uz': "Sun'iy intellekt yordamida baholash",
+    'kaa': "Jasalma intellekt járdeminde bahalaw",
+    'ru': "Оценка на основе искусственного интеллекта",
+    'de': "AI-Powered Evaluation",
+  });
+  String get yourAnswer => _t({
+    'uz': "Sizning javobingiz",
+    'kaa': "Sizdiń juwabıńız",
+    'ru': "Your Answer",
+    'de': "Your Answer",
+  });
+  String get wordCountLabel => _t({
+    'uz': "Wörter",
+    'kaa': "Wörter",
+    'ru': "Wörter",
+    'de': "Wörter",
+  });
+  String get yourLetterHint => _t({
+    'uz': "Ihr Brief:",
+    'kaa': "Ihr Brief:",
+    'ru': "Ihr Brief:",
+    'de': "Ihr Brief:",
+  });
+  String get evaluating => _t({
+    'uz': "Tekshirilmoqda...",
+    'kaa': "Tekshirilmoqda...",
+    'ru': "Проверяется...",
+    'de': "Wird überprüft...",
+  });
+  String get submit => _t({
+    'uz': "Yuborish",
+    'kaa': "Jiberiw",
+    'ru': "Отправить",
+    'de': "Absenden",
+  });
+  String get writeAnswerHint => _t({
+    'uz': "Javobingizni yozing, AI baholaydi.",
+    'kaa': "Juwabıńızdı jazıń, AI bahalaydı.",
+    'ru': "Напишите ваш ответ, AI оценит.",
+    'de': "Schreiben Sie Ihre Antwort, AI bewertet.",
+  });
+  String get evaluation => _t({
+    'uz': "BAHOLASH",
+    'kaa': "BAHALAW",
+    'ru': "ОЦЕНКА",
+    'de': "BEWERTUNG",
+  });
+  String get backBtn => _t({
+    'uz': "Orqaga",
+    'kaa': "Artqa",
+    'ru': "Назад",
+    'de': "Zurück",
+  });
+  String get next => _t({
+    'uz': "Keyingi",
+    'kaa': "Keyingi",
+    'ru': "Далее",
+    'de': "Weiter",
+  });
+
+  // ── Teacher ─────────────────────────────────────────────────────────────────
+  String get checked => _t({
+    'uz': "Tekshirildi ✓",
+    'kaa': "Tekserildi ✓",
+    'ru': "Проверено ✓",
+    'de': "Überprüft ✓",
+  });
+  String get profilePhotoUpdated => _t({
+    'uz': "Profil rasmi yangilandi",
+    'kaa': "Profil suratı jańalandı",
+    'ru': "Фото профиля обновлено",
+    'de': "Profilbild aktualisiert",
+  });
+  String get markAttendance => _t({
+    'uz': "DAVOMATNI BELGILASH",
+    'kaa': "QATNASDÍ BELGILEW",
+    'ru': "ОТМЕТИТЬ ПОСЕЩАЕМОСТЬ",
+    'de': "ANWESENHEIT MARKIEREN",
+  });
+  String get materialsHeader => _t({
+    'uz': "MATERIALLAR",
+    'kaa': "MATERIALLAR",
+    'ru': "МАТЕРИАЛЫ",
+    'de': "MATERIALIEN",
+  });
+  String get addedMaterials => _t({
+    'uz': "Qo'shilgan materiallar:",
+    'kaa': "Qosılğan materiallar:",
+    'ru': "Добавленные материалы:",
+    'de': "Hinzugefügte Materialien:",
+  });
+  String get homeworkHeader => _t({
+    'uz': "UY VAZIFASI",
+    'kaa': "UY WAZIFASI",
+    'ru': "ДОМАШНЕЕ ЗАДАНИЕ",
+    'de': "HAUSAUFGABE",
+  });
+
+  // ── Student Learning ────────────────────────────────────────────────────────
+  String get statisticsAndResults => _t({
+    'uz': "STATISTIKA VA NATIJALAR",
+    'kaa': "STATISTIKA HÁM NÁTIYJELER",
+    'ru': "СТАТИСТИКА И РЕЗУЛЬТАТЫ",
+    'de': "STATISTIK UND ERGEBNISSE",
+  });
+  String get upcomingLessons => _t({
+    'uz': "KEYINGI DARSLAR",
+    'kaa': "KEYINGI SABAQLAR",
+    'ru': "БЛИЖАЙШИЕ УРОКИ",
+    'de': "KOMMENDE UNTERRICHTSSTUNDEN",
+  });
+  String get noLessonToday => _t({
+    'uz': "Bugun dars yo'q, dam oling yoki qo'shimcha mashq qiling",
+    'kaa': "Bugún sabaq joq, dem alıń yamasa qosımsha shınıǵıw qılıń",
+    'ru': "Сегодня нет урока, отдохните или сделайте дополнительные упражнения",
+    'de': "Heute keine Lektion, ruhen Sie sich aus oder machen Sie zusätzliche Übungen",
+  });
+  String get viewHomework => _t({
+    'uz': "UY VAZIFASINI KO'RISH",
+    'kaa': "ÚY JUMÍSÍN KÓRIW",
+    'ru': "ПОСМОТРЕТЬ ДОМАШНЕЕ ЗАДАНИЕ",
+    'de': "HAUSAUFGABE ANSEHEN",
+  });
+  String get homeworkSubmitted => _t({
+    'uz': "UY VAZIFASI TOPSHIRILDI",
+    'kaa': "ÚY JUMÍSÍ TAPSÍRÍLDÍ TAPSÍRÍLDÍ",
+    'ru': "ДОМАШНЕЕ ЗАДАНИЕ СДАНО",
+    'de': "HAUSAUFGABE ABGEGEBEN",
+  });
+  String get curriculum => _t({
+    'uz': "O'QUV REJASI",
+    'kaa': "OQÍW REJESI",
+    'ru': "УЧЕБНЫЙ ПЛАН",
+    'de': "STUDIENPLAN",
+  });
+  String get addHomework => _t({
+    'uz': "UY VAZIFA QO'SHISH",
+    'kaa': "ÚY JUMÍSÍN QOSÍW",
+    'ru': "ДОБАВИТЬ ДОМАШНЕЕ ЗАДАНИЕ",
+    'de': "HAUSAUFGABE HINZUFÜGEN",
+  });
+  String get homeworkCount => _t({
+    'uz': "UY VAZIFA",
+    'kaa': "ÚYGE TAPSÍRMA",
+    'ru': "ДОМАШНЕЕ ЗАДАНИЕ",
+    'de': "HAUSAUFGABE",
+  });
+  String get tapToAddHomework => _t({
+    'uz': "+ tugmasini bosib uy vazifa qo'shing",
+    'kaa': "+ túymesin basıp úy jumısın qosıń",
+    'ru': "Нажмите + чтобы добавить домашнее задание",
+    'de': "Drücken Sie + um Hausaufgabe hinzuzufügen",
+  });
+  String get lesson => _t({
+    'uz': "Dars",
+    'kaa': "Sabaq",
+    'ru': "Урок",
+    'de': "Lektion",
+  });
+  String get addLesson => _t({
+    'uz': "DARS QO'SHISH",
+    'kaa': "SABAQ QOSÍW",
+    'ru': "ДОБАВИТЬ УРОК",
+    'de': "LEKTION HINZUFÜGEN",
+  });
+  String get materialLabel => _t({
+    'uz': "Material",
+    'kaa': "Material",
+    'ru': "Материал",
+    'de': "Material",
+  });
+  String get submitted => _t({
+    'uz': "topshirdi",
+    'kaa': "tapsırdı",
+    'ru': "сдал",
+    'de': "abgegeben",
+  });
+  String get link => _t({
+    'uz': "Havola (Link)",
+    'kaa': "Silteme (Link)",
+    'ru': "Ссылка (Link)",
+    'de': "Link",
+  });
+  String get text => _t({
+    'uz': "Matn",
+    'kaa': "Tekst",
+    'ru': "Текст",
+    'de': "Text",
+  });
+  String get linkHint => _t({
+    'uz': "https://... yoki Telegram/Drive havolasi",
+    'kaa': "https://... yamasa Telegram/Drive siltesi",
+    'ru': "https://... или ссылка Telegram/Drive",
+    'de': "https://... oder Telegram/Drive Link",
+  });
+  String get materialTextHint => _t({
+    'uz': "Material matnini kiriting...",
+    'kaa': "Material tekstin kiritiń...",
+    'ru': "Введите текст материала...",
+    'de': "Materialtext eingeben...",
+  });
+  String get saveBtn => _t({
+    'uz': "SAQLASH",
+    'kaa': "SAQLAW",
+    'ru': "СОХРАНИТЬ",
+    'de': "SPEICHERN",
+  });
+  String get titleHint => _t({
+    'uz': "Sarlavha...",
+    'kaa': "Titul...",
+    'ru': "Заголовок...",
+    'de': "Titel...",
+  });
+  String get detailInfoHint => _t({
+    'uz': "Batafsil ma'lumot...",
+    'kaa': "Tolıq maǵlıwmat...",
+    'ru': "Подробная информация...",
+    'de': "Detaillierte Informationen...",
+  });
+  String get commentOptional => _t({
+    'uz': "Izoh (ixtiyoriy)...",
+    'kaa': "Túsindiriw (ıqtıyarlı)...",
+    'ru': "Комментарий (необязательно)...",
+    'de': "Kommentar (optional)...",
+  });
+  String get commentOptionalCaps => _t({
+    'uz': "IZOH (IXTIYORIY)",
+    'kaa': "TÚSINDÍRÍW (ÍQTÍYARLÍ)",
+    'ru': "КОММЕНТАРИЙ (НЕОБЯЗАТЕЛЬНО)",
+    'de': "KOMMENTAR (OPTIONAL)",
+  });
+  String get writeCommentOptional => _t({
+    'uz': "Izoh yozing (ixtiyoriy)...",
+    'kaa': "Túsindiriw jazıń (ÍQTÍYARLÍ)...",
+    'ru': "Напишите комментарий (необязательно)...",
+    'de': "Schreibe einen Kommentar (optional)...",
+  });
+  String get testAnswersOptional => _t({
+    'uz': "TEST JAVOBLARI (ixtiyoriy)",
+    'kaa': "TEST JUWAPLARI (ıqtıyarlı)",
+    'ru': "ОТВЕТЫ НА ТЕСТ (необязательно)",
+    'de': "TESTANTWORTEN (optional)",
+  });
+
+  // ── Notifications & messaging ─────────────────────────────────────────────
+  String get notificationsTitle => _t({
+    'uz': "Xabarnomalar",
+    'kaa': "Xabarlamalar",
+    'ru': "Уведомления",
+    'de': "Benachrichtigungen",
+  });
+  String get markAllAsRead => _t({
+    'uz': "Barchasini o'qildi deb belgilash",
+    'kaa': "Barlıǵın oqılǵan dep belgilew",
+    'ru': "Отметить все как прочитанные",
+    'de': "Alle als gelesen markieren",
+  });
+  String get noNotificationsYet => _t({
+    'uz': "Hozircha xabarlar yo'q",
+    'kaa': "Házirshe xabarlar joq",
+    'ru': "Пока нет уведомлений",
+    'de': "Noch keine Benachrichtigungen",
+  });
+  String get noNotificationsSubtitle => _t({
+    'uz': "Sizga yangi xabarlar kelganda bu yerda ko'rsatiladi",
+    'kaa': "Sizge taza xabarlar kelgende bul jerde kórsetiledi",
+    'ru': "Новые уведомления появятся здесь",
+    'de': "Neue Benachrichtigungen erscheinen hier",
+  });
+  String get sendMessage => _t({
+    'uz': "Xabar yuborish",
+    'kaa': "Xabar jiberiw",
+    'ru': "Отправить сообщение",
+    'de': "Nachricht senden",
+  });
+  String get titleLabel => _t({
+    'uz': "Sarlavha",
+    'kaa': "Titul",
+    'ru': "Заголовок",
+    'de': "Titel",
+  });
+  String get messageBodyLabel => _t({
+    'uz': "Xabar matni",
+    'kaa': "Xabar teksti",
+    'ru': "Текст сообщения",
+    'de': "Nachrichtentext",
+  });
+  String get selectUserLabel => _t({
+    'uz': "Foydalanuvchini tanlang",
+    'kaa': "Paydalanıwshını tańlań",
+    'ru': "Выберите пользователя",
+    'de': "Benutzer auswählen",
+  });
+  String get enterTitleAndMessage => _t({
+    'uz': "Sarlavha va xabar matnini kiriting",
+    'kaa': "Titul hám xabar tekstin kiritiń",
+    'ru': "Введите заголовок и текст сообщения",
+    'de': "Titel und Nachrichtentext eingeben",
+  });
+  String get messageSent => _t({
+    'uz': "Xabar yuborildi",
+    'kaa': "Xabar jiberildi",
+    'ru': "Сообщение отправлено",
+    'de': "Nachricht gesendet",
+  });
+  String get messageFallback => _t({
+    'uz': "Xabar",
+    'kaa': "Xabar",
+    'ru': "Сообщение",
+    'de': "Nachricht",
+  });
+
+  // ── Chat ───────────────────────────────────────────────────────────────────
+  String get groupChat => _t({
+    'uz': "Guruh chati",
+    'kaa': "Topar chatı",
+    'ru': "Групповой чат",
+    'de': "Gruppenchat",
+  });
+  String get noMessagesYet => _t({
+    'uz': "Hali xabarlar yo'q",
+    'kaa': "Ele xabarlar joq",
+    'ru': "Сообщений пока нет",
+    'de': "Noch keine Nachrichten",
+  });
+  String get sendFirstMessage => _t({
+    'uz': "Birinchi xabarni yuboring!",
+    'kaa': "Birinshi xabardı jiberiń!",
+    'ru': "Отправьте первое сообщение!",
+    'de': "Senden Sie die erste Nachricht!",
+  });
+  String get writeMessageHint => _t({
+    'uz': "Xabar yozing...",
+    'kaa': "Xabar jazıń...",
+    'ru': "Напишите сообщение...",
+    'de': "Nachricht schreiben...",
+  });
+  String get reply => _t({
+    'uz': "Javob berish",
+    'kaa': "Juwap berıw",
+    'ru': "Ответить",
+    'de': "Antworten",
+  });
+  String get copy => _t({
+    'uz': "Nusxa olish",
+    'kaa': "Kóshirme alıw",
+    'ru': "Копировать",
+    'de': "Kopieren",
+  });
+  String get edited => _t({
+    'uz': "tahrirlangan",
+    'kaa': "ózgertilgen",
+    'ru': "изменено",
+    'de': "bearbeitet",
+  });
+  String get deleteMessage => _t({
+    'uz': "Xabarni o'chirish",
+    'kaa': "Xabardı óshiriw",
+    'ru': "Удалить сообщение",
+    'de': "Nachricht löschen",
+  });
+  String get deleteMessageConfirm => _t({
+    'uz': "Ushbu xabarni o'chirishni xohlaysizmi?",
+    'kaa': "Bul xabardı óshiriwdı qáleysiz ba?",
+    'ru': "Вы хотите удалить это сообщение?",
+    'de': "Möchten Sie diese Nachricht löschen?",
+  });
+  String get messageDeleted => _t({
+    'uz': "Xabar o'chirildi",
+    'kaa': "Xabar óshirildi",
+    'ru': "Сообщение удалено",
+    'de': "Nachricht gelöscht",
+  });
+  String get copiedToClipboard => _t({
+    'uz': "Nusxa olindi",
+    'kaa': "Kóshirme alındı",
+    'ru': "Скопировано",
+    'de': "Kopiert",
+  });
+  String get editingMessage => _t({
+    'uz': "Xabarni tahrirlash",
+    'kaa': "Xabardı ózgertiw",
+    'ru': "Редактирование сообщения",
+    'de': "Nachricht bearbeiten",
+  });
+  String get replyingTo => _t({
+    'uz': "Javob berish",
+    'kaa': "Juwap beriw",
+    'ru': "Ответ на",
+    'de': "Antwort auf",
+  });
+  String get groupMembersTitle => _t({
+    'uz': "Guruh a'zolari",
+    'kaa': "Topar aǵzaları",
+    'ru': "Участники группы",
+    'de': "Gruppenmitglieder",
+  });
+  String get teacherBadge => _t({
+    'uz': "Ustoz",
+    'kaa': "Muǵallim",
+    'ru': "Учитель",
+    'de': "Lehrer",
+  });
+  String get groupTeacherRole => _t({
+    'uz': "Guruh o'qituvchisi",
+    'kaa': "Topar muǵallimi",
+    'ru': "Преподаватель группы",
+    'de': "Gruppenlehrer",
+  });
+  String get noGroupsTitle => _t({
+    'uz': "Guruhlar yo'q",
+    'kaa': "Toparlar joq",
+    'ru': "Нет групп",
+    'de': "Keine Gruppen",
+  });
+  String get unknown => _t({
+    'uz': "Noma'lum",
+    'kaa': "Belgisiz",
+    'ru': "Неизвестно",
+    'de': "Unbekannt",
+  });
+  String get translator => _t({
+    'uz': "Tarjimon",
+    'kaa': "Awdarmashı",
+    'ru': "Переводчик",
+    'de': "Übersetzer",
+  });
+  String get translateAction => _t({
+    'uz': "Tarjima qilish",
+    'kaa': "Awdarma qılıw",
+    'ru': "Перевести",
+    'de': "Übersetzen",
+  });
+  String get aiBot => _t({
+    'uz': "Ovozli AI",
+    'kaa': "Ovozli AI",
+    'ru': "Голосовой AI",
+    'de': "Sprach-KI",
+  });
+  String get qaSubtitle => _t({
+    'uz': "Savol-javob",
+    'kaa': "Suraw-juwap",
+    'ru': "Вопросы и ответы",
+    'de': "Fragen & Antworten",
+  });
+  String get freeConversation => _t({
+    'uz': "Erkin suhbat",
+    'kaa': "Erkin sóylesiw",
+    'ru': "Свободный разговор",
+    'de': "Freies Gespräch",
+  });
+
+  // ── Voice AI (real-time ovozli suhbat) ──────────────────────────────────────
+  String get voiceAiTitle => _t({
+    'uz': "Ovozli AI",
+    'kaa': "Dawıslı AI",
+    'ru': "Голосовой AI",
+    'de': "Sprach-KI",
+  });
+  String get voiceAiTapToStart => _t({
+    'uz': "Gaplashishni boshlash uchun bosing",
+    'kaa': "Sóylesiwdi baslaw ushın basıń",
+    'ru': "Нажмите, чтобы начать разговор",
+    'de': "Tippen zum Sprechen",
+  });
+  String get voiceAiListening => _t({
+    'uz': "Tinglayapman...",
+    'kaa': "Tıńlap atırman...",
+    'ru': "Слушаю...",
+    'de': "Ich höre zu...",
+  });
+  String get voiceAiThinking => _t({
+    'uz': "O'ylayapman...",
+    'kaa': "Oylap atırman...",
+    'ru': "Думаю...",
+    'de': "Ich überlege...",
+  });
+  String get voiceAiSpeaking => _t({
+    'uz': "Gapiryapman...",
+    'kaa': "Sóylep atırman...",
+    'ru': "Говорю...",
+    'de': "Ich spreche...",
+  });
+  String get voiceAiConnecting => _t({
+    'uz': "Ulanmoqda...",
+    'kaa': "Baylanısıp atır...",
+    'ru': "Подключение...",
+    'de': "Verbindung...",
+  });
+  String get voiceAiHoldToTalk => _t({
+    'uz': "Gapirish uchun tugmani bosib turing",
+    'kaa': "Sóylew ushın túymeni basıp turıń",
+    'ru': "Зажмите кнопку, чтобы говорить",
+    'de': "Zum Sprechen Taste gedrückt halten",
+  });
+  String get voiceAiRecordingRelease => _t({
+    'uz': "Gapiring... (yuborish uchun qo'yib yuboring)",
+    'kaa': "Sóyleń... (jiberiw ushın qoyıp jiberiń)",
+    'ru': "Говорите... (отпустите, чтобы отправить)",
+    'de': "Sprich... (loslassen zum Senden)",
+  });
+  String get voiceAiComingSoon => _t({
+    'uz': "Real-time ovozli suhbat tez orada to'liq ishga tushadi.",
+    'kaa': "Real-time dawıslı sóylesiw tez arada tolıq iske túsedi.",
+    'ru': "Голосовой разговор в реальном времени скоро заработает полностью.",
+    'de': "Das Echtzeit-Sprachgespräch wird bald vollständig verfügbar sein.",
+  });
+  String get voiceAiEnd => _t({
+    'uz': "Tugatish",
+    'kaa': "Tamamlaw",
+    'ru': "Завершить",
+    'de': "Beenden",
+  });
+
+  // ── Home extras ────────────────────────────────────────────────────────────
+  String get streakSavedTitle => _t({
+    'uz': "STREAK SAQLANDI!",
+    'kaa': "STREAK SAQLANDI!",
+    'ru': "СЕРИЯ СОХРАНЕНА!",
+    'de': "SERIE GESPEICHERT!",
+  });
+  String get keepLearningDaily => _t({
+    'uz': "Har kuni o'rganishda davom eting!",
+    'kaa': "Hár kún úyreniwdi dawam etiń!",
+    'ru': "Продолжайте учиться каждый день!",
+    'de': "Lernen Sie jeden Tag weiter!",
+  });
+  String get averageScore => _t({
+    'uz': "O'rtacha Ball",
+    'kaa': "Ortasha ball",
+    'ru': "Средний балл",
+    'de': "Durchschnittsnote",
+  });
+  String get noDataYet => _t({
+    'uz': "Hozircha ma'lumot yo'q",
+    'kaa': "Házirshe maǵlıwmat joq",
+    'ru': "Данных пока нет",
+    'de': "Noch keine Daten",
+  });
+  String get errorOccurred => _t({
+    'uz': "Xatolik yuz berdi",
+    'kaa': "Qátelik júz berdi",
+    'ru': "Произошла ошибка",
+    'de': "Ein Fehler ist aufgetreten",
+  });
+  String get emailNotRegistered => _t({
+    'uz': "Ushbu elektron pochta ro'yxatdan o'tmagan.",
+    'kaa': "Bul elektron pochta dizimnen ótpegen.",
+    'ru': "Этот email не зарегистрирован.",
+    'de': "Diese E-Mail ist nicht registriert.",
+  });
+  String get wrongPasswordEntered => _t({
+    'uz': "Parol noto'g'ri kiritildi.",
+    'kaa': "Parol nadurıs kiritildi.",
+    'ru': "Неверный пароль.",
+    'de': "Falsches Passwort eingegeben.",
+  });
+  String get passwordsDontMatch => _t({
+    'uz': "Parollar mos kelmadi",
+    'kaa': "Parollar sáykes kelmeydi",
+    'ru': "Пароли не совпадают",
+    'de': "Passwörter stimmen nicht überein",
+  });
+  String get passwordMin6 => _t({
+    'uz': "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
+    'kaa': "Parol keminde 6 belgiden ibarat bolıwı kerek",
+    'ru': "Пароль должен содержать минимум 6 символов",
+    'de': "Passwort muss mindestens 6 Zeichen haben",
+  });
+  String get registerSuccess => _t({
+    'uz': "Muvaffaqiyatli ro'yxatdan o'tdingiz! 🎉",
+    'kaa': "Sátli dizimnen óttińiz! 🎉",
+    'ru': "Регистрация прошла успешно! 🎉",
+    'de': "Erfolgreich registriert! 🎉",
+  });
+  String get genericError => _t({
+    'uz': "Xatolik yuz berdi",
+    'kaa': "Qátelik júz berdi",
+    'ru': "Произошла ошибка",
+    'de': "Ein Fehler ist aufgetreten",
+  });
+  String get emailInUse => _t({
+    'uz': "Bu email band. Boshqa email kiriting.",
+    'kaa': "Bul email band. Basqa email kiritiń.",
+    'ru': "Этот email уже занят. Введите другой.",
+    'de': "Diese E-Mail ist vergeben. Andere E-Mail eingeben.",
+  });
+  String get retry => _t({
+    'uz': "Qayta urinish",
+    'kaa': "Qayta urınıw",
+    'ru': "Повторить",
+    'de': "Erneut versuchen",
+  });
+  String get failedToLoadData => _t({
+    'uz': "Ma'lumotlarni yuklab bo'lmadi.",
+    'kaa': "Maǵlıwmatlardı júklep bolmadı.",
+    'ru': "Не удалось загрузить данные.",
+    'de': "Daten konnten nicht geladen werden.",
+  });
+  String get noInternetTitle => _t({
+    'uz': "Internet aloqasi yo'q",
+    'kaa': "Internet baylanısı joq",
+    'ru': "Нет подключения к интернету",
+    'de': "Keine Internetverbindung",
+  });
+  String get noInternetMessage => _t({
+    'uz': "Internet aloqasini tekshiring va qayta urining.",
+    'kaa': "Internet baylanısın tekseriń hám qayta urınıń.",
+    'ru': "Проверьте подключение и попробуйте снова.",
+    'de': "Internetverbindung prüfen und erneut versuchen.",
+  });
+  String get noLessonsYet => _t({
+    'uz': "Hozircha darslar yo'q",
+    'kaa': "Házirshe sabaqlar joq",
+    'ru': "Уроков пока нет",
+    'de': "Noch keine Lektionen",
+  });
+  String get noLessonsSubtitle => _t({
+    'uz': "Tez orada yangi darslar qo'shiladi.\nKuting yoki qo'shimcha mashq qiling!",
+    'kaa': "Tez arada taza sabaqlar qosıladı.\nKútiń yamasa qosımsha shınıǵıw qılıń!",
+    'ru': "Скоро появятся новые уроки.\nПодождите или сделайте доп. упражнения!",
+    'de': "Neue Lektionen kommen bald.\nWarten oder extra üben!",
+  });
+  String get viewGames => _t({
+    'uz': "O'yinlarni ko'rish",
+    'kaa': "Oyınlardı kóriw",
+    'ru': "Посмотреть игры",
+    'de': "Spiele ansehen",
+  });
+  String get allHomeworkDone => _t({
+    'uz': "Barcha vazifalar tugatildi!",
+    'kaa': "Barlıq tapsırmalar tamamlandı!",
+    'ru': "Все задания выполнены!",
+    'de': "Alle Aufgaben erledigt!",
+  });
+  String get allHomeworkDoneSubtitle => _t({
+    'uz': "Ajoyib! Siz barcha uyga vazifalarni bajardingiz.",
+    'kaa': "Ajayıp! Siz barlıq úy tapsırmaların orınladıńız.",
+    'ru': "Отлично! Вы выполнили все домашние задания.",
+    'de': "Super! Alle Hausaufgaben erledigt.",
+  });
+  String get noGamesYet => _t({
+    'uz': "O'yinlar yo'q",
+    'kaa': "Oyınlar joq",
+    'ru': "Игр нет",
+    'de': "Keine Spiele",
+  });
+  String get noGamesSubtitle => _t({
+    'uz': "Hozircha mavjud o'yinlar yo'q.\nTez orada yangilari qo'shiladi.",
+    'kaa': "Házirshe bar bolǵan oyınlar joq.\nTez arada jańaları qosıladı.",
+    'ru': "Игр пока нет.\nСкоро появятся новые.",
+    'de': "Noch keine Spiele.\nBald kommen neue.",
+  });
+  String get noMessagesTitle => _t({
+    'uz': "Xabarlar yo'q",
+    'kaa': "Xabarlar joq",
+    'ru': "Нет сообщений",
+    'de': "Keine Nachrichten",
+  });
+  String get noMessagesSubtitle => _t({
+    'uz': "Suhbatni boshlash uchun biror narsa yozing.",
+    'kaa': "Sóylesiwdi baslaw ushın birdeń jazıń.",
+    'ru': "Напишите что-нибудь, чтобы начать чат.",
+    'de': "Schreiben Sie etwas, um zu starten.",
+  });
+  String get noGroupsSubtitle => _t({
+    'uz': "Siz hali hech qanday guruhga qo'shilmagansiz.\nGuruhga qo'shiling va darslarni boshlang!",
+    'kaa': "Siz ele hesh qanday toparǵa qosılmaǵansız.\nToparǵa qosılıń hám sabaqlardı baslań!",
+    'ru': "Вы ещё не в группе.\nПрисоединитесь и начните уроки!",
+    'de': "Sie sind in keiner Gruppe.\nTreten Sie einer bei!",
+  });
+  String get joinGroup => _t({
+    'uz': "Guruhga qo'shilish",
+    'kaa': "Toparǵa qosılıw",
+    'ru': "Присоединиться к группе",
+    'de': "Gruppe beitreten",
+  });
+  String get noAchievementsYet => _t({
+    'uz': "Yutuqlar yo'q",
+    'kaa': "Jetiskenlikler joq",
+    'ru': "Достижений нет",
+    'de': "Keine Erfolge",
+  });
+  String get noAchievementsSubtitle => _t({
+    'uz': "O'yinlarda qatnashib yutuqlarni qo'lga kiting!",
+    'kaa': "Oyınlarda qatnasıp jetiskenliklerdi qolǵa kiriń!",
+    'ru': "Участвуйте в играх и получайте достижения!",
+    'de': "Spielen Sie und sammeln Sie Erfolge!",
+  });
+  String get justNow => _t({
+    'uz': "Hozirgina",
+    'kaa': "Házir",
+    'ru': "Только что",
+    'de': "Gerade eben",
+  });
+  String get yesterday => _t({
+    'uz': "Kecha",
+    'kaa': "Keshе",
+    'ru': "Вчера",
+    'de': "Gestern",
+  });
+  String get serverErrorTitle => _t({
+    'uz': "Server xatosi",
+    'kaa': "Server qáteligi",
+    'ru': "Ошибка сервера",
+    'de': "Serverfehler",
+  });
+  String get serverErrorMessage => _t({
+    'uz': "Serverda xatolik yuz berdi. Iltimos, keyinroq qayta urining.",
+    'kaa': "Serverde qátelik júz berdi. Keyinirek qayta urınıń.",
+    'ru': "Ошибка на сервере. Попробуйте позже.",
+    'de': "Serverfehler. Bitte später erneut versuchen.",
+  });
+  String get timeoutTitle => _t({
+    'uz': "Vaqt tugadi",
+    'kaa': "Waqıt tawsıldı",
+    'ru': "Время истекло",
+    'de': "Zeit abgelaufen",
+  });
+  String get timeoutMessage => _t({
+    'uz': "So'rov tugadi. Internet aloqasini tekshiring va qayta urining.",
+    'kaa': "Soraw tamamlandı. Internet baylanısın tekseriń.",
+    'ru': "Запрос истёк. Проверьте интернет и повторите.",
+    'de': "Anfrage abgelaufen. Internet prüfen und erneut versuchen.",
+  });
+  String get unknownErrorMessage => _t({
+    'uz': "Noma'lum xatolik yuz berdi.",
+    'kaa': "Belgisiz qátelik júz berdi.",
+    'ru': "Произошла неизвестная ошибка.",
+    'de': "Unbekannter Fehler aufgetreten.",
+  });
+  String get dataNotFoundTitle => _t({
+    'uz': "Ma'lumot topilmadi",
+    'kaa': "Maǵlıwmat tabılmadı",
+    'ru': "Данные не найдены",
+    'de': "Daten nicht gefunden",
+  });
+  String get dataNotFoundMessage => _t({
+    'uz': "So'ralgan ma'lumotlar topilmadi.",
+    'kaa': "Soralǵan maǵlıwmatlar tabılmadı.",
+    'ru': "Запрошенные данные не найдены.",
+    'de': "Angeforderte Daten nicht gefunden.",
+  });
+  String get permissionRequiredTitle => _t({
+    'uz': "Ruxsat kerak",
+    'kaa': "Ruxsat kerek",
+    'ru': "Требуется разрешение",
+    'de': "Berechtigung erforderlich",
+  });
+  String permissionRequiredMessage(String permission) {
+    final template = _t({
+      'uz': '{p} ruxsatini berishingiz kerak.',
+      'kaa': '{p} ruxsatın beriwińiz kerek.',
+      'ru': 'Необходимо разрешение: {p}.',
+      'de': 'Berechtigung {p} erforderlich.',
+    });
+    return template.replaceAll('{p}', permission);
+  }
+  String get grantPermission => _t({
+    'uz': "Ruxsat berish",
+    'kaa': "Ruxsat beriw",
+    'ru': "Разрешить",
+    'de': "Berechtigung erteilen",
+  });
+  String get gallery => _t({
+    'uz': "Galereya",
+    'kaa': "Galereya",
+    'ru': "Галерея",
+    'de': "Galerie",
+  });
+  String get camera => _t({
+    'uz': "Kamera",
+    'kaa': "Kamera",
+    'ru': "Камера",
+    'de': "Kamera",
+  });
+  String get tryAgainLater => _t({
+    'uz': "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.",
+    'kaa': "Qátelik júz berdi. Iltimas, qayta urınıń.",
+    'ru': "Произошла ошибка. Попробуйте снова.",
+    'de': "Ein Fehler ist aufgetreten. Bitte erneut versuchen.",
+  });
+
+  String peopleCount(int count) {
+    final template = _t({
+      'uz': '{n} kishi',
+      'kaa': '{n} kisi',
+      'ru': '{n} чел.',
+      'de': '{n} Personen',
+    });
+    return template.replaceAll('{n}', count.toString());
+  }
+
+  String studentsCount(int count) {
+    final template = _t({
+      'uz': '{n} talaba',
+      'kaa': '{n} oqıwshı',
+      'ru': '{n} учеников',
+      'de': '{n} Schüler',
+    });
+    return template.replaceAll('{n}', count.toString());
+  }
+
+  String homeworkTasksCount(int count) {
+    final template = _t({
+      'uz': '{n} ta vazifa',
+      'kaa': '{n} tapsırma',
+      'ru': '{n} заданий',
+      'de': '{n} Aufgaben',
+    });
+    return template.replaceAll('{n}', count.toString());
+  }
+
+  String homeworkMarkedDone(String title) {
+    final template = _t({
+      'uz': '{title} tugatildi!',
+      'kaa': '{title} tamamlandı!',
+      'ru': '{title} выполнено!',
+      'de': '{title} erledigt!',
+    });
+    return template.replaceAll('{title}', title);
+  }
+
+  String homeworkUnmarked(String title) {
+    final template = _t({
+      'uz': '{title} olib tashlandi',
+      'kaa': '{title} alıp taslandı',
+      'ru': '{title} снято',
+      'de': '{title} entfernt',
+    });
+    return template.replaceAll('{title}', title);
+  }
+
+  String activityStreakDays(int days) {
+    final template = _t({
+      'uz': 'FAOLIYAT: {n} KUN',
+      'kaa': 'ISKERLIK: {n} KÚN',
+      'ru': 'АКТИВНОСТЬ: {n} ДН.',
+      'de': 'AKTIVITÄT: {n} TAGE',
+    });
+    return template.replaceAll('{n}', days.toString());
+  }
+
+  String minutesShort(int minutes) {
+    final template = _t({
+      'uz': '{n} daqiqa',
+      'kaa': '{n} minut',
+      'ru': '{n} мин.',
+      'de': '{n} Min.',
+    });
+    return template.replaceAll('{n}', minutes.toString());
+  }
+
+  String dayMinutes(String day, int minutes) {
+    final template = _t({
+      'uz': '{day}: {minutes} daqiqa',
+      'kaa': '{day}: {minutes} minut',
+      'ru': '{day}: {minutes} мин.',
+      'de': '{day}: {minutes} Min.',
+    });
+    return template
+        .replaceAll('{day}', day)
+        .replaceAll('{minutes}', minutes.toString());
+  }
+
+  String get thisWeek => _t({
+    'uz': "Shu hafta",
+    'kaa': "Bul hápte",
+    'ru': "Эта неделя",
+    'de': "Diese Woche",
+  });
+
+  String weeksAgo(int weeks) {
+    final template = _t({
+      'uz': '{n} hafta oldin',
+      'kaa': '{n} hápte aldın',
+      'ru': '{n} нед. назад',
+      'de': 'vor {n} Wochen',
+    });
+    return template.replaceAll('{n}', weeks.toString());
+  }
+
+  String get totalTime => _t({
+    'uz': "Jami",
+    'kaa': "Barlıǵı",
+    'ru': "Всего",
+    'de': "Gesamt",
+  });
+
+  String get activeDays => _t({
+    'uz': "Faol kunlar",
+    'kaa': "Aktiv kúnler",
+    'ru': "Акт. дни",
+    'de': "Akt. Tage",
+  });
+
+  String get average => _t({
+    'uz': "O'rtacha",
+    'kaa': "Ortasha",
+    'ru': "Средн.",
+    'de': "Durchschn.",
+  });
+
+  String formatRelativeTime(DateTime date) {
+    final difference = DateTime.now().difference(date);
+    if (difference.inMinutes < 1) return justNow;
+    if (difference.inMinutes < 60) return minutesAgo(difference.inMinutes);
+    if (difference.inHours < 24) return hoursAgo(difference.inHours);
+    if (difference.inDays < 7) return daysAgo(difference.inDays);
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String formatChatTime(DateTime dateTime) {
+    final difference = DateTime.now().difference(dateTime);
+    if (difference.inMinutes < 1) return justNow;
+    if (difference.inHours < 1) return minutesAgo(difference.inMinutes);
+    if (difference.inDays < 1) return hoursAgo(difference.inHours);
+    if (difference.inDays == 1) return yesterday;
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+  }
+
+  String minutesAgo(int count) {
+    final template = _t({
+      'uz': '{n} daqiqa oldin',
+      'kaa': '{n} minut aldın',
+      'ru': '{n} мин. назад',
+      'de': 'vor {n} Min.',
+    });
+    return template.replaceAll('{n}', count.toString());
+  }
+
+  String hoursAgo(int count) {
+    final template = _t({
+      'uz': '{n} soat oldin',
+      'kaa': '{n} saat aldın',
+      'ru': '{n} ч. назад',
+      'de': 'vor {n} Std.',
+    });
+    return template.replaceAll('{n}', count.toString());
+  }
+
+  String daysAgo(int count) {
+    final template = _t({
+      'uz': '{n} kun oldin',
+      'kaa': '{n} kún aldın',
+      'ru': '{n} дн. назад',
+      'de': 'vor {n} Tagen',
+    });
+    return template.replaceAll('{n}', count.toString());
+  }
+
+  String conversationSubtitle(String germanTitle) =>
+      ConversationTopicsL10n.subtitle(_code, germanTitle);
+
+  // ── Translation ────────────────────────────────────────────────────────────
+  String get translationTitle => _t({
+    'uz': "TARJIMA",
+    'kaa': "AWDARMA",
+    'ru': "ПЕРЕВОД",
+    'de': "ÜBERSETZUNG",
+  });
+  String get enterGermanWord => _t({
+    'uz': "Nemis so'z yoki ibora kiriting",
+    'kaa': "Nemis sóz yamasa ibora kiritiń",
+    'ru': "Введите немецкое слово или фразу",
+    'de': "Deutsches Wort oder Phrase eingeben",
+  });
+  String get translationHint => _t({
+    'uz': "Masalan: der Tisch, gehen, das Haus...",
+    'kaa': "Maselen: der Tisch, gehen, das Haus...",
+    'ru': "Например: der Tisch, gehen, das Haus...",
+    'de': "z.B.: der Tisch, gehen, das Haus...",
+  });
+  String get translateButton => _t({
+    'uz': "TARJIMA QILISH",
+    'kaa': "AWDARMA QILIW",
+    'ru': "ПЕРЕВЕСТИ",
+    'de': "ÜBERSETZEN",
+  });
+  String get enterWordToTranslate => _t({
+    'uz': "Tarjima olish uchun nemis so'z kiriting",
+    'kaa': "Awdarma alıw ushın nemis tilindegi sóz kiritiń",
+    'ru': "Введите немецкое слово для перевода",
+    'de': "Geben Sie ein deutsches Wort zum Übersetzen ein",
+  });
+  String get originalWord => _t({
+    'uz': "ASL SO'Z",
+    'kaa': "KIRITILGEN SÓZ",
+    'ru': "ИСХОДНОЕ СЛОВО",
+    'de': "ORIGINALWORT",
+  });
+  String get meanings => _t({
+    'uz': "MA'NOLAR",
+    'kaa': "MÁNISLERI",
+    'ru': "ЗНАЧЕНИЯ",
+    'de': "BEDEUTUNGEN",
+  });
+  String get example => _t({
+    'uz': "MISOL",
+    'kaa': "MÍSAL",
+    'ru': "ПРИМЕР",
+    'de': "BEISPIEL",
+  });
+
+  // ── Chat settings ──────────────────────────────────────────────────────────
+  String get settings => _t({
+    'uz': "Sozlamalar",
+    'kaa': "Sazlamalar",
+    'ru': "Настройки",
+    'de': "Einstellungen",
+  });
+  String get textSize => _t({
+    'uz': "Matn o'lchami",
+    'kaa': "Tekst ólshemi",
+    'ru': "Размер текста",
+    'de': "Textgröße",
+  });
+  String get playbackSpeed => _t({
+    'uz': "Ijro tezligi",
+    'kaa': "Atqarıw tezligi",
+    'ru': "Скорость воспроизведения",
+    'de': "Wiedergabegeschwindigkeit",
+  });
+  String get autoReadAi => _t({
+    'uz': "AI javobini avtomatik o'qish",
+    'kaa': "AI juwabın avtomatik oqıw",
+    'ru': "Автоозвучка ответа ИИ",
+    'de': "KI-Antwort automatisch vorlesen",
+  });
+  String get openTranslationDefault => _t({
+    'uz': "Tarjimani default ochish",
+    'kaa': "Awdarmanı hár dayım ashıw",
+    'ru': "Перевод открывать по умолчанию",
+    'de': "Übersetzung standardmäßig öffnen",
+  });
+  String get showCorrections => _t({
+    'uz': "Correction ko'rsatish",
+    'kaa': "Dúzetiwlerdi kórsetiw",
+    'ru': "Показывать исправления",
+    'de': "Korrekturen anzeigen",
+  });
+  String get chatLength => _t({
+    'uz': "Chat uzunligi",
+    'kaa': "Chat uzınlıǵı",
+    'ru': "Длина чата",
+    'de': "Chat-Länge",
+  });
+  String chatWordLimit(int limit, int max) {
+    final template = _t({
+      'uz': '{n} so\'z (maks. {max})',
+      'kaa': '{n} sóz (maks. {max})',
+      'ru': '{n} слов (макс. {max})',
+      'de': '{n} Wörter (max. {max})',
+    });
+    return template.replaceAll('{n}', '$limit').replaceAll('{max}', '$max');
+  }
+
+  String chatMessageLimit(int limit, int max) {
+    final template = _t({
+      'uz': '{n} ta xabar (maks. {max})',
+      'kaa': '{n} xabar (maks. {max})',
+      'ru': '{n} сообщений (макс. {max})',
+      'de': '{n} Nachrichten (max. {max})',
+    });
+    return template.replaceAll('{n}', '$limit').replaceAll('{max}', '$max');
+  }
+  String get selectMentor => _t({
+    'uz': "Mentor tanlang",
+    'kaa': "Mentor tanlań",
+    'ru': "Выберите ментора",
+    'de': "Mentor auswählen",
+  });
+  String get typeHere => _t({
+    'uz': "Yozing...",
+    'kaa': "Jazıń...",
+    'ru': "Напишите...",
+    'de': "Schreiben...",
+  });
+  String get microphoneError => _t({
+    'uz': "Mikrofon ishlamadi. Ruxsat berilganligini tekshiring.",
+    'kaa': "Mikrofon jumıs islemeydı. Ruxsat berilgenligin tekserıń.",
+    'ru': "Микрофон не работает. Проверьте разрешения.",
+    'de': "Mikrofon funktioniert nicht. Überprüfen Sie die Berechtigungen.",
+  });
+  String get ttsError => _t({
+    'uz': "Ovozni ijro etib bo'lmadi. Internet aloqasini tekshiring.",
+    'kaa': "Dawıstı oynatıp bolmadı. Internet baylanısın tekserıń.",
+    'ru': "Не удалось воспроизвести звук. Проверьте подключение к интернету.",
+    'de': "Audio konnte nicht abgespielt werden. Überprüfen Sie die Internetverbindung.",
+  });
+  String get horenAudioError => _t({
+    'uz': "Audio yuklanmadi. Internet aloqasini tekshiring.",
+    'kaa': "Audio júklenbedi. Internet baylanısın tekserıń.",
+    'ru': "Аудио не загрузилось. Проверьте подключение к интернету.",
+    'de': "Audio konnte nicht geladen werden. Überprüfen Sie die Internetverbindung.",
+  });
+  String get horenAudioRetry => _t({
+    'uz': "Qayta urinish",
+    'kaa': "Qayta urınıw",
+    'ru': "Повторить",
+    'de': "Erneut versuchen",
+  });
+  String get grammarTheory => _t({
+    'uz': "Nazariy qism",
+    'kaa': "Teoriyalıq bólim",
+    'ru': "Теория",
+    'de': "Theorie",
+  });
+  String get grammarTables => _t({
+    'uz': "Jadvallar",
+    'kaa': "Kestelar",
+    'ru': "Таблицы",
+    'de': "Tabellen",
+  });
+  String get grammarExamples => _t({
+    'uz': "Misollar",
+    'kaa': "Mısallar",
+    'ru': "Примеры",
+    'de': "Beispiele",
+  });
+  String get grammarExplanation => _t({
+    'uz': "Tushuntirish",
+    'kaa': "Túsindirme",
+    'ru': "Объяснение",
+    'de': "Erklärung",
+  });
+  String get errorFound => _t({
+    'uz': "Xato topildi",
+    'kaa': "Qáte tabıldı",
+    'ru': "Найдена ошибка",
+    'de': "Fehler gefunden",
+  });
+  String get wrongSentence => _t({
+    'uz': "Xato gap",
+    'kaa': "Qáte gap",
+    'ru': "Неправильное предложение",
+    'de': "Falscher Satz",
+  });
+  String get correctedSentence => _t({
+    'uz': "To'g'rilangani",
+    'kaa': "Tuwrılanǵanı",
+    'ru': "Исправленное",
+    'de': "Korrigiert",
+  });
+  String get explanation => _t({
+    'uz': "Izoh",
+    'kaa': "Túsindiriw",
+    'ru': "Объяснение",
+    'de': "Erklärung",
+  });
+  String get mistakesLabel => _t({
+    'uz': "Xatolar",
+    'kaa': "Qáteler",
+    'ru': "Ошибки",
+    'de': "Fehler",
+  });
+
+  // ── Statistics ─────────────────────────────────────────────────────────────
+  String get homeworkCompletion => _t({
+    'uz': "Vazifa tugatilishi",
+    'kaa': "Tapsırma tamamlanıwı",
+    'ru': "Выполнение заданий",
+    'de': "Aufgabenabschluss",
+  });
+  String get totalLessons => _t({
+    'uz': "Jami darslar",
+    'kaa': "Barlıq sabaqlar",
+    'ru': "Всего уроков",
+    'de': "Lektionen gesamt",
+  });
+  String get attended => _t({
+    'uz': "Qatnashgan",
+    'kaa': "Qatnasqan",
+    'ru': "Посещено",
+    'de': "Teilgenommen",
+  });
+  String get notAttended => _t({
+    'uz': "Qatnashmagan",
+    'kaa': "Qatnaspaǵan",
+    'ru': "Пропущено",
+    'de': "Nicht teilgenommen",
+  });
+  String get totalHomeworks => _t({
+    'uz': "Jami vazifalar",
+    'kaa': "Barlıq tapsırmalar",
+    'ru': "Всего заданий",
+    'de': "Aufgaben gesamt",
+  });
+  String get completed => _t({
+    'uz': "Bajarilgan",
+    'kaa': "Orınlanǵan",
+    'ru': "Выполнено",
+    'de': "Erledigt",
+  });
+  String get notCompleted => _t({
+    'uz': "Bajarilmagan",
+    'kaa': "Orınlanbaǵan",
+    'ru': "Не выполнено",
+    'de': "Nicht erledigt",
+  });
+  String get totalStars => _t({
+    'uz': "Jami yulduzlar",
+    'kaa': "Barlıq juldızlar",
+    'ru': "Всего звёзд",
+    'de': "Sterne gesamt",
+  });
+  String get currentStreak => _t({
+    'uz': "Hozirgi streak",
+    'kaa': "Házirgi streak",
+    'ru': "Текущая серия",
+    'de': "Aktuelle Serie",
+  });
+  String streakDays(int days) {
+    final template = _t({
+      'uz': '{n} kun',
+      'kaa': '{n} kún',
+      'ru': '{n} дн.',
+      'de': '{n} Tage',
+    });
+    return template.replaceAll('{n}', days.toString());
+  }
+  String scoreOutOf(double score) {
+    final template = _t({
+      'uz': '{n}/10',
+      'kaa': '{n}/10',
+      'ru': '{n}/10',
+      'de': '{n}/10',
+    });
+    return template.replaceAll('{n}', score.toStringAsFixed(1));
+  }
+
+  // ── Payments ───────────────────────────────────────────────────────────────
+  String get paymentsTitle => _t({
+    'uz': "TO'LOVLAR",
+    'kaa': "TÓLEMLER",
+    'ru': "ПЛАТЕЖИ",
+    'de': "ZAHLUNGEN",
+  });
+  String get coursesNotFound => _t({
+    'uz': "Kurslar topilmadi",
+    'kaa': "Kurslar tabılmadı",
+    'ru': "Курсы не найдены",
+    'de': "Keine Kurse gefunden",
+  });
+  String get groupsNotFound => _t({
+    'uz': "Guruhlar topilmadi",
+    'kaa': "Toparlar tabılmadı",
+    'ru': "Группы не найдены",
+    'de': "Keine Gruppen gefunden",
+  });
+  String get noStudentsInGroupPayment => _t({
+    'uz': "Guruhda studentlar yo'q",
+    'kaa': "Toparda studentlar joq",
+    'ru': "В группе нет учеников",
+    'de': "Keine Schüler in der Gruppe",
+  });
+  String get periodUnknown => _t({
+    'uz': "Period noma'lum",
+    'kaa': "Period belgisiz",
+    'ru': "Период неизвестен",
+    'de': "Zeitraum unbekannt",
+  });
+  String get paymentAccepted => _t({
+    'uz': "QABUL QILINDI",
+    'kaa': "QABUL QÍLÍNDÍ",
+    'ru': "ПРИНЯТО",
+    'de': "ANGENOMMEN",
+  });
+  String get paymentRejected => _t({
+    'uz': "BEKOR QILINDI",
+    'kaa': "BIYKAR QÍLÍNDÍ",
+    'ru': "ОТМЕНЕНО",
+    'de': "ABGELEHNT",
+  });
+  String get cash => _t({
+    'uz': "NAQD",
+    'kaa': "NAQ",
+    'ru': "НАЛИЧНЫЕ",
+    'de': "BAR",
+  });
+  String get card => _t({
+    'uz': "PLASTIK",
+    'kaa': "PLASTIK",
+    'ru': "КАРТА",
+    'de': "KARTE",
+  });
+  String get addCashPayment => _t({
+    'uz': "NAQD TO'LOV QO'SHISH",
+    'kaa': "NAQ TÓLEM QOSÍW",
+    'ru': "ДОБАВИТЬ НАЛИЧНЫЙ ПЛАТЁЖ",
+    'de': "BARZAHLUNG HINZUFÜGEN",
+  });
+  String get periodLabel => _t({
+    'uz': "PERIOD",
+    'kaa': "PERIOD",
+    'ru': "ПЕРИОД",
+    'de': "ZEITRAUM",
+  });
+  String get noteLabel => _t({
+    'uz': "IZOH",
+    'kaa': "TÚSINDIRIW",
+    'ru': "КОММЕНТАРИЙ",
+    'de': "NOTIZ",
+  });
+  String get confirmAndSave => _t({
+    'uz': "TASDIQLASH VA SAQLASH",
+    'kaa': "RASTAW HÁM SAQLAW",
+    'ru': "ПОДТВЕРДИТЬ И СОХРАНИТЬ",
+    'de': "BESTÄTIGEN UND SPEICHERN",
+  });
+  String get paymentAlreadyExists => _t({
+    'uz': "Bu davr uchun allaqachon to'lov kiritilgan!",
+    'kaa': "Bul dáwir ushın álleqashan tólem kiritilgen!",
+    'ru': "За этот период платёж уже внесён!",
+    'de': "Für diesen Zeitraum wurde bereits gezahlt!",
+  });
+  String get cashPaymentConfirmed => _t({
+    'uz': "Naqd to'lov tasdiqlandi!",
+    'kaa': "Naq tólem tastıyqlandı!",
+    'ru': "Наличный платёж подтверждён!",
+    'de': "Barzahlung bestätigt!",
+  });
+  String get acceptPayment => _t({
+    'uz': "QABUL QILISH",
+    'kaa': "QABUL QÍLÍW",
+    'ru': "ПРИНЯТЬ",
+    'de': "ANNEHMEN",
+  });
+  String get rejectPayment => _t({
+    'uz': "BEKOR QILISH",
+    'kaa': "BIYKAR QÍLÍW",
+    'ru': "ОТКЛОНИТЬ",
+    'de': "ABLEHNEN",
+  });
+  String get adminNote => _t({
+    'uz': "ADMIN IZOHI",
+    'kaa': "ADMIN TÚSINDIRMESI",
+    'ru': "КОММЕНТАРИЙ АДМИНА",
+    'de': "ADMIN-NOTIZ",
+  });
+  String get paymentAcceptedMsg => _t({
+    'uz': "To'lov qabul qilindi!",
+    'kaa': "Tólem qabıl qılındı!",
+    'ru': "Платёж принят!",
+    'de': "Zahlung angenommen!",
+  });
+  String get paymentRejectedMsg => _t({
+    'uz': "To'lov bekor qilindi",
+    'kaa': "Tólem biykar qılındı",
+    'ru': "Платёж отклонён",
+    'de': "Zahlung abgelehnt",
+  });
+  String get yourPaymentAccepted => _t({
+    'uz': "Sizning to'lovingiz qabul qilindi.",
+    'kaa': "Siziń tólemińiz qabıl etildi.",
+    'ru': "Ваш платёж принят.",
+    'de': "Ihre Zahlung wurde angenommen.",
+  });
+  String paymentRejectedBody(String reason) {
+    final template = _t({
+      'uz': "Sizning to'lovingiz bekor qilindi. {reason}",
+      'kaa': "Siziń tólemińiz biykar qılındı. {reason}",
+      'ru': "Ваш платёж отклонён. {reason}",
+      'de': "Ihre Zahlung wurde abgelehnt. {reason}",
+    });
+    return template.replaceAll('{reason}', reason);
+  }
+  String get reasonPrefix => _t({
+    'uz': "Sabab:",
+    'kaa': "Sebep:",
+    'ru': "Причина:",
+    'de': "Grund:",
+  });
+  String groupStudentsTitle(String groupName) {
+    final template = _t({
+      'uz': '{name} — STUDENTLAR',
+      'kaa': '{name} — STUDENTLER',
+      'ru': '{name} — УЧЕНИКИ',
+      'de': '{name} — SCHÜLER',
+    });
+    return template.replaceAll('{name}', groupName);
+  }
+  String get pleaseSelectPeriod => _t({
+    'uz': "Iltimos, period tanlang",
+    'kaa': "Iltimas, period tańlań",
+    'ru': "Пожалуйста, выберите период",
+    'de': "Bitte Zeitraum wählen",
+  });
+  String get paymentSubmittedSuccess => _t({
+    'uz': "To'lov muvaffaqiyatli yuborildi!",
+    'kaa': "Tólem sátli jiberildi!",
+    'ru': "Платёж успешно отправлен!",
+    'de': "Zahlung erfolgreich gesendet!",
+  });
+  String get newPaymentReceived => _t({
+    'uz': "Yangi to'lov keldi",
+    'kaa': "Jańa tólem keldi",
+    'ru': "Новый платёж",
+    'de': "Neue Zahlung",
+  });
+  String paymentSentBody(String name, String period) {
+    final template = _t({
+      'uz': '{name} to\'lov yubordi: {period} davri',
+      'kaa': '{name} tólem jiberdi: {period} dáwiri',
+      'ru': '{name} отправил платёж: период {period}',
+      'de': '{name} hat Zahlung gesendet: Zeitraum {period}',
+    });
+    return template.replaceAll('{name}', name).replaceAll('{period}', period);
+  }
+  String get paymentExampleHint => _t({
+    'uz': "Masalan: Aprel oyi to'lovi...",
+    'kaa': "Mysal: Aprel ayı tólemi...",
+    'ru': "Например: оплата за апрель...",
+    'de': "z.B.: Zahlung für April...",
+  });
+  String get cashPaymentExampleHint => _t({
+    'uz': "Masalan: Aprel oyi naqd to'lovi...",
+    'kaa': "Mısal: Aprel ayı naq tólemi...",
+    'ru': "Например: наличная оплата за апрель...",
+    'de': "z.B.: Barzahlung für April...",
+  });
+
+  // ── Teacher / lessons ────────────────────────────────────────────────────────
+  String get deleteLessonTitle => _t({
+    'uz': "Darsni o'chirish",
+    'kaa': "Sabaqtı óshiriw",
+    'ru': "Удалить урок",
+    'de': "Lektion löschen",
+  });
+  String get deleteLessonConfirm => _t({
+    'uz': "Rostdan ham ushbu darsni o'chirmoqchimisiz?",
+    'kaa': "Shınında da bul sabaqtı óshirmekshi sizbe?",
+    'ru': "Действительно удалить этот урок?",
+    'de': "Diese Lektion wirklich löschen?",
+  });
+  String get deleteUpper => _t({
+    'uz': "O'CHIRISH",
+    'kaa': "ÓSHIRIW",
+    'ru': "УДАЛИТЬ",
+    'de': "LÖSCHEN",
+  });
+  String get cancelUpper => _t({
+    'uz': "BEKOR QILISH",
+    'kaa': "BIYKAR QÍLÍW",
+    'ru': "ОТМЕНА",
+    'de': "ABBRECHEN",
+  });
+  String get editLesson => _t({
+    'uz': "DARSNI TAHRIRLASH",
+    'kaa': "SABAQTI ÓZGERTIW",
+    'ru': "РЕДАКТИРОВАТЬ УРОК",
+    'de': "LEKTION BEARBEITEN",
+  });
+  String get lessonTypeHint => _t({
+    'uz': "Yoki o'zingiz yozing (Masalan: Imtihon)",
+    'kaa': "Yamasa ózińiz jazıń (Mysal: Imtihon)",
+    'ru': "Или введите сами (например: Экзамен)",
+    'de': "Oder selbst eingeben (z.B.: Prüfung)",
+  });
+  String get timeHint => _t({
+    'uz': "Vaqt (14:00)",
+    'kaa': "Waqıt (14:00)",
+    'ru': "Время (14:00)",
+    'de': "Uhrzeit (14:00)",
+  });
+  String get roomHint => _t({
+    'uz': "Xona (B1)",
+    'kaa': "Xana (B1)",
+    'ru': "Аудитория (B1)",
+    'de': "Raum (B1)",
+  });
+  String get attendanceSaved => _t({
+    'uz': "Davomat saqlandi ✅",
+    'kaa': "Qatnas saqlandı ✅",
+    'ru': "Посещаемость сохранена ✅",
+    'de': "Anwesenheit gespeichert ✅",
+  });
+  String taskNumber(int n) {
+    final template = _t({
+      'uz': 'Vazifa {n}',
+      'kaa': 'Tapsırma {n}',
+      'ru': 'Задание {n}',
+      'de': 'Aufgabe {n}',
+    });
+    return template.replaceAll('{n}', n.toString());
+  }
+  String get checkedShort => _t({
+    'uz': "Tekshirilgan",
+    'kaa': "Tekserilgen",
+    'ru': "Проверено",
+    'de': "Überprüft",
+  });
+  String resultCorrect(int correct, int total) {
+    final template = _t({
+      'uz': 'Natija: {c}/{t} to\'g\'ri',
+      'kaa': 'Nátije: {c}/{t} durıs',
+      'ru': 'Результат: {c}/{t} верно',
+      'de': 'Ergebnis: {c}/{t} richtig',
+    });
+    return template.replaceAll('{c}', '$correct').replaceAll('{t}', '$total');
+  }
+  String get submittedUpper => _t({
+    'uz': "TOPSHIRDI",
+    'kaa': "TOPSHIRDI",
+    'ru': "СДАЛ",
+    'de': "ABGEGEBEN",
+  });
+  String get notSubmitted => _t({
+    'uz': "YO'Q",
+    'kaa': "JOQ",
+    'ru': "НЕТ",
+    'de': "NEIN",
+  });
+  String get homeworkNotSubmittedYet => _t({
+    'uz': "Hali uy vazifa topshirilmagan",
+    'kaa': "Ele úy tapsırması topsırılmagan",
+    'ru': "Домашнее задание ещё не сдано",
+    'de': "Hausaufgabe noch nicht abgegeben",
+  });
+  String homeworkDue(String title) {
+    final template = _t({
+      'uz': 'Uy vazifasi ({title})',
+      'kaa': 'Úy tapsırması ({title})',
+      'ru': 'Домашнее задание ({title})',
+      'de': 'Hausaufgabe ({title})',
+    });
+    return template.replaceAll('{title}', title);
+  }
+
+  // ── Admin / groups ─────────────────────────────────────────────────────────
+  String get adminProfile => _t({
+    'uz': "ADMIN PROFIL",
+    'kaa': "ADMIN PROFIL",
+    'ru': "ПРОФИЛЬ АДМИНА",
+    'de': "ADMIN-PROFIL",
+  });
+  String get editProfileCaps => _t({
+    'uz': "PROFILNI TAHRIRLASH",
+    'kaa': "PROFILDI TAHRIRLEW",
+    'ru': "РЕДАКТИРОВАТЬ ПРОФИЛЬ",
+    'de': "PROFIL BEARBEITEN",
+  });
+  String get groupAbout => _t({
+    'uz': "GURUH HAQIDA",
+    'kaa': "TOPAR HAqqında",
+    'ru': "О ГРУППЕ",
+    'de': "ÜBER DIE GRUPPE",
+  });
+  String get groupNameLabel => _t({
+    'uz': "Guruh nomi",
+    'kaa': "Topar atı",
+    'ru': "Название группы",
+    'de': "Gruppenname",
+  });
+  String get studentCountLabel => _t({
+    'uz': "Studentlar soni",
+    'kaa': "Studentlar sanı",
+    'ru': "Количество учеников",
+    'de': "Anzahl Schüler",
+  });
+  String durationMonths(int n) {
+    final template = _t({
+      'uz': '{n} oy',
+      'kaa': '{n} ay',
+      'ru': '{n} мес.',
+      'de': '{n} Mon.',
+    });
+    return template.replaceAll('{n}', n.toString());
+  }
+  String studentRemovedFromGroup(String name) {
+    final template = _t({
+      'uz': '{name} guruhdan chiqarildi',
+      'kaa': '{name} topardan shıǵarıldı',
+      'ru': '{name} удалён из группы',
+      'de': '{name} aus der Gruppe entfernt',
+    });
+    return template.replaceAll('{name}', name);
+  }
+  String studentAddedToGroup(String name) {
+    final template = _t({
+      'uz': '{name} guruhga qo\'shildi',
+      'kaa': '{name} toparǵa qosıldı',
+      'ru': '{name} добавлен в группу',
+      'de': '{name} zur Gruppe hinzugefügt',
+    });
+    return template.replaceAll('{name}', name);
+  }
+  String get teacherAssigned => _t({
+    'uz': "O'qituvchi biriktirildi",
+    'kaa': "Muǵallim biriktirildi",
+    'ru': "Учитель назначен",
+    'de': "Lehrer zugewiesen",
+  });
+  String get newGroup => _t({
+    'uz': "YANGI GURUH",
+    'kaa': "TÁZE TOPAR",
+    'ru': "НОВАЯ ГРУППА",
+    'de': "NEUE GRUPPE",
+  });
+  String get noGroupsYetAdmin => _t({
+    'uz': "Hali guruhlar yo'q",
+    'kaa': "Ele toparlar joq",
+    'ru': "Групп пока нет",
+    'de': "Noch keine Gruppen",
+  });
+  String get teachersNotFound => _t({
+    'uz': "Teacherlar topilmadi",
+    'kaa': "Muǵallimler tabılmadı",
+    'ru': "Учителя не найдены",
+    'de': "Keine Lehrer gefunden",
+  });
+  String get studentsNotFound => _t({
+    'uz': "Studentlar topilmadi",
+    'kaa': "Studentlar tabılmadı",
+    'ru': "Ученики не найдены",
+    'de': "Keine Schüler gefunden",
+  });
+  String get teacherAddedSuccess => _t({
+    'uz': "O'qituvchi muvaffaqiyatli qo'shildi!",
+    'kaa': "Muǵallim sátli qosıldı!",
+    'ru': "Учитель успешно добавлен!",
+    'de': "Lehrer erfolgreich hinzugefügt!",
+  });
+  String get activeGroups => _t({
+    'uz': "Faol guruhlar",
+    'kaa': "Aktiv toparlar",
+    'ru': "Активные группы",
+    'de': "Aktive Gruppen",
+  });
+  String activeGroupsCount(int n) {
+    final template = _t({
+      'uz': 'Hozirda {n} ta faol guruh mavjud',
+      'kaa': 'Házir {n} aktiv topar bar',
+      'ru': 'Сейчас {n} активных групп',
+      'de': 'Derzeit {n} aktive Gruppen',
+    });
+    return template.replaceAll('{n}', n.toString());
+  }
+  String get newTests => _t({
+    'uz': "Yangi testlar",
+    'kaa': "Jańa testler",
+    'ru': "Новые тесты",
+    'de': "Neue Tests",
+  });
+  String get noNewTestsYet => _t({
+    'uz': "Hali yangi testlar qo'shilmadi",
+    'kaa': "Ele jańa testler qosılmadı",
+    'ru': "Новые тесты ещё не добавлены",
+    'de': "Noch keine neuen Tests",
+  });
+  String get paymentControl => _t({
+    'uz': "To'lov nazorati",
+    'kaa': "Tólem basqarıwı",
+    'ru': "Контроль платежей",
+    'de': "Zahlungskontrolle",
+  });
+  String get navTeacher => _t({
+    'uz': "Ustoz",
+    'kaa': "Muǵallim",
+    'ru': "Учитель",
+    'de': "Lehrer",
+  });
+  String get navStudent => _t({
+    'uz': "O'quvchi",
+    'kaa': "Oqıwshı",
+    'ru': "Ученик",
+    'de': "Schüler",
+  });
+  String get navCourse => _t({
+    'uz': "Kurs",
+    'kaa': "Kurs",
+    'ru': "Курс",
+    'de': "Kurs",
+  });
+  String get offline => _t({
+    'uz': "Offline",
+    'kaa': "Offline",
+    'ru': "Офлайн",
+    'de': "Offline",
+  });
+  String get online => _t({
+    'uz': "Online",
+    'kaa': "Online",
+    'ru': "Онлайн",
+    'de': "Online",
+  });
+  String get unknownCourse => _t({
+    'uz': "Noma'lum kurs",
+    'kaa': "Belgisiz kurs",
+    'ru': "Неизвестный курс",
+    'de': "Unbekannter Kurs",
+  });
+
+  // ── Conversations UI ───────────────────────────────────────────────────────
+  String get levelBeginner => _t({
+    'uz': "Boshlang'ich",
+    'kaa': "Baslanǵısh",
+    'ru': "Начальный",
+    'de': "Anfänger",
+  });
+  String get levelElementary => _t({
+    'uz': "Elementar",
+    'kaa': "Elementar",
+    'ru': "Элементарный",
+    'de': "Elementar",
+  });
+  String get levelIntermediate => _t({
+    'uz': "O'rta",
+    'kaa': "Orta",
+    'ru': "Средний",
+    'de': "Mittelstufe",
+  });
+  String get levelUpperIntermediate => _t({
+    'uz': "O'rta-Ilg'or",
+    'kaa': "Orta-Joqarı",
+    'ru': "Выше среднего",
+    'de': "Obere Mittelstufe",
+  });
+  String conversationsLevel(String level) {
+    final template = _t({
+      'uz': '{level} SUHBATLAR',
+      'kaa': '{level} SÓYLESİWLER',
+      'ru': 'РАЗГОВОРЫ {level}',
+      'de': 'GESPRÄCHE {level}',
+    });
+    return template.replaceAll('{level}', level);
+  }
+  String get freeChatPickTopic => _t({
+    'uz': "O'zingiz xohlagan mavzuda suhbatlashing",
+    'kaa': "Ózińiz qálegen temada sóylesiń",
+    'ru': "Общайтесь на любую тему",
+    'de': "Sprechen Sie über jedes Thema",
+  });
+  String get completedBadge => _t({
+    'uz': "TUGALLANGAN",
+    'kaa': "TAMAMLANGAN",
+    'ru': "ЗАВЕРШЕНО",
+    'de': "ABGESCHLOSSEN",
+  });
+  String get goalTravel => _t({
+    'uz': "Sayohat",
+    'kaa': "Sayaxat",
+    'ru': "Путешествие",
+    'de': "Reisen",
+  });
+  String get goalStudy => _t({
+    'uz': "O'qish / Ish",
+    'kaa': "Oqıw / Is",
+    'ru': "Учёба / Работа",
+    'de': "Studium / Arbeit",
+  });
+  String get goalExam => _t({
+    'uz': "Imtihon",
+    'kaa': "Imtihan",
+    'ru': "Экзамен",
+    'de': "Prüfung",
+  });
+  String get goalDaily => _t({
+    'uz': "Kundalik muloqot",
+    'kaa': "Kúndelik sóylesiw",
+    'ru': "Ежедневное общение",
+    'de': "Tägliche Kommunikation",
+  });
+  String freeChatTitle(String level, String goal) {
+    return _t({
+      'uz': 'Erkin suhbat',
+      'kaa': 'Erkin sóylesiw',
+      'ru': 'Свободный чат',
+      'de': 'Freies Gespräch',
+    });
+  }
+
+  // ── Games ──────────────────────────────────────────────────────────────────
+  String get easy => _t({
+    'uz': "Oson",
+    'kaa': "Ańsat",
+    'ru': "Лёгкий",
+    'de': "Leicht",
+  });
+  String get medium => _t({
+    'uz': "O'rta",
+    'kaa': "Orta",
+    'ru': "Средний",
+    'de': "Mittel",
+  });
+  String get hard => _t({
+    'uz': "Qiyin",
+    'kaa': "Qıyın",
+    'ru': "Сложный",
+    'de': "Schwer",
+  });
+  String get wrongLabel => _t({
+    'uz': "Xato",
+    'kaa': "Qáte",
+    'ru': "Ошибка",
+    'de': "Falsch",
+  });
+  String get tryAgain => _t({
+    'uz': "Qayta urinish",
+    'kaa': "Qayta urınıw",
+    'ru': "Повторить",
+    'de': "Erneut versuchen",
+  });
+  String get rules => _t({
+    'uz': "Qoidalar",
+    'kaa': "Qaǵıydalar",
+    'ru': "Правила",
+    'de': "Regeln",
+  });
+  String get practiceMore => _t({
+    'uz': "Yana mashq qiling!",
+    'kaa': "Jáne maqtaq qılıń!",
+    'ru': "Потренируйтесь ещё!",
+    'de': "Üben Sie weiter!",
+  });
+  String get learnAgain => _t({
+    'uz': "Yana o'rganish",
+    'kaa': "Jáne úyreniw",
+    'ru': "Учить снова",
+    'de': "Nochmal lernen",
+  });
+  String get exit => _t({
+    'uz': "Chiqish",
+    'kaa': "Shıǵıw",
+    'ru': "Выход",
+    'de': "Beenden",
+  });
+  String correctCount(String correct, String total) {
+    final template = _t({
+      'uz': "To'g'ri: {c}/{t}",
+      'kaa': "Durıs: {c}/{t}",
+      'ru': "Верно: {c}/{t}",
+      'de': "Richtig: {c}/{t}",
+    });
+    return template.replaceAll('{c}', correct).replaceAll('{t}', total);
+  }
+  String get writeStoryHere => _t({
+    'uz': "Hikoyani shu yerga yozing...",
+    'kaa': "Gurrińdi bul jerge jazıń...",
+    'ru': "Напишите историю здесь...",
+    'de': "Schreiben Sie die Geschichte hier...",
+  });
+  String wordCount(int n) {
+    final template = _t({
+      'uz': '{n} so\'z',
+      'kaa': '{n} sóz',
+      'ru': '{n} слов',
+      'de': '{n} Wörter',
+    });
+    return template.replaceAll('{n}', n.toString());
+  }
+  String get checkStory => _t({
+    'uz': "Hikoyani tekshirish",
+    'kaa': "Gúrrińdi tekseriw",
+    'ru': "Проверить историю",
+    'de': "Geschichte prüfen",
+  });
+  String get congrats => _t({
+    'uz': "Tabriklaymiz!",
+    'kaa': "Qutlıqlaymız!",
+    'ru': "Поздравляем!",
+    'de': "Glückwunsch!",
+  });
+  String get storyRejected => _t({
+    'uz': "Hikoya qabul qilinmadi",
+    'kaa': "Gúrriń qabıl etilmadi",
+    'ru': "История не принята",
+    'de': "Geschichte nicht angenommen",
+  });
+  String get start => _t({
+    'uz': "Boshlash",
+    'kaa': "Baslaw",
+    'ru': "Начать",
+    'de': "Starten",
+  });
+  String get selectLevel => _t({
+    'uz': "Darajani tanlang",
+    'kaa': "Dárejeni tańlań",
+    'ru': "Выберите уровень",
+    'de': "Niveau wählen",
+  });
+  String categoriesCount(int n) {
+    final template = _t({
+      'uz': '{n} kategoriya',
+      'kaa': '{n} kategoriya',
+      'ru': '{n} категорий',
+      'de': '{n} Kategorien',
+    });
+    return template.replaceAll('{n}', n.toString());
+  }
+
+  // ── Group / homework UI ────────────────────────────────────────────────────
+  String get submittedStatus => _t({
+    'uz': "Topshirildi",
+    'kaa': "Topshirildi",
+    'ru': "Сдано",
+    'de': "Abgegeben",
+  });
+  String get notSubmittedStatus => _t({
+    'uz': "Topshirilmagan",
+    'kaa': "Tapsırılmaǵan",
+    'ru': "Не сдано",
+    'de': "Nicht abgegeben",
+  });
+  String get homeworkSubmittedNotifTitle => _t({
+    'uz': "Uy vazifa topshirildi",
+    'kaa': "Úyge tapsırma tapsırıldı",
+    'ru': "Домашнее задание сдано",
+    'de': "Hausaufgabe abgegeben",
+  });
+  String homeworkSubmittedBody(String student, String group, String date) {
+    final template = _t({
+      'uz': '{student} {group} guruhida {date} sanasidagi vazifani topshirdi',
+      'kaa': '{student} {group} toparında {date} sánesindegi tapsırmanı tapsırdı',
+      'ru': '{student} сдал задание в группе {group} за {date}',
+      'de': '{student} hat in Gruppe {group} die Aufgabe vom {date} abgegeben',
+    });
+    return template
+        .replaceAll('{student}', student)
+        .replaceAll('{group}', group)
+        .replaceAll('{date}', date);
+  }
+  String get answerSent => _t({
+    'uz': "Javob yuborildi ✅",
+    'kaa': "Juwap jiberildi ✅",
+    'ru': "Ответ отправлен ✅",
+    'de': "Antwort gesendet ✅",
+  });
+  String get testAnswersHint => _t({
+    'uz': "Javoblar: 1a,2b,3c...",
+    'kaa': "Juwaplar: 1a,2b,3c...",
+    'ru': "Ответы: 1a,2b,3c...",
+    'de': "Antworten: 1a,2b,3c...",
+  });
+  String get time => _t({
+    'uz': "Vaqt",
+    'kaa': "Waqıt",
+    'ru': "Время",
+    'de': "Zeit",
+  });
+  String get noExtraInfo => _t({
+    'uz': "Qo'shimcha ma'lumot yo'q",
+    'kaa': "Qosımsha maǵlıwmat joq",
+    'ru': "Дополнительной информации нет",
+    'de': "Keine zusätzlichen Informationen",
+  });
+  String get answers => _t({
+    'uz': "Javoblar:",
+    'kaa': "Juwaplar:",
+    'ru': "Ответы:",
+    'de': "Antworten:",
+  });
+  String correctAnswer(String ans) {
+    final template = _t({
+      'uz': "(To'g'risi: {ans})",
+      'kaa': "(Durısı: {ans})",
+      'ru': "(Верно: {ans})",
+      'de': "(Richtig: {ans})",
+    });
+    return template.replaceAll('{ans}', ans);
+  }
+  String get pleaseReLoginShort => _t({
+    'uz': "Iltimos, qayta kiring",
+    'kaa': "Iltimas, qayta kiriń",
+    'ru': "Пожалуйста, войдите снова",
+    'de': "Bitte erneut anmelden",
+  });
+  String get phoneNumber => _t({
+    'uz': "Telefon raqam",
+    'kaa': "Telefon nomer",
+    'ru': "Номер телефона",
+    'de': "Telefonnummer",
+  });
+  String get haveAccountLogin => _t({
+    'uz': "Hisobingiz bormi? Kirish",
+    'kaa': "Akkauntıńız barma? Kiriw",
+    'ru': "Есть аккаунт? Войти",
+    'de': "Konto vorhanden? Anmelden",
+  });
+  String get confirmPassword => _t({
+    'uz': "Parolni tasdiqlang",
+    'kaa': "Paroldı tastıyıqlań",
+    'ru': "Подтвердите пароль",
+    'de': "Passwort bestätigen",
+  });
+  String get phone => _t({
+    'uz': "Telefon",
+    'kaa': "Telefon",
+    'ru': "Телефон",
+    'de': "Telefon",
+  });
+  String get test => _t({
+    'uz': "TEST",
+    'kaa': "TEST",
+    'ru': "ТЕСТ",
+    'de': "TEST",
+  });
+  String get comingSoonGame => _t({
+    'uz': "Tez orada",
+    'kaa': "Tez arada",
+    'ru': "Скоро",
+    'de': "Demnächst",
+  });
+  String get paymentHistoryEmpty => _t({
+    'uz': "To'lov tarixi yo'q",
+    'kaa': "Tólem tariyxı joq",
+    'ru': "Истории платежей нет",
+    'de': "Keine Zahlungshistorie",
+  });
+  String get receiptUploadFailed => _t({
+    'uz': "Chek yuklanmadi",
+    'kaa': "Chek júklenbegen",
+    'ru': "Чек не загружен",
+    'de': "Beleg nicht hochgeladen",
+  });
+  String get durationMonthsLabel => _t({
+    'uz': "Davomiyligi (oy soni)",
+    'kaa': "Dawamlılıǵı (ay sanı)",
+    'ru': "Длительность (месяцев)",
+    'de': "Dauer (Monate)",
+  });
+  String get searchHint => _t({
+    'uz': "Qidirish...",
+    'kaa': "Izlew...",
+    'ru': "Поиск...",
+    'de': "Suchen...",
+  });
+  String get paymentPending => _t({
+    'uz': "KUTILMOQDA",
+    'kaa': "KÚTILMEKTE",
+    'ru': "ОЖИДАНИЕ",
+    'de': "AUSSTEHEND",
+  });
+  // ── Extra keys for localization ────────────────────────────────────────────
+  String get studentsShort => _t({'uz': "O'quvchi", 'kaa': "Oqıwshı", 'ru': "Ученик", 'de': "Schüler"});
+  String get lessonsShort => _t({'uz': "Darslar", 'kaa': "Sabaqlar", 'ru': "Уроки", 'de': "Stunden"});
+  String get remainingShort => _t({'uz': "ta qoldi", 'kaa': "ta qaldı", 'ru': "осталось", 'de': "verbleibend"});
+  String get submittedShort => _t({'uz': "topshirilgan", 'kaa': "tapsırılǵan", 'ru': "сдано", 'de': "eingereicht"});
+  String get checkUpper => _t({'uz': "TEKSHIRISH", 'kaa': "TEKSERIW", 'ru': "ПРОВЕРИТЬ", 'de': "PRÜFEN"});
+  String get submittedUpper2 => _t({'uz': "TOPSHIRDI", 'kaa': "TOPSHIRDI", 'ru': "СДАЛ", 'de': "ABGEGEBEN"});
+  String get notSubmittedShort => _t({'uz': "YO'Q", 'kaa': "JOQ", 'ru': "НЕТ", 'de': "NEIN"});
+  String get checkedUpper => _t({'uz': "TEKSHIRILDI", 'kaa': "TEKSERILDI", 'ru': "ПРОВЕРЕНО", 'de': "GEPRÜFT"});
+  String get checkedShortMark => _t({'uz': "✓ Tekshirilgan", 'kaa': "✓ Tekserilgen", 'ru': "✓ Проверено", 'de': "✓ Geprüft"});
+  String get noCoursesFound => _t({'uz': "Kurslar yo'q", 'kaa': "Kurslar joq", 'ru': "Курсов нет", 'de': "Keine Kurse"});
+  String get homeworkDefault => _t({'uz': "Uy vazifa", 'kaa': "Úy tapsırması", 'ru': "Домашнее задание", 'de': "Hausaufgabe"});
+  String get pleaseReLoginShort2 => _t({'uz': "Iltimos, qayta kiring", 'kaa': "Iltimas, qayta kiriń", 'ru': "Пожалуйста, войдите снова", 'de': "Bitte erneut anmelden"});
+  String get noHomeworkSubmittedYet => _t({'uz': "Hali uy vazifa topshirilmagan", 'kaa': "Ele úy tapsırması topsırılmagan", 'ru': "Домашнее задание ещё не сдано", 'de': "Hausaufgabe noch nicht abgegeben"});
+  String get changeTeacher => _t({'uz': "O'ZGARTIRISH", 'kaa': "ÓZGERTIRIW", 'ru': "ИЗМЕНИТЬ", 'de': "ÄNDERN"});
+  String get notAssigned => _t({'uz': "Biriktirilmagan", 'kaa': "Biriktirilmegen", 'ru': "Не назначен", 'de': "Nicht zugewiesen"});
+  String get noStudentsAddedYet => _t({'uz': "Hali studentlar qo'shilmagan", 'kaa': "Ele studentlar qosılmagan", 'ru': "Студентов пока нет", 'de': "Noch keine Schüler"});
+  String get groupAboutHeader => _t({'uz': "GURUH HAQIDA ℹ️", 'kaa': "TOPAR HAQQINDA ℹ️", 'ru': "О ГРУППЕ ℹ️", 'de': "ÜBER DIE GRUPPE ℹ️"});
+  String get teacherHeader => _t({'uz': "O'QITUVCHI 👨‍🏫", 'kaa': "MUǴALLIM 👨‍🏫", 'ru': "УЧИТЕЛЬ 👨‍🏫", 'de': "LEHRER 👨‍🏫"});
+  String get studentsHeader => _t({'uz': "STUDENTLAR 🧑‍🎓", 'kaa': "STUDENTLAR 🧑‍🎓", 'ru': "УЧЕНИКИ 🧑‍🎓", 'de': "SCHÜLER 🧑‍🎓"});
+  String get groupNameInfo => _t({'uz': "Guruh nomi", 'kaa': "Topar atı", 'ru': "Название группы", 'de': "Gruppenname"});
+  String get startedInfo => _t({'uz': "Boshlangan", 'kaa': "Baslanǵan", 'ru': "Начато", 'de': "Gestartet"});
+  String get durationInfo => _t({'uz': "Davomiyligi", 'kaa': "Dawamlılıǵı", 'ru': "Продолжительность", 'de': "Dauer"});
+  String get studentCountInfo => _t({'uz': "Studentlar soni", 'kaa': "Studentlar sanı", 'ru': "Количество учеников", 'de': "Anzahl Schüler"});
+  String get newGroupTitle => _t({'uz': "YANGI GURUH ➕", 'kaa': "TÁZE TOPAR ➕", 'ru': "НОВАЯ ГРУППА ➕", 'de': "NEUE GRUPPE ➕"});
+  String get groupNameHint => _t({'uz': "Guruh nomi", 'kaa': "Topar atı", 'ru': "Название группы", 'de': "Gruppenname"});
+  String get selectStartDate => _t({'uz': "Boshlangan sana tanlang", 'kaa': "Baslanǵan sáne tańlań", 'ru': "Выберите дату начала", 'de': "Startdatum wählen"});
+  String get durationMonthsHint => _t({'uz': "Davomiyligi (oy soni)", 'kaa': "Dawamlılıǵı (ay sanı)", 'ru': "Длительность (месяцев)", 'de': "Dauer (Monate)"});
+  String get selectColor => _t({'uz': "RANG TANLANG", 'kaa': "REŃDI TAŃLAŃ", 'ru': "ВЫБЕРИТЕ ЦВЕТ", 'de': "FARBE WÄHLEN"});
+  String get studentsInfoLabel => _t({'uz': "Studentlar", 'kaa': "Studentlar", 'ru': "Ученики", 'de': "Schüler"});
+  String get startedInfoLabel => _t({'uz': "Boshlangan", 'kaa': "Baslanǵan", 'ru': "Начато", 'de': "Gestartet"});
+  String get durationInfoLabel => _t({'uz': "Davomiyligi", 'kaa': "Dawamlılıǵı", 'ru': "Продолжительность", 'de': "Dauer"});
+  String get noGroupsYet => _t({'uz': "Hali guruhlar yo'q", 'kaa': "Ele toparlar joq", 'ru': "Групп пока нет", 'de': "Noch keine Gruppen"});
+  String get unknownGroup => _t({'uz': "Noma'lum", 'kaa': "Belgisiz", 'ru': "Неизвестно", 'de': "Unbekannt"});
+  String get addedToGroup => _t({'uz': "guruhga qo'shildi", 'kaa': "toparǵa qosıldı", 'ru': "добавлен в группу", 'de': "zur Gruppe hinzugefügt"});
+  String get removedFromGroup => _t({'uz': "guruhdan chiqarildi", 'kaa': "topardan shıǵarıldı", 'ru': "удалён из группы", 'de': "aus der Gruppe entfernt"});
+  String get activeGroupsLabel => _t({'uz': "Faol guruhlar", 'kaa': "Aktiv toparlar", 'ru': "Активные группы", 'de': "Aktive Gruppen"});
+  String get newTestsLabel => _t({'uz': "Yangi testlar", 'kaa': "Jańa testler", 'ru': "Новые тесты", 'de': "Neue Tests"});
+  String get noNewTestsLabel => _t({'uz': "Hali yangi testlar qo'shilmadi", 'kaa': "Ele jańa testler qosılmadı", 'ru': "Новые тесты ещё не добавлены", 'de': "Noch keine neuen Tests"});
+  String get paymentControlLabel => _t({'uz': "To'lov nazorati", 'kaa': "Tólem basqarıwı", 'ru': "Контроль платежей", 'de': "Zahlungskontrolle"});
+  String get allPaymentsConfirmed => _t({'uz': "Barcha to'lovlar tasdiqlangan", 'kaa': "Barlıq tólemler tastıyqlanǵan", 'ru': "Все платежи подтверждены", 'de': "Alle Zahlungen bestätigt"});
+  String pendingPaymentsCount(int n) {
+    final template = _t({'uz': '{n} ta to\'lov tasdiqlanishi kutilmoqda', 'kaa': '{n} tólem tastıyqlanıwı kútilmekte', 'ru': '{n} платежей ожидают подтверждения', 'de': '{n} Zahlungen warten auf Bestätigung'});
+    return template.replaceAll('{n}', n.toString());
+  }
+  String get receiptAttached => _t({'uz': "Chek biriktirilgan", 'kaa': "Chek biriktirilgen", 'ru': "Чек прикреплён", 'de': "Beleg angehängt"});
+  String get receiptNotAttached => _t({'uz': "Chek biriktirilmagan", 'kaa': "Chek biriktirilmegen", 'ru': "Чек не прикреплён", 'de': "Kein Beleg"});
+  String get tapToZoom => _t({'uz': "Kattalashtirish uchun bosing", 'kaa': "Úlkeytiw ushın basıń", 'ru': "Нажмите для увеличения", 'de': "Zum Vergrößern tippen"});
+  String get cashPaymentPending => _t({'uz': "Naqd to'lov — tasdiqlash kutilmoqda", 'kaa': "Naq tólem — tastıyqlawı kútilmekte", 'ru': "Наличный платёж — ожидает подтверждения", 'de': "Barzahlung — wartet auf Bestätigung"});
+  String get addedByAdmin => _t({'uz': "Admin tomonidan qo'shildi", 'kaa': "Admin tárepinen qosıldı", 'ru': "Добавлено администратором", 'de': "Vom Admin hinzugefügt"});
+  String get studentCountSuffix => _t({'uz': "ta student", 'kaa': "student", 'ru': "учеников", 'de': "Schüler"});
+  String get cardPaymentType => _t({'uz': "PLASTIK (KARTA)", 'kaa': "PLASTIK (KARTA)", 'ru': "КАРТА", 'de': "KARTE"});
+  String get whichArticle => _t({'uz': "Qaysi artikl?", 'kaa': "Qaysı artikl?", 'ru': "Какой артикль?", 'de': "Welcher Artikel?"});
+  String consecutiveStreak(int n) {
+    final template = _t({'uz': 'Ketma-ket: {n} 🔥', 'kaa': 'Ketme-ket: {n} 🔥', 'ru': 'Подряд: {n} 🔥', 'de': 'Hintereinander: {n} 🔥'});
+    return template.replaceAll('{n}', n.toString());
+  }
+  String get roundFinished => _t({'uz': "RAUND YAKUNLANDI", 'kaa': "RAUND TAMAMLANDI", 'ru': "РАУНД ЗАВЕРШЁН", 'de': "RUNDE BEENDET"});
+  String get playAgain => _t({'uz': "YANA O'YNASH", 'kaa': "JÁNE OYLAW", 'ru': "ИГРАТЬ СНОВА", 'de': "NOCHMAL SPIELEN"});
+  String get backUpper => _t({'uz': "ORQAGA", 'kaa': "ARTQA", 'ru': "НАЗАД", 'de': "ZURÜCK"});
+  String get articleRules => _t({'uz': "ARTIKL QOIDALARI", 'kaa': "ARTIKL QAǴIYDALARI", 'ru': "ПРАВИЛА АРТИКЛЕЙ", 'de': "ARTIKELREGELN"});
+  String get memoryTips => _t({'uz': "ESDA SAQLASH UCHUN", 'kaa': "ESDE SAQLAW USHIN", 'ru': "ДЛЯ ЗАПОМИНАНИЯ", 'de': "ZUM MERKEN"});
+  String get startGame => _t({'uz': "O'YINNI BOSHLASH", 'kaa': "OYINDI BASLAW", 'ru': "НАЧАТЬ ИГРУ", 'de': "SPIEL STARTEN"});
+  String get quickArticleLearn => _t({'uz': "Artiklarni tez tanish", 'kaa': "Artikllerdi tez tanıw", 'ru': "Быстрое изучение артиклей", 'de': "Artikel schnell lernen"});
+  String get derDieDasLearningTitle => _t({'uz': "Der, Die, Das - O'rganish", 'kaa': "Der, Die, Das - Úyreniw", 'ru': "Der, Die, Das - Обучение", 'de': "Der, Die, Das - Lernen"});
+  String get nextUpper => _t({'uz': "KEYINGI", 'kaa': "KEYINGI", 'ru': "ДАЛЕЕ", 'de': "WEITER"});
+  String get roundCompleted => _t({'uz': "Raund yakunlandi!", 'kaa': "Raund tamamlandı!", 'ru': "Раунд завершён!", 'de': "Runde abgeschlossen!"});
+  String get accuracyLabel => _t({'uz': "Aniqlik", 'kaa': "Anıqlıq", 'ru': "Точность", 'de': "Genauigkeit"});
+  String accuracyPercent(int n) {
+    final template = _t({'uz': 'Aniqlik: {n}%', 'kaa': 'Anıqlıq: {n}%', 'ru': 'Точность: {n}%', 'de': 'Genauigkeit: {n}%'});
+    return template.replaceAll('{n}', n.toString());
+  }
+  String correctWrong(int correct, int wrong) {
+    final template = _t({'uz': "To'g'ri: {c} | Xato: {w}", 'kaa': "Durıs: {c} | Qáte: {w}", 'ru': "Верно: {c} | Ошибок: {w}", 'de': "Richtig: {c} | Falsch: {w}"});
+    return template.replaceAll('{c}', correct.toString()).replaceAll('{w}', wrong.toString());
+  }
+  String get learnAgainBtn => _t({'uz': "Yana o'rganish", 'kaa': "Jáne úyreniw", 'ru': "Учить снова", 'de': "Nochmal lernen"});
+  String get exitBtn => _t({'uz': "Chiqish", 'kaa': "Shıǵıw", 'ru': "Выход", 'de': "Beenden"});
+  String get grammarTitle => _t({'uz': "Grammatika", 'kaa': "Grammatika", 'ru': "Грамматика", 'de': "Grammatik"});
+  String get selectLevelHint => _t({'uz': "Darajani tanlang", 'kaa': "Dárejeni tańlań", 'ru': "Выберите уровень", 'de': "Niveau wählen"});
+  String get grammarLevelsSubtitle => _t({'uz': "A1, A2, B1, B2 darajalari", 'kaa': "A1, A2, B1, B2 dárejeleri", 'ru': "Уровни A1, A2, B1, B2", 'de': "Niveaus A1, A2, B1, B2"});
+  String get sprechenAiTitle => _t({'uz': "Sprechen AI", 'kaa': "Sprechen AI", 'ru': "Sprechen AI", 'de': "Sprechen AI"});
+  String get horenTitle => _t({'uz': "Hören", 'kaa': "Hören", 'ru': "Hören", 'de': "Hören"});
+  String get schreibenShort => _t({'uz': "Schreiben", 'kaa': "Schreiben", 'ru': "Schreiben", 'de': "Schreiben"});
+  String get grammarShort => _t({'uz': "Grammatika", 'kaa': "Grammatika", 'ru': "Грамматика", 'de': "Grammatik"});
+  String get timeLabel => _t({'uz': "Vaqt", 'kaa': "Waqıt", 'ru': "Время", 'de': "Zeit"});
+  String get noteLabel2 => _t({'uz': "IZOH", 'kaa': "TÚSINDIRIW", 'ru': "КОММЕНТАРИЙ", 'de': "NOTIZ"});
+  String testResultLabel(int correct, int total) {
+    final template = _t({'uz': 'Test: {c}/{t} to\'g\'ri', 'kaa': 'Test: {c}/{t} durıs', 'ru': 'Тест: {c}/{t} верно', 'de': 'Test: {c}/{t} richtig'});
+    return template.replaceAll('{c}', correct.toString()).replaceAll('{t}', total.toString());
+  }
+  String get answersLabel => _t({'uz': "Javoblar:", 'kaa': "Juwaplar:", 'ru': "Ответы:", 'de': "Antworten:"});
+  String correctAnswerLabel(String ans) {
+    final template = _t({'uz': "(To'g'risi: {ans})", 'kaa': "(Durısı: {ans})", 'ru': "(Верно: {ans})", 'de': "(Richtig: {ans})"});
+    return template.replaceAll('{ans}', ans);
+  }
+  String get noExtraInfoLabel => _t({'uz': "Qo'shimcha ma'lumot yo'q", 'kaa': "Qosımsha maǵlıwmat joq", 'ru': "Дополнительной информации нет", 'de': "Keine zusätzlichen Informationen"});
+  String get storyGameTitle => _t({'uz': "Hikoya O'YINI", 'kaa': "Hikaye OYINI", 'ru': "ИГРА ИСТОРИЯ", 'de': "GESCHICHTENSPIEL"});
+  String get storyRulesTitle => _t({'uz': "QOIDALAR:", 'kaa': "QAǴIYDALAR:", 'ru': "ПРАВИЛА:", 'de': "REGELN:"});
+  String get storyLoadingWords => _t({'uz': "So'zlar yuklanmoqda...", 'kaa': "Sózler júkleniwde...", 'ru': "Слова загружаются...", 'de': "Wörter werden geladen..."});
+  String get storyWritePrompt => _t({'uz': "Quyidagi so'zlardan foydalanib hikoya yozing:", 'kaa': "Tómendegi sózlerden paydalanıp hikaye jazıń:", 'ru': "Напишите историю, используя следующие слова:", 'de': "Schreiben Sie eine Geschichte mit folgenden Wörtern:"});
+  String get storyThemeLabel => _t({'uz': "Mavzu:", 'kaa': "Máwzu:", 'ru': "Тема:", 'de': "Thema:"});
+  String storyLengthHint(int min, int max) {
+    final template = _t({'uz': 'Hikoya uzunligi: {min}-{max} so\'z', 'kaa': 'Hikaye uzınlıǵı: {min}-{max} sóz', 'ru': 'Длина истории: {min}-{max} слов', 'de': 'Länge der Geschichte: {min}-{max} Wörter'});
+    return template.replaceAll('{min}', min.toString()).replaceAll('{max}', max.toString());
+  }
+  String get storyHintText => _t({'uz': "Hikoyani shu yerga yozing...", 'kaa': "Hikayeni bul jerge jazıń...", 'ru': "Напишите историю здесь...", 'de': "Schreiben Sie die Geschichte hier..."});
+  String get checkStoryBtn => _t({'uz': "Hikoyani Tekshirish", 'kaa': "Hikayeni Tekseriw", 'ru': "Проверить историю", 'de': "Geschichte prüfen"});
+  String get newStory => _t({'uz': "Yangi hikoya", 'kaa': "Jańa hikaye", 'ru': "Новая история", 'de': "Neue Geschichte"});
+  String get scoreLabel => _t({'uz': "Ball:", 'kaa': "Ball:", 'ru': "Балл:", 'de': "Punkte:"});
+  String get wordCountResult => _t({'uz': "So'zlar soni:", 'kaa': "Sózler sanı:", 'ru': "Количество слов:", 'de': "Wortanzahl:"});
+  String get storyDifficultyLabel => _t({'uz': "Darajani tanlang:", 'kaa': "Dárejeni tańlań:", 'ru': "Выберите уровень:", 'de': "Schwierigkeit wählen:"});
+  String get easyLabel => _t({'uz': "Oson", 'kaa': "Oson", 'ru': "Лёгкий", 'de': "Leicht"});
+  String get mediumLabel => _t({'uz': "O'rtacha", 'kaa': "Orta", 'ru': "Средний", 'de': "Mittel"});
+  String get hardLabel => _t({'uz': "Qiyin", 'kaa': "Qıyın", 'ru': "Сложный", 'de': "Schwer"});
+  String get startBtn => _t({'uz': "Boshlash", 'kaa': "Baslaw", 'ru': "Начать", 'de': "Starten"});
+  String get closeBtn => _t({'uz': "Yopish", 'kaa': "Jabıw", 'ru': "Закрыть", 'de': "Schließen"});
+  String get thisRound => _t({'uz': "Bu raund", 'kaa': "Bul raund", 'ru': "Этот раунд", 'de': "Diese Runde"});
+  String get totalStarsLabel => _t({'uz': "Jami yulduz", 'kaa': "Barlıq juldız", 'ru': "Всего звёзд", 'de': "Sterne gesamt"});
+  String get correctLabel => _t({'uz': "To'g'ri", 'kaa': "Durıs", 'ru': "Верно", 'de': "Richtig"});
+  String get wrongLabelShort => _t({'uz': "Xato", 'kaa': "Qáte", 'ru': "Ошибок", 'de': "Falsch"});
+  String get accuracyShort => _t({'uz': "Aniqlik", 'kaa': "Anıqlıq", 'ru': "Точность", 'de': "Genauigkeit"});
+  String get storyRuleItem1 => _t({'uz': "1. Berilgan so'zlardan foydalanib hikoya yozing", 'kaa': "1. Berilgen sózlerden paydalanıp gúrriń jazıń", 'ru': "1. Напишите историю, используя данные слова", 'de': "1. Schreiben Sie eine Geschichte mit den gegebenen Wörtern"});
+  String get storyRuleItem2 => _t({'uz': "2. Otlarning artiklini o'zgartirishingiz mumkin (masalan: das Buch → ein Buch)", 'kaa': "2. Atlıqlardıń artiklın ózgertiwińiz múmkin (mysal: das Buch → ein Buch)", 'ru': "2. Можно изменять артикль существительных (например: das Buch → ein Buch)", 'de': "2. Sie können den Artikel der Nomen ändern (z.B.: das Buch → ein Buch)"});
+  String get storyRuleItem3 => _t({'uz': "3. Fe'llarni turli shakllarda ishlatishingiz mumkin (masalan: lesen → ich lese)", 'kaa': "3. Feyillerdi túrli formalarda isletiwińiz múmkin (mysal: lesen → ich lese)", 'ru': "3. Глаголы можно использовать в разных формах (например: lesen → ich lese)", 'de': "3. Verben können in verschiedenen Formen verwendet werden (z.B.: lesen → ich lese)"});
+  String get storyRuleItem4 => _t({'uz': "4. Hikoya uzunligi berilgan oraliqda bo'lishi kerak", 'kaa': "4. Gúrriń uzınlıǵı berilgen aralıqta bolıwı kerek", 'ru': "4. Длина истории должна быть в указанном диапазоне", 'de': "4. Die Länge der Geschichte muss im angegebenen Bereich liegen"});
+  String get storyRuleItem5 => _t({'uz': "5. Grammatik jihatdan to'g'ri bo'lishi kerak", 'kaa': "5. Grammatikalıq jaqtan durıs bolıwı kerek", 'ru': "5. Должна быть грамматически правильной", 'de': "5. Muss grammatisch korrekt sein"});
+  String get storyRuleItem6 => _t({'uz': "6. Mantiqan bog'liq hikoya yozing", 'kaa': "6. Logikalıq baylanıslı gúrriń jazıń", 'ru': "6. Напишите логически связную историю", 'de': "6. Schreiben Sie eine logisch zusammenhängende Geschichte"});
+
+  // ── Additional keys for remaining hardcoded strings ────────────────────────
+  String get editLessonTitle => _t({'uz': "DARSNI TAHRIRLASH", 'kaa': "SABAQTI ÓZGERTIRIW", 'ru': "РЕДАКТИРОВАТЬ УРОК", 'de': "LEKTION BEARBEITEN"});
+  String get timeHintLabel => _t({'uz': "Vaqt (14:00)", 'kaa': "Waqıt (14:00)", 'ru': "Время (14:00)", 'de': "Zeit (14:00)"});
+  String get roomHintLabel => _t({'uz': "Xona (B1)", 'kaa': "Bólme (B1)", 'ru': "Комната (B1)", 'de': "Raum (B1)"});
+  String taskNumberLabel(int n) {
+    final template = _t({'uz': 'Vazifa {n}', 'kaa': 'Tapsırma {n}', 'ru': 'Задание {n}', 'de': 'Aufgabe {n}'});
+    return template.replaceAll('{n}', n.toString());
+  }
+  String get categoriesCountLabel => _t({'uz': "kategoriya", 'kaa': "kategoriya", 'ru': "категория", 'de': "Kategorie"});
+  String get monthsLabel => _t({'uz': "oy", 'kaa': "ay", 'ru': "мес.", 'de': "Mon."});
+  String get addPaymentTitle => _t({'uz': "TO'LOV QO'SHISH", 'kaa': "TÓLEM QOSIW", 'ru': "ДОБАВИТЬ ПЛАТЕЖ", 'de': "ZAHLUNG HINZUFÜGEN"});
+  String get selectPeriod => _t({'uz': "PERIOD TANLANG", 'kaa': "PERIOD TAŇLAŃ", 'ru': "ВЫБЕРИТЕ ПЕРИОД", 'de': "PERIODE AUSWÄHLEN"});
+  String get paymentNoteHint => _t({'uz': "Masalan: Aprel oyi to'lovi...", 'kaa': "Mysal: Aprel aýı tólewi...", 'ru': "Например: оплата за апрель...", 'de': "Zum Beispiel: Zahlung für April..."});
+  String get attachReceipt => _t({'uz': "CHEK BIRIKTIRISH", 'kaa': "CHEK BIRIKTIRIW", 'ru': "ПРИКРЕПИТЬ ЧЕК", 'de': "BELEG ANHÄNGEN"});
+  String get receiptAttachedCaps => _t({'uz': "CHEK BIRIKTIRILDI ✓", 'kaa': "CHEK BIRIKTIRILDI ✓", 'ru': "ЧЕК ПРИКРЕПЛЕН ✓", 'de': "BELEG ANGEHÄNGT ✓"});
+  String get selectReceiptImage => _t({'uz': "CHEK RASMINI TANLANG", 'kaa': "CHEK SÚWRETIN TAŇLAŃ", 'ru': "ВЫБЕРИТЕ ИЗОБРАЖЕНИЕ ЧЕКА", 'de': "BELEG-BILD AUSWÄHLEN"});
+  String get selectFromGalleryCamera => _t({'uz': "Galereya yoki kameradan tanlang", 'kaa': "Galereya yamasa kameradan tańlań", 'ru': "Выберите из галереи или камеры", 'de': "Aus Galerie oder Kamera auswählen"});
+  String get submitBtn => _t({'uz': "YUBORISH", 'kaa': "JIBERIW", 'ru': "ОТПРАВИТЬ", 'de': "SENDEN"});
+  String get adminLabel => _t({'uz': "Admin", 'kaa': "Admin", 'ru': "Админ", 'de': "Admin"});
+  String get adminNoteLabel => _t({'uz': "ADMIN IZOHI", 'kaa': "ADMIN TÚSINDIRMESI", 'ru': "ЗАМЕТКА АДМИНА", 'de': "ADMIN-NOTIZ"});
+  String get cardWithParentheses => _t({'uz': "PLASTIK (KARTA)", 'kaa': "PLASTIK (KARTA)", 'ru': "ПЛАСТИК (КАРТА)", 'de': "PLASTIK (KARTE)"});
+  String homeworkTitleLabel(int n) {
+    final template = _t({'uz': 'Uy vazifa {n}', 'kaa': 'Úyge tapsırma {n}', 'ru': 'Домашнее задание {n}', 'de': 'Hausaufgabe {n}'});
+    return template.replaceAll('{n}', n.toString());
+  }
+  String get cashLabel => _t({'uz': "NAQD", 'kaa': "NAQ", 'ru': "НАЛИЧНЫЕ", 'de': "BAR"});
+  String get cardLabel => _t({'uz': "PLASTIK", 'kaa': "PLASTIK", 'ru': "КАРТА", 'de': "KARTE"});
+  String studentsCountShort(int n) {
+    final template = _t({'uz': '{n} ta', 'kaa': '{n} dana', 'ru': '{n} уч.', 'de': '{n} Sch.'});
+    return template.replaceAll('{n}', n.toString());
+  }
+  String studentAddedToGroupMsg(String name) {
+    final template = _t({'uz': '{name} guruhga qo\'shildi', 'kaa': '{name} toparǵa qosıldı', 'ru': '{name} добавлен в группу', 'de': '{name} zur Gruppe hinzugefügt'});
+    return template.replaceAll('{name}', name);
+  }
+  String studentRemovedFromGroupMsg(String name) {
+    final template = _t({'uz': '{name} guruhdan chiqarildi', 'kaa': '{name} topardan shıǵarıldı', 'ru': '{name} удалён из группы', 'de': '{name} aus der Gruppe entfernt'});
+    return template.replaceAll('{name}', name);
+  }
+  String activeGroupsCountText(int n) {
+    final template = _t({'uz': '{n} ta faol guruh', 'kaa': '{n} aktiv topar', 'ru': '{n} активных групп', 'de': '{n} aktive Gruppen'});
+    return template.replaceAll('{n}', n.toString());
+  }
+
+  // ── Hören ──────────────────────────────────────────────────────────────────
+  String get horenScreenTitle => _t({'uz': "Hören", 'kaa': "Hören", 'ru': "Hören", 'de': "Hören"});
+  String get horenSelectLevel => _t({'uz': "Daraja tanlang", 'kaa': "Dárejeni tańlań", 'ru': "Выберите уровень", 'de': "Niveau wählen"});
+  String get horenComingSoon => _t({'uz': "Tez kunda", 'kaa': "Tez arада", 'ru': "Скоро", 'de': "Demnächst"});
+  String get horenComingSoonDesc => _t({'uz': "Bu daraja uchun materiallar tayyorlanmoqda", 'kaa': "Bul dareje ushın materiallar tayarlanıwda", 'ru': "Материалы для этого уровня готовятся", 'de': "Materialien für dieses Niveau werden vorbereitet"});
+  String get horenTeil1Title => _t({'uz': "Teil 1 – Qisqa Suhbatlar", 'kaa': "Teil 1 – Qısqa Sóylesiw", 'ru': "Teil 1 – Короткие разговоры", 'de': "Teil 1 – Kurze Gespräche"});
+  String get horenTeil1Desc => _t({'uz': "Qisqa suhbatni tinglang va to'g'ri javobni tanlang", 'kaa': "Qısqa sóylesiwdi tıńlań hám durıs jawaptı tańlań", 'ru': "Прослушайте короткий разговор и выберите правильный ответ", 'de': "Hören Sie den kurzen Dialog und wählen Sie die richtige Antwort"});
+  String get horenTeil1Note => _t({'uz': "Haqiqiy imtihonda audio 2 marta o'ynatiladi", 'kaa': "Haqıyqıy imtihanda audio 2 ret oynatıladı", 'ru': "На реальном экзамене аудио воспроизводится 2 раза", 'de': "In der echten Prüfung wird das Audio 2 Mal abgespielt"});
+  String get horenTeil2Title => _t({'uz': "Teil 2 – E'lonlar", 'kaa': "Teil 2 – Xabarlar", 'ru': "Teil 2 – Объявления", 'de': "Teil 2 – Durchsagen"});
+  String get horenTeil2Desc => _t({'uz': "Vokzal, aeroportdagi e'lonlarni tinglang va Richtig/Falsch deb belgilang", 'kaa': "Vokzal, aeroporttaǵı xabarlardı tıńlań hám Richtig/Falsch dep belgilań", 'ru': "Слушайте объявления на вокзале, в аэропорту и отмечайте Richtig/Falsch", 'de': "Hören Sie Durchsagen am Bahnhof, Flughafen usw. und markieren Sie Richtig/Falsch"});
+  String get horenTeil2Note => _t({'uz': "Haqiqiy imtihonda audio faqat 1 marta o'ynatiladi", 'kaa': "Haqıyqıy imtihanda audio tek 1 ret oynatıladı", 'ru': "На реальном экзамене аудио воспроизводится только 1 раз", 'de': "In der echten Prüfung wird das Audio nur 1 Mal abgespielt"});
+  String get horenTeil3Title => _t({'uz': "Teil 3 – Qisqa Xabarlar", 'kaa': "Teil 3 – Qısqa Xabarlar", 'ru': "Teil 3 – Короткие сообщения", 'de': "Teil 3 – Kurze Mitteilungen"});
+  String get horenTeil3Desc => _t({'uz': "Qisqa xabar yoki e'lonni tinglang va savolga javob bering", 'kaa': "Qısqa xabar yamasa xabarlardı tıńlań hám sorawǵa jawap beriń", 'ru': "Прослушайте короткое сообщение или объявление и ответьте на вопрос", 'de': "Hören Sie die kurze Mitteilung und beantworten Sie die Frage"});
+  String get horenTeil3Note => _t({'uz': "Haqiqiy imtihonda audio 2 marta o'ynatiladi", 'kaa': "Haqıyqıy imtihanda audio 2 ret oynatıladı", 'ru': "На реальном экзамене аудио воспроизводится 2 раза", 'de': "In der echten Prüfung wird das Audio 2 Mal abgespielt"});
+  String get horenTotalQuestions => _t({'uz': "Jami savollar", 'kaa': "Barlıq sorawlar", 'ru': "Всего вопросов", 'de': "Fragen gesamt"});
+  String get horenCorrect => _t({'uz': "To'g'ri", 'kaa': "Durıs", 'ru': "Верно", 'de': "Richtig"});
+  String get horenWrong => _t({'uz': "Xato", 'kaa': "Qáte", 'ru': "Неверно", 'de': "Falsch"});
+  String get horenStartTeil => _t({'uz': "Boshlash", 'kaa': "Baslaw", 'ru': "Начать", 'de': "Starten"});
+  String get horenQuestion => _t({'uz': "Savol", 'kaa': "Soraw", 'ru': "Вопрос", 'de': "Frage"});
+  String get horenPlayAudio => _t({'uz': "Audioni o'ynatish", 'kaa': "Audionı oynatıw", 'ru': "Воспроизвести аудио", 'de': "Audio abspielen"});
+  String get horenPauseAudio => _t({'uz': "To'xtatish", 'kaa': "Toqtatıw", 'ru': "Пауза", 'de': "Pause"});
+  String get horenAudioPlaying => _t({'uz': "Ijro etilmoqda...", 'kaa': "Oynatılıwda...", 'ru': "Воспроизводится...", 'de': "Wird abgespielt..."});
+  String get horenAudioReady => _t({'uz': "Tayyor", 'kaa': "Tayar", 'ru': "Готово", 'de': "Bereit"});
+  String get horenNextQuestion => _t({'uz': "Keyingi savol", 'kaa': "Keyingi soraw", 'ru': "Следующий вопрос", 'de': "Nächste Frage"});
+  String get horenFinish => _t({'uz': "Yakunlash", 'kaa': "Juwmaqlaw", 'ru': "Завершить", 'de': "Beenden"});
+  String get horenResult => _t({'uz': "Natija", 'kaa': "Nátiyje", 'ru': "Результат", 'de': "Ergebnis"});
+  String get horenTryAgain => _t({'uz': "Qayta urinish", 'kaa': "Qayta urınıw", 'ru': "Попробовать снова", 'de': "Nochmal versuchen"});
+  String horenProgress(int current, int total) {
+    final template = _t({'uz': '{c} / {t}', 'kaa': '{c} / {t}', 'ru': '{c} / {t}', 'de': '{c} / {t}'});
+    return template.replaceAll('{c}', current.toString()).replaceAll('{t}', total.toString());
+  }
+  String get horenA1LevelName => _t({'uz': "Boshlang'ich", 'kaa': "Baslanǵısh", 'ru': "Начальный", 'de': "Anfänger"});
+  String get horenA2LevelName => _t({'uz': "Elementar", 'kaa': "Elementar", 'ru': "Элементарный", 'de': "Elementar"});
+  String get horenB1LevelName => _t({'uz': "O'rta", 'kaa': "Orta", 'ru': "Средний", 'de': "Mittelstufe"});
+  String get horenB2LevelName => _t({'uz': "O'rta-yuqori", 'kaa': "Orta-joqarı", 'ru': "Выше среднего", 'de': "Obere Mittelstufe"});
+  
+  // ── Hören B1 (TELC) ────────────────────────────────────────────────────────
+  String get horenB1Teil1Title => _t({'uz': "Teil 1 – Telefon Xabarlari", 'kaa': "Teil 1 – Telefon Xabarlari", 'ru': "Teil 1 – Телефонные сообщения", 'de': "Teil 1 – Telefonansagen"});
+  String get horenB1Teil1Desc => _t({'uz': "Telefon xabarlarini tinglang va Richtig/Falsch deb belgilang. Har bir TEST 5 ta savoldan iborat.", 'kaa': "Telefon xabarlarin tıńlań hám Richtig/Falsch dep belgilań. Hár bir TEST 5 sorawdan ibarat.", 'ru': "Слушайте телефонные сообщения и отмечайте Richtig/Falsch. Каждый ТЕСТ состоит из 5 вопросов.", 'de': "Hören Sie Telefonansagen und markieren Sie Richtig/Falsch. Jeder TEST besteht aus 5 Fragen."});
+  String get horenB1Teil2Title => _t({'uz': "Teil 2 – Radio Intervyu", 'kaa': "Teil 2 – Radio Intervyu", 'ru': "Teil 2 – Радио интервью", 'de': "Teil 2 – Radiointerview"});
+  String get horenB1Teil2Desc => _t({'uz': "Radio intervyusini tinglang va Richtig/Falsch deb belgilang. Har bir TEST 10 ta savoldan iborat.", 'kaa': "Radio intervyusin tıńlań hám Richtig/Falsch dep belgilań. Hár bir TEST 10 sorawdan ibarat.", 'ru': "Слушайте радио интервью и отмечайте Richtig/Falsch. Каждый ТЕСТ состоит из 10 вопросов.", 'de': "Hören Sie das Radiointerview und markieren Sie Richtig/Falsch. Jeder TEST besteht aus 10 Fragen."});
+  String get horenB1Teil3Title => _t({'uz': "Teil 3 – Kundalik Suhbat", 'kaa': "Teil 3 – Kúndelik Sóylesiw", 'ru': "Teil 3 – Повседневный разговор", 'de': "Teil 3 – Alltagsgespräch"});
+  String get horenB1Teil3Desc => _t({'uz': "Kundalik suhbatni tinglang va Richtig/Falsch deb belgilang. Har bir TEST 5 ta savoldan iborat.", 'kaa': "Kúndelik sóylesiwdi tıńlań hám Richtig/Falsch dep belgilań. Hár bir TEST 5 sorawdan ibarat.", 'ru': "Слушайте повседневный разговор и отмечайте Richtig/Falsch. Каждый ТЕСТ состоит из 5 вопросов.", 'de': "Hören Sie das Alltagsgespräch und markieren Sie Richtig/Falsch. Jeder TEST besteht aus 5 Fragen."});
+  String get horenTestNumber => _t({'uz': "TEST", 'kaa': "TEST", 'ru': "ТЕСТ", 'de': "TEST"});
+
+  // ── Lesen (Leseverstehen) ────────────────────────────────────────────────────
+  String get lesenScreenTitle => _t({'uz': "Lesen", 'kaa': "Lesen", 'ru': "Lesen", 'de': "Lesen"});
+  String get lesenSelectLevel => _t({'uz': "Daraja tanlang", 'kaa': "Dárejeni tańlań", 'ru': "Выберите уровень", 'de': "Niveau wählen"});
+  String get lesenComingSoon => _t({'uz': "Tez kunda", 'kaa': "Tez arada", 'ru': "Скоро", 'de': "Demnächst"});
+  String get lesenComingSoonDesc => _t({'uz': "Bu daraja uchun materiallar tayyorlanmoqda", 'kaa': "Bul dareje ushın materiallar tayarlanıwda", 'ru': "Материалы для этого уровня готовятся", 'de': "Materialien für dieses Niveau werden vorbereitet"});
+  String get lesenA1LevelName => _t({'uz': "Boshlang'ich", 'kaa': "Baslanǵısh", 'ru': "Начальный", 'de': "Anfänger"});
+  String get lesenA2LevelName => _t({'uz': "Elementar", 'kaa': "Elementar", 'ru': "Элементарный", 'de': "Elementar"});
+  String get lesenB1LevelName => _t({'uz': "O'rta", 'kaa': "Orta", 'ru': "Средний", 'de': "Mittelstufe"});
+  String get lesenB2LevelName => _t({'uz': "O'rta-yuqori", 'kaa': "Orta-joqarı", 'ru': "Выше среднего", 'de': "Obere Mittelstufe"});
+  String get lesenTotalQuestions => _t({'uz': "Jami savollar", 'kaa': "Barlıq sorawlar", 'ru': "Всего вопросов", 'de': "Fragen gesamt"});
+  String get lesenCorrect => _t({'uz': "To'g'ri", 'kaa': "Durıs", 'ru': "Верно", 'de': "Richtig"});
+  String get lesenWrong => _t({'uz': "Xato", 'kaa': "Qáte", 'ru': "Неверно", 'de': "Falsch"});
+  String get lesenQuestion => _t({'uz': "Savol", 'kaa': "Soraw", 'ru': "Вопрос", 'de': "Frage"});
+  String get lesenText => _t({'uz': "Matn", 'kaa': "Tekst", 'ru': "Текст", 'de': "Text"});
+  String get lesenNextQuestion => _t({'uz': "Keyingi savol", 'kaa': "Keyingi soraw", 'ru': "Следующий вопрос", 'de': "Nächste Frage"});
+  String get lesenFinish => _t({'uz': "Yakunlash", 'kaa': "Juwmaqlaw", 'ru': "Завершить", 'de': "Beenden"});
+  String get lesenBack => _t({'uz': "Orqaga", 'kaa': "Artqa", 'ru': "Назад", 'de': "Zurück"});
+  String get lesenAnzeige => _t({'uz': "Reklama", 'kaa': "Reklama", 'ru': "Объявление", 'de': "Anzeige"});
+
+  // ── Sprechen (og'zaki nutq) ──────────────────────────────────────────────────
+  String get sprechenScreenTitle => _t({'uz': "Sprechen", 'kaa': "Sprechen", 'ru': "Sprechen", 'de': "Sprechen"});
+  String get sprechenSelectLevel => _t({'uz': "Daraja tanlang", 'kaa': "Dárejeni tańlań", 'ru': "Выберите уровень", 'de': "Niveau wählen"});
+  String get sprechenComingSoon => _t({'uz': "Tez kunda", 'kaa': "Tez arada", 'ru': "Скоро", 'de': "Demnächst"});
+  String get sprechenExercises => _t({'uz': "Gapirish mashqlari", 'kaa': "Sóylew mashqları", 'ru': "Упражнения по говорению", 'de': "Sprechübungen"});
+  String get sprechenTasks => _t({'uz': "topshiriq", 'kaa': "tapsırma", 'ru': "заданий", 'de': "Aufgaben"});
+  String get sprechenKeywords => _t({'uz': "Kalit so'zlar", 'kaa': "Gilt sózler", 'ru': "Ключевые слова", 'de': "Stichwörter"});
+  String get sprechenCandidate => _t({'uz': "Nomzod", 'kaa': "Kandidat", 'ru': "Кандидат", 'de': "Kandidat/in"});
+  String get sprechenTest => _t({'uz': "Test", 'kaa': "Test", 'ru': "Тест", 'de': "Test"});
+  String get sprechenExamples => _t({'uz': "Foydali iboralar", 'kaa': "Paydalı sózler", 'ru': "Полезные фразы", 'de': "Redemittel"});
+  String get sprechenSampleAnswer => _t({'uz': "Namuna javob (bosing)", 'kaa': "Úlgi juwap (basıń)", 'ru': "Образец ответа (нажмите)", 'de': "Musterlösung (tippen)"});
+
+  // ── Sprechen Teil 3: AI bilan reja qurish ─────────────────────────────────
+  String get sprechenPlanWithAi => _t({'uz': "AI bilan mashq qilish", 'kaa': "JI menen mashq qılıw", 'ru': "Практика с ИИ", 'de': "Mit KI üben"});
+  String get sprechenPlanWithAiHint => _t({'uz': "AI hamkor bilan birgalikda reja quring", 'kaa': "JI penen birgelikte reje qurıń", 'ru': "Составьте план вместе с ИИ-партнёром", 'de': "Planen Sie gemeinsam mit dem KI-Partner"});
+
+  // ── Sprechen audio yozish (recording) ────────────────────────────────────
+  String get sprechenRecord => _t({'uz': "Yozish", 'kaa': "Jazıw", 'ru': "Записать", 'de': "Aufnehmen"});
+  String get sprechenStop => _t({'uz': "To'xtatish", 'kaa': "Toqtatıw", 'ru': "Остановить", 'de': "Stopp"});
+  String get sprechenReRecord => _t({'uz': "Qayta yozish", 'kaa': "Qayta jazıw", 'ru': "Перезаписать", 'de': "Neu aufnehmen"});
+  String get sprechenPlay => _t({'uz': "Tinglash", 'kaa': "Tıńlaw", 'ru': "Прослушать", 'de': "Abspielen"});
+  String get sprechenPause => _t({'uz': "Pauza", 'kaa': "Pauza", 'ru': "Пауза", 'de': "Pause"});
+  String get sprechenSubmit => _t({'uz': "Baholashga yuborish", 'kaa': "Bahalawǵa jiberiw", 'ru': "Отправить на оценку", 'de': "Zur Bewertung senden"});
+  String get sprechenEvaluating => _t({'uz': "Baholanyapti...", 'kaa': "Bahalanıp atır...", 'ru': "Оценивается...", 'de': "Wird bewertet..."});
+  String get sprechenRecordingStatus => _t({'uz': "Yozilyapti...", 'kaa': "Jazılıp atır...", 'ru': "Идёт запись...", 'de': "Aufnahme läuft..."});
+  String get sprechenMaxLengthReached => _t({'uz': "Maksimal vaqt (4 daqiqa) tugadi.", 'kaa': "Maksimal waqıt (4 minut) tamam boldı.", 'ru': "Достигнут лимит (4 минуты).", 'de': "Maximale Länge (4 Minuten) erreicht."});
+  String get sprechenMicPermissionDenied => _t({'uz': "Yozish uchun mikrofon ruxsati kerak.", 'kaa': "Jazıw ushın mikrofon ruxsatı kerek.", 'ru': "Для записи нужен доступ к микрофону.", 'de': "Für die Aufnahme wird Mikrofonzugriff benötigt."});
+  String get sprechenMicPermissionSettings => _t({'uz': "Mikrofon ruxsati o'chirilgan. Sozlamalardan yoqing.", 'kaa': "Mikrofon ruxsatı óshirilgen. Sazlawlardan qosıń.", 'ru': "Доступ к микрофону отключён. Включите в настройках.", 'de': "Mikrofonzugriff ist deaktiviert. In den Einstellungen aktivieren."});
+  String get sprechenOpenSettings => _t({'uz': "Sozlamalarni ochish", 'kaa': "Sazlawlardı ashıw", 'ru': "Открыть настройки", 'de': "Einstellungen öffnen"});
+  String get sprechenRecordingUnavailable => _t({'uz': "Bu qurilmada audio yozish mavjud emas.", 'kaa': "Bul qurılmada audio jazıw joq.", 'ru': "Запись аудио недоступна на этом устройстве.", 'de': "Audioaufnahme ist auf diesem Gerät nicht verfügbar."});
+  String get sprechenRecordingError => _t({'uz': "Yozishni boshlab bo'lmadi. Qayta urinib ko'ring.", 'kaa': "Jazıwdı baslap bolmadı. Qayta urınıp kóriń.", 'ru': "Не удалось начать запись. Попробуйте снова.", 'de': "Aufnahme konnte nicht gestartet werden. Bitte erneut versuchen."});
+  String get sprechenUploadError => _t({'uz': "Yuborib bo'lmadi. Internetni tekshiring.", 'kaa': "Jiberip bolmadı. Internetti tekseriń.", 'ru': "Не удалось отправить. Проверьте интернет.", 'de': "Senden fehlgeschlagen. Internetverbindung prüfen."});
+  String get sprechenEvaluationError => _t({'uz': "Baholab bo'lmadi. Qayta urinib ko'ring.", 'kaa': "Bahalap bolmadı. Qayta urınıp kóriń.", 'ru': "Не удалось оценить. Попробуйте снова.", 'de': "Bewertung fehlgeschlagen. Bitte erneut versuchen."});
+  String get sprechenTimeoutError => _t({'uz': "Javob kelmadi. Qayta urinib ko'ring.", 'kaa': "Juwap kelmedi. Qayta urınıp kóriń.", 'ru': "Нет ответа. Попробуйте снова.", 'de': "Keine Antwort. Bitte erneut versuchen."});
+  String get sprechenRetry => _t({'uz': "Qayta urinish", 'kaa': "Qayta urınıw", 'ru': "Повторить", 'de': "Erneut versuchen"});
+  String get sprechenFeedbackTitle => _t({'uz': "AI bahosi", 'kaa': "AI bahası", 'ru': "Оценка ИИ", 'de': "KI-Bewertung"});
+  String get sprechenScore => _t({'uz': "Ball", 'kaa': "Ball", 'ru': "Балл", 'de': "Punktzahl"});
+  String get sprechenPronunciation => _t({'uz': "Talaffuz", 'kaa': "Talaffuz", 'ru': "Произношение", 'de': "Aussprache"});
+  String get sprechenFluency => _t({'uz': "Ravonlik", 'kaa': "Rawanlıq", 'ru': "Беглость", 'de': "Flüssigkeit"});
+  String get sprechenGrammar => _t({'uz': "Grammatika", 'kaa': "Grammatika", 'ru': "Грамматика", 'de': "Grammatik"});
+  String get sprechenContent => _t({'uz': "Mazmun", 'kaa': "Mazmun", 'ru': "Содержание", 'de': "Inhalt"});
+  String get sprechenOverall => _t({'uz': "Umumiy", 'kaa': "Ulıwma", 'ru': "Итог", 'de': "Gesamt"});
+  String get sprechenMockSubmitted => _t({
+    'uz': "Javobingiz qabul qilindi. Baho test yakunida ko'rinadi.",
+    'kaa': "Juwabıńız qabıl etildi. Baha test juwmaǵında kórinedi.",
+    'ru': "Ваш ответ принят. Оценка появится в конце теста.",
+    'de': "Ihre Antwort wurde erfasst. Die Bewertung erscheint am Ende des Tests.",
+  });
+  String get sprechenHint => _t({
+    'uz': "Bu bo'lim o'z-o'zini baholash uchun. Topshiriqni o'qing va ovoz chiqarib gapirib mashq qiling.",
+    'kaa': "Bul bólim óz-ózin bahalaw ushın. Tapsırmanı oqıń hám dawıslap sóylep mashıq qılıń.",
+    'ru': "Этот раздел для самостоятельной практики. Прочитайте задание и тренируйтесь говорить вслух.",
+    'de': "Dieser Bereich dient der Selbstübung. Lesen Sie die Aufgabe und üben Sie laut zu sprechen.",
+  });
+  String get sprechenA1LevelName => _t({'uz': "Boshlang'ich", 'kaa': "Baslawısh", 'ru': "Начальный", 'de': "Anfänger"});
+  String get sprechenA2LevelName => _t({'uz': "Elementar", 'kaa': "Elementar", 'ru': "Элементарный", 'de': "Grundlegend"});
+  String get sprechenB1LevelName => _t({'uz': "O'rta", 'kaa': "Orta", 'ru': "Средний", 'de': "Mittelstufe"});
+  String get sprechenB2LevelName => _t({'uz': "O'rta-yuqori", 'kaa': "Orta-joqarı", 'ru': "Выше среднего", 'de': "Gute Mittelstufe"});
+  String get lesenImageError => _t({'uz': "Rasm yuklanmadi", 'kaa': "Súwret júklenbedi", 'ru': "Изображение не загрузилось", 'de': "Bild konnte nicht geladen werden"});
+  // ── Lesen B1 (TELC) ────────────────────────────────────────────────────────
+  String get lesenB1Teil1Title => _t({'uz': "Teil 1 – Sarlavhalar", 'kaa': "Teil 1 – Atamalar", 'ru': "Teil 1 – Заголовки", 'de': "Teil 1 – Überschriften"});
+  String get lesenB1Teil1Desc => _t({'uz': "Qisqa matnni o'qing va unga mos sarlavhani tanlang (Globalverstehen).", 'kaa': "Qısqa tekstti oqıń hám oǵan say atamanı tańlań (Globalverstehen).", 'ru': "Прочитайте короткий текст и выберите подходящий заголовок (Globalverstehen).", 'de': "Lesen Sie den kurzen Text und wählen Sie die passende Überschrift (Globalverstehen)."});
+  String get lesenB1Teil1Note => _t({'uz': "5 ta matn, har biriga 1 ta sarlavha", 'kaa': "5 tekst, hár birine 1 atama", 'ru': "5 текстов, к каждому 1 заголовок", 'de': "5 Texte, je eine Überschrift"});
+  String get lesenB1Teil2Title => _t({'uz': "Teil 2 – Matnni tushunish", 'kaa': "Teil 2 – Tekstti túsiniw", 'ru': "Teil 2 – Понимание текста", 'de': "Teil 2 – Detailverstehen"});
+  String get lesenB1Teil2Desc => _t({'uz': "Uzun matnni o'qing va savollarga javob bering (Detailverstehen).", 'kaa': "Uzın tekstti oqıń hám sorawlarǵa jawap beriń (Detailverstehen).", 'ru': "Прочитайте длинный текст и ответьте на вопросы (Detailverstehen).", 'de': "Lesen Sie den langen Text und beantworten Sie die Fragen (Detailverstehen)."});
+  String get lesenB1Teil2Note => _t({'uz': "1 ta matn, 5 ta savol (a/b/c)", 'kaa': "1 tekst, 5 soraw (a/b/c)", 'ru': "1 текст, 5 вопросов (a/b/c)", 'de': "1 Text, 5 Fragen (a/b/c)"});
+  String get lesenB1Teil3Title => _t({'uz': "Teil 3 – E'lonlar", 'kaa': "Teil 3 – Xabarlar", 'ru': "Teil 3 – Объявления", 'de': "Teil 3 – Anzeigen"});
+  String get lesenB1Teil3Desc => _t({'uz': "Vaziyatni o'qing va unga mos e'lonni tanlang (Selektives Verstehen).", 'kaa': "Jaǵdaydı oqıń hám oǵan say xabarnı tańlań (Selektives Verstehen).", 'ru': "Прочитайте ситуацию и выберите подходящее объявление (Selektives Verstehen).", 'de': "Lesen Sie die Situation und wählen Sie die passende Anzeige (Selektives Verstehen)."});
+  String get lesenB1Teil3Note => _t({'uz': "10 ta vaziyat, har biriga 1 ta e'lon", 'kaa': "10 jaǵday, hár birine 1 xabar", 'ru': "10 ситуаций, к каждой 1 объявление", 'de': "10 Situationen, je eine Anzeige"});
+  // ── Sprachbausteine (Lesen blokining bir qismi) ─────────────────────────────
+  String get lesenSprachbausteine => _t({'uz': "Sprachbausteine", 'kaa': "Sprachbausteine", 'ru': "Sprachbausteine", 'de': "Sprachbausteine"});
+  String get lesenSprachbausteineDesc => _t({'uz': "Til elementlari — grammatika va lug'at (Lesen blokida)", 'kaa': "Til elementleri — grammatika hám lúǵat (Lesen blokında)", 'ru': "Языковые элементы — грамматика и лексика (в блоке Lesen)", 'de': "Sprachbausteine — Grammatik und Wortschatz (im Lesen-Teil)"});
+  String get lesenB1Teil4Title => _t({'uz': "Teil 1 – Grammatika", 'kaa': "Teil 1 – Grammatika", 'ru': "Teil 1 – Грамматика", 'de': "Teil 1 – Grammatik"});
+  String get lesenB1Teil4Desc => _t({'uz': "Matndagi bo'sh joylarga to'g'ri grammatik shaklni tanlang.", 'kaa': "Tekstegi bos orınlarǵa durıs grammatikalıq forманı tańlań.", 'ru': "Выберите правильную грамматическую форму для пропусков в тексте.", 'de': "Wählen Sie die richtige grammatische Form für die Lücken im Text."});
+  String get lesenB1Teil4Note => _t({'uz': "1 ta matn, 10 ta bo'sh joy (a/b/c)", 'kaa': "1 tekst, 10 bos orın (a/b/c)", 'ru': "1 текст, 10 пропусков (a/b/c)", 'de': "1 Text, 10 Lücken (a/b/c)"});
+  String get lesenB1Teil5Title => _t({'uz': "Teil 2 – Lug'at", 'kaa': "Teil 2 – Lúǵat", 'ru': "Teil 2 – Лексика", 'de': "Teil 2 – Wortschatz"});
+  String get lesenB1Teil5Desc => _t({'uz': "Matndagi bo'sh joylarga ro'yxatdan mos so'zni tanlang.", 'kaa': "Tekstegi bos orınlarǵa dizimnen say sózdi tańlań.", 'ru': "Выберите подходящее слово из списка для пропусков в тексте.", 'de': "Wählen Sie das passende Wort aus der Liste für die Lücken im Text."});
+  String get lesenB1Teil5Note => _t({'uz': "1 ta matn, 10 ta bo'sh joy, 15 ta so'z", 'kaa': "1 tekst, 10 bos orın, 15 sóz", 'ru': "1 текст, 10 пропусков, 15 слов", 'de': "1 Text, 10 Lücken, 15 Wörter"});
+
+  // ── Study Time Statistics ────────────────────────────────────────────────────
+  String get studyTime => _t({
+    'uz': "O'qish vaqti",
+    'kaa': "Oqıw waqtı",
+    'ru': "Время учёбы",
+    'de': "Lernzeit",
+  });
+
+  String get today => _t({
+    'uz': "Bugun",
+    'kaa': "Búgin",
+    'ru': "Сегодня",
+    'de': "Heute",
+  });
+
+  String get weeklyStatistics => _t({
+    'uz': "Haftalik statistika",
+    'kaa': "Aptasına statistika",
+    'ru': "Недельная статистика",
+    'de': "Wochenstatistik",
+  });
+
+  String get noStudyTimeRecorded => _t({
+    'uz': "Hali o'qish vaqti yozilmagan",
+    'kaa': "Ele oqıw waqtı jazılmaǵan",
+    'ru': "Время учёбы ещё не записано",
+    'de': "Noch keine Lernzeit erfasst",
+  });
+
+  String minutesFormat(int minutes) => _t({
+    'uz': "$minutes daqiqa",
+    'kaa': "$minutes minut",
+    'ru': "$minutes мин",
+    'de': "$minutes Min",
+  });
+
+  String hoursFormat(int hours) => _t({
+    'uz': "$hours soat",
+    'kaa': "$hours saat",
+    'ru': "$hours ч",
+    'de': "$hours Std",
+  });
+
+  String hoursMinutesFormat(int hours, int minutes) => _t({
+    'uz': "$hours soat $minutes daqiqa",
+    'kaa': "$hours saat $minutes minut",
+    'ru': "$hours ч $minutes мин",
+    'de': "$hours Std $minutes Min",
+  });
+
+  // ── Leaderboard ────────────────────────────────────────────────────────────
+  String get bnTiyin => _t({
+    'uz': "BN-Tiyin",
+    'kaa': "BN-Tiyin",
+    'ru': "BN-Tiyin",
+    'de': "BN-Tiyin",
+  });
+
+  String get lesen => _t({
+    'uz': "Lesen",
+    'kaa': "Lesen",
+    'ru': "Lesen",
+    'de': "Lesen",
+  });
+
+  String get horen => _t({
+    'uz': "Hören",
+    'kaa': "Hören",
+    'ru': "Hören",
+    'de': "Hören",
+  });
+
+  String get mockTest => _t({
+    'uz': "Mock Test",
+    'kaa': "Mock Test",
+    'ru': "Mock Test",
+    'de': "Mock Test",
+  });
+
+  String get stars => _t({
+    'uz': "Yulduzlar",
+    'kaa': "Juldızlar",
+    'ru': "Звёзды",
+    'de': "Sterne",
+  });
+
+  String get checkInternet => _t({
+    'uz': "Internet ulanishini tekshiring",
+    'kaa': "Internet baylanısın tekseriń",
+    'ru': "Проверьте подключение к интернету",
+    'de': "Überprüfen Sie Ihre Internetverbindung",
+  });
+
+  String get retryButton => _t({
+    'uz': "Qayta urinish",
+    'kaa': "Qayta urınıw",
+    'ru': "Повторить",
+    'de': "Erneut versuchen",
+  });
+
+  // ── Additional localization keys ───────────────────────────────────────────
+  String get customLessonTypeHint => _t({
+    'uz': "Yoki o'zingiz yozing (Masalan: Imtihon)",
+    'kaa': "Yamasa ózińiz jazıń (Mysal: Imtihan)",
+    'ru': "Или введите свой (Например: Экзамен)",
+    'de': "Oder eigenen eingeben (z.B.: Prüfung)",
+  });
+  String get noWordsYet => _t({
+    'uz': "Sizda hali so'zlar yo'q",
+    'kaa': "Sizde ele sózler joq",
+    'ru': "У вас пока нет слов",
+    'de': "Sie haben noch keine Wörter",
+  });
+  String get learningStageLabel => _t({
+    'uz': "O'rganish bosqichi",
+    'kaa': "Úyreniw basqıshı",
+    'ru': "Этап изучения",
+    'de': "Lernstufe",
+  });
+  String get vocabStage1Desc => _t({
+    'uz': "Darslikdan yangi so'zlar qo'shing — ular shu yerda saqlanadi.",
+    'kaa': "Sabaqtan jańa sózler qosıń — olar usı jerde saqlanadı.",
+    'ru': "Добавляйте новые слова из учебника — они сохранятся здесь.",
+    'de': "Fügen Sie neue Wörter aus dem Lehrbuch hinzu — sie werden hier gespeichert.",
+  });
+  String get vocabStage2Desc => _t({
+    'uz': "So'zlarni o'rganishni boshlasangiz, ular \"O'rganilayotgan so'zlar\" bo'limida saqlanadi.",
+    'kaa': "Sózlerdi úyreniwdi baslasańız, olar \"Úyrenilip atırǵan sózler\" bóliminde saqlanadı.",
+    'ru': "Когда начнёте учить слова, они появятся в разделе \"Изучаемые слова\".",
+    'de': "Wenn Sie anfangen zu lernen, erscheinen sie im Bereich \"Lernende Wörter\".",
+  });
+  String get vocabStage3Desc => _t({
+    'uz': "To'liq o'zlashtirilgan so'zlar \"Hamma so'zlar\" bo'limiga o'tadi.",
+    'kaa': "Tolıq ózlestirgen sózler \"Barlıq sózler\" bólimine óted.",
+    'ru': "Полностью выученные слова перейдут в раздел \"Все слова\".",
+    'de': "Vollständig gelernte Wörter werden in den Bereich \"Alle Wörter\" verschoben.",
+  });
+  String get accentColorLabel => _t({
+    'uz': "Asosiy rang",
+    'kaa': "Tiykarǵı reń",
+    'ru': "Основной цвет",
+    'de': "Akzentfarbe",
+  });
+  String get noAttendanceDataYet => _t({
+    'uz': "Hali davomat ma'lumoti yo'q",
+    'kaa': "Ele qatnas maǵlıwmatı joq",
+    'ru': "Данных о посещаемости пока нет",
+    'de': "Noch keine Anwesenheitsdaten",
+  });
+  String get noLessonsInFilter => _t({
+    'uz': "Bu filtrdagi darslar yo'q",
+    'kaa': "Bul filtrdegi sabaqlar joq",
+    'ru': "Нет уроков в этом фильтре",
+    'de': "Keine Stunden in diesem Filter",
+  });
+
+  // ── Mock Test (B1) — runner ─────────────────────────────────────────────────
+  String get mockNextTeil => _t({
+    'uz': "Keyingi",
+    'kaa': "Keyingi",
+    'ru': "Далее",
+    'de': "Weiter",
+  });
+  String get mockPreviousTeil => _t({
+    'uz': "Oldingi",
+    'kaa': "Aldıńǵı",
+    'ru': "Назад",
+    'de': "Zurück",
+  });
+  String get mockFinishTest => _t({
+    'uz': "Yakunlash",
+    'kaa': "Juwmaqlaw",
+    'ru': "Завершить",
+    'de': "Abschließen",
+  });
+  String get mockExitTitle => _t({
+    'uz': "Testdan chiqasizmi?",
+    'kaa': "Testten shıǵasızba?",
+    'ru': "Выйти из теста?",
+    'de': "Test verlassen?",
+  });
+  String get mockExitMessage => _t({
+    'uz': "Agar chiqsangiz, joriy urinish bekor qilinadi va javoblaringiz saqlanmaydi.",
+    'kaa': "Eger shıqsańız, házirgi urınıs biykarlanadı hám juwaplarıńız saqlanbaydı.",
+    'ru': "Если вы выйдете, текущая попытка будет отменена, а ваши ответы не сохранятся.",
+    'de': "Wenn Sie den Test verlassen, wird der aktuelle Versuch verworfen und Ihre Antworten gehen verloren.",
+  });
+  String get mockExitStay => _t({
+    'uz': "Davom etish",
+    'kaa': "Dawam etiw",
+    'ru': "Продолжить",
+    'de': "Fortfahren",
+  });
+  String get mockExitLeave => _t({
+    'uz': "Chiqish",
+    'kaa': "Shıǵıw",
+    'ru': "Выйти",
+    'de': "Verlassen",
+  });
+
+  // ── Mock Test (B1) — redesign (overview / timer / review) ───────────────────
+  String get mockOverviewTitle => _t({
+    'uz': "Imtihon tuzilishi",
+    'kaa': "Imtixan dúzilisi",
+    'ru': "Структура экзамена",
+    'de': "Prüfungsstruktur",
+  });
+  String get mockTimerLabel => _t({
+    'uz': "Qolgan vaqt",
+    'kaa': "Qalǵan waqıt",
+    'ru': "Оставшееся время",
+    'de': "Verbleibende Zeit",
+  });
+  String get mockTimerExpired => _t({
+    'uz': "Vaqt tugadi",
+    'kaa': "Waqıt tamam boldı",
+    'ru': "Время вышло",
+    'de': "Zeit abgelaufen",
+  });
+  String get mockReviewTitle => _t({
+    'uz': "Javoblarni ko'rib chiqish",
+    'kaa': "Juwaplardı kórip shıǵıw",
+    'ru': "Разбор ответов",
+    'de': "Antworten überprüfen",
+  });
+  String get mockReviewYourAnswer => _t({
+    'uz': "Sizning javobingiz",
+    'kaa': "Sizdiń juwabıńız",
+    'ru': "Ваш ответ",
+    'de': "Ihre Antwort",
+  });
+  String get mockReviewCorrectAnswer => _t({
+    'uz': "To'g'ri javob",
+    'kaa': "Durıs juwap",
+    'ru': "Правильный ответ",
+    'de': "Richtige Antwort",
+  });
+  String get mockReviewUnanswered => _t({
+    'uz': "Javob berilmagan",
+    'kaa': "Juwap berilmegen",
+    'ru': "Нет ответа",
+    'de': "Nicht beantwortet",
+  });
+  String get mockExitTooltip => _t({
+    'uz': "Testdan chiqish",
+    'kaa': "Testten shıǵıw",
+    'ru': "Выйти из теста",
+    'de': "Test verlassen",
+  });
+
+  // ── Mock Test (B1) — intro screen ───────────────────────────────────────────
+  String get mockTestIntroTitle => _t({
+    'uz': "B1 sinov imtihoni",
+    'kaa': "B1 sınaq imtixanı",
+    'ru': "Пробный экзамен B1",
+    'de': "B1 Übungsprüfung",
+  });
+  String get mockTestIntroSubtitle => _t({
+    'uz': "TELC Deutsch B1 imtihonining to'liq mashqi. Har bir bo'lim mavjud darslardan tasodifiy tanlanadi.",
+    'kaa': "TELC Deutsch B1 imtixanınıń tolıq shınıǵıwı. Hár bir bólim bar sabaqlardan tosınnan tańlanadı.",
+    'ru': "Полная практика экзамена TELC Deutsch B1. Каждый раздел случайно выбирается из имеющихся уроков.",
+    'de': "Eine vollständige Übung der Prüfung TELC Deutsch B1. Jeder Teil wird zufällig aus vorhandenen Lektionen ausgewählt.",
+  });
+  String get mockTestTimingTitle => _t({
+    'uz': "Vaqt va ballar",
+    'kaa': "Waqıt hám ballar",
+    'ru': "Время и баллы",
+    'de': "Zeit und Punkte",
+  });
+  String get mockTestPointsSuffix => _t({
+    'uz': "ball",
+    'kaa': "ball",
+    'ru': "балл",
+    'de': "Punkte",
+  });
+  String get mockTestTotalLabel => _t({
+    'uz': "Jami",
+    'kaa': "Jámi",
+    'ru': "Всего",
+    'de': "Gesamt",
+  });
+  String get mockTestDurationReading => _t({
+    'uz': "90 daqiqa (birgalikda)",
+    'kaa': "90 minut (birgelikte)",
+    'ru': "90 минут (вместе)",
+    'de': "90 Minuten (zusammen)",
+  });
+  String get mockTestDurationListening => _t({
+    'uz': "≈30 daqiqa (audio davomida)",
+    'kaa': "≈30 minut (audio dawamında)",
+    'ru': "≈30 минут (аудио)",
+    'de': "≈30 Minuten (Hördauer)",
+  });
+  String get mockTestDurationWriting => _t({
+    'uz': "30 daqiqa",
+    'kaa': "30 minut",
+    'ru': "30 минут",
+    'de': "30 Minuten",
+  });
+  String get mockTestDurationSpeaking => _t({
+    'uz': "20 daq tayyorgarlik + 15 daq gapirish",
+    'kaa': "20 min tayarlıq + 15 min sóylew",
+    'ru': "20 мин подготовка + 15 мин говорение",
+    'de': "20 Min Vorbereitung + 15 Min Sprechen",
+  });
+  String get mockTestStartButton => _t({
+    'uz': "Boshlash",
+    'kaa': "Baslaw",
+    'ru': "Начать",
+    'de': "Starten",
+  });
+  String get mockTestCannotAssemble => _t({
+    'uz': "Imtihonni tuzib bo'lmadi: ba'zi bo'limlar uchun yetarli material yo'q.",
+    'kaa': "Imtixandı dúziw múmkin bolmadı: ayırım bólimler ushın jeterli material joq.",
+    'ru': "Не удалось собрать экзамен: для некоторых разделов недостаточно материала.",
+    'de': "Die Prüfung kann nicht zusammengestellt werden: Für einige Teile fehlt das Material.",
+  });
+
+  // ── Mock Test (B1) — result screen ──────────────────────────────────────────
+  String get mockResultTitle => _t({
+    'uz': "Natijalar",
+    'kaa': "Nátiyjeler",
+    'ru': "Результаты",
+    'de': "Ergebnisse",
+  });
+  String get mockResultSubtitle => _t({
+    'uz': "TELC Deutsch B1 ballariga moslashtirilgan",
+    'kaa': "TELC Deutsch B1 ballarına say keltirilgen",
+    'ru': "Приведено к баллам TELC Deutsch B1",
+    'de': "Normiert auf die TELC-Deutsch-B1-Punkte",
+  });
+  String get mockResultSectionsTitle => _t({
+    'uz': "Bo'limlar bo'yicha ballar",
+    'kaa': "Bólimler boyınsha ballar",
+    'ru': "Баллы по разделам",
+    'de': "Punkte nach Teilen",
+  });
+  String get mockResultWrittenLabel => _t({
+    'uz': "Yozma qism",
+    'kaa': "Jazıw bólimi",
+    'ru': "Письменная часть",
+    'de': "Schriftlicher Teil",
+  });
+  String get mockResultOralLabel => _t({
+    'uz': "Og'zaki qism",
+    'kaa': "Awızsha bólim",
+    'ru': "Устная часть",
+    'de': "Mündlicher Teil",
+  });
+  String get mockResultPassed => _t({
+    'uz': "O'tdi",
+    'kaa': "Ótti",
+    'ru': "Сдано",
+    'de': "Bestanden",
+  });
+  String get mockResultFailed => _t({
+    'uz': "O'tmadi",
+    'kaa': "Ótpedi",
+    'ru': "Не сдано",
+    'de': "Nicht bestanden",
+  });
+  String get mockResultUnavailable => _t({
+    'uz': "Baholash mavjud emas",
+    'kaa': "Bahalaw qoljetimsiz",
+    'ru': "Оценка недоступна",
+    'de': "Bewertung nicht verfügbar",
+  });
+  String get mockResultDoneButton => _t({
+    'uz': "Tugatish",
+    'kaa': "Tamamlaw",
+    'ru': "Готово",
+    'de': "Fertig",
+  });
+  String get mockResultOverallPassed => _t({
+    'uz': "Imtihon topshirildi",
+    'kaa': "Imtixan tapsırıldı",
+    'ru': "Экзамен сдан",
+    'de': "Prüfung bestanden",
+  });
+  String get mockResultOverallFailed => _t({
+    'uz': "Imtihon topshirilmadi",
+    'kaa': "Imtixan tapsırılmadı",
+    'ru': "Экзамен не сдан",
+    'de': "Prüfung nicht bestanden",
+  });
+  String get mockResultGradeLabel => _t({
+    'uz': "Baho",
+    'kaa': "Baha",
+    'ru': "Оценка",
+    'de': "Note",
+  });
+  String get mockResultPassRule => _t({
+    'uz': "O'tish uchun yozma va og'zaki qismlarning HAR BIRIDA kamida 60% (135 va 45 ball) kerak.",
+    'kaa': "Ótiw ushın jazıw hám awızsha bólimlerdiń HÁR BIRINDE keminde 60% (135 hám 45 ball) kerek.",
+    'ru': "Для сдачи нужно набрать минимум 60% в КАЖДОЙ части — письменной и устной (135 и 45 баллов).",
+    'de': "Zum Bestehen sind in BEIDEN Teilen — schriftlich und mündlich — mindestens 60 % nötig (135 und 45 Punkte).",
+  });
+
+  // ── Mock Test (B1) — Schreiben section view ─────────────────────────────────
+  String get mockSchreibenEvalError => _t({
+    'uz': "Baholashni yakunlab bo'lmadi. Keyingi bo'limga o'tib, qolgan natijalarni ko'rishingiz mumkin.",
+    'kaa': "Bahalawdı tamamlaw múmkin bolmadı. Keyingi bólimge ótip, qalǵan nátiyjelerdi kóriwińiz múmkin.",
+    'ru': "Не удалось завершить оценку. Вы можете перейти к следующему разделу и посмотреть остальные результаты.",
+    'de': "Die Bewertung konnte nicht abgeschlossen werden. Sie können mit dem nächsten Teil fortfahren und die übrigen Ergebnisse ansehen.",
+  });
+  String get mockSchreibenRetry => _t({
+    'uz': "Qayta urinish",
+    'kaa': "Qayta urınıw",
+    'ru': "Повторить",
+    'de': "Erneut versuchen",
+  });
+
+  // ── Mock Test (B1) — Sprechen section view ──────────────────────────────────
+  String get mockSprechenInstruction => _t({
+    'uz': "Har bir topshiriq uchun javobingizni ovozda yozib, baholash uchun yuboring.",
+    'kaa': "Hár bir tapsırma ushın juwabıńızdı dawısqa jazıp, bahalaw ushın jiberiń.",
+    'ru': "Запишите устный ответ для каждого задания и отправьте его на оценку.",
+    'de': "Nehmen Sie für jede Aufgabe Ihre Antwort auf und senden Sie sie zur Bewertung.",
+  });
+  String get mockSprechenThemaLabel => _t({
+    'uz': "Mavzu",
+    'kaa': "Tema",
+    'ru': "Тема",
+    'de': "Thema",
+  });
+  String get mockSprechenUnavailable => _t({
+    'uz': "Og'zaki javob baholanmadi. Keyingi bo'limga o'tib, qolgan natijalarni ko'rishingiz mumkin.",
+    'kaa': "Awızsha juwap bahalanbadı. Keyingi bólimge ótip, qalǵan nátiyjelerdi kóriwińiz múmkin.",
+    'ru': "Устный ответ не был оценён. Вы можете перейти к следующему разделу и посмотреть остальные результаты.",
+    'de': "Die mündliche Antwort wurde nicht bewertet. Sie können mit dem nächsten Teil fortfahren und die übrigen Ergebnisse ansehen.",
+  });
+
+  // ── Mock Test — Sprechen Teil 3 (Gemeinsam planen, AI hamkor bilan chat) ────
+  String get mockPlanungInstruction => _t({
+    'uz': "Hamkoringiz (AI) bilan yozishmalar orqali birgalikda rejalashtiring. Barcha nuqtalarni muhokama qilib bo'lgach, \"Yakunlash va baholash\" tugmasini bosing.",
+    'kaa': "Hámkorińiz (AI) menen jazısıwlar arqalı birge rejalastırıń. Barlıq noqatlardı dodalap bolǵannan keyin, \"Juwmaqlaw hám bahalaw\" túymesin basıń.",
+    'ru': "Планируйте вместе с партнёром (ИИ) в переписке. После обсуждения всех пунктов нажмите «Завершить и оценить».",
+    'de': "Planen Sie gemeinsam mit Ihrem Partner (KI) im Chat. Wenn Sie alle Punkte besprochen haben, tippen Sie auf „Beenden und bewerten“.",
+  });
+  String get mockPlanungPartnerLabel => _t({
+    'uz': "Hamkor (AI)",
+    'kaa': "Hámkor (AI)",
+    'ru': "Партнёр (ИИ)",
+    'de': "Partner (KI)",
+  });
+  String get mockPlanungInputHint => _t({
+    'uz': "Javobingizni nemis tilida yozing...",
+    'kaa': "Juwabıńızdı nemis tilinde jazıń...",
+    'ru': "Напишите ответ на немецком...",
+    'de': "Antwort auf Deutsch schreiben...",
+  });
+  String get mockPlanungFinish => _t({
+    'uz': "Yakunlash va baholash",
+    'kaa': "Juwmaqlaw hám bahalaw",
+    'ru': "Завершить и оценить",
+    'de': "Beenden und bewerten",
+  });
+  String get mockPlanungEvaluating => _t({
+    'uz': "Suhbat baholanmoqda...",
+    'kaa': "Sáwbet bahalanbaqta...",
+    'ru': "Оценивание разговора...",
+    'de': "Das Gespräch wird bewertet...",
+  });
+  String get mockPlanungDone => _t({
+    'uz': "Suhbat baholandi. To'liq natijani test yakunida ko'rasiz.",
+    'kaa': "Sáwbet bahalandı. Tolıq nátiyjeni test juwmaǵında kóresiz.",
+    'ru': "Разговор оценён. Полный результат вы увидите в конце теста.",
+    'de': "Das Gespräch wurde bewertet. Das vollständige Ergebnis sehen Sie am Ende des Tests.",
+  });
+  String get mockPlanungError => _t({
+    'uz': "Baholab bo'lmadi. Internetni tekshiring va qayta urinib ko'ring.",
+    'kaa': "Bahalaw múmkin bolmadı. Internetti tekseriń hám qayta urınıp kóriń.",
+    'ru': "Не удалось оценить. Проверьте интернет и попробуйте снова.",
+    'de': "Bewertung fehlgeschlagen. Prüfen Sie das Internet und versuchen Sie es erneut.",
+  });
+  String get mockPlanungConfirmTitle => _t({
+    'uz': "Suhbatni yakunlash",
+    'kaa': "Sáwbetti juwmaqlaw",
+    'ru': "Завершить разговор",
+    'de': "Gespräch beenden",
+  });
+  String get mockPlanungConfirmBody => _t({
+    'uz': "Suhbatni yakunlab, baholashni boshlaymizmi? Yakunlagandan keyin yozib bo'lmaydi.",
+    'kaa': "Sáwbetti juwmaqlap, bahalawdı baslaymız ba? Juwmaqlaǵannan keyin jazıp bolmaydı.",
+    'ru': "Завершить разговор и начать оценку? После завершения писать нельзя.",
+    'de': "Gespräch beenden und mit der Bewertung beginnen? Danach können Sie nicht mehr schreiben.",
+  });
+
+  // ── Mock Test — landing (level selector) screen ─────────────────────────────
+  String get mockLandingSubtitle => _t({
+    'uz': "Bilimingizni sinab ko'ring",
+    'kaa': "Bilimińizdi sınań",
+    'ru': "Проверьте свои знания",
+    'de': "Testen Sie Ihr Wissen",
+  });
+  String get mockLevelDescA1 => _t({
+    'uz': "Oddiy so'zlar, asosiy grammatika",
+    'kaa': "Ápiwayı sózler, tiykarǵı grammatika",
+    'ru': "Простые слова, базовая грамматика",
+    'de': "Einfache Wörter, Grundgrammatik",
+  });
+  String get mockLevelDescA2 => _t({
+    'uz': "Kundalik suhbat, kengaytirilgan grammatika",
+    'kaa': "Kúndelik sóylesiw, keńeytirilgen grammatika",
+    'ru': "Повседневный разговор, расширенная грамматика",
+    'de': "Alltagsgespräche, erweiterte Grammatik",
+  });
+  String get mockLevelDescB1 => _t({
+    'uz': "Murakkab jumlalar, keng lug'at",
+    'kaa': "Quramalı gápler, keń sózlik",
+    'ru': "Сложные предложения, широкий словарь",
+    'de': "Komplexe Sätze, großer Wortschatz",
+  });
+  String get mockLevelDescB2 => _t({
+    'uz': "Ilg'or grammatika, akademik til",
+    'kaa': "Joqarı grammatika, akademiyalıq til",
+    'ru': "Продвинутая грамматика, академический язык",
+    'de': "Fortgeschrittene Grammatik, akademische Sprache",
+  });
+  String mockQuestionsLabel(int n) {
+    final template = _t({
+      'uz': '{n} savol',
+      'kaa': '{n} soraw',
+      'ru': '{n} вопр.',
+      'de': '{n} Fragen',
+    });
+    return template.replaceAll('{n}', '$n');
+  }
+  String get mockHowItWorks => _t({
+    'uz': "Qanday ishlaydi",
+    'kaa': "Qalay isleydi",
+    'ru': "Как это работает",
+    'de': "So funktioniert es",
+  });
+  String get mockStep1Desc => _t({
+    'uz': "O'zingizga mos A1–B2 darajasini tanlang",
+    'kaa': "Ózińizge say A1–B2 dárejesin tańlań",
+    'ru': "Выберите подходящий уровень A1–B2",
+    'de': "Wählen Sie Ihr passendes Niveau A1–B2",
+  });
+  String get mockStep2Title => _t({
+    'uz': "Savollarni javoblang",
+    'kaa': "Sorawlarǵa juwap beriń",
+    'ru': "Отвечайте на вопросы",
+    'de': "Beantworten Sie die Fragen",
+  });
+  String get mockStep2Desc => _t({
+    'uz': "Har bir savol uchun to'g'ri javobni belgilang",
+    'kaa': "Hár bir soraw ushın durıs juwaptı belgileń",
+    'ru': "Отметьте правильный ответ для каждого вопроса",
+    'de': "Markieren Sie für jede Frage die richtige Antwort",
+  });
+  String get mockStep3Title => _t({
+    'uz': "Natijani ko'ring",
+    'kaa': "Nátiyjeni kóriń",
+    'ru': "Посмотрите результат",
+    'de': "Sehen Sie das Ergebnis",
+  });
+  String get mockStep3Desc => _t({
+    'uz': "Test yakunida batafsil tahlil va ball ko'rsatiladi",
+    'kaa': "Test sońında tolıq talqılaw hám ball kórsetiledi",
+    'ru': "В конце теста показываются подробный разбор и баллы",
+    'de': "Am Ende des Tests werden eine ausführliche Analyse und Punkte angezeigt",
+  });
+  String get mockComingSoonShort => _t({
+    'uz': "Tez kunda",
+    'kaa': "Tez arada",
+    'ru': "Скоро",
+    'de': "Demnächst",
+  });
+  String get mockComingSoonNotice => _t({
+    'uz': "Mock test tizimi hozirda ishlab chiqilmoqda. Yaqin orada faol bo'ladi!",
+    'kaa': "Mock test sisteması házir islep shıǵılıp atır. Jaqın arada iske túsedi!",
+    'ru': "Система пробного теста сейчас в разработке. Скоро будет доступна!",
+    'de': "Das Mock-Test-System wird derzeit entwickelt. Es ist bald verfügbar!",
+  });
+  String get mockComingSoonTitle => _t({
+    'uz': "Tez kunda!",
+    'kaa': "Tez arada!",
+    'ru': "Скоро!",
+    'de': "Demnächst!",
+  });
+  String get mockComingSoonDialogMsg => _t({
+    'uz': "Bu daraja uchun mock test hozirda tayyorlanmoqda. Yaqin orada faol bo'ladi!",
+    'kaa': "Bul dáreje ushın mock test házir tayarlanıp atır. Jaqın arada iske túsedi!",
+    'ru': "Пробный тест для этого уровня сейчас готовится. Скоро будет доступен!",
+    'de': "Der Mock-Test für dieses Niveau wird gerade vorbereitet. Er ist bald verfügbar!",
+  });
+  String get understood => _t({
+    'uz': "Tushunarli",
+    'kaa': "Túsinikli",
+    'ru': "Понятно",
+    'de': "Verstanden",
+  });
+
+  // ── Games — shared labels ───────────────────────────────────────────────────
+  String get wordsLoading => _t({
+    'uz': "So'zlar yuklanmoqda...",
+    'kaa': "Sózler júklenip atır...",
+    'ru': "Загрузка слов...",
+    'de': "Wörter werden geladen...",
+  });
+  String get gameOver => _t({
+    'uz': "O'yin tugadi!",
+    'kaa': "Oyın tamam!",
+    'ru': "Игра окончена!",
+    'de': "Spiel beendet!",
+  });
+  String get sessionFinished => _t({
+    'uz': "Sessiya tugadi!",
+    'kaa': "Sessiya tamam!",
+    'ru': "Сессия завершена!",
+    'de': "Sitzung beendet!",
+  });
+
+  // ── Mock Test — intro overview (Duration / Sections / Notes) ────────────────
+  String get mockTestDurationTitle => _t({
+    'uz': "Davomiyligi",
+    'kaa': "Dawamlılıǵı",
+    'ru': "Длительность",
+    'de': "Dauer",
+  });
+  String get mockTestSectionsHeader => _t({
+    'uz': "Bo'limlar",
+    'kaa': "Bólimler",
+    'ru': "Разделы",
+    'de': "Prüfungsteile",
+  });
+  String mockTestQuestionsCount(int n) {
+    final template = _t({
+      'uz': '{n} savol',
+      'kaa': '{n} soraw',
+      'ru': '{n} вопр.',
+      'de': '{n} Fragen',
+    });
+    return template.replaceAll('{n}', '$n');
+  }
+  String get mockTestImportantNotes => _t({
+    'uz': "Muhim eslatmalar",
+    'kaa': "Áhmiyetli eskertpeler",
+    'ru': "Важные замечания",
+    'de': "Wichtige Hinweise",
+  });
+  String get mockTestNoteTimer => _t({
+    'uz': "Vaqt imtihonni boshlaganingizdan hisoblana boshlaydi",
+    'kaa': "Waqıt imtixandı baslaǵanıńızdan esaplana baslaydı",
+    'ru': "Время начнёт идти, как только вы начнёте",
+    'de': "Die Zeit beginnt, sobald Sie starten",
+  });
+  String get mockTestNoteNavigate => _t({
+    'uz': "Savollar orasida erkin harakatlanishingiz mumkin",
+    'kaa': "Sorawlar arasında erkin háreketleniwińiz múmkin",
+    'ru': "Вы можете свободно перемещаться между вопросами",
+    'de': "Sie können sich frei zwischen den Fragen bewegen",
+  });
+  String get mockTestNoteSectionTime => _t({
+    'uz': "Har bir bo'lim uchun alohida vaqt beriladi",
+    'kaa': "Hár bir bólim ushın bólek waqıt beriledi",
+    'ru': "Для каждого раздела даётся отдельное время",
+    'de': "Für jeden Teil gibt es eine eigene Zeit",
+  });
+  String get mockTestNoteAutoSubmit => _t({
+    'uz': "Vaqt tugaganda test avtomatik yakunlanadi",
+    'kaa': "Waqıt tamam bolǵanda test avtomat túrde juwmaqlanadı",
+    'ru': "Когда время истечёт, тест завершится автоматически",
+    'de': "Wenn die Zeit abläuft, wird der Test automatisch abgegeben",
+  });
+  String get mockTestNoteInternet => _t({
+    'uz': "Internet aloqasi barqaror ekanligiga ishonch hosil qiling",
+    'kaa': "Internet baylanısı turaqlı ekenine isenim payda etiń",
+    'ru': "Убедитесь, что у вас стабильное интернет-соединение",
+    'de': "Stellen Sie sicher, dass Ihre Internetverbindung stabil ist",
+  });
+  String get mockTestNoteQuiet => _t({
+    'uz': "Test topshirish uchun tinch joy toping",
+    'kaa': "Test tapsırıw ushın tınısh orın tabıń",
+    'ru': "Найдите тихое место для прохождения теста",
+    'de': "Suchen Sie sich einen ruhigen Ort für den Test",
+  });
+  String get mockTestCancel => _t({
+    'uz': "Bekor qilish",
+    'kaa': "Biykarlaw",
+    'ru': "Отмена",
+    'de': "Abbrechen",
+  });
+  String get mockTestStartTest => _t({
+    'uz': "Testni boshlash",
+    'kaa': "Testti baslaw",
+    'ru': "Начать тест",
+    'de': "Test starten",
+  });
+
+  // ── Auth Errors ─────────────────────────────────────────────────────────────
+  String get authErrorUserNotFound => _t({
+    'uz': "Bunaqa foydalanuvchi yo'q",
+    'kaa': "Bunday paydalanıwshı joq",
+    'ru': "Пользователь не найден",
+    'de': "Benutzer nicht gefunden"
+  });
+  String get authErrorWrongPassword => _t({
+    'uz': "Parol noto'g'ri",
+    'kaa': "Parol nadurıs",
+    'ru': "Неверный пароль",
+    'de': "Falsches Passwort"
+  });
+  String get authErrorInvalidEmail => _t({
+    'uz': "Noto'g'ri email formati",
+    'kaa': "Nadurıs email formatı",
+    'ru': "Неверный формат email",
+    'de': "Ungültige E-Mail"
+  });
+  String get authErrorUserDisabled => _t({
+    'uz': "Foydalanuvchi bloklangan",
+    'kaa': "Paydalanıwshı bloklanǵan",
+    'ru': "Пользователь заблокирован",
+    'de': "Benutzer deaktiviert"
+  });
+  String get authErrorTooManyRequests => _t({
+    'uz': "Juda ko'p urinishlar. Birozdan so'ng qayta urinib ko'ring.",
+    'kaa': "Júdá kóp urınıslar. Birazdan soń qayta urınıp kóriń.",
+    'ru': "Слишком много попыток. Повторите позже.",
+    'de': "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
+  });
+  String get authErrorEmailAlreadyInUse => _t({
+    'uz': "Bu email allaqachon ro'yxatdan o'tgan",
+    'kaa': "Bul email burın dizimnen ótken",
+    'ru': "Этот email уже зарегистрирован",
+    'de': "Diese E-Mail ist bereits registriert"
+  });
+  String get authErrorWeakPassword => _t({
+    'uz': "Parol juda zaif",
+    'kaa': "Parol júdá ázzi",
+    'ru': "Пароль слишком слабый",
+    'de': "Passwort ist zu schwach"
+  });
+  String get noAccessToApp => _t({
+    'uz': "Bunaqa foydalanuvchi yo'q",
+    'kaa': "Bunday paydalanıwshı joq",
+    'ru': "Пользователь не найден",
+    'de': "Benutzer nicht gefunden"
+  });
+}
+

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "901891657911",
+    "project_id": "berlin-nukus-n1",
+    "storage_bucket": "berlin-nukus-n1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901891657911:android:853b595e6540bd7377fd32",
+        "android_client_info": {
+          "package_name": "com.example.berlin_nukus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "901891657911-niaa2pkrbtr3d5htrvamog1306dvhihd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.berlin_nukus",
+            "certificate_hash": "6995878f28227c5180bbe201a13212d223b13b2d"
+          }
+        },
+        {
+          "client_id": "901891657911-un0jqsg46o6i3chmm1q8657lsq8ck4do.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUkNeshTUAMZGhs8If8YH0F93SW2ekjIY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "901891657911-un0jqsg46o6i3chmm1q8657lsq8ck4do.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "901891657911-611t5vcc45ojg3limu7f92npl6sk0knv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.berlinNukus"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
